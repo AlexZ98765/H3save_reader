@@ -260,16 +260,29 @@ def format_town_type(val):
 # HERO BLOCK PARSER (h3sed-style)
 # ============================================================================
 
-def find_hero_blocks(raw: bytes) -> List[Dict]:
+def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
     """
     Ищет hero blocks используя эвристический поиск (h3sed-style, но с cp1251 name support).
     Проверяет валидность полей: faction, movement, level, attack/defense/power/knowledge,
     equipment pattern, spell bitmaps, skill levels.
+
+    Args:
+        raw:        decompressed save bytes
+        scan_start: byte offset to start scanning. If None, use header_size
+                    from header_parser (no hardcoded 0x100000).
     """
     heroes = []
     seen_offsets = set()
 
-    for i in range(0x100000, len(raw) - 1122):
+    if scan_start is None:
+        try:
+            from header_parser import parse_header
+            scan_start = parse_header(raw).header_size
+        except Exception:
+            scan_start = 0x400  # safe fallback (small maps have header_size ~0x258)
+    scan_start = max(scan_start, 0x100)  # at least 256 bytes
+
+    for i in range(scan_start, len(raw) - 1122):
         faction = raw[i]
         if faction > 7 and faction != 255:
             continue
@@ -468,12 +481,26 @@ def find_hero_blocks(raw: bytes) -> List[Dict]:
 # TOWN BLOCK PARSER (h3sed-style)
 # ============================================================================
 
-def find_town_blocks(raw: bytes, max_pos: int = None) -> List[Dict]:
+def find_town_blocks(raw: bytes, max_pos: int = None,
+                      scan_start: int = None) -> List[Dict]:
     """
     Ищет town blocks через h3sed TOWN_REGEX.
+
+    Args:
+        raw:        decompressed save bytes
+        max_pos:    upper bound for scan (default: len(raw))
+        scan_start: byte offset to start scanning. If None, use header_size
+                    from header_parser (no hardcoded 30000).
     """
     towns = []
-    pos = 30000
+    if scan_start is None:
+        try:
+            from header_parser import parse_header
+            scan_start = parse_header(raw).header_size
+        except Exception:
+            scan_start = 0x400  # safe fallback
+    scan_start = max(scan_start, 0x100)
+    pos = scan_start
     if max_pos is None:
         max_pos = len(raw)
 
@@ -1768,18 +1795,19 @@ class GM1ParserWindow(QMainWindow):
         """Dynamically compute save-file offsets for EVERY object by scanning
         the decompressed save for 3-byte coordinate sequences.
 
-        This replaces the static objects_with_offsets.json with a live scan
-        of the currently loaded save. Works for ANY map + ANY save.
+        Uses `cluster_finder.find_all_object_clusters` (universal gap-based
+        clustering with iterative masking) — NO hardcoded offset ranges.
 
         Algorithm:
           1. Build a lookup set of all coord_int values from objects_by_coord
-          2. Scan the save byte-by-byte (from offset 0x10000 to end)
-          3. For each position, read 3 bytes (x, y, z), compute coord_int
-          4. If coord_int matches an object, record the offset
-          5. Classify each offset into a cluster (main, visiting, fog, etc.)
+          2. Use header_parser to compute header_size (scan starts there)
+          3. Use cluster_finder to find clusters + per-object offsets
+          4. If a MapConfig is loaded, prefer its clusters (from day-0 save)
+             but recompute object_offsets for the CURRENT save
+          5. Store result in self._computed_offsets
 
-        Result is stored in self._computed_offsets and used by
-        _load_objects_with_offsets().
+        Works for ANY map + ANY save. No hardcoded `0x118000`, `0x120000`,
+        `0x170000`, `0x10000` etc.
         """
         if not self.raw_data:
             return
@@ -1787,88 +1815,74 @@ class GM1ParserWindow(QMainWindow):
         if not oc:
             return
 
-        # Build coord_int → coord_key lookup
+        # Build coord_int set
+        coord_ints = set()
         coord_lookup = {}
         for ck, rec in oc.items():
             ci = rec["coord_int"]
+            coord_ints.add(ci)
             if ci not in coord_lookup:
                 coord_lookup[ci] = ck
 
-        if not coord_lookup:
+        if not coord_ints:
             return
 
-        # Scan the save — single pass, O(n) where n = save size
-        raw = self.raw_data
-        n = len(raw)
-        # Start from 0x10000 (skip header — no object coords there)
-        scan_start = 0x10000
+        # Use header_parser to compute scan_start (no hardcoded 0x10000)
+        try:
+            from header_parser import parse_header
+            from cluster_finder import find_all_object_clusters
+        except ImportError:
+            # Fallback to relative imports
+            import importlib.util
+            tools_dir = os.path.dirname(os.path.abspath(__file__))
+            for mod_name in ("header_parser", "cluster_finder"):
+                if mod_name not in sys.modules:
+                    spec = importlib.util.spec_from_file_location(
+                        mod_name, os.path.join(tools_dir, mod_name + ".py"))
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    sys.modules[mod_name] = mod
+            from header_parser import parse_header
+            from cluster_finder import find_all_object_clusters
 
-        # Collect ALL offsets for each coord_int
-        offsets_by_ci = {}  # coord_int → [offset, ...]
-        for i in range(scan_start, n - 2):
-            ci = raw[i] | (raw[i + 1] << 8) | (raw[i + 2] << 16)
-            if ci in coord_lookup:
-                if ci not in offsets_by_ci:
-                    offsets_by_ci[ci] = []
-                offsets_by_ci[ci].append(i)
+        header = parse_header(self.raw_data)
+        scan_start = header.header_size
 
-        # Classify offsets into clusters
-        # Use config clusters if available (from day-zero save), otherwise use defaults
-        if self.map_config and self.map_config.get("clusters"):
-            CLUSTERS = [(c["name"], c["start"], c["end"])
-                        for c in self.map_config["clusters"]]
-        else:
-            CLUSTERS = [
-                ("visiting",   0x118000, 0x120000),
-                ("main",       0x120000, 0x170000),
-                ("treasure",   0x0AD000, 0x0B0000),
-                ("alive",      0x09D000, 0x0A0000),
-                ("fog",        0x07E000, 0x080000),
-                ("decoration", 0x170000, 0x180000),
-            ]
+        # Use cluster_finder — universal, no hardcoded ranges
+        clusters, object_offsets = find_all_object_clusters(
+            self.raw_data, coord_ints, scan_start=scan_start)
 
+        # Convert to the format expected by the GUI
         result = {}
         for ci, ck in coord_lookup.items():
-            all_offsets = offsets_by_ci.get(ci, [])
-            offset_strs = [f"0x{o:X}" for o in all_offsets]
-
-            # Classify
-            main_off = None
-            visiting_off = None
-            fog_off = None
-            alive_off = None
-            treasure_off = None
-            decoration_off = None
-
-            for o in all_offsets:
-                # Check decoration FIRST (0x170000-0x180000 overlaps with main range)
-                if 0x170000 <= o < 0x180000 and not decoration_off:
-                    decoration_off = f"0x{o:X}"
-                elif 0x118000 <= o < 0x120000 and not visiting_off:
-                    visiting_off = f"0x{o:X}"
-                elif 0x120000 <= o < 0x170000 and not main_off:
-                    main_off = f"0x{o:X}"
-                elif 0x09D000 <= o < 0x0A0000 and not alive_off:
-                    alive_off = f"0x{o:X}"
-                elif 0x07E000 <= o < 0x080000 and not fog_off:
-                    fog_off = f"0x{o:X}"
-                elif 0x0AD000 <= o < 0x0B0000 and not treasure_off:
-                    treasure_off = f"0x{o:X}"
-
-            result[str(ci)] = {
-                "coord_key": ck,
-                "save_offsets": offset_strs,
-                "main_offset": main_off,
-                "visiting_offset": visiting_off,
-                "fog_offset": fog_off,
-                "alive_offset": alive_off,
-                "treasure_offset": treasure_off,
-                "decoration_offset": decoration_off,
-                "verified": len(all_offsets) > 0,
-            }
+            oo = object_offsets.get(ci)
+            if oo is None:
+                result[str(ci)] = {
+                    "coord_key": ck,
+                    "save_offsets": [],
+                    "main_offset": None,
+                    "visiting_offset": None,
+                    "fog_offset": None,
+                    "alive_offset": None,
+                    "treasure_offset": None,
+                    "decoration_offset": None,
+                    "verified": False,
+                }
+            else:
+                def h(v): return f"0x{v:X}" if v is not None else None
+                result[str(ci)] = {
+                    "coord_key": ck,
+                    "save_offsets": [f"0x{o:X}" for o in oo.save_offsets],
+                    "main_offset": h(oo.main_offset),
+                    "visiting_offset": h(oo.visiting_offset),
+                    "fog_offset": h(oo.fog_offset),
+                    "alive_offset": h(oo.alive_offset),
+                    "treasure_offset": h(oo.treasure_offset),
+                    "decoration_offset": h(oo.decoration_offset),
+                    "verified": len(oo.save_offsets) > 0,
+                }
 
         self._computed_offsets = result
-        # Invalidate the old cache so _load_objects_with_offsets returns new data
         self._cached_objects_with_offsets = result
 
     def _build_flat_objects_for_table(self) -> List[Dict]:
@@ -2381,7 +2395,7 @@ class GM1ParserWindow(QMainWindow):
         if main_off_str:
             try:
                 main_off = int(main_off_str, 16)
-                lines.append(f"  ⭐ main_offset:    {main_off_str}  (in main object-state array 0x120C8C..)")
+                lines.append(f"  ⭐ main_offset:    {main_off_str}  (in main object-state array)")
                 lines.append(f"     At this offset, the save stores 3 bytes for this object's coords:")
                 if self.raw_data and main_off + 3 <= len(self.raw_data):
                     bx, by, bz = self.raw_data[main_off], self.raw_data[main_off+1], self.raw_data[main_off+2]
@@ -2466,23 +2480,33 @@ class GM1ParserWindow(QMainWindow):
         lines.append(f"  Total references found: {len(save_offsets)}")
         if save_offsets:
             lines.append(f"  Offsets:")
+            # Build cluster lookup from current MapConfig if available
+            # (so we can identify which cluster each offset belongs to)
+            cluster_ranges = []
+            if hasattr(self, "map_config") and self.map_config:
+                cfg_clusters = self.map_config.get("clusters", []) if isinstance(self.map_config, dict) else []
+                for c in cfg_clusters:
+                    cluster_ranges.append((c["start"], c["end"], c["name"]))
+            # Also use freshly-computed clusters from _compute_object_offsets_in_save
+            # (which are the actual clusters for THIS save, not day-0)
+            # We can rebuild them by re-using cluster_finder, but for the display
+            # we just use the config clusters as a hint.
             for so in save_offsets[:20]:
                 # Identify cluster
                 cluster = "other"
                 try:
                     soff = int(so, 16)
-                    if 0x118C1C <= soff < 0x11FFFF:
-                        cluster = "visiting"
-                    elif 0x120C8C <= soff < 0x180000:
-                        cluster = "main"
-                    elif 0x9D800 <= soff < 0x9E000:
-                        cluster = "alive"
-                    elif 0x7E900 <= soff < 0x7F000:
-                        cluster = "fog"
-                    elif 0x172100 <= soff < 0x174000:
-                        cluster = "decoration"
-                    elif soff < 0x100000:
-                        cluster = "early-section"
+                    # Check against all known cluster ranges
+                    for cs, ce, cname in cluster_ranges:
+                        if cs <= soff < ce:
+                            cluster = cname
+                            break
+                    else:
+                        # Fallback heuristic — classify by rough location
+                        if soff < 0x10000:
+                            cluster = "header-area"
+                        elif soff < 0x100000:
+                            cluster = "early-section"
                 except ValueError:
                     pass
                 lines.append(f"    {so}  ({cluster})")
