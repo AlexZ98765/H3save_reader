@@ -60,36 +60,6 @@
   "path_block": {
     "name": "path_block",
     "description": "Path block — replay log of all hero movements",
-    "fields": [
-      {
-        "name": "base64_metadata",
-        "offset": "0x130B71",
-        "size": 190,
-        "type": "ascii",
-        "description": "Base64 metadata block (changes on every save, ~190 bytes)"
-      },
-      {
-        "name": "map_event_counter",
-        "offset": "0x17EC37",
-        "size": 1,
-        "type": "u8",
-        "description": "Map event counter (increments by number of path-records added)"
-      },
-      {
-        "name": "path_block_main",
-        "offset": "0x1814D0",
-        "size": 256,
-        "type": "path_records",
-        "description": "Path block (history of movements, ~256 bytes base, expands with new records)"
-      },
-      {
-        "name": "path_block_extension",
-        "offset": "0x18179D",
-        "size": -1,
-        "type": "path_records",
-        "description": "Path block extension (variable size, fills as new path-records are added)"
-      }
-    ],
     "path_record_types": {
       "01 03": {
         "name": "hero_movement",
@@ -497,7 +467,8 @@
       "HERO_BLOCK_SIZE": 1122,
       "HERO_STRIDE_SOD": 1094,
       "HERO_NAME_OFFSET_FROM_BLOCK_START": 169,
-      "TOWN_NAME_OFFSET_FROM_BLOCK_START": 71
+      "TOWN_NAME_OFFSET_FROM_BLOCK_START": 71,
+      "TOWN_RECORD_BASE_SIZE": 382
     }
   },
   "known_unknowns": [

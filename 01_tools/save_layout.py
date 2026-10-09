@@ -451,9 +451,15 @@ TOWN_FIELD_OFFSETS = {
 }
 
 HERO_BLOCK_SIZE = 1122          # approximate (h3sed)
-HERO_STRIDE_SOD = 0x446         # 1094 bytes (verified on Myth and Legend)
+HERO_STRIDE_SOD = 0x446         # 1094 bytes (verified on Myth and Legend, confirmed by ProspectorRT IL)
 HERO_NAME_OFFSET_FROM_BLOCK_START = 169  # h3sed
 TOWN_NAME_OFFSET_FROM_BLOCK_START = 71   # h3sed
+
+# Town record base size — verified by ProspectorRT IL analysis (ScanTownsContent uses 0x17E = 382)
+# Total town record size = TOWN_RECORD_BASE_SIZE + name_len_in_cp1251
+# (the 382 bytes include the 2-byte name_len prefix at offset 69)
+# On Myth and Legend: 21 towns with strides 386-390 (382 + name_len 4-8 bytes)
+TOWN_RECORD_BASE_SIZE = 382
 
 
 if __name__ == "__main__":

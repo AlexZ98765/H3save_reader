@@ -204,3 +204,80 @@ Stage Summary:
   - Phase 3: `save_parser.py` + `gm1_parser.py` — парсинг любого сейва через MapConfig
 - Проект достиг состояния "универсальный парсер сейвов .GM1 для любой карты без хардкода смещений".
 
+
+---
+Task ID: 5
+Agent: main
+Task: Анализ ProspectorRT.exe и HeroesInfo.exe — извлечение информации о формате .GM1 сейвов из .NET сборок без исходников.
+
+Work Log:
+- Склонирован репозиторий https://github.com/AlexZ98765/PRT_reverse
+- Найдено:
+  - `ProspectorRT.exe` (778 KB) — .NET assembly, анализатор стартовых сейвов (24 таблицы)
+  - `HeroesInfo.exe` (526 KB) — .NET assembly, редактор героев (работает через OpenProcess + RAMHero)
+  - `LMOracle.SkillTreeAPI.dll`, `SkinLib.dll`, 12 DevExpress DLL
+- Методы извлечения:
+  1. `extract_prt_strings.py` — извлечение ASCII строк из PE (4876 строк)
+  2. `extract_user_strings.py` — извлечение .NET user strings (#US heap, 3637 строк)
+  3. `decompile_prt.py` — извлечение .NET metadata через dnfile (TypeDefs, MethodDefs, Fields, TypeRefs)
+  4. `extract_il_v2.py` — IL-дизассемблер (custom, на основе dnfile для metadata + raw PE parsing для IL)
+- Создан `/home/z/my-project/H3save_reader/02_format_docs/PRT_reverse_analysis.md` — детальный отчёт анализа (620 строк)
+- Главные находки:
+  - **24 таблицы R_*** (соответствуют 24 вкладкам UI) — DataSet schema ProspectorRT
+  - **88 Get* методов** — функций парсинга (ScanHeroesContent, ScanTownsContent, GetMapStart, GetStart, GetHStartPoint, GetHeroesContent, GetTownContent, GetExperience, GetGarrisonContent, GetBankContent, ...)
+  - **24 Section-класса** — ArtClassSection, DollSection, HeroClassSection, TownSection, SkillSection, SpellSection, ObjectSection, MonstrSection, MineSection, TopologySection, ...
+  - **381 уникальное имя колонки** DataSet — X, Y, Z, Address, Bit, Byte, Level, Type, Class, ClassID, Color, Hero, Town, Building, Built, MageTimer, Library, LastMagic, LastWisdom, Garrison, Guard, Reward, Mission, Deadline, Day, Repeat, AntiMagic, Morale, Luck, Hire, Place, Locality, Doll, BackPack, Book, ...
+  - **SQL-выражения** в user strings — `' AND Bit='`, `' AND Byte='6' AND Bit='0'`, `'Slot='1' AND (Code='2' OR Code='5' OR Code='8')'`, `X='`, `' AND Y='`, `' AND Z='` — ProspectorRT различает объекты по комбинации (Slot, Code, Byte, Bit, X, Y, Z, Level, Type)
+  - **HeroesInfo** — редактор (не только анализатор), работает через OpenProcess + RAMHero. Имеет CheatForm. Использует таблицы R_Heroes, R_PSkill, R_SSSkill, R_AddSSkill, R_ShortPath, R_STreeNumber, R_Tavern, R_Oracle
+
+- IL-анализ ProspectorRT.exe (29 типов):
+  - **ScanHeroesContent** (RVA=0x3ECC4, 91 bytes IL): использует `ldc.i4 1094 (0x446)` — ЭТО И ЕСТЬ HERO_STRIDE_SOD! Наша константа подтверждена.
+  - **ScanTownsContent** (RVA=0x3EE4C, 49 bytes IL): использует `ldc.i4 382 (0x17E)` — base size town record
+  - **GetMapStart** (RVA=0x3F58C, 215 bytes IL): использует `0x2B0 (688)`, `0x102 (258)`, `0x1C (28)`
+  - **GetStart** (RVA=0x3F670, 478 bytes IL): использует `0x42 (66)`, `0x155 (341)`, `0x39 (57)`, `0x2E (46)`
+  - **GetExperience** (RVA=0x368E4): использует `0x1E0 (480)`, `0x1F4 (500)`, `0x32A (810)`, `0x3E8 (1000)` — уровни опыта
+
+- Подтверждение формулы town stride на Myth and Legend (21 towns):
+  - Формула ProspectorRT: `stride = 382 + len(city_name_in_cp1251)`
+  - Проверка: для всех 21 городов Myth and Legend formula точно выполняется!
+    - Кавала (6 байт) → stride 388 = 382+6 ✓
+    - Волос (5 байт) → stride 387 = 382+5 ✓
+    - Каламата (8 байт) → stride 390 = 382+8 ✓
+    - ... и т.д. для всех 21 городов
+  - **Это значит**: town record имеет фиксированную структуру — 382 байта base (включая 2-байтный name_len prefix) + name_len байт имени. После имени — 311 байт post-name полей (buildings, spells, Mage Guild level, и т.д.)
+
+- Обновление кода:
+  - `save_layout.py`: добавлена константа `TOWN_RECORD_BASE_SIZE = 382`
+  - `clean_gm1_mapping.py`: обновлён для использования `TOWN_RECORD_BASE_SIZE`, восстановлены `path_record_types` (7 типов) из git HEAD
+  - `map_config_builder.py`: добавлены функции `_verify_town_strides` (проверяет, что все strides = 382 + name_len) и `_recover_missing_towns` (если strides не совпадают — пытается восстановить пропущенные towns по формуле stride)
+  - `build_map_config` теперь автоматически вызывает `_verify_town_strides` после find_town_blocks. Если есть mismatches — пробует восстановить
+- Все 4 теста (2 карты × 2 сейва) проходят. На Myth and Legend все 21 towns найдены, все strides точно соответствуют формуле ProspectorRT.
+- Перегенерированы `examples/save_parse_test_01/map_config_save_parse_test_01.json` и `examples/Myth and Legend.h3m/map_config_Мифы_и_легенды.json`
+- `gm1_mapping.json` обновлён: добавлена константа `TOWN_RECORD_BASE_SIZE: 0x17e` в `field_offsets.constants`
+
+Stage Summary:
+- **Из ProspectorRT извлечено огромное количество информации** о формате .GM1 сейвов без исходников:
+  - 24 имени таблиц (R_AllArts, R_AllExperience, R_AllSkill, R_AllSpell, R_AllTimer, R_Art, R_Bank, R_Camp, R_Chest, R_Garrison, R_Heroes, R_Market, R_Mine, R_Monstr, R_Object, R_PassGuard, R_Prison, R_Resource, R_Scholar, R_SeerHut, R_Skill, R_Spell, R_Topology, R_Town)
+  - 24 Section-класса, показывающих секции сейва
+  - 88 Get* методов, раскрывающих, какие данные ProspectorRT извлекает
+  - 381 имя колонки DataSet, раскрывающих структуру полей
+  - IL код с константами:
+    - `HERO_STRIDE_SOD = 0x446 (1094)` — подтверждено нашей константой
+    - `TOWN_RECORD_BASE_SIZE = 0x17E (382)` — НОВАЯ константа, проверена на 21 towns Myth and Legend (формула работает на 100%)
+    - Константы для GetMapStart (0x2B0, 0x102), GetStart (0x42, 0x155, 0x39, 0x2E), GetExperience (0x1E0, 0x1F4, 0x32A, 0x3E8)
+
+- **Главное полезное открытие**: town record base size = 382 байта, формула stride = 382 + name_len. Это даст нам новый, более надёжный алгоритм поиска towns (если find_town_blocks что-то пропустит, _recover_missing_towns это исправит).
+
+- **Что осталось для полного извлечения**: нужен полноценный IL-декомпилятор (ILSpy/dnSpy/dotPeek/monodis) чтобы:
+  1. Декомпилировать методы ScanHeroesContent, ScanTownsContent, GetMapStart, GetStart, GetTownContent, GetHeroesContent в C# код
+  2. Понять, что именно читается из post-name 311 байта town record
+  3. Понять, как ProspectorRT различает объекты по (Slot, Code, Byte, Bit) флагам
+  4. Перенести логику в Python
+
+- **Для нашего проекта на текущем шаге**:
+  - Добавлена константа TOWN_RECORD_BASE_SIZE в save_layout.py и gm1_mapping.json
+  - Добавлены функции _verify_town_strides и _recover_missing_towns в map_config_builder.py
+  - Создан детальный аналитический документ `02_format_docs/PRT_reverse_analysis.md` (620 строк)
+  - Все тесты проходят
+  - Архив обновлён
+

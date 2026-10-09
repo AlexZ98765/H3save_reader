@@ -47,7 +47,7 @@ from save_layout import (
     TownBlockInfo, TownSection, ObjectOffsets, MapConfig,
     HERO_FIELD_OFFSETS, TOWN_FIELD_OFFSETS,
     HERO_BLOCK_SIZE, HERO_STRIDE_SOD, HERO_NAME_OFFSET_FROM_BLOCK_START,
-    TOWN_NAME_OFFSET_FROM_BLOCK_START,
+    TOWN_NAME_OFFSET_FROM_BLOCK_START, TOWN_RECORD_BASE_SIZE,
 )
 from header_parser import parse_header
 from cluster_finder import find_all_object_clusters
@@ -462,6 +462,163 @@ def _parse_town_at(raw: bytes, block_start: int) -> Optional[TownBlockInfo]:
 
 
 # ============================================================================
+# Town stride verification (ProspectorRT-style: stride = 382 + name_len)
+# ============================================================================
+
+def _verify_town_strides(town_section: TownSection) -> dict:
+    """
+    Verify that consecutive town blocks satisfy the stride law:
+        stride = TOWN_RECORD_BASE_SIZE (382) + cp1251_len(prev_town_name)
+
+    Returns dict with:
+      - 'strides': list of (offset, name, expected_stride, actual_stride, ok)
+      - 'mismatches': list of indices where actual != expected
+      - 'all_ok': bool
+    """
+    blocks = town_section.blocks
+    if len(blocks) < 2:
+        return {"strides": [], "mismatches": [], "all_ok": True}
+
+    results = []
+    mismatches = []
+    for i in range(len(blocks) - 1):
+        prev = blocks[i]
+        cur = blocks[i + 1]
+        actual_stride = cur.block_offset - prev.block_offset
+        # cp1251 length of previous town name
+        try:
+            name_len = len(prev.name.encode("cp1251"))
+        except Exception:
+            name_len = 0
+        expected_stride = TOWN_RECORD_BASE_SIZE + name_len
+        ok = (actual_stride == expected_stride)
+        if not ok:
+            mismatches.append(i)
+        results.append({
+            "prev_offset": prev.block_offset,
+            "cur_offset": cur.block_offset,
+            "prev_name": prev.name,
+            "name_len": name_len,
+            "expected_stride": expected_stride,
+            "actual_stride": actual_stride,
+            "ok": ok,
+        })
+    return {"strides": results, "mismatches": mismatches, "all_ok": not mismatches}
+
+
+def _recover_missing_towns(raw: bytes, town_section: TownSection,
+                            town_coords: List[Tuple[int, int, int]],
+                            town_names: List[str],
+                            scan_start: int) -> TownSection:
+    """
+    Try to recover missing towns using the ProspectorRT stride formula.
+
+    For each pair of consecutive found towns where the stride doesn't match
+    `TOWN_RECORD_BASE_SIZE + name_len`, attempt to insert intermediate town(s)
+    by jumping by the expected stride and verifying the next town record
+    at that offset is valid.
+
+    Args:
+        raw:          decompressed save bytes
+        town_section: current TownSection with possibly missing towns
+        town_coords:  list of expected town coords from MapData
+        town_names:   list of expected town names from MapData
+        scan_start:   offset to start scanning (header_size)
+
+    Returns:
+        Updated TownSection with possibly more towns
+    """
+    blocks = sorted(town_section.blocks, key=lambda b: b.block_offset)
+    if len(blocks) < 1:
+        return town_section
+
+    new_blocks = [blocks[0]]
+    for i in range(len(blocks) - 1):
+        prev = blocks[i]
+        cur = blocks[i + 1]
+
+        # Walk forward from prev using the stride formula
+        try:
+            name_len = len(prev.name.encode("cp1251"))
+        except Exception:
+            name_len = 0
+        stride = TOWN_RECORD_BASE_SIZE + name_len
+        expected_next = prev.block_offset + stride
+
+        # If expected_next < cur.block_offset, there may be missing towns in between
+        # Walk forward and try to parse towns
+        while expected_next < cur.block_offset:
+            candidate = _parse_town_at_offset(raw, expected_next)
+            if candidate is None:
+                # Not a valid town at expected_next; give up on recovery here
+                break
+            # Check this isn't a duplicate of `cur`
+            if candidate.block_offset == cur.block_offset:
+                break
+            new_blocks.append(candidate)
+            # Recompute stride from this new town
+            try:
+                name_len = len(candidate.name.encode("cp1251"))
+            except Exception:
+                name_len = 0
+            stride = TOWN_RECORD_BASE_SIZE + name_len
+            expected_next = candidate.block_offset + stride
+
+        new_blocks.append(cur)
+
+    # Deduplicate by block_offset
+    seen = set()
+    final_blocks = []
+    for b in sorted(new_blocks, key=lambda b: b.block_offset):
+        if b.block_offset not in seen:
+            seen.add(b.block_offset)
+            final_blocks.append(b)
+
+    return TownSection(blocks=final_blocks)
+
+
+def _parse_town_at_offset(raw: bytes, block_offset: int) -> Optional[TownBlockInfo]:
+    """Parse a town block at the given offset. Returns None if invalid."""
+    if block_offset < 0 or block_offset + 80 > len(raw):
+        return None
+    o = TOWN_FIELD_OFFSETS
+    try:
+        faction = raw[block_offset + o["faction"]]
+        town_type = raw[block_offset + o["type"]]
+        x = raw[block_offset + o["x"]]
+        y = raw[block_offset + o["y"]]
+        z = raw[block_offset + o["z"]]
+        if faction > 7 and faction != 0xFF:
+            return None
+        if town_type > 8:
+            return None
+        if x > 0xFC or y > 0xFC or z > 1:
+            return None
+        name_len = struct.unpack("<H", raw[block_offset + o["name_len"]:
+                                            block_offset + o["name_len"] + 2])[0]
+        if name_len == 0 or name_len > 14:
+            return None
+        name_start = block_offset + o["name"]
+        name_end = name_start + name_len
+        if name_end > len(raw):
+            return None
+        try:
+            name = raw[name_start:name_end].decode("cp1251")
+        except Exception:
+            name = ""
+        return TownBlockInfo(
+            block_offset=block_offset,
+            name_offset=name_start,
+            name=name,
+            faction=faction,
+            town_type=town_type,
+            x=x, y=y, z=z,
+        )
+    except Exception:
+        return None
+
+
+# ============================================================================
 # MapConfig builder
 # ============================================================================
 
@@ -514,6 +671,20 @@ def build_map_config(map_data, day_zero_raw: bytes,
 
     town_section = find_town_blocks(day_zero_raw, header.header_size,
                                      town_coords, town_names)
+
+    # ----- Verify town strides (ProspectorRT-style: 382 + name_len) -----
+    # Each town record has total size = TOWN_RECORD_BASE_SIZE (382) + name_len_in_cp1251
+    # If our found town offsets don't satisfy this stride law, we missed some towns
+    # or found false positives.
+    town_stride_check = _verify_town_strides(town_section)
+    if town_stride_check["mismatches"]:
+        # Some towns are missing — try to fill gaps using stride formula
+        if len(town_section.blocks) > 0 and len(town_stride_check["mismatches"]) > 0:
+            print(f"  ⚠ {len(town_stride_check['mismatches'])} town stride mismatches; "
+                  "attempting stride-based recovery...")
+            town_section = _recover_missing_towns(
+                day_zero_raw, town_section, town_coords, town_names,
+                header.header_size)
 
     # ----- Assemble MapConfig -----
     meta = {
