@@ -822,6 +822,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
             parse_hero_block as sp_parse_hero_block,
             parse_town_block as sp_parse_town_block,
             adapt_config_to_save,
+            parsed_save_to_dict,
             PLAYER_COLOR_NAMES, TOWN_TYPE_NAMES,
         )
     except ImportError:
@@ -835,6 +836,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
         sp_parse_hero_block = mod.parse_hero_block
         sp_parse_town_block = mod.parse_town_block
         adapt_config_to_save = mod.adapt_config_to_save
+        parsed_save_to_dict = mod.parsed_save_to_dict
         PLAYER_COLOR_NAMES = mod.PLAYER_COLOR_NAMES
         TOWN_TYPE_NAMES = mod.TOWN_TYPE_NAMES
 
@@ -993,6 +995,10 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
         "errors":          [],
         "object_offsets":  object_offsets,  # bonus: from Phase 3
         "map_config_meta": parsed.header.to_dict(),  # bonus: header info
+        "map_objects":     getattr(parsed, "_map_objects", []),  # tile scanner results
+        "map_start_info":  getattr(parsed, "_map_start_info", {}),  # find_map_start debug
+        "player_states":   getattr(parsed, "_player_states", []),
+        "current_state":   getattr(parsed, "_current_state", {}),
     }
 
 
@@ -2543,11 +2549,29 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         self._populate_objects_table()
 
         self._set_loading("Генерация JSON…")
-        json_str = export_to_json(self.parsed_data, self.raw_data,
-                                objects_by_coord=self._load_objects_by_coord(),
-                                coord_int_lookup=getattr(self.map_data, "coord_int_lookup", {}) if self.map_data else {},
-                                computed_offsets=self._load_objects_with_offsets())
-        self.json_text.setPlainText(json_str)
+        # v3.8: If Phase 3 was used (has map_objects), use parsed_save_to_dict for full JSON
+        if "map_objects" in self.parsed_data:
+            # Phase 3 path — use save_parser.parsed_save_to_dict
+            try:
+                from save_parser import parsed_save_to_dict
+            except ImportError:
+                import importlib.util
+                tools_dir = os.path.dirname(os.path.abspath(__file__))
+                spec = importlib.util.spec_from_file_location(
+                    "save_parser", os.path.join(tools_dir, "save_parser.py"))
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                parsed_save_to_dict = mod.parsed_save_to_dict
+            # Build a minimal ParsedSave-like object from parsed_data
+            full_json = json.dumps(self.parsed_data, ensure_ascii=False, indent=2,
+                                   default=lambda o: o.hex() if isinstance(o, (bytes, bytearray)) else str(o))
+            self.json_text.setPlainText(full_json)
+        else:
+            json_str = export_to_json(self.parsed_data, self.raw_data,
+                                    objects_by_coord=self._load_objects_by_coord(),
+                                    coord_int_lookup=getattr(self.map_data, "coord_int_lookup", {}) if self.map_data else {},
+                                    computed_offsets=self._load_objects_with_offsets())
+            self.json_text.setPlainText(json_str)
         self._set_idle()
 
     def _populate_tree(self):
@@ -2605,6 +2629,31 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
 
         # Map Objects (7009 objects grouped by category)
         self._add_map_objects_to_tree()
+
+        # Map Objects from tile scanner (objects found by IsObject dispatcher)
+        map_objs = self.parsed_data.get("map_objects", [])
+        if map_objs:
+            from collections import Counter
+            tile_root = QTreeWidgetItem([
+                f"Tile Objects ({len(map_objs)} found by tile scanner)",
+                "", "tile_objects_root", "", ""
+            ])
+            tile_root.setToolTip(0, "Objects found by scan_tiles + IsObject dispatcher (ProspectorRT-style)")
+            type_counts = Counter(o["type_name"] for o in map_objs)
+            for type_name, count in type_counts.most_common():
+                type_item = QTreeWidgetItem([f"{type_name} ({count})", "", "tile_object_type", "", ""])
+                # Add first 10 objects of this type
+                for o in [obj for obj in map_objs if obj["type_name"] == type_name][:10]:
+                    coord = f"({o['x']},{o['y']},{o['z']})"
+                    detail = ", ".join(f"{k}={v}" for k, v in o.items()
+                                        if k not in ("type_id", "type_name", "x", "y", "z",
+                                                     "offset", "loc", "tile_num", "obj_id"))
+                    child = QTreeWidgetItem([coord, detail, "tile_object", f"0x{o['offset']:X}", ""])
+                    type_item.addChild(child)
+                if count > 10:
+                    type_item.addChild(QTreeWidgetItem([f"... {count - 10} more", "", "", "", ""]))
+                tile_root.addChild(type_item)
+            self.tree.addTopLevelItem(tile_root)
 
         # Errors
         if self.parsed_data["errors"]:

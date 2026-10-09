@@ -61,6 +61,7 @@ from save_layout import (
 )
 from header_parser import parse_header
 from cluster_finder import find_all_object_clusters
+from tile_scanner import find_map_start, scan_tiles
 
 
 # ============================================================================
@@ -551,6 +552,18 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             ]]
             blocks.append(cs_block)
 
+    # ----- 6d. Map tiles (tile_scanner) — scan tiles for objects -----
+    map_objects = []
+    map_start_info = {}
+    try:
+        ms, map_start_info = find_map_start(raw)
+        map_objects = scan_tiles(raw, ms, header.map_size,
+                                  header.has_underground)
+    except Exception as e:
+        # Tile scanning is optional — parser still works without it
+        map_objects = []
+        map_start_info = {"error": str(e)}
+
     # ----- 7. Build ParsedSave -----
     parsed = ParsedSave(
         header=header,
@@ -574,6 +587,8 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     # Attach extra parsed data (not in ParsedSave dataclass yet)
     parsed._player_states = player_states
     parsed._current_state = current_state_parsed
+    parsed._map_objects = map_objects
+    parsed._map_start_info = map_start_info
     return parsed
 
 
@@ -610,6 +625,8 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         "objects_on_map": parsed.objects_on_map,
         "player_states": getattr(parsed, "_player_states", []),
         "current_state": getattr(parsed, "_current_state", {}),
+        "map_objects": getattr(parsed, "_map_objects", []),
+        "map_start_info": getattr(parsed, "_map_start_info", {}),
     }
 
 
@@ -684,3 +701,16 @@ if __name__ == "__main__":
         if parsed.objects_on_map:
             sample = parsed.objects_on_map[0]
             print(f"    sample: ci={sample['coord_int']}  main_offset={sample['main_offset']}")
+        # Map objects from tile scanner
+        map_objs = getattr(parsed, "_map_objects", [])
+        if map_objs:
+            from collections import Counter
+            type_counts = Counter(o["type_name"] for o in map_objs)
+            print(f"  Map objects (tile scanner): {len(map_objs)}")
+            for tname, cnt in type_counts.most_common(5):
+                print(f"    {tname:25s}: {cnt}")
+        else:
+            print(f"  Map objects: (none — tile scanner not available)")
+        ms_info = getattr(parsed, "_map_start_info", {})
+        if ms_info and "error" not in ms_info:
+            print(f"  map.Start: 0x{ms_info.get('map_start', 0):X}")
