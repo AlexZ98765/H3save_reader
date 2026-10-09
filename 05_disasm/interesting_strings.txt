@@ -1,0 +1,55 @@
+# Strings of interest from heroes3.exe
+# Total: 52
+
+0x0025c35e [.rdata] GetFileVersionInfoA
+0x0025c374 [.rdata] GetFileVersionInfoSizeA
+0x0025c942 [.rdata] GetVersionExA
+0x0025ca2c [.rdata] LoadMenuA
+0x0025cb08 [.rdata] LoadCursorA
+0x0025cb4e [.rdata] LoadIconA
+0x0025d07a [.rdata] ?LoadProjectFromMemory@CImmProject@@QAEHPAXPAVCImmDevice@@@Z
+0x0025d426 [.rdata] LoadLibraryA
+0x0025d436 [.rdata] GetVersion
+0x0025d69a [.rdata] LCMapStringA
+0x0025d6aa [.rdata] LCMapStringW
+0x00260838 [.data] Warning!  AI player has %i %s.
+0x0027023c [.data] Obstacle name: %s, owner: %d, visible:%s
+0x00277478 [.data] No new players
+0x0027750c [.data] No players
+0x00277564 [.data] Invalid player
+0x002775cc [.data] Cant create player
+0x002775f4 [.data] Cant add player
+0x00277d38 [.data] H3SVG
+0x00277d40 [.data] H3SVC
+0x0027fbd4 [.data] objects.txt
+0x00281688 [.data] mumap.pcx
+0x0028287c [.data] , original map
+0x0028288c [.data] , first expansion map
+0x002828a4 [.data] , second expansion map
+0x00282b0c [.data] Sending to invalid player? [%d]
+0x00282dec [.data] %d was last player... time to recover...
+0x00282e18 [.data] Host [%d] was last player... time to recover...
+0x00282e48 [.data] Handling player drop [%d]
+0x00282f48 [.data] h3bitmap.lod
+0x00282fc4 [.data] bitmap1555
+0x00282fd0 [.data] bitmap555
+0x00282fdc [.data] bitmap565
+0x00282fe8 [.data] bitmap16
+0x00282ff4 [.data] bitmap24
+0x00283000 [.data] bitmap8
+0x00283080 [.data] GetBitmap816
+0x00283090 [.data] GetBitmap16
+0x0028338c [.data] NEWGAME.gm1
+0x002834d4 [.data] *.cgm
+0x002834ec [.data] ProductVersion
+0x002836fc [.data] random_maps
+0x00283824 [.data] random_maps\
+0x00283834 [.data] random_map_%i.h3m
+0x00283848 [.data] random_map_1.h3m
+0x0028385c [.data] This player was not found
+0x00283878 [.data] THis player is at [%d]
+0x002838ac [.data] Starting multiplayer game!!! Or maybe exiting??
+0x00283954 [.data] New Player has incompatible version #%s
+0x00284adc [.data] data\heroes3.snd
+0x0028c228 [.data] townscrn.pcx
+0x0028d888 [.data] incompatible version

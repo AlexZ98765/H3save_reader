@@ -1,0 +1,44 @@
+{
+  "exe_path": "/home/z/my-project/upload/heroes3.exe",
+  "exe_size": 2732032,
+  "md5": "15885af0254a3357913aecaab8c6453c",
+  "image_base": "0x00400000",
+  "entry_point": "0x0021a884",
+  "sections": [
+    {
+      "name": ".text",
+      "va": "0x00001000",
+      "size": 2330624
+    },
+    {
+      "name": ".rdata",
+      "va": "0x0023a000",
+      "size": 147456
+    },
+    {
+      "name": ".data",
+      "va": "0x0025e000",
+      "size": 212992
+    },
+    {
+      "name": ".rsrc",
+      "va": "0x002ad000",
+      "size": 36864
+    }
+  ],
+  "total_ascii_strings": 9680,
+  "interesting_strings_count": 52,
+  "magic_string_xrefs_count": 0,
+  "rtti_class_xrefs_count": 0,
+  "rtti_classes_count": 0,
+  "top_classes_by_xrefs": [],
+  "output_dir": "/home/z/my-project/work_disasm",
+  "artifacts": [
+    "interesting_strings.txt",
+    "all_strings.txt",
+    "magic_xrefs_disasm.txt",
+    "rtti_strings.txt",
+    "rtti_xrefs.json",
+    "imports.txt"
+  ]
+}

@@ -1,0 +1,2 @@
+0x0025d69a [.rdata ] LCMapStringA
+0x0025d6aa [.rdata ] LCMapStringW

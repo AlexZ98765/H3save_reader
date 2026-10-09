@@ -1,0 +1,471 @@
+{
+  "_meta": {
+    "save_a": "447_1.GM1",
+    "save_b": "447_2.GM1",
+    "user_action": "swapped army creatures + equipped artifact from backpack to doll",
+    "map": "Myth and Legend.h3m",
+    "total_changed_ranges": 49,
+    "total_changed_bytes": 274
+  },
+  "findings": [
+    {
+      "category": "army_swap",
+      "slot": 0,
+      "type_offset": "0x00143E52",
+      "count_offset": "0x00143E6E",
+      "a_type": 4294967295,
+      "b_type": 9,
+      "a_count": 0,
+      "b_count": 200,
+      "a_type_name": "empty",
+      "b_type_name": "Centaur"
+    },
+    {
+      "category": "army_swap",
+      "slot": 4,
+      "type_offset": "0x00143E62",
+      "count_offset": "0x00143E7E",
+      "a_type": 9,
+      "b_type": 4294967295,
+      "a_count": 200,
+      "b_count": 0,
+      "a_type_name": "Centaur",
+      "b_type_name": "empty"
+    },
+    {
+      "category": "artifact_equip_doll",
+      "doll_offset": "0x00143FA7",
+      "a_value": 4294967295,
+      "b_value": 52,
+      "a_artifact": "empty",
+      "b_artifact": "Speculum"
+    },
+    {
+      "category": "artifact_equip_backpack_count",
+      "offset": "0x00143DDD",
+      "a_value": 29,
+      "b_value": 28,
+      "delta": -1,
+      "interpretation": "one artifact moved from backpack to doll (-1)"
+    },
+    {
+      "category": "artifact_equip_backpack_shift",
+      "range": "0x0014400F .. 0x001440D3",
+      "n_slots_shifted": 25,
+      "stride": 8,
+      "interpretation": "all backpack slots after the removed artifact shifted by one position",
+      "shifts": [
+        {
+          "offset": "0x0014400F",
+          "a_byte": 52,
+          "b_byte": 65,
+          "a_artifact": "Speculum",
+          "b_artifact": "Emblem of Cognizance"
+        },
+        {
+          "offset": "0x00144017",
+          "a_byte": 65,
+          "b_byte": 69,
+          "a_artifact": "Emblem of Cognizance",
+          "b_artifact": "Ring of the Wayfarer"
+        },
+        {
+          "offset": "0x0014401F",
+          "a_byte": 69,
+          "b_byte": 85,
+          "a_artifact": "Ring of the Wayfarer",
+          "b_artifact": "Hourglass of the Evil Hour"
+        },
+        {
+          "offset": "0x00144027",
+          "a_byte": 85,
+          "b_byte": 63,
+          "a_artifact": "Hourglass of the Evil Hour",
+          "b_artifact": "Bird of Perception"
+        },
+        {
+          "offset": "0x0014402F",
+          "a_byte": 63,
+          "b_byte": 71,
+          "a_artifact": "Bird of Perception",
+          "b_artifact": "Necklace of Ocean Guidance"
+        },
+        {
+          "offset": "0x00144037",
+          "a_byte": 71,
+          "b_byte": 32,
+          "a_artifact": "Necklace of Ocean Guidance",
+          "b_artifact": "Sandals of the Saint"
+        },
+        {
+          "offset": "0x0014403F",
+          "a_byte": 32,
+          "b_byte": 38,
+          "a_artifact": "Sandals of the Saint",
+          "b_artifact": "Red Dragon Flame Tongue"
+        },
+        {
+          "offset": "0x00144047",
+          "a_byte": 38,
+          "b_byte": 45,
+          "a_artifact": "Red Dragon Flame Tongue",
+          "b_artifact": "Still Eye of the Dragon"
+        },
+        {
+          "offset": "0x0014404F",
+          "a_byte": 45,
+          "b_byte": 39,
+          "a_artifact": "Still Eye of the Dragon",
+          "b_artifact": "Dragon Scale Shield"
+        },
+        {
+          "offset": "0x00144057",
+          "a_byte": 39,
+          "b_byte": 41,
+          "a_artifact": "Dragon Scale Shield",
+          "b_artifact": "Dragonbone Greaves"
+        }
+      ]
+    },
+    {
+      "category": "counter",
+      "offset": "0x000003B7",
+      "a_value": 49,
+      "b_value": 50,
+      "delta": 1
+    },
+    {
+      "category": "hero_alt_block_changes",
+      "n_changes": 10,
+      "stride": [
+        24,
+        264,
+        286
+      ],
+      "offsets": [
+        "0x001789AB",
+        "0x00178AC9",
+        "0x00178AE1",
+        "0x00178BE9",
+        "0x00178C01",
+        "0x00178D09",
+        "0x00178D21",
+        "0x00178E29",
+        "0x00178E41",
+        "0x00178F49"
+      ],
+      "a_value": 4,
+      "b_value": 12,
+      "delta": 8,
+      "interpretation": "0x04 -> 0x0c (bit 2 set, bit 3 set) — possibly 'has been moved this turn' flag for each hero"
+    },
+    {
+      "category": "replay_log_updated",
+      "range": "0x00130B07 .. 0x00130B68",
+      "length": 98,
+      "interpretation": "HotA replay log (base64-encoded action sequence) updated for new turn"
+    },
+    {
+      "category": "replay_log_updated",
+      "range": "0x00130B73 .. 0x00130B8F",
+      "length": 29,
+      "interpretation": "HotA replay log (base64-encoded action sequence) updated for new turn"
+    }
+  ],
+  "all_ranges": [
+    {
+      "range": "0x000003B7 .. 0x000003B7",
+      "length": 1,
+      "a_hex": "31",
+      "b_hex": "32"
+    },
+    {
+      "range": "0x00130AF0 .. 0x00130AF2",
+      "length": 3,
+      "a_hex": "32 78 47",
+      "b_hex": "6c 68 6b"
+    },
+    {
+      "range": "0x00130AFA .. 0x00130AFD",
+      "length": 4,
+      "a_hex": "52 57 48 42",
+      "b_hex": "53 52 7a 6c"
+    },
+    {
+      "range": "0x00130B07 .. 0x00130B68",
+      "length": 98,
+      "a_hex": "5a 44 46 5a 61 6d 52 44 57 6b 56 30 4e 46 70 54 64 48 4a 68 56 6e 42 36 57 56 56 57 61 46 56 74 57 58 68 4c 4d 45 35 55 56 6c 52 53 51 32 49 79 0a 63 45 6c 56 62 6d 67 32 5a 46 56 4b 51 32 4e 45 53 6d 39 56 56 7a 41 77 43 6d 4a 46 64 45 68 6b 52 31 4a 32 55 6d 35 73 51 31 64 73 52 6d 70 54 56",
+      "b_hex": "55 6d 35 4f 52 30 35 5a 57 6d 78 57 62 56 6c 74 52 6c 64 57 62 6b 4a 4b 54 6a 42 4f 52 47 45 78 56 6b 52 4e 65 6b 45 77 55 6d 74 4f 4e 55 77 77 0a 64 7a 52 55 52 54 6c 32 56 56 5a 6b 4d 47 46 71 62 45 64 5a 4d 45 59 78 43 6c 52 74 54 6d 74 4f 56 58 42 50 59 57 70 4b 63 45 35 58 63 44 4e 4f 52"
+    },
+    {
+      "range": "0x00130B73 .. 0x00130B8F",
+      "length": 29,
+      "a_hex": "73 56 6b 78 6b 4d 30 35 68 55 7a 46 77 0a 65 6c 52 75 56 6b 31 4c 65 6d 68 51 56 6b 4d",
+      "b_hex": "70 64 45 52 6c 52 45 4a 44 59 6b 52 6b 0a 57 6c 70 73 51 54 4e 52 56 32 78 4f 5a 57 6b"
+    },
+    {
+      "range": "0x00143DDD .. 0x00143DDD",
+      "length": 1,
+      "a_hex": "1d",
+      "b_hex": "1c"
+    },
+    {
+      "range": "0x00143E52 .. 0x00143E55",
+      "length": 4,
+      "a_hex": "ff ff ff ff",
+      "b_hex": "09 00 00 00"
+    },
+    {
+      "range": "0x00143E62 .. 0x00143E65",
+      "length": 4,
+      "a_hex": "09 00 00 00",
+      "b_hex": "ff ff ff ff"
+    },
+    {
+      "range": "0x00143E6E .. 0x00143E6E",
+      "length": 1,
+      "a_hex": "00",
+      "b_hex": "c8"
+    },
+    {
+      "range": "0x00143E7E .. 0x00143E7E",
+      "length": 1,
+      "a_hex": "c8",
+      "b_hex": "00"
+    },
+    {
+      "range": "0x00143FA7 .. 0x00143FAA",
+      "length": 4,
+      "a_hex": "ff ff ff ff",
+      "b_hex": "34 00 00 00"
+    },
+    {
+      "range": "0x0014400F .. 0x0014400F",
+      "length": 1,
+      "a_hex": "34",
+      "b_hex": "41"
+    },
+    {
+      "range": "0x00144017 .. 0x00144017",
+      "length": 1,
+      "a_hex": "41",
+      "b_hex": "45"
+    },
+    {
+      "range": "0x0014401F .. 0x0014401F",
+      "length": 1,
+      "a_hex": "45",
+      "b_hex": "55"
+    },
+    {
+      "range": "0x00144027 .. 0x00144027",
+      "length": 1,
+      "a_hex": "55",
+      "b_hex": "3f"
+    },
+    {
+      "range": "0x0014402F .. 0x0014402F",
+      "length": 1,
+      "a_hex": "3f",
+      "b_hex": "47"
+    },
+    {
+      "range": "0x00144037 .. 0x00144037",
+      "length": 1,
+      "a_hex": "47",
+      "b_hex": "20"
+    },
+    {
+      "range": "0x0014403F .. 0x0014403F",
+      "length": 1,
+      "a_hex": "20",
+      "b_hex": "26"
+    },
+    {
+      "range": "0x00144047 .. 0x00144047",
+      "length": 1,
+      "a_hex": "26",
+      "b_hex": "2d"
+    },
+    {
+      "range": "0x0014404F .. 0x0014404F",
+      "length": 1,
+      "a_hex": "2d",
+      "b_hex": "27"
+    },
+    {
+      "range": "0x00144057 .. 0x00144057",
+      "length": 1,
+      "a_hex": "27",
+      "b_hex": "29"
+    },
+    {
+      "range": "0x0014405F .. 0x0014405F",
+      "length": 1,
+      "a_hex": "29",
+      "b_hex": "5c"
+    },
+    {
+      "range": "0x00144067 .. 0x00144067",
+      "length": 1,
+      "a_hex": "5c",
+      "b_hex": "2e"
+    },
+    {
+      "range": "0x0014406F .. 0x0014406F",
+      "length": 1,
+      "a_hex": "2e",
+      "b_hex": "39"
+    },
+    {
+      "range": "0x00144077 .. 0x00144077",
+      "length": 1,
+      "a_hex": "39",
+      "b_hex": "5a"
+    },
+    {
+      "range": "0x0014407F .. 0x0014407F",
+      "length": 1,
+      "a_hex": "5a",
+      "b_hex": "7e"
+    },
+    {
+      "range": "0x00144087 .. 0x00144087",
+      "length": 1,
+      "a_hex": "7e",
+      "b_hex": "6a"
+    },
+    {
+      "range": "0x0014408F .. 0x0014408F",
+      "length": 1,
+      "a_hex": "6a",
+      "b_hex": "84"
+    },
+    {
+      "range": "0x00144097 .. 0x00144097",
+      "length": 1,
+      "a_hex": "84",
+      "b_hex": "35"
+    },
+    {
+      "range": "0x0014409F .. 0x0014409F",
+      "length": 1,
+      "a_hex": "35",
+      "b_hex": "8a"
+    },
+    {
+      "range": "0x001440A7 .. 0x001440A7",
+      "length": 1,
+      "a_hex": "8a",
+      "b_hex": "2a"
+    },
+    {
+      "range": "0x001440AF .. 0x001440AF",
+      "length": 1,
+      "a_hex": "2a",
+      "b_hex": "61"
+    },
+    {
+      "range": "0x001440B7 .. 0x001440B7",
+      "length": 1,
+      "a_hex": "61",
+      "b_hex": "82"
+    },
+    {
+      "range": "0x001440BF .. 0x001440BF",
+      "length": 1,
+      "a_hex": "82",
+      "b_hex": "52"
+    },
+    {
+      "range": "0x001440C7 .. 0x001440C7",
+      "length": 1,
+      "a_hex": "52",
+      "b_hex": "89"
+    },
+    {
+      "range": "0x001440CF .. 0x001440D2",
+      "length": 4,
+      "a_hex": "89 00 00 00",
+      "b_hex": "ff ff ff ff"
+    },
+    {
+      "range": "0x001789AB .. 0x001789AB",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178AC9 .. 0x00178AC9",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178AE1 .. 0x00178AE1",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178BE9 .. 0x00178BE9",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178C01 .. 0x00178C01",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178D09 .. 0x00178D09",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178D21 .. 0x00178D21",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178E29 .. 0x00178E29",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178E41 .. 0x00178E41",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x00178F49 .. 0x00178F49",
+      "length": 1,
+      "a_hex": "04",
+      "b_hex": "0c"
+    },
+    {
+      "range": "0x0017EBB5 .. 0x0017EBB5",
+      "length": 1,
+      "a_hex": "60",
+      "b_hex": "61"
+    },
+    {
+      "range": "0x0017FB7C .. 0x0017FBCF",
+      "length": 84,
+      "a_hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "b_hex": "03 0a 00 3c 00 3d 04 04 00 0c 00 3b 00 3e 04 04 00 0c 00 47 00 3e 04 04 00 0c 00 3b 00 3f 04 04 00 0c 00 47 00 3f 04 04 00 0c 00 3b 00 40 04 04 00 0c 00 47 00 40 04 04 00 0c 00 3b 00 41 04 04 00 0c 00 47 00 41 04 04 00 0c 00 3b 00 42 04 04 00 0c 00 0b"
+    },
+    {
+      "range": "0x0017FC13 .. 0x0017FC13",
+      "length": 1,
+      "a_hex": "00",
+      "b_hex": "30"
+    }
+  ]
+}

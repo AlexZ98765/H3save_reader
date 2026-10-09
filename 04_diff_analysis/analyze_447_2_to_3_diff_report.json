@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "save_a": "447_2.GM1",
+    "save_b": "447_3.GM1",
+    "user_action": "Built Magic Guild Level 3 in a town (was Lv2, now Lv3)",
+    "map": "Myth and Legend.h3m",
+    "total_changed_ranges": 13,
+    "total_changed_bytes": 171
+  },
+  "findings": [
+    {
+      "category": "action_counter",
+      "offset": "0x000003B7",
+      "a_value": 50,
+      "b_value": 51,
+      "delta": 1,
+      "interpretation": "User action counter (+1 per action; matches previous 447_1->447_2 pattern)"
+    },
+    {
+      "category": "mage_guild_level",
+      "offset": "0x0013F74D",
+      "a_value": 2,
+      "b_value": 3,
+      "delta": 1,
+      "interpretation": "Magic Guild level: 2 -> 3 (UPGRADE!)"
+    },
+    {
+      "category": "town_build_flag",
+      "offset": "0x0013F70B",
+      "a_value": 0,
+      "b_value": 1,
+      "interpretation": "Town build action flag (set to 1 when build action performed this turn)"
+    },
+    {
+      "category": "building_bitmask",
+      "offset": "0x0013F7AB",
+      "size": 4,
+      "a_bytes": "00 00 00 22",
+      "b_bytes": "03 00 00 24",
+      "a_int_le": 570425344,
+      "b_int_le": 603979779,
+      "interpretation": "Town building bitmask (4 bytes). byte[0] (0x13F7AB): 0x00->0x03 — bits 0,1 set (possibly 'newly built' marker or build progress). byte[3] (0x13F7AE): 0x22->0x24 — bit 1 cleared (Mage Guild Lv2), bit 2 set (Mage Guild Lv3). NOTE: encoding stores CURRENT level bit, not all-built-levels."
+    },
+    {
+      "category": "town_bitmask_byte",
+      "offset": "0x0013F7B6",
+      "a_value": 163,
+      "b_value": 167,
+      "bits_set": 4,
+      "bits_cleared": 0,
+      "interpretation": "Bit 2 set (0xA3->0xA7) — possibly Mage Guild Lv3 marker in another bitmask"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Wood",
+      "offset": "0x0013E3E7",
+      "a_value": 1121,
+      "b_value": 1116,
+      "delta": -5,
+      "interpretation": "Wood changed by -5 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Mercury",
+      "offset": "0x0013E3EB",
+      "a_value": 195,
+      "b_value": 189,
+      "delta": -6,
+      "interpretation": "Mercury changed by -6 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Ore",
+      "offset": "0x0013E3EF",
+      "a_value": 892,
+      "b_value": 887,
+      "delta": -5,
+      "interpretation": "Ore changed by -5 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Sulfur",
+      "offset": "0x0013E3F3",
+      "a_value": 373,
+      "b_value": 367,
+      "delta": -6,
+      "interpretation": "Sulfur changed by -6 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Crystal",
+      "offset": "0x0013E3F7",
+      "a_value": 459,
+      "b_value": 453,
+      "delta": -6,
+      "interpretation": "Crystal changed by -6 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Gems",
+      "offset": "0x0013E3FB",
+      "a_value": 173,
+      "b_value": 167,
+      "delta": -6,
+      "interpretation": "Gems changed by -6 (Mage Guild Lv3 cost deduction + daily income tick)"
+    },
+    {
+      "category": "player_resource",
+      "resource": "Gold",
+      "offset": "0x0013E3FF",
+      "a_value": 2543782,
+      "b_value": 2542782,
+      "delta": -1000,
+      "interpretation": "Gold changed by -1000 (Mage Guild Lv3 gold cost 2000, but daily income tick adds back ~1500)"
+    },
+    {
+      "category": "spell_slot_change",
+      "offset": "0x0013E387",
+      "a_value": 13,
+      "b_value": 255,
+      "a_spell": "id=13 (View Earth)",
+      "b_spell": "empty",
+      "interpretation": "Spell slot update — Mage Guild Lv3 unlocks new spells (and possibly rearranges slot order)"
+    },
+    {
+      "category": "spell_slot_change",
+      "offset": "0x0013E39E",
+      "a_value": 255,
+      "b_value": 18,
+      "a_spell": "empty",
+      "b_spell": "id=18 (Disrupting Ray)",
+      "interpretation": "Spell slot update — Mage Guild Lv3 unlocks new spells (and possibly rearranges slot order)"
+    },
+    {
+      "category": "hero_spell_book_bitmask",
+      "offset": "0x00140246",
+      "a_value": 251,
+      "b_value": 235,
+      "bits_set": 0,
+      "bits_cleared": 16,
+      "interpretation": "Hero spell book bitmask — bit 4 cleared (0xFB->0xEB). Possibly a spell was 'used' or moved"
+    },
+    {
+      "category": "replay_log_updated",
+      "range": "0x00130B07 .. 0x00130B68",
+      "length": 98,
+      "interpretation": "HotA replay log (base64-encoded action sequence) updated for new build action"
+    },
+    {
+      "category": "replay_log_updated",
+      "range": "0x00130B73 .. 0x00130B8F",
+      "length": 29,
+      "interpretation": "HotA replay log (base64-encoded action sequence) updated for new build action"
+    }
+  ],
+  "all_ranges": [
+    {
+      "range": "0x000003B7 .. 0x000003B7",
+      "length": 1,
+      "a_hex": "32",
+      "b_hex": "33"
+    },
+    {
+      "range": "0x00130AF0 .. 0x00130AF2",
+      "length": 3,
+      "a_hex": "6c 68 6b",
+      "b_hex": "45 56 47"
+    },
+    {
+      "range": "0x00130AFA .. 0x00130AFD",
+      "length": 4,
+      "a_hex": "53 52 7a 6c",
+      "b_hex": "52 4d 30 5a"
+    },
+    {
+      "range": "0x00130B07 .. 0x00130B68",
+      "length": 98,
+      "a_hex": "55 6d 35 4f 52 30 35 5a 57 6d 78 57 62 56 6c 74 52 6c 64 57 62 6b 4a 4b 54 6a 42 4f 52 47 45 78 56 6b 52 4e 65 6b 45 77 55 6d 74 4f 4e 55 77 77 0a 64 7a 52 55 52 54 6c 32 56 56 5a 6b 4d 47 46 71 62 45 64 5a 4d 45 59 78 43 6c 52 74 54 6d 74 4f 56 58 42 50 59 57 70 4b 63 45 35 58 63 44 4e 4f 52",
+      "b_hex": "65 44 5a 69 55 33 52 45 59 6b 68 4b 62 56 5a 36 57 6d 78 50 56 30 30 78 54 6d 74 6b 62 31 4e 49 57 6a 42 69 4d 33 41 79 57 57 30 31 65 46 55 79 0a 61 48 70 54 56 6c 59 30 56 56 64 72 64 6b 34 77 5a 45 78 61 56 45 55 7a 43 6c 46 59 57 6c 6c 6c 52 57 68 48 54 6d 78 72 63 6c 5a 73 62 48 4e 52 56"
+    },
+    {
+      "range": "0x00130B73 .. 0x00130B8F",
+      "length": 29,
+      "a_hex": "70 64 45 52 6c 52 45 4a 44 59 6b 52 6b 0a 57 6c 70 73 51 54 4e 52 56 32 78 4f 5a 57 6b",
+      "b_hex": "73 51 6a 42 6c 56 7a 46 44 55 54 4a 6b 0a 4d 32 4e 58 65 46 70 61 56 7a 6c 79 55 6b 4d"
+    },
+    {
+      "range": "0x0013E387 .. 0x0013E387",
+      "length": 1,
+      "a_hex": "0d",
+      "b_hex": "ff"
+    },
+    {
+      "range": "0x0013E39E .. 0x0013E39E",
+      "length": 1,
+      "a_hex": "ff",
+      "b_hex": "12"
+    },
+    {
+      "range": "0x0013E3E7 .. 0x0013E400",
+      "length": 26,
+      "a_hex": "61 04 00 00 c3 00 00 00 7c 03 00 00 75 01 00 00 cb 01 00 00 ad 00 00 00 a6 d0",
+      "b_hex": "5c 04 00 00 bd 00 00 00 77 03 00 00 6f 01 00 00 c5 01 00 00 a7 00 00 00 be cc"
+    },
+    {
+      "range": "0x0013F70B .. 0x0013F70B",
+      "length": 1,
+      "a_hex": "00",
+      "b_hex": "01"
+    },
+    {
+      "range": "0x0013F74D .. 0x0013F74D",
+      "length": 1,
+      "a_hex": "02",
+      "b_hex": "03"
+    },
+    {
+      "range": "0x0013F7AB .. 0x0013F7AE",
+      "length": 4,
+      "a_hex": "00 00 00 22",
+      "b_hex": "03 00 00 24"
+    },
+    {
+      "range": "0x0013F7B6 .. 0x0013F7B6",
+      "length": 1,
+      "a_hex": "a3",
+      "b_hex": "a7"
+    },
+    {
+      "range": "0x00140246 .. 0x00140246",
+      "length": 1,
+      "a_hex": "fb",
+      "b_hex": "eb"
+    }
+  ]
+}

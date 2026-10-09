@@ -1,0 +1,43 @@
+{
+  "image_base": "0x00400000",
+  "save_writer_funcs": [],
+  "save_reader_funcs": [],
+  "magic_funcs": [
+    "0x000bbda0",
+    "0x000bc010",
+    "0x000bca60",
+    "0x000be0b0"
+  ],
+  "writefile_caller_funcs": [
+    "0x00200210",
+    "0x002207a4",
+    "0x00222cdb"
+  ],
+  "readfile_caller_funcs": [
+    "0x0015c340",
+    "0x00200240",
+    "0x00221326"
+  ],
+  "createfilea_caller_funcs": [
+    "0x00183440",
+    "0x001987a0",
+    "0x00200180",
+    "0x0021a164"
+  ],
+  "all_save_related_funcs": [
+    "0x000bbda0",
+    "0x000bc010",
+    "0x000bca60",
+    "0x000be0b0",
+    "0x0015c340",
+    "0x00183440",
+    "0x001987a0",
+    "0x00200180",
+    "0x00200210",
+    "0x00200240",
+    "0x0021a164",
+    "0x002207a4",
+    "0x00221326",
+    "0x00222cdb"
+  ]
+}

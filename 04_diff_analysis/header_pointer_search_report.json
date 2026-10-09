@@ -1,0 +1,17 @@
+{
+  "step1_known_offsets_searched": 2,
+  "step2_diff_312_vs_447": "see stdout",
+  "step3_saves_compared": [
+    "001.GM1",
+    "0011.GM1",
+    "0019.GM1",
+    "0020_9.GM1",
+    "312.GM1",
+    "312_1.GM1",
+    "447_1.GM1",
+    "447_2.GM1",
+    "447_3.GM1",
+    "xx_01.GM1",
+    "xx_05.GM1"
+  ]
+}
