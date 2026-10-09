@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 # КОНСТАНТЫ
 # ============================================================================
 
-DEFAULT_MAPPING_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gm1_mapping.json")
+DEFAULT_MAPPING_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "02_format_docs", "gm1_mapping.json")
 
 # h3sed HERO_BYTE_POSITIONS (SoD base + HotA overrides)
 # NOTE: location_x/y/z are 2-byte LE (u16), stored as pairs:
@@ -1611,8 +1611,13 @@ class GM1ParserWindow(QMainWindow):
             with open(self.mapping_path, "r", encoding="utf-8") as f:
                 self.mapping = json.load(f)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to load mapping:\n{e}")
-            self.mapping = {"blocks": [], "constants": {}}
+            # v3.6: mapping is optional — parser works without it (Phase 3)
+            # Show warning but don't crash
+            QMessageBox.warning(self, "Mapping not loaded",
+                f"Could not load gm1_mapping.json:\n{e}\n\n"
+                "The parser will still work for heroes, towns, and object clusters.\n"
+                "Only path-record parsing requires the mapping file.")
+            self.mapping = {"blocks": [], "constants": {}, "path_block": {"path_record_types": {}}}
 
     def _build_ui(self):
         central = QWidget()
