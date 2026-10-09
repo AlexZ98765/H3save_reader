@@ -1981,10 +1981,21 @@ class GM1ParserWindow(QMainWindow):
         if getattr(self, "map_config", None):
             self.chk_map_config.setChecked(True)
             c = self.map_config
+            # MapConfig is a dataclass, not a dict — use attribute access
+            if hasattr(c, "hero_section"):
+                # MapConfig dataclass
+                n_heroes = c.hero_section.count
+                n_towns = c.town_section.count
+                n_clusters = len(c.clusters)
+            else:
+                # Legacy dict (shouldn't happen, but defensive)
+                n_heroes = c.get("hero_section", {}).get("count", 0)
+                n_towns = c.get("town_section", {}).get("count", 0)
+                n_clusters = len(c.get("clusters", []))
             self.chk_map_config.setText(
-                f"Map Config: {c['hero_section']['count']} heroes, "
-                f"{c['town_section']['count']} towns, "
-                f"{len(c['clusters'])} clusters"
+                f"Map Config: {n_heroes} heroes, "
+                f"{n_towns} towns, "
+                f"{n_clusters} clusters"
             )
         else:
             self.chk_map_config.setChecked(False)
@@ -2941,9 +2952,14 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             # (so we can identify which cluster each offset belongs to)
             cluster_ranges = []
             if hasattr(self, "map_config") and self.map_config:
-                cfg_clusters = self.map_config.get("clusters", []) if isinstance(self.map_config, dict) else []
-                for c in cfg_clusters:
-                    cluster_ranges.append((c["start"], c["end"], c["name"]))
+                if hasattr(self.map_config, "clusters"):
+                    # MapConfig dataclass
+                    for c in self.map_config.clusters:
+                        cluster_ranges.append((c.start, c.end, c.name))
+                elif isinstance(self.map_config, dict):
+                    # Legacy dict
+                    for c in self.map_config.get("clusters", []):
+                        cluster_ranges.append((c["start"], c["end"], c["name"]))
             # Also use freshly-computed clusters from _compute_object_offsets_in_save
             # (which are the actual clusters for THIS save, not day-0)
             # We can rebuild them by re-using cluster_finder, but for the display
