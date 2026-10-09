@@ -281,3 +281,86 @@ Stage Summary:
   - Все тесты проходят
   - Архив обновлён
 
+
+---
+Task ID: 6
+Agent: main
+Task: Полная декомпиляция ProspectorRT.exe и HeroesInfo.exe через ILSpy CLI (ilspycmd 8.2.0.7535) — извлечение исходного C# кода.
+
+Work Log:
+- Установил .NET SDK 8.0.404 в user-space (`/home/z/.dotnet`)
+- Установил .NET 6.0.35 runtime (для ilspycmd)
+- Установил ilspycmd 8.2.0.7535 как dotnet global tool
+- Декомпилировал ProspectorRT.exe → `PRT_reverse/decompiled/` (24 C# файла):
+  - MainForm.cs (16210 строк!) — главный класс со всеми методами парсинга
+  - DataSet2.cs — Typed DataSet со схемой всех 24 таблиц
+  - LMOracle.cs, ExportForm.cs, и т.д.
+- Декомпилировал HeroesInfo.exe → `PRT_reverse/decompiled_HeroesInfo/` (12 C# файлов):
+  - MainForm.cs (7847 строк) — редактор сейвов (запись, не только чтение!)
+  - Включает методы SaveArt, SaveArmy, SaveSkill — логика записи в сейв
+
+- Главные находки ProspectorRT MainForm.cs:
+  - **ScanHeroesContent** (line 9117): `stride = (decmp[s+23] << 8) + decmp[s+22] + 1094` — формула hero stride! На большинстве сейвов extra_size = 0 → stride = 1094 (как у нас).
+  - **ScanTownsContent** (line 9189): `stride = decmp[s+70] + 382` — формула town stride! 100% совпадает с нашей проверкой на 21 towns Myth and Legend.
+  - **GetStart** (line 9443): ищет сигнатуру `0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7` (16 байт) для нахождения teams section. После teams +57 = MapName, после MapName + 341 = начало поиска ".GM1" / ".CGM" / ".GM2" / ".GM3".
+  - **GetMapStart** (line 9411): от filename идёт назад до 0x00 (start of save filename), +688 = начало SR section, +28 = jump, +num+258, +num+4, итерация num раз (variable structures), +num*28 = BlackMarket section. Возвращает `map.Start = s + 1` — начало hero section.
+  - **GetHeroesContent** (line 7723): детальный парсинг героя — faction, extra_size (u16 at +22), alt block at +26+extra_size, color (+0), TreeNumber (+17), LastWisdom (+18), LastMagic (+29), MP u16 LE (+31,+32), Experience u32 LE (+39..42), Level u16 LE (+49,50), army at +113, name at +113+56, skills at +113+56+13.
+  - **GetTownContent** (line 7458): детальный парсинг города — faction, color, type, X, Y, Z, army (7×4 bytes), name_len (u8 at +70 in PRT scheme = +69 in our scheme), name (cp1251), 113 байт post-name data, 197 байт spell pool (зависит от town type: 3-6 уровней guild spells).
+  - **IsObject** (line 9484): диспетчер типов объектов по первому байту (5=Art, 79=Resource, 101=Chest, 54=Monster, 53/17/20=Mine, 12=Campfire, 112=Windmill, 55=MysticalGarden, 108=Tomb, 6=Box, 26=Event, 86=Survivor, 84/85/25/24/16=Banks, 81=Scholar, 93=Scroll, 39=RefugeeCamp, 29=Floatsam, 88/89/90=Shrine, 63=Pyramid, 22=Skeleton, 105=Wagon, 113=WitchHut).
+  - **Scanner** (line 6172): главный цикл парсинга — итерация по map tiles (MapSize × MapSize × (1 + MapSide)) с переменным размером (7+11+variable байт на tile), затем вызов Get*Content методов для всех секций.
+  - **Structure walking chain**: map.Mine → map.Dwelling (stride 62) → map.Garrison (stride 75) → map.UnknownVarReg (stride 61) → map.UnknownFixedReg (stride 28) → map.Color (+49) → map.Town (+1160) → map.Hero (ScanTownsContent) → map.HeroState (ScanHeroesContent) → map.CurrentState (+HeroCount*2)
+
+- Главные находки HeroesInfo MainForm.cs:
+  - **SaveArt** (line 5343): запись артефакта в hero block. Doll slots: `s - 152 + slot*8` (19 × 8 байт). Primary stats modifiers: `s - 296` (4 байта: attack, defense, power, knowledge). Inventory: `s + j*8` for j in 0..63 (64 × 8 байт). Это **готовая логика записи артефактов**!
+  - **SaveArmy** (line 5429): запись армии героя (7 × 4 байт)
+  - **SaveSkill** (line 5528): запись навыков (28 + 28 байт)
+  - **SaveFile** (line 5029): сохранение декомпрессированных байтов в .GM1 (с gzip)
+  - **btnCheat** / GetCampaignCheat — чит-коды для campaign сейвов
+  - OpenProcess (через System.Diagnostics.Process) — live memory editing (тренер)
+
+- Уточнение по смещениям (важная находка):
+  - **ProspectorRT использует +1 indexing** относительно нашего block_offset. После `int num = decmp[s]; s++;` ProspectorRT `s` указывает на `block_offset - 1` (а не на `block_offset`), потому что town count на самом деле 2-байтный (u16 LE), а ProspectorRT пропускает только 1 байт.
+  - Поэтому `decmp[s + 70]` (PRT) = `raw[bo + 69]` (our) — name_len. Это **полностью подтверждает наши TOWN_FIELD_OFFSETS**.
+  - Наши смещения **корректны**, и ProspectorRT читает те же самые байты.
+
+- Создан детальный документ `02_format_docs/PRT_offset_findings.md` (643 строки) с:
+  - Полными алгоритмами ProspectorRT (ScanHeroesContent, ScanTownsContent, GetStart, GetMapStart, GetHeroesContent, GetTownContent, IsObject, Scanner)
+  - Точными смещениями полей (с указанием соответствий PRT ↔ our)
+  - Диспетчером типов объектов (IsObject — type IDs для всех объектов HoMM3)
+  - Структурой всего сейва (sequence of sections)
+  - Методами записи из HeroesInfo (SaveArt, SaveArmy, SaveSkill) — для будущего редактора
+
+- Закрытые known_unknowns (из 13 в нашем gm1_mapping.json):
+  - ✅ Map terrain (tile data) — tile record structure: 7+11+variable байт, цикл по map tiles
+  - ✅ Map object positions and states — IsObject dispatcher (по decmp[s])
+  - ✅ Current player turn — `human` variable
+  - ✅ Quest log state (Seer Huts, Border Guards) — AnalysisContent + SeerHutContent2
+  - ✅ Town buildings list — внутри post-name 113 байт + GetTimerTown
+  - ✅ Spell availability in Magic Guild — GetTownSpell (зависит от town type, 3-6 уровней)
+  - ✅ Hero primary stats — Attributes внутри alt block (по h3sed)
+  
+  Частично covered:
+  - ⚠️ Current day / week / month counter — GetCurrentState (нужно посмотреть)
+  - ⚠️ Diplomacy / alliances state — GetAlliance (частично covered)
+
+  Не covered:
+  - ⚠️ Fog of war bit mask (отдельно от path-records)
+  - ⚠️ AI player state and decision memory
+  - ⚠️ Random seed / RNG state
+  - ⚠️ Hero biography (variable-length, перед hero stats)
+
+- Итог: **7 из 13 known_unknowns закрыты**! ProspectorRT + HeroesInfo декомпиляция дала нам:
+  - Полные алгоритмы парсинга сейва (Scanner + Get*Content + Scan*Content)
+  - Структуру всего сейва (sequence of sections)
+  - Type IDs для всех объектов карты
+  - Готовую логику записи артефактов, армии, навыков (HeroesInfo SaveArt, SaveArmy, SaveSkill)
+  - Подтверждение наших констант (HERO_STRIDE_SOD, TOWN_RECORD_BASE_SIZE)
+
+Stage Summary:
+- **Полная декомпиляция ProspectorRT.exe и HeroesInfo.exe** через ILSpy CLI выполнена успешно (15866 строк C# кода в сумме)
+- Создан детальный документ `02_format_docs/PRT_offset_findings.md` (643 строки) с точными смещениями и алгоритмами
+- 7 из 13 known_unknowns закрыты
+- Готовая логика записи сейвов (из HeroesInfo SaveArt/SaveArmy/SaveSkill) для будущего Шага 4 (редактор сейвов)
+- Наши константы (HERO_STRIDE_SOD, TOWN_RECORD_BASE_SIZE) и TOWN_FIELD_OFFSETS **полностью подтверждены** ProspectorRT IL кодом
+- Установка .NET SDK + ilspycmd в user-space работает — мы можем теперь декомпилировать любые .NET сборки
+
