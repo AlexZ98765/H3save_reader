@@ -1640,6 +1640,10 @@ class GM1ParserWindow(QMainWindow):
         open_btn = QPushButton("3. Open Save…")
         open_btn.clicked.connect(self._on_open_file)
         load_layout.addWidget(open_btn)
+        info_btn = QPushButton("ℹ Info")
+        info_btn.setToolTip("Show available workflows and what each one provides")
+        info_btn.clicked.connect(self._on_info)
+        load_layout.addWidget(info_btn)
         toolbar.addWidget(load_group)
 
         # Group 2: Export
@@ -1901,6 +1905,13 @@ class GM1ParserWindow(QMainWindow):
         reload_action = QAction("Reload Mapping", self)
         reload_action.triggered.connect(self._on_reload_mapping)
         tools_menu.addAction(reload_action)
+
+        # --- Help menu ---
+        help_menu = menubar.addMenu("&Help")
+        info_action = QAction("Workflows & Modes Info", self)
+        info_action.setShortcut("Ctrl+I")
+        info_action.triggered.connect(self._on_info)
+        help_menu.addAction(info_action)
 
         self._refresh_mapping_text()
 
@@ -2292,25 +2303,123 @@ class GM1ParserWindow(QMainWindow):
         self.details_text.setPlainText("\n".join(lines))
         self.tabs.setCurrentWidget(self.details_text)
 
+    def _on_info(self):
+        """Show a dialog explaining all available workflows and what each provides."""
+        has_map_json = "✅ loaded" if self.map_data and getattr(self.map_data, 'n_sprites', 0) > 0 else "❌ not loaded"
+        has_config = "✅ loaded" if getattr(self, "map_config", None) else "❌ not loaded"
+        has_day0 = "✅ loaded" if getattr(self, "day_zero_raw", None) else "❌ not loaded"
+        has_save = "✅ loaded" if self.raw_data else "❌ not loaded"
+
+        info_text = f"""HoMM3 .GM1 Save Parser — Режимы работы
+
+══════════════════════════════════════════════════════════════
+ТЕКУЩЕЕ СОСТОЯНИЕ:
+  Map JSON:       {has_map_json}
+  Map Config:     {has_config}
+  Day-0 Save:     {has_day0}
+  Open Save:      {has_save}
+══════════════════════════════════════════════════════════════
+
+ДОСТУПНЫЕ РЕЖИМЫ (от простого к полному):
+
+┌─────────────────────────────────────────────────────────────┐
+│ РЕЖИМ 1: Минимальный — только сейв                           │
+│                                                             │
+│   Шаг: 3. Open Save… (Ctrl+O)                               │
+│                                                             │
+│   Что нужно:  только .GM1 файл                              │
+│   Что даёт:   • Заголовок (magic, version, map_name)        │
+│              • Герои (156, с именами, статы, армия)          │
+│   Чего нет:   • Города (нужны координаты)                   │
+│              • Кластеры объектов (нужны координаты)         │
+│              • Типы объектов (нужен map JSON)                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ РЕЖИМ 2: Map JSON + сейв (РЕКОМЕНДУЕМЫЙ)                    │
+│                                                             │
+│   Шаги: 1. Map JSON… → 3. Open Save…                       │
+│                                                             │
+│   Что нужно:  .h3m.zip (парсинг карты) + .GM1 сейв           │
+│   Что даёт:   • Всё из режима 1                             │
+│              • Города (21, с именами, фракциями)            │
+│              • Кластеры объектов (6006, 100% verified)      │
+│              • Типы объектов (town, mine, monster, ...)     │
+│              • Спрайты (.def names)                          │
+│              • Описание карты, слухи, глобальные события      │
+│              • Запрещённые артефакты/заклинания/навыки      │
+│   Чего нет:   • Начальное состояние (сколько было в         │
+│                сундуках ДО действий игрока)                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ РЕЖИМ 3: Map Config + сейв                                  │
+│                                                             │
+│   Шаги: 2b. Map Config… → 3. Open Save…                    │
+│                                                             │
+│   Что нужно:  map_config_*.json + .GM1 сейв                 │
+│   Что даёт:   • Всё из режима 2 (кроме типов/спрайтов)       │
+│              • Готовые смещения кластеров (из day-0)        │
+│   Чего нет:   • Типы объектов (нужен map JSON)              │
+│   Плюс:       Быстрее (config уже построен)                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ РЕЖИМ 4: Полный (Map JSON + Day-0 + сейв)                   │
+│                                                             │
+│   Шаги: 1. Map JSON… → 2. Day-Zero Save… → 3. Open Save…   │
+│   ИЛИ:  1. Map JSON… → 2b. Map Config… → 3. Open Save…     │
+│                                                             │
+│   Что нужно:  .h3m.zip + 0000.GM1 (или config) + .GM1      │
+│   Что даёт:   • Всё из режима 2                             │
+│              • Начальное состояние объектов                 │
+│              • Валидация (что изменилось с day-0)           │
+│              • Готовый map_config_*.json для будущих сейвов  │
+└─────────────────────────────────────────────────────────────┘
+
+ВСЕ ВХОДЫ ОПЦИОНАЛЬНЫ — парсер работает на любом уровне.
+Map JSON и Day-0 сейв — enrichment, не requirement.
+
+ОГРАНИЧЕНИЕ ProspectorRT: работает только со стартовыми сейвами,
+потому что ищет ".GM1" в имени файла (которое есть только у
+автосейвов с числовым именем, но не у ручных сохранений).
+Наш парсер НЕ имеет этого ограничения — работает с любыми сейвами."""
+
+        # Create a read-only text dialog
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QTextEdit, QVBoxLayout
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Режимы работы парсера")
+        dialog.resize(700, 600)
+        layout = QVBoxLayout(dialog)
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setPlainText(info_text)
+        text_edit.setFont(QFont("Consolas", 10))
+        layout.addWidget(text_edit)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttons.accepted.connect(dialog.accept)
+        layout.addWidget(buttons)
+        dialog.exec()
+
     def _on_open_file(self):
-        # Enforce workflow: Map JSON + Day-Zero required before opening saves
-        if not self.map_data:
-            QMessageBox.warning(
-                self, "Map JSON required",
-                "You must load a Map JSON first (Ctrl+M).\n\n"
-                "Workflow:\n"
-                "  1. Load → Map JSON… (Ctrl+M)\n"
-                "  2. Load → Day-Zero Save… (Ctrl+D)\n"
-                "  3. Load → Open Save… (Ctrl+O)  ← you are here"
-            )
-            return
-        if not self.map_config:
+        # v3.5: ALL inputs are optional. Parsing works at every level:
+        #   - No map JSON, no config → header + heroes only (no towns, no clusters)
+        #   - Map JSON only            → heroes + towns + clusters (with types)
+        #   - MapConfig only            → heroes + towns + clusters (types unknown)
+        #   - Map JSON + MapConfig      → everything (recommended)
+        if not self.map_data and not self.map_config:
             reply = QMessageBox.question(
-                self, "Day-Zero Save recommended",
-                "Day-Zero Save (Ctrl+D) is not loaded.\n"
-                "Without it, object addresses may be less accurate.\n\n"
+                self, "No map data loaded",
+                "Neither Map JSON nor Map Config is loaded.\n\n"
+                "You can still open the save — the parser will find\n"
+                "heroes and header, but NOT towns or object clusters\n"
+                "(those require coordinate data from a map).\n\n"
+                "For full parsing, load one of:\n"
+                "  • Map JSON (Ctrl+M) — gives types, sprites, description\n"
+                "  • Map Config (Ctrl+L) — gives pre-built offsets\n"
+                "  • Day-Zero Save (Ctrl+D) — builds config from scratch\n\n"
                 "Continue anyway?",
-                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes
             )
             if reply != QMessageBox.Yes:
                 return
@@ -2319,6 +2428,71 @@ class GM1ParserWindow(QMainWindow):
         if not path:
             return
         self.load_file(path)
+
+    def _build_config_from_map_data(self):
+        """Build a temporary MapConfig from MapData (without day-0 save).
+
+        Uses map_data.coord_int_lookup for object coordinate set
+        and map_data.objects_by_coord for town coords (with X-2 correction).
+
+        This enables parsing ANY save with just Map JSON — no day-0 save needed.
+        """
+        from save_layout import MapConfig, ObjectOffsets
+
+        # Build coord_ints set from map_data
+        coord_ints = set(self.map_data.coord_int_lookup.keys())
+
+        # Build town coords with X-2 correction (map X = save X + 2)
+        town_coords = []
+        town_names = []
+        for ck, rec in self.map_data.objects_by_coord.items():
+            if rec.get("category") == "town":
+                save_x = rec["x"] - 2
+                save_y = rec["y"]
+                save_z = rec["z"]
+                town_coords.append((save_x, save_y, save_z))
+                town_name = rec.get("details", {}).get("town_name", "")
+                town_names.append(town_name)
+
+        # Build a minimal MapConfig
+        # We don't have clusters or hero_section from a day-0 save,
+        # but save_parser.adapt_config_to_save will re-find everything
+        # from the current save using these coord_ints and town_coords.
+        config = MapConfig()
+        config.meta = {
+            "map_name": self.map_data.map_name,
+            "map_size": self.map_data.map_size,
+            "has_underground": self.map_data.has_underground,
+            "n_objects": self.map_data.n_objects,
+            "n_unique_coords": len(coord_ints),
+            "n_towns": len(town_coords),
+            "n_heroes_total": 0,  # unknown — will be found by adapt
+            "source": "built_from_map_data (no day-0 save)",
+        }
+
+        # Populate object_offsets with empty offsets — adapt_config_to_save
+        # only needs the coord_int keys, not the actual offset values
+        config.object_offsets = {ci: ObjectOffsets() for ci in coord_ints}
+
+        # Populate town_section with coords/names (for find_town_blocks hints)
+        from save_layout import TownBlockInfo, TownSection
+        town_blocks = []
+        for (tx, ty, tz), tname in zip(town_coords, town_names):
+            town_blocks.append(TownBlockInfo(
+                block_offset=0,  # unknown — will be found
+                name_offset=0,
+                name=tname,
+                faction=255,
+                town_type=0,
+                x=tx, y=ty, z=tz,
+            ))
+        config.town_section = TownSection(blocks=town_blocks)
+
+        # clusters and hero_section are empty — adapt_config_to_save
+        # will find them fresh from the save
+        config.clusters = []
+
+        return config
 
     def load_file(self, path: str):
         self._set_loading("Декомпрессия сейва…")
@@ -2334,9 +2508,15 @@ class GM1ParserWindow(QMainWindow):
         self.file_label.setText(f"{filename} ({len(self.raw_data)} bytes raw)")
 
         self._set_loading("Парсинг сейва…")
-        # v3.0: prefer MapConfig (Phase 3) if loaded; fall back to legacy mapping
+        # v3.5: If no MapConfig loaded but map_data is available,
+        # build a temporary MapConfig from map_data (coord_ints + town_coords)
+        map_config = getattr(self, "map_config", None)
+        if map_config is None and self.map_data:
+            map_config = self._build_config_from_map_data()
+
+        # v3.0: prefer MapConfig (Phase 3) if available; fall back to legacy mapping
         self.parsed_data = parse_save(self.raw_data, self.mapping,
-                                       map_config=getattr(self, "map_config", None))
+                                       map_config=map_config)
 
         self._set_loading("Поиск объектов в сейве…")
         self._computed_offsets = {}
