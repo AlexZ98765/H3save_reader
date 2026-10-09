@@ -24,7 +24,7 @@
 
 1. **Фаза 1 — Map JSON** (`map_json_loader.py`): загружает JSON-парсинг карты `.h3m` (или `.zip` с ним), строит `MapData` (`objects_by_coord`, `coord_int_lookup`, `type_index`, `category_index`) для ЛЮБОЙ карты.
 2. **Фаза 2 — Day-0 anchor** (`map_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
-3. **Фаза 3 — Any save** (`save_parser.py`): открывает любой сейв той же карты, **адаптирует** смещения из config (hero/town блоки и кластеры объектов могут сдвигаться между сейвами из-за роста path-block/replay log) и распарсивает все поля героя/города/объекта через `field_offsets` (формат-константы из `save_layout.py`). GUI `gm1_parser.py` теперь использует `cluster_finder` напрямую — без хардкода `0x100000`, `0x118000`, `0x120000`, `0x170000`.
+3. **Фаза 3 — Any save** (`save_parser.py` + `gm1_parser.py`): открывает любой сейв той же карты, **адаптирует** смещения из config (hero/town блоки и кластеры объектов могут сдвигаться между сейвами из-за роста path-block/replay log) и распарсивает все поля героя/города/объекта через `field_offsets` (формат-константы из `save_layout.py`). В v3.0 (Шаг 3) GUI `gm1_parser.parse_save()` автоматически использует `save_parser.parse_save()` через MapConfig — без хардкода смещений. `gm1_mapping.json` очищен от абсолютных offsets (оставлены только `constants`, `path_block`, `field_offsets`, `known_unknowns`).
 
 ## С чего начать
 
@@ -56,7 +56,7 @@ coord_int = x | (y << 8) | (z << 16)
 
 ## Известные ограничения текущей версии
 
-- `gm1_parser.py` (GUI) — `parse_save()` всё ещё читает блоки из `gm1_mapping.json` (секция `blocks` с absolute offsets для Myth and Legend). Это используется для отображения в дереве; для программного парсинга используйте `save_parser.parse_save(raw, config)`. Очистка `gm1_mapping.json` и перевод GUI на `save_parser` — следующий шаг.
+- `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 (Шаг 3b) — они вычисляются динамически через `map_config_builder.py`.
 - `04_diff_analysis/Myth and Legend/` — исторические разовые скрипты, использовавшиеся для ручного локализования полей. Не используются в runtime. Пути к сейвам в них захардкожены (сейвы не в репозитории).
 
 ## Подробная документация

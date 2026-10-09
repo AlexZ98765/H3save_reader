@@ -279,44 +279,60 @@ json.dump(data, open("/tmp/parsed.json", "w"), ensure_ascii=False, indent=2)
 
 ---
 
-### 6. `01_tools/gm1_parser.py` — PySide6 GUI парсер ⭐ (частично отрефакторен)
+### 6. `01_tools/gm1_parser.py` — PySide6 GUI парсер ⭐ (отрефакторен в Шаге 3)
 
-**Размер:** 2829 строк
+**Размер:** ~3100 строк
 **Назначение:** Главный GUI инструмент для просмотра и анализа `.GM1` сейвов.
 
 **Возможности:**
 - Открывает `.GM1` файлы (с обходом битого gzip CRC)
-- Парсит сейв согласно `02_format_docs/gm1_mapping.json`
 - Загрузка JSON карты (Ctrl+M) — динамическое построение objects_by_coord для любой карты
 - Кнопка "Load Day-Zero Save…" (Ctrl+D) — строит `MapConfig` через `map_config_builder.build_map_config` и сохраняет в `map_config_<mapname>.json`
+- ⭐ **Кнопка "Load Map Config…" (Ctrl+L)** — загружает готовый `map_config_<mapname>.json` (НОВОЕ в Шаге 3d). Позволяет пропустить Шаг 2 если config уже построен.
 - Вкладка "Map Objects" с фильтрами и сортировкой
 - Экспорт в JSON и Excel
 
-**Рефакторинг в v3.0-dev (Шаг 2):**
-- ✅ `_compute_object_offsets_in_save()` переписан — использует `cluster_finder.find_all_object_clusters` (без хардкода `0x118000`/`0x120000`/`0x170000`), `scan_start = header.header_size` (без хардкода `0x10000`)
-- ✅ `find_hero_blocks(raw, scan_start=None)` — `scan_start` теперь по умолчанию берётся из `header_parser.parse_header(raw).header_size` (без хардкода `0x100000`)
-- ✅ `find_town_blocks(raw, ..., scan_start=None)` — то же самое (без хардкода `30000`)
-- ✅ `_show_map_object_details` — классификация смещений по кластерам из `MapConfig` (без хардкода `0x118C1C`/`0x120C8C`/`0x172100`)
-- ⚠️ `parse_save()` (GUI функция) всё ещё читает `mapping["blocks"]` из `02_format_docs/gm1_mapping.json` (с absolute offsets для Myth and Legend) — это для отображения в дереве блоков. Для программного парсинга используйте `save_parser.parse_save(raw, config)`.
+**Рефакторинг в v3.0:**
 
-**Статус:** ⚠️ Частично отрефакторен. GUI `parse_save()` всё ещё зависит от `gm1_mapping.json`. Полный перевод GUI на `save_parser.parse_save()` — следующий шаг (Шаг 3).
+Шаг 2:
+- ✅ `_compute_object_offsets_in_save()` переписан — использует `cluster_finder.find_all_object_clusters` (без хардкода `0x118000`/`0x120000`/`0x170000`), `scan_start = header.header_size` (без хардкода `0x10000`)
+- ✅ `find_hero_blocks(raw, scan_start=None)` — `scan_start` из `header_parser.parse_header(raw).header_size` (без хардкода `0x100000`)
+- ✅ `find_town_blocks(raw, ..., scan_start=None)` — то же (без хардкода `30000`)
+- ✅ `_show_map_object_details` — классификация смещений по кластерам из `MapConfig` (без хардкода `0x118C1C`/`0x120C8C`/`0x172100`)
+
+Шаг 3:
+- ✅ `parse_save(raw, mapping=None, map_config=None)` — переписана на 2 пути:
+  - **Path 1 (с MapConfig):** вызывает `save_parser.parse_save()` (Phase 3) — универсально, без хардкода. Возвращает тот же формат dict для `_populate_tree`.
+  - **Path 2 (legacy, без MapConfig):** парсит только header + heroes + towns через universal `find_hero_blocks` / `find_town_blocks`. Без блоков из mapping (т.к. `gm1_mapping.json` больше не содержит секцию `blocks`).
+- ✅ `_on_load_day_zero` обновлён: `parse_save()` вызывается с `map_config=config` (новый параметр), и `parsed_data["object_offsets"]` используется напрямую если есть
+- ✅ `_on_load_map_config` (НОВЫЙ метод) — загружает `MapConfig` из `map_config_<mapname>.json` через `MapConfig.from_dict`
+- ✅ Добавлены кнопка "2b. Map Config…" в toolbar и пункт меню "Load Map Config…" (Ctrl+L)
+
+**Статус:** ✅ Полностью отрефакторен. GUI теперь использует Phase 3 (`save_parser.parse_save`) автоматически, когда загружен `MapConfig` (через Шаг 2 или Шаг 2b).
 
 ---
 
-### 7. `02_format_docs/gm1_mapping.json` — Машиночитаемый конф ⚠️
+### 7. `02_format_docs/gm1_mapping.json` — Универсальные формат-константы ⭐
 
-**Размер:** 1669 строк
-**Назначение:** Карта всех известных смещений в `.GM1` сейвах.
+**Размер:** ~14 KB (было 51 KB до Шага 3b)
+**Назначение:** Универсальные формат-константы `.GM1`. Все absolute offsets удалены в v3.0 (Шаг 3b) — теперь они вычисляются динамически через `map_config_builder.py`.
 
-**Содержимое:**
+**Содержимое (только универсальные секции):**
 - `constants` — формат-константы (magic bytes, player colors, version codes) — ✅ универсальные
-- `field_offsets` (заложено) — относительные смещения внутри блоков — ✅ универсальные (теперь дублированы в `save_layout.py`)
-- `blocks` — массив из 20 блоков с ABSOLUTE смещениями — ❌ валидны только для "Myth and Legend.h3m"
-- `alternative_offsets.save_447_series` — 14 полей для сейвов серии 447 — ❌ хардкод
-- `path_block.path_record_types` — 7 типов path-записей — ✅ универсальные
-- `known_unknowns` — список не-локализованных полей
+- `path_block.path_record_types` — 7 типов path-записей (universal format constants)
+- `field_offsets` — относительные смещения внутри hero/town блоков (из `save_layout.py`)
+  - `field_offsets.hero` — 24 поля (Player, CoordinatesX/Y/Z, Experience, Level, Army, Skills, Spells, Equipment, ...)
+  - `field_offsets.town` — 9 полей (faction, type, x/y/z, army_types, army_counts, name)
+  - `field_offsets.constants` — HERO_BLOCK_SIZE, HERO_STRIDE_SOD, HERO_NAME_OFFSET_FROM_BLOCK_START, TOWN_NAME_OFFSET_FROM_BLOCK_START
+- `known_unknowns` — список не-локализованных полей (TODO для исследования)
+- `notes` — описание трёхфазной архитектуры
 
-**Статус:** ⚠️ Требует чистки: удалить секции `blocks` и `alternative_offsets`, оставить только `constants`, `path_block`, `known_unknowns`. Абсолютные смещения теперь вычисляются динамически через `map_config_builder.py`. Поле `field_offsets` дублировано в `save_layout.py` (более каноничное место).
+**Удалено в Шаге 3b:**
+- ❌ `blocks` — 21 блок с ABSOLUTE смещениями для "Myth and Legend.h3m" сейвов (раньше 51 KB → теперь 0)
+- ❌ `alternative_offsets.save_447_series` — 14 полей с absolute offsets для серии 447 (валидны только для одной карты)
+- ❌ `search_patterns` — regex-паттерны с hardcoded диапазонами
+
+**Статус:** ✅ Очищен. Содержит только универсальные формат-константы. Absolute offsets теперь берутся из `map_config_<mapname>.json` (построенного `map_config_builder.py`).
 
 ---
 
@@ -456,6 +472,29 @@ config = build_map_config(md, day0_raw, "/path/to/0000.GM1")
 ---
 
 ## 📝 Журнал изменений
+
+### v3.0-dev — Шаг 3 (2026-10-10)
+- **Очистка `02_format_docs/gm1_mapping.json`** (Шаг 3b):
+  - Удалены секции `blocks` (21 блок с absolute offsets), `alternative_offsets` (save_447_series с 14 полями), `search_patterns` — всё это содержало хардкод для "Myth and Legend.h3m"
+  - Размер: 51 KB → 14 KB (в 3.6× меньше)
+  - Оставлены только универсальные секции: `constants`, `path_block`, `field_offsets` (взят из `save_layout.py`), `known_unknowns`, `notes`
+  - Скрипт очистки: `clean_gm1_mapping.py` (создаёт backup, копирует field_offsets из save_layout)
+- **Рефакторинг `01_tools/gm1_parser.py`** (Шаг 3c):
+  - `parse_save(raw, mapping=None, map_config=None)` — переписана на 2 пути:
+    - **Path 1 (с MapConfig):** `_parse_save_via_config()` — вызывает `save_parser.parse_save()` (Phase 3), конвертирует результат в dict формат для `_populate_tree`. Возвращает `file_info`, `blocks` (header + per-cluster), `heroes_found`, `towns_found`, `object_offsets`, `map_config_meta`
+    - **Path 2 (legacy, без MapConfig):** `_parse_save_legacy()` — парсит только header + heroes + towns через universal find_hero_blocks/find_town_blocks. Без блоков из mapping
+  - Все 3 вызова `parse_save()` (в `load_file`, `_on_reload_mapping`, `_on_load_day_zero`) обновлены: передают `map_config=getattr(self, "map_config", None)` и используют `parsed_data["object_offsets"]` если есть
+  - `_on_load_day_zero` исправлен: обращается к `config.meta`, `config.hero_section.count` (MapConfig dataclass) вместо dict-доступа
+- **Новая кнопка "Load Map Config…"** (Шаг 3d):
+  - Toolbar: кнопка "2b. Map Config…" между "2. Day-Zero Save…" и "3. Open Save…"
+  - Menu: пункт "Load → Load Map Config…" (Ctrl+L)
+  - Метод `_on_load_map_config()` загружает готовый `map_config_<mapname>.json` через `MapConfig.from_dict`
+  - Позволяет пропустить Шаг 2 (Day-Zero Save) если config уже построен
+- **Тестирование** (Шаг 3e):
+  - Создан `/home/z/my-project/scripts/test_step3.py` — end-to-end тест Phase 3 через `gm1_parser.parse_save(raw, mapping={}, map_config=config)` на 4 сейвах (2 карты × day-0 + post-action)
+  - Все тесты проходят: на save_parse_test_01 (150 heroes, 1 town, 3 object_offsets) и Myth and Legend (156 heroes, 21 towns, 6006 object_offsets — 100% verified)
+  - Адаптация между сейвами работает: на Myth and Legend day-0 → 114.GM1 hero blocks сдвинулись (0x14223F → 0x1418EB), Одиссей level=1→2, exp=46→1629
+- **Обновлены** `README.md`, `FILES_DESCRIPTION.md` (этот changelog)
 
 ### v3.0-dev — Шаг 2 (2026-10-10)
 - **Новый модуль** `01_tools/save_parser.py` (350 строк) — **Фаза 3**: универсальный парсер сейва через `MapConfig`. Главные функции:

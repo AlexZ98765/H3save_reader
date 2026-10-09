@@ -133,3 +133,74 @@ Stage Summary:
 - **Bug fix попутно:** старый `find_hero_blocks` с `range(0x100000, len(raw))` ничего не находил на маленьких сейвах (196 KB), потому что `0x100000 > 196608`. Теперь `scan_start` берётся из `header_size` (~0x258 для маленьких карт), и сканирование работает.
 - **Что осталось на Шаг 3:** перевести GUI `parse_save()` на `save_parser.parse_save()`, очистить `02_format_docs/gm1_mapping.json` (удалить секции `blocks` и `alternative_offsets` с absolute offsets для Myth and Legend), добавить кнопку "Load Map Config…" в GUI для загрузки готового `map_config_*.json`.
 
+
+---
+Task ID: 3
+Agent: main
+Task: Убрать папку examples/ из архива (по запросу пользователя).
+
+Work Log:
+- Пересобрал архив без `examples/` — теперь 105 файлов вместо 117, размер 526 KB вместо 3.0 MB
+- Обновил `README.md`: убрал таблицу "Примеры (в `examples/`)", заменил `examples/MyMap/...` на `/path/to/...` в команде запуска
+- Обновил `FILES_DESCRIPTION.md`: убрал `examples/` из дерева структуры, добавил примечание "Папка examples/ больше не включается в архив. Пользователь должен предоставлять свои .h3m.json / .GM1 файлы"
+- Заменил все `examples/MyMap/...` в примерах кода на `/path/to/MyMap.h3m.zip` и `/path/to/0000.GM1`
+- Обновил статистику: "Карт в examples/" → "Примеры сейвов | (не входят в архив; пользователь загружает свои)"
+- Убрал запись "Новые примеры в examples/" из changelog
+- Worklog.md добавлен в архив для сохранения истории работы
+
+Stage Summary:
+- Архив теперь весит 526 KB (в 6 раз меньше) — без тяжёлых сейвов и JSON-парсингов карт
+- README и FILES_DESCRIPTION актуализированы под отсутствие examples/
+- Веб-страница скачивания (https://preview-b05de585.space-z.ai/) автоматически отдаёт обновлённый архив через `/api/download` endpoint
+
+---
+Task ID: 4
+Agent: main
+Task: Шаг 3 — полный перевод GUI parse_save() на save_parser.parse_save(), очистка gm1_mapping.json от absolute offsets, добавление кнопки "Load Map Config…" в GUI.
+
+Work Log:
+- Очистка `02_format_docs/gm1_mapping.json` (Шаг 3b):
+  - Создан скрипт `/home/z/my-project/scripts/clean_gm1_mapping.py`
+  - Удалены секции: `blocks` (21 блок с absolute offsets), `alternative_offsets.save_447_series` (14 полей), `search_patterns` (regex с hardcoded диапазонами)
+  - Оставлены только универсальные секции: `constants`, `path_block` (7 path_record_types), `field_offsets` (HERO_FIELD_OFFSETS, TOWN_FIELD_OFFSETS, HERO_BLOCK_SIZE/STRIDE константы — импортированы из save_layout.py), `known_unknowns`, `notes` (обновлён — описание трёхфазной архитектуры)
+  - Размер файла: 51 KB → 14 KB (в 3.6× меньше)
+- Рефакторинг `01_tools/gm1_parser.py` (Шаг 3c):
+  - `parse_save(raw, mapping=None, map_config=None)` — переписана на 2 пути:
+    - `_parse_save_via_config(raw, map_config)` — Path 1 (с MapConfig): вызывает `save_parser.parse_save()` (Phase 3), конвертирует ParsedSave в dict формат для `_populate_tree`. Возвращает `file_info` (с header_size, map_filename, save_filename), `blocks` (header + per-cluster), `heroes_found` (legacy format с {name, offset, fields dict}), `towns_found` (legacy format с {name, faction_name, type_name, location, army_types, army_counts}), `object_offsets`, `map_config_meta`
+    - `_parse_save_legacy(raw, mapping)` — Path 2 (без MapConfig): парсит только header + heroes + towns через universal find_hero_blocks/find_town_blocks. Без блоков из mapping (т.к. `gm1_mapping.json` больше не содержит `blocks`)
+  - Обновлены все 3 вызова `parse_save()`:
+    - `load_file`: `parse_save(self.raw_data, self.mapping, map_config=getattr(self, "map_config", None))` + использует `parsed_data["object_offsets"]` если есть (пропускает `_compute_object_offsets_in_save`)
+    - `_on_reload_mapping`: то же
+    - `_on_load_day_zero`: `parse_save(self.raw_data, self.mapping, map_config=config)` + использует `parsed_data["object_offsets"]`
+  - `_on_load_day_zero` исправлен: обращается к `config.meta`, `config.hero_section.count` (MapConfig dataclass) вместо dict-доступа через `config["_meta"]["map_name"]` — добавлена проверка `hasattr(config, "meta")` для обратной совместимости
+- Новая кнопка "Load Map Config…" (Шаг 3d):
+  - Toolbar: добавлена кнопка "2b. Map Config…" между "2. Day-Zero Save…" и "3. Open Save…"
+  - Menu: добавлен пункт "Load → Load Map Config…" (Ctrl+L)
+  - Новый метод `_on_load_map_config()` загружает `MapConfig.from_dict(json.load(open(path)))` через `save_layout.MapConfig`. Показывает QMessageBox с информацией о загруженном config (map_name, map_size, n_objects, n_heroes, n_towns, n_clusters).
+  - Позволяет пропустить Шаг 2 (Day-Zero Save) если config уже построен
+- Тестирование (Шаг 3e):
+  - Создан `/home/z/my-project/scripts/test_step3.py` — end-to-end тест Phase 3 через `gm1_parser.parse_save(raw, mapping={}, map_config=config)` на 4 сейвах
+  - Использует mock PySide6 (так как реальная библиотека требует GUI среды)
+  - Все 4 теста проходят:
+    - save_parse_test_01/0000.GM1: file_info (H3SVG v42.2, map='save_parse_test_01'), 2 blocks (header + cluster:main 0x775A..0x7765), 150 heroes (first='Оррин' level=1 exp=74), 1 town ('ttost' faction=Neutral type=Castle coords=(2,2,0)), 3 object_offsets (100% verified)
+    - save_parse_test_01/0001.GM1: те же 150 героев, 1 town — те же смещения (path block не растёт на маленькой карте)
+    - Myth and Legend/0000.GM1: file_info (map='Мифы и легенды'), 11 blocks (header + 10 clusters: main 0x12281A..0x12B0FB, visiting 0x100EE6..0x1148BB, decoration 0x13D4AF..0x14244A, ...), 156 heroes (first='Одиссей' at 0x14223F level=1 exp=46 player=Red), 21 towns (first='Кавала' faction=Neutral type=Tower coords=(109,3,0)), 6006 object_offsets (100% verified)
+    - Myth and Legend/114.GM1: hero blocks сдвинулись (0x14223F → 0x1418EB), Одиссей level=2 exp=1629 — адаптация между сейвами работает
+- Обновлены md файлы (Шаг 3f):
+  - `README.md` — описание Фазы 3 обновлено (упомянуты обе `save_parser.py` + `gm1_parser.py`), обновлены "Известные ограничения"
+  - `FILES_DESCRIPTION.md` — раздел 6 (`gm1_parser.py`) переписан с детальным описанием рефакторинга Шага 2 + Шага 3; раздел 7 (`gm1_mapping.json`) переписан под чистую структуру; добавлен changelog v3.0-dev Шаг 3
+
+Stage Summary:
+- **Шаг 3 завершён.** Полностью убран хардкод смещений из проекта:
+  - `gm1_mapping.json` теперь содержит только универсальные формат-константы (14 KB вместо 51 KB)
+  - `gm1_parser.parse_save()` автоматически использует `save_parser.parse_save()` (Phase 3) когда загружен MapConfig (через "Load Day-Zero Save" или новую кнопку "Load Map Config")
+  - `gm1_parser.parse_save()` без MapConfig возвращает минимальный ParsedSave (header + heroes + towns) — без хардкода
+  - Новая кнопка "2b. Map Config…" (Ctrl+L) позволяет пропускать Шаг 2 если config уже построен
+- **End-to-end тест** на 4 сейвах (2 карты × day-0 + post-action) проходит успешно
+- **Адаптация между сейвами работает:** на Myth and Legend day-0 → 114.GM1 hero blocks автоматически перенаходятся (0x14223F → 0x1418EB), hero state корректно парсится (Одиссей level=1→2, exp=46→1629), 6006 object_offsets 100% verified на обоих сейвах
+- **Все три фазы архитектуры готовы:**
+  - Phase 1: `map_json_loader.py` — загрузка любой карты
+  - Phase 2: `map_config_builder.py` — построение MapConfig из day-0 сейва
+  - Phase 3: `save_parser.py` + `gm1_parser.py` — парсинг любого сейва через MapConfig
+- Проект достиг состояния "универсальный парсер сейвов .GM1 для любой карты без хардкода смещений".
+

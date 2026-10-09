@@ -771,7 +771,238 @@ def read_field(raw: bytes, offset: int, size: int, type_: str,
     return chunk, f"<unknown type {type_}>"
 
 
-def parse_save(raw: bytes, mapping: Dict) -> Dict:
+def parse_save(raw: bytes, mapping: Dict = None,
+                map_config: Any = None) -> Dict:
+    """
+    Parse a decompressed .GM1 save.
+
+    v3.0 architecture:
+      - If `map_config` (a MapConfig) is provided, uses save_parser.parse_save()
+        (Phase 3) — universal, no hardcoded offsets.
+      - If only `mapping` (gm1_mapping.json) is provided, falls back to the
+        legacy path that reads mapping["blocks"] (only path_block is universal
+        now; other blocks were removed in v3.0).
+      - If neither is provided, returns a minimal ParsedSave with only
+        header + heroes_found + towns_found (no blocks).
+
+    Args:
+        raw:        decompressed save bytes
+        mapping:    gm1_mapping.json dict (legacy; only `path_block` and
+                    `constants` are now universal — `blocks` was removed in v3.0)
+        map_config: MapConfig object (preferred — from Phase 2 = map_config_builder)
+
+    Returns a dict with the same shape as before (for _populate_tree):
+      {
+        "file_info": {...},
+        "blocks": [...],
+        "path_records": [...],
+        "heroes_found": [...],
+        "towns_found": [...],
+        "errors": [...],
+      }
+    """
+    # ----- Path 1: use save_parser.parse_save() if MapConfig is provided -----
+    if map_config is not None:
+        return _parse_save_via_config(raw, map_config)
+
+    # ----- Path 2: legacy / minimal parse -----
+    return _parse_save_legacy(raw, mapping or {})
+
+
+def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
+    """Parse via save_parser.parse_save() (Phase 3) — universal, no hardcoded offsets.
+
+    Converts the ParsedSave dataclass to the dict format expected by
+    _populate_tree() and export_to_json().
+    """
+    # Import save_parser lazily (so gm1_parser.py doesn't depend on it at module load)
+    try:
+        from save_parser import (
+            parse_save as sp_parse_save,
+            parse_hero_block as sp_parse_hero_block,
+            parse_town_block as sp_parse_town_block,
+            adapt_config_to_save,
+            PLAYER_COLOR_NAMES, TOWN_TYPE_NAMES,
+        )
+    except ImportError:
+        import importlib.util
+        tools_dir = os.path.dirname(os.path.abspath(__file__))
+        spec = importlib.util.spec_from_file_location(
+            "save_parser", os.path.join(tools_dir, "save_parser.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        sp_parse_save = mod.parse_save
+        sp_parse_hero_block = mod.parse_hero_block
+        sp_parse_town_block = mod.parse_town_block
+        adapt_config_to_save = mod.adapt_config_to_save
+        PLAYER_COLOR_NAMES = mod.PLAYER_COLOR_NAMES
+        TOWN_TYPE_NAMES = mod.TOWN_TYPE_NAMES
+
+    # Run Phase 3 parse
+    parsed = sp_parse_save(raw, map_config)
+
+    # Build the dict format for _populate_tree
+    # ----- file_info -----
+    file_info = {
+        "raw_size":      parsed.header.raw_size,
+        "magic":         parsed.header.magic,
+        "version_major": parsed.header.version_major,
+        "version_minor": parsed.header.version_minor,
+        "map_name":      parsed.header.map_name,
+        "map_filename":  parsed.header.map_filename,
+        "save_filename": parsed.header.save_filename,
+        "header_size":   parsed.header.header_size,
+        "has_underground": parsed.header.has_underground,
+        "map_size":      parsed.header.map_size,
+    }
+
+    # ----- blocks: header + per-cluster -----
+    blocks = []
+    # Header block
+    header_block = {
+        "name":        "header",
+        "description": "Save header (H3SVG magic, version, map name, ...)",
+        "fields": [
+            {"name": "magic", "offset": 0x0, "size": 5, "type": "ascii",
+             "value": parsed.header.magic, "formatted": parsed.header.magic,
+             "description": "Magic bytes (H3SVG or H3SVC)"},
+            {"name": "version_major", "offset": 0x08, "size": 4, "type": "u32",
+             "value": parsed.header.version_major,
+             "formatted": f"0x{parsed.header.version_major:02X}",
+             "description": "Save version major (0x2A = 42 = SoD/HotA)"},
+            {"name": "version_minor", "offset": 0x0C, "size": 4, "type": "u32",
+             "value": parsed.header.version_minor,
+             "formatted": f"0x{parsed.header.version_minor:02X}"},
+            {"name": "map_type", "offset": 0x30, "size": 4, "type": "u32",
+             "value": parsed.header.map_type, "formatted": str(parsed.header.map_type),
+             "description": "28 = SoD"},
+            {"name": "has_underground", "offset": 0x34, "size": 1, "type": "u8",
+             "value": int(parsed.header.has_underground),
+             "formatted": str(int(parsed.header.has_underground))},
+            {"name": "map_size", "offset": 0x35, "size": 4, "type": "u32",
+             "value": parsed.header.map_size,
+             "formatted": str(parsed.header.map_size)},
+            {"name": "map_name", "offset": 0x3C,
+             "size": len(parsed.header.map_name.encode("cp1251", errors="replace")),
+             "type": "cp1251", "value": parsed.header.map_name,
+             "formatted": parsed.header.map_name},
+            {"name": "map_filename", "offset": 0,
+             "size": len(parsed.header.map_filename),
+             "type": "ascii", "value": parsed.header.map_filename,
+             "formatted": parsed.header.map_filename},
+            {"name": "save_filename", "offset": 0,
+             "size": len(parsed.header.save_filename),
+             "type": "ascii", "value": parsed.header.save_filename,
+             "formatted": parsed.header.save_filename},
+            {"name": "header_size", "offset": 0, "size": 0, "type": "int",
+             "value": parsed.header.header_size,
+             "formatted": f"0x{parsed.header.header_size:X}",
+             "description": "Byte offset where game-state sections begin"},
+        ],
+    }
+    blocks.append(header_block)
+
+    # Per-cluster blocks (from parsed.blocks[1:] — first is "header")
+    for cluster_block in parsed.blocks[1:]:
+        if cluster_block.name.startswith("cluster:"):
+            cname = cluster_block.name.split(":", 1)[1]
+            blocks.append({
+                "name":        f"cluster:{cname}",
+                "description":  cluster_block.description,
+                "fields": [
+                    {"name": "start", "offset": cluster_block.start, "size": 0,
+                     "type": "int", "value": cluster_block.start,
+                     "formatted": f"0x{cluster_block.start:X}"},
+                    {"name": "end", "offset": cluster_block.end, "size": 0,
+                     "type": "int", "value": cluster_block.end,
+                     "formatted": f"0x{cluster_block.end:X}"},
+                ],
+            })
+
+    # ----- heroes_found (convert to legacy dict format) -----
+    heroes_found = []
+    for h in parsed.heroes:
+        f = h.get("fields", {})
+        # Convert to legacy format: name, offset, fields dict with (val, formatted) tuples
+        hero_dict = {
+            "name":   h.get("name") or f.get("name", "?"),
+            "offset": h["block_offset"],
+        }
+        # Build fields dict — legacy expected {field_name: (value, formatted_str)}
+        hero_fields_dict = {}
+        for fname in ["name", "player", "player_name", "level", "experience",
+                       "movement_total", "movement_left", "mana_left",
+                       "location_x", "location_y", "location_z",
+                       "attack", "defense", "power", "knowledge",
+                       "num_skills"]:
+            if fname in f:
+                v = f[fname]
+                hero_fields_dict[fname] = (v, str(v))
+        # Army, skills, spells, equipment as summary lines
+        if "army_types" in f:
+            hero_fields_dict["army_types"] = (f["army_types"], str(f["army_types"]))
+        if "army_counts" in f:
+            hero_fields_dict["army_counts"] = (f["army_counts"], str(f["army_counts"]))
+        if "skill_levels" in f:
+            hero_fields_dict["skill_levels"] = (f["skill_levels"], f"<{sum(1 for x in f['skill_levels'] if x)} skills>")
+        if "equipment" in f:
+            equipped = sum(1 for aid, _ in f["equipment"] if aid != 0xFFFFFFFF)
+            hero_fields_dict["equipment"] = (f["equipment"], f"<{equipped} equipped>")
+        hero_dict["fields"] = hero_fields_dict
+        heroes_found.append(hero_dict)
+
+    # ----- towns_found (convert to legacy dict format) -----
+    towns_found = []
+    for t in parsed.towns:
+        f = t.get("fields", {})
+        towns_found.append({
+            "name":         t.get("name") or f.get("name", "?"),
+            "offset":       t["block_offset"],
+            "faction":      f.get("faction", 255),
+            "faction_name": f.get("faction_name", "?"),
+            "type":         f.get("type", 0),
+            "type_name":    f.get("type_name", "?"),
+            "location":     (f.get("x", 0), f.get("y", 0), f.get("z", 0)),
+            "army_types":   f.get("army_types", [-1]*7),
+            "army_counts":  f.get("army_counts", [0]*7),
+        })
+
+    # ----- object_offsets (from parsed.objects_on_map) -----
+    # Convert to the format used by _compute_object_offsets_in_save
+    object_offsets = {}
+    for o in parsed.objects_on_map:
+        ci = o["coord_int"]
+        def h(v): return f"0x{v:X}" if v is not None else None
+        object_offsets[str(ci)] = {
+            "main_offset":       h(o.get("main_offset")),
+            "visiting_offset":   h(o.get("visiting_offset")),
+            "fog_offset":        h(o.get("fog_offset")),
+            "alive_offset":      h(o.get("alive_offset")),
+            "treasure_offset":   h(o.get("treasure_offset")),
+            "decoration_offset": h(o.get("decoration_offset")),
+            "save_offsets":      [f"0x{x:X}" for x in o.get("save_offsets", [])],
+            "verified":          bool(o.get("save_offsets")),
+        }
+
+    return {
+        "file_info":       file_info,
+        "blocks":          blocks,
+        "path_records":    [],  # Path records not yet implemented in save_parser
+        "heroes_found":    heroes_found,
+        "towns_found":     towns_found,
+        "errors":          [],
+        "object_offsets":  object_offsets,  # bonus: from Phase 3
+        "map_config_meta": parsed.header.to_dict(),  # bonus: header info
+    }
+
+
+def _parse_save_legacy(raw: bytes, mapping: Dict) -> Dict:
+    """Legacy parse path — used when no MapConfig is provided.
+
+    Uses gm1_mapping.json (only `path_block` is universal now; `blocks`
+    was removed in v3.0). Always parses header + heroes + towns using
+    the universal find_hero_blocks / find_town_blocks.
+    """
     # Parse map name from header (at offset 0x3A: 2-byte len + name bytes, cp1251)
     map_name = ""
     try:
@@ -796,70 +1027,46 @@ def parse_save(raw: bytes, mapping: Dict) -> Dict:
         "errors": [],
     }
 
-    # Parse mapping blocks
+    # Parse path_block from mapping (universal — only this block remains)
     path_record_types = {}
+    path_block_def = mapping.get("path_block") or {}
+    if isinstance(path_block_def, dict):
+        path_record_types = path_block_def.get("path_record_types", {})
+    # Also check legacy `blocks` array (still supported if user has old mapping)
     for b in mapping.get("blocks", []):
         if b.get("name") == "path_block":
             path_record_types = b.get("path_record_types", {})
             break
 
-    for block_def in mapping.get("blocks", []):
-        block_name = block_def.get("name", "unknown")
-        block_desc = block_def.get("description", "")
-        fields_def = block_def.get("fields", [])
-
-        block_result = {"name": block_name, "description": block_desc, "fields": []}
-
-        for fdef in fields_def:
-            fname = fdef["name"]
-            foff = parse_offset(fdef["offset"])
-            fsize = fdef["size"]
-            ftype = fdef["type"]
-            fdesc = fdef.get("description", "")
-            fvalues = fdef.get("values")
-            fbits = fdef.get("bits")
-            farray_count = fdef.get("array_count")
-
-            if isinstance(fvalues, str) and fvalues == "PLAYER_COLORS":
-                fvalues = PLAYER_COLORS
-            elif isinstance(fvalues, dict):
-                pass  # Use as-is
-
-            if fsize == -1 or ftype == "path_records":
-                if foff >= 0 and foff < len(raw):
-                    max_size = len(raw) - foff - 18
-                    records = parse_path_records(raw, foff, max_size)
-                    block_result["fields"].append({
-                        "name": fname, "offset": foff, "size": -1,
-                        "type": ftype, "value": None,
+    # If there's a `path_block` with explicit start offset, parse it.
+    # In v3.0 we don't have absolute offsets, so skip path record parsing
+    # unless mapping provides a path_block with `fields` containing offset.
+    path_block_fields = path_block_def.get("fields", []) if isinstance(path_block_def, dict) else []
+    for fdef in path_block_fields:
+        if fdef.get("type") == "path_records":
+            foff = parse_offset(fdef.get("offset", -1))
+            if foff >= 0 and foff < len(raw):
+                max_size = len(raw) - foff - 18
+                records = parse_path_records(raw, foff, max_size)
+                result["path_records"].extend(records)
+                result["blocks"].append({
+                    "name": "path_block",
+                    "description": path_block_def.get("description", ""),
+                    "fields": [{
+                        "name": fdef.get("name", "path_records"),
+                        "offset": foff, "size": -1,
+                        "type": "path_records", "value": None,
                         "formatted": f"<{len(records)} path records>",
-                        "description": fdesc, "path_records": records,
-                    })
-                    result["path_records"].extend(records)
-                continue
-
-            try:
-                val, formatted = read_field(raw, foff, fsize, ftype,
-                                            values=fvalues, array_count=farray_count, bits=fbits)
-                block_result["fields"].append({
-                    "name": fname, "offset": foff, "size": fsize,
-                    "type": ftype, "value": val, "formatted": formatted,
-                    "description": fdesc,
+                        "description": fdef.get("description", ""),
+                        "path_records": records,
+                    }],
                 })
-            except Exception as e:
-                result["errors"].append(f"Error reading {block_name}.{fname} @ 0x{foff:x}: {e}")
-                block_result["fields"].append({
-                    "name": fname, "offset": foff, "size": fsize,
-                    "type": ftype, "value": None, "formatted": f"<error: {e}>",
-                    "description": fdesc,
-                })
+            break
 
-        result["blocks"].append(block_result)
-
-    # Find heroes using h3sed regex
+    # Find heroes using universal find_hero_blocks
     result["heroes_found"] = find_hero_blocks(raw)
 
-    # Find towns using h3sed regex
+    # Find towns using universal find_town_blocks
     result["towns_found"] = find_town_blocks(raw)
 
     return result
@@ -1425,6 +1632,11 @@ class GM1ParserWindow(QMainWindow):
         load_dz_btn = QPushButton("2. Day-Zero Save…")
         load_dz_btn.clicked.connect(self._on_load_day_zero)
         load_layout.addWidget(load_dz_btn)
+        load_cfg_btn = QPushButton("2b. Map Config…")
+        load_cfg_btn.setToolTip("Load a previously-saved map_config_<mapname>.json (produced by step 2).\n"
+                                 "Lets you skip step 2 (Day-Zero Save) if a config already exists.")
+        load_cfg_btn.clicked.connect(self._on_load_map_config)
+        load_layout.addWidget(load_cfg_btn)
         open_btn = QPushButton("3. Open Save…")
         open_btn.clicked.connect(self._on_open_file)
         load_layout.addWidget(open_btn)
@@ -1660,6 +1872,10 @@ class GM1ParserWindow(QMainWindow):
         load_dz_action.setShortcut("Ctrl+D")
         load_dz_action.triggered.connect(self._on_load_day_zero)
         load_menu.addAction(load_dz_action)
+        load_cfg_action = QAction("Load Map Config…", self)
+        load_cfg_action.setShortcut("Ctrl+L")
+        load_cfg_action.triggered.connect(self._on_load_map_config)
+        load_menu.addAction(load_cfg_action)
         open_action = QAction("Open Save…", self)
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self._on_open_file)
@@ -2118,11 +2334,18 @@ class GM1ParserWindow(QMainWindow):
         self.file_label.setText(f"{filename} ({len(self.raw_data)} bytes raw)")
 
         self._set_loading("Парсинг сейва…")
-        self.parsed_data = parse_save(self.raw_data, self.mapping)
+        # v3.0: prefer MapConfig (Phase 3) if loaded; fall back to legacy mapping
+        self.parsed_data = parse_save(self.raw_data, self.mapping,
+                                       map_config=getattr(self, "map_config", None))
 
         self._set_loading("Поиск объектов в сейве…")
         self._computed_offsets = {}
-        self._compute_object_offsets_in_save()
+        # If parse_save() returned object_offsets (Phase 3 path), use them directly
+        if "object_offsets" in self.parsed_data and self.parsed_data["object_offsets"]:
+            self._computed_offsets = self.parsed_data["object_offsets"]
+            self._cached_objects_with_offsets = self._computed_offsets
+        else:
+            self._compute_object_offsets_in_save()
 
         n_verified = sum(1 for v in self._computed_offsets.values() if v.get("verified"))
         self.status.showMessage(
@@ -2627,7 +2850,8 @@ class GM1ParserWindow(QMainWindow):
         self._load_mapping()
         self._refresh_mapping_text()
         if self.raw_data and self.mapping:
-            self.parsed_data = parse_save(self.raw_data, self.mapping)
+            self.parsed_data = parse_save(self.raw_data, self.mapping,
+                                          map_config=getattr(self, "map_config", None))
             self._populate_tree()
             self._update_load_status()
             self.json_text.setPlainText(export_to_json(self.parsed_data, self.raw_data,
@@ -2793,17 +3017,39 @@ class GM1ParserWindow(QMainWindow):
         # Also use the day-zero save as the current raw_data (so user can browse it)
         self.raw_data = dz_raw
         self.current_file = path
-        self.parsed_data = parse_save(self.raw_data, self.mapping)
+        # v3.0: use the freshly-built MapConfig for parsing
+        self.parsed_data = parse_save(self.raw_data, self.mapping,
+                                       map_config=config)
         self.file_label.setText(f"{os.path.basename(path)} (day-zero, {len(dz_raw):,} bytes)")
 
-        # Compute object offsets using the config's cluster ranges
+        # Compute object offsets — Phase 3 returns them in parsed_data
         self._computed_offsets = {}
-        self._compute_object_offsets_in_save()
+        if "object_offsets" in self.parsed_data and self.parsed_data["object_offsets"]:
+            self._computed_offsets = self.parsed_data["object_offsets"]
+            self._cached_objects_with_offsets = self._computed_offsets
+        else:
+            self._compute_object_offsets_in_save()
 
         n_verified = sum(1 for v in self._computed_offsets.values() if v.get("verified"))
-        n_heroes = config["hero_section"]["count"]
-        n_towns = config["town_section"]["count"]
-        n_clusters = len(config["clusters"])
+        # config is now a MapConfig dataclass (v3.0), not a dict
+        if hasattr(config, "meta"):
+            # MapConfig dataclass
+            n_heroes = config.hero_section.count
+            n_towns = config.town_section.count
+            n_clusters = len(config.clusters)
+            map_name = config.meta.get("map_name", "?")
+            day_zero_size = config.meta.get("day_zero_size", 0)
+            hero_stride_hex = config.hero_section.stride_hex
+            hero_stride = config.hero_section.stride
+        else:
+            # Legacy dict (shouldn't happen, but defensive)
+            n_heroes = config["hero_section"]["count"]
+            n_towns = config["town_section"]["count"]
+            n_clusters = len(config["clusters"])
+            map_name = config["_meta"]["map_name"]
+            day_zero_size = config["_meta"]["day_zero_size"]
+            hero_stride_hex = config["hero_section"]["stride_hex"]
+            hero_stride = config["hero_section"]["stride"]
 
         self._populate_tree()
         self._update_load_status()
@@ -2818,16 +3064,99 @@ class GM1ParserWindow(QMainWindow):
         QMessageBox.information(
             self, "Day-Zero Config Built",
             f"Map config built and saved to:\n{config_path}\n\n"
-            f"  Map:              {config['_meta']['map_name']}\n"
-            f"  Save size:        {config['_meta']['day_zero_size']:,} bytes\n"
+            f"  Map:              {map_name}\n"
+            f"  Save size:        {day_zero_size:,} bytes\n"
             f"  Objects located:  {n_verified}\n"
             f"  Heroes found:     {n_heroes}\n"
             f"  Towns found:      {n_towns}\n"
             f"  Clusters:         {n_clusters}\n"
-            f"  Hero stride:      {config['hero_section']['stride_hex']} "
-            f"({config['hero_section']['stride']} bytes)\n\n"
+            f"  Hero stride:      {hero_stride_hex} "
+            f"({hero_stride} bytes)\n\n"
             f"You can now open ANY save from this map (Ctrl+O).\n"
             f"The parser will use this config for universal parsing."
+        )
+
+    def _on_load_map_config(self):
+        """Load a previously-saved map_config_<mapname>.json (Phase 3 input).
+
+        Lets the user skip Phase 2 (Day-Zero Save) when a config already exists.
+        After loading, the user can directly open any save of this map (Ctrl+O)
+        and it will be parsed using Phase 3 (save_parser.parse_save).
+
+        Workflow:
+          Option A (full):
+            1. Load → Map JSON… (Ctrl+M)
+            2. Load → Day-Zero Save… (Ctrl+D)  ← builds config
+            3. Open any save (Ctrl+O)
+
+          Option B (with pre-built config):
+            1. Load → Map JSON… (Ctrl+M)        ← required for objects_on_map
+            2b. Load → Map Config… (Ctrl+L)     ← you are here
+            3. Open any save (Ctrl+O)
+        """
+        # Step 1: ask for the config file
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Map Config",
+            "",
+            "Map Config JSON (*.json);;All files (*)"
+        )
+        if not path:
+            return
+
+        # Load the config via MapConfig.from_dict
+        try:
+            from save_layout import MapConfig
+        except ImportError:
+            import importlib.util
+            tools_dir = os.path.dirname(os.path.abspath(__file__))
+            spec = importlib.util.spec_from_file_location(
+                "save_layout", os.path.join(tools_dir, "save_layout.py"))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            MapConfig = mod.MapConfig
+
+        try:
+            import json
+            with open(path, "r", encoding="utf-8") as f:
+                config_dict = json.load(f)
+            config = MapConfig.from_dict(config_dict)
+        except Exception as e:
+            QMessageBox.critical(self, "Load Error",
+                                 f"Failed to load map config:\n{e}")
+            return
+
+        # Store the loaded MapConfig
+        self.map_config = config
+
+        # Update status
+        n_heroes = config.hero_section.count
+        n_towns = config.town_section.count
+        n_clusters = len(config.clusters)
+        map_name = config.meta.get("map_name", "?")
+        map_size = config.meta.get("map_size", 0)
+        has_ug = config.meta.get("has_underground", False)
+        n_objects = config.meta.get("n_objects", 0)
+
+        self._set_idle()
+        self.status.showMessage(
+            f"Map Config loaded: {map_name} | "
+            f"{n_objects} objects, {n_heroes} heroes, {n_towns} towns, "
+            f"{n_clusters} clusters", 10000
+        )
+
+        QMessageBox.information(
+            self, "Map Config Loaded",
+            f"Successfully loaded map config:\n\n"
+            f"  Config file:  {os.path.basename(path)}\n"
+            f"  Map:         {map_name}\n"
+            f"  Size:        {map_size}×{map_size}"
+            f"{' + underground' if has_ug else ''}\n"
+            f"  Objects:     {n_objects}\n"
+            f"  Heroes:       {n_heroes}\n"
+            f"  Towns:        {n_towns}\n"
+            f"  Clusters:     {n_clusters}\n\n"
+            f"You can now open ANY save from this map (Ctrl+O).\n"
+            f"The parser will use Phase 3 (save_parser) for universal parsing."
         )
 
 
