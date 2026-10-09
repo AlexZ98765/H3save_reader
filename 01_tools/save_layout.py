@@ -461,6 +461,138 @@ TOWN_NAME_OFFSET_FROM_BLOCK_START = 71   # h3sed
 # On Myth and Legend: 21 towns with strides 386-390 (382 + name_len 4-8 bytes)
 TOWN_RECORD_BASE_SIZE = 382
 
+# ============================================================================
+# Constants from ProspectorRT decompilation (ILSpy 8.2)
+# Source: PRT_reverse/decompiled/ProspectorRT/MainForm.cs
+# ============================================================================
+
+# Hero "alt block" — starts 26 bytes after block_offset (GetHeroesContent line 7768)
+# Hero block layout (total = 1094 = HERO_STRIDE_SOD):
+#   bytes 0..25   = pre-alt (faction, extra_size u16 LE at +22, hero_present_marker at +11)
+#   bytes 26..138 = alt_block (113 bytes: color, TreeNumber, LastWisdom, LastMagic, MP, Experience, Level)
+#   bytes 139..194 = army (56 bytes)
+#   bytes 195..207 = name (13 bytes: 12 chars + null)
+#   bytes 208..263 = skills (56 bytes)
+#   bytes 264..267 = primary stats (4 bytes: A/D/P/K)
+#   bytes 268..407 = spells (140 bytes)
+#   bytes 408..1093 = equipment/inventory (686 bytes)
+HERO_ALT_BLOCK_OFFSET = 26
+
+# Alt block field offsets — relative to alt_block_start (= block_offset + 26)
+# From ProspectorRT GetHeroesContent (lines 7769-7778)
+# NOTE: These are DIFFERENT from h3sed's name-relative offsets. Both read correct
+# values because some fields (Experience, Level, MP) are stored in BOTH the
+# pre-alt block (h3sed reads from here) and the alt block (ProspectorRT reads from here).
+HERO_ALT_FIELD_OFFSETS = {
+    "Color":           0,    # u8 — player color (same as faction)
+    "TreeNumber":      17,   # u8 — skill tree number (HeroesInfo)
+    "LastWisdom":      18,   # u8 — last wisdom skill offered at level-up (HeroesInfo)
+    "LastMagic":       29,   # u8 — last magic school offered at level-up (HeroesInfo)
+    "MP":              31,   # u16 LE — mana points
+    "Experience":      39,   # u32 LE — experience points
+    "Level":           49,   # u16 LE — hero level
+}
+
+# Player state section — 8 players × 145 bytes each
+# From ProspectorRT GetColorContent (line 7653) and Scanner (line 6158-6159)
+# map.Color = start of player state section
+# map.Town = map.Color + 1160 (= 8 × 145)
+PLAYER_STATE_COUNT = 8
+PLAYER_STATE_SIZE = 145
+
+# Player state field offsets — relative to (map.Color + player_index * 145)
+PLAYER_STATE_OFFSETS = {
+    "exist_color_1":   0,    # u8 — player existence flag 1
+    "exist_color_2":   1,    # u8 — player existence flag 2
+    "tavern_guest_2":  11,   # u8 — hero ID in tavern slot 2
+    "tavern_guest_1":  12,   # u8 — hero ID in tavern slot 1
+    "player_type":     14,   # u8 — 3 = human, other = AI
+    "exist_color_3":   24,   # u8 — additional existence flag
+}
+
+# Current state section — after hero state
+# From ProspectorRT GetCurrentState (line 7668)
+# map.CurrentState = map.HeroState + HeroCount * 2
+# Offsets relative to map.CurrentState
+CURRENT_STATE_OFFSETS = {
+    "grail_x":         2,    # u8 — Grail location X (0xFF = no grail)
+    "grail_y":         4,    # u8 — Grail location Y
+    "grail_z":         6,    # u8 — Grail location Z
+    "day":             11,   # u8 — current day (as ASCII digit byte)
+    "week":            13,   # u8 — current week (as ASCII digit byte)
+    "month":           15,   # u8 — current month (as ASCII digit byte)
+    "art_merchants":   49,   # start of art merchants data (7 × 4 bytes)
+}
+
+# Object type IDs — from ProspectorRT IsObject (line 9484)
+# decmp[s] == type_id → object type
+# Used by Scanner to dispatch object parsing
+OBJECT_TYPE_IDS = {
+    5:   "Artifact",
+    6:   "PandoraBox",
+    12:  "Campfire",
+    16:  "Bank_DragonUtopia",
+    17:  "Mine_Wood",
+    20:  "Mine_Gold",
+    22:  "Skeleton",
+    24:  "Bank_Cyclops",
+    25:  "Bank_DragonFlyHive",
+    26:  "Event",
+    29:  "Floatsam",
+    39:  "RefugeeCamp",
+    53:  "Mine_Generic",
+    54:  "Monster",
+    55:  "MysticalGarden",
+    63:  "Pyramid",
+    79:  "Resource",
+    81:  "Scholar",
+    82:  "SeaChest",
+    84:  "Bank_Naga",
+    85:  "Bank_Shipwreck",
+    86:  "ShipwreckSurvivor",
+    88:  "Shrine_Gesture",
+    89:  "Shrine_Thought",
+    90:  "Shrine_Incantation",
+    93:  "SpellScroll",
+    101: "Chest",
+    105: "Wagon",
+    108: "Tomb",
+    112: "Windmill",
+    113: "WitchHut",
+}
+
+# Town spell pool depth — number of spell guild levels by town type
+# From ProspectorRT GetTownContent (lines 7505-7523)
+# GetTownSpell(town, depth, ...) — depth determines how many spell levels to read
+TOWN_SPELL_POOL_DEPTH = {
+    0: 4,   # Castle
+    1: 5,   # Rampart
+    2: 6,   # Tower (most spells)
+    3: 5,   # Inferno
+    4: 5,   # Necropolis
+    5: 5,   # Dungeon
+    6: 3,   # Stronghold (fewest spells)
+    7: 3,   # Fortress
+    8: 5,   # Conflux
+}
+
+# Structure-walking chain — order of sections in the save (from Scanner line 6153-6162)
+# Each section's start is computed from the previous section's start + its size
+# This is how ProspectorRT navigates the save without hardcoded offsets
+SAVE_SECTION_ORDER = [
+    "BottleSign",      # map.BottleSign — bottle sign section
+    "Mine",            # map.Mine = ScanBottleSignContent(map.BottleSign)
+    "Dwelling",        # map.Dwelling = map.Mine + count * 62 + 1
+    "Garrison",        # map.Garrison = map.Dwelling + count * 75 + 2
+    "UnknownVarReg",    # map.UnknownVarReg = map.Garrison + count * 61 + 1
+    "UnknownFixedReg",  # map.UnknownFixedReg = map.UnknownVarReg + count * 28 + 1
+    "Color",           # map.Color = map.UnknownFixedReg + 49
+    "Town",            # map.Town = map.Color + 1160
+    "Hero",            # map.Hero = ScanTownsContent(map.Town)
+    "HeroState",       # map.HeroState = ScanHeroesContent(map.Hero)
+    "CurrentState",    # map.CurrentState = map.HeroState + HeroCount * 2
+]
+
 
 if __name__ == "__main__":
     # Smoke test: just print constants

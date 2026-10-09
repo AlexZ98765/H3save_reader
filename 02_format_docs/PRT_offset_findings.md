@@ -641,3 +641,94 @@ HeroesInfo.exe — это **полноценный редактор сейвов
 2. Реализовать SaveFile (gzip с правильным CRC) — мы уже умеем декомпрессировать с broken CRC, нужно научиться записывать с правильным
 3. Добавить GUI для редактирования героя
 
+
+---
+
+## Полный статус known_unknowns (после декомпиляции ProspectorRT + HeroesInfo)
+
+### ✅ ЗАКРЫТЫЕ (7 из 13)
+
+| # | Поле | Источник | Что раскрывает |
+|---|------|---------|----------------|
+| 1 | Map terrain (tile data) | `Scanner` (line 6172) | tile record: 7 байт + 11 байт + переменная `(u16 × 4 + 4)` — для каждого тайла карты |
+| 2 | Map object positions and states | `IsObject` (line 9484) | Диспетчер типов по `decmp[s]`: 5=Art, 79=Resource, 101=Chest, 54=Monster, 53/17/20=Mine, 12=Campfire, 112=Windmill, 55=MysticalGarden, 108=Tomb, 6=Box(Pandora), 26=Event, 86=Survivor, 84/85/25/24/16=Banks, 81=Scholar, 93=Scroll, 39=RefugeeCamp, 29=Floatsam, 88/89/90=Shrine, 63=Pyramid, 22=Skeleton, 105=Wagon, 113=WitchHut |
+| 6 | Current player turn | `GetColorContent` (line 7653) | `human` — индекс игрока-человека. Определяется по `decmp[color + i*145 + 14] == 3` (где 3 = human player type) |
+| 9 | Quest log state (Seer Huts, Border Guards) | `AnalysisContent` + `SeerHutContent2` + `PassGuardContent2` | ProspectorRT полностью парсит хижины провидцев и стражей прохода |
+| 11 | Town buildings list | `GetTimerTown` (line 6984) | Buildings парсятся через `Byte` (1-6) × `Bit` (0-7) с lookup в `TblBuilding`. 5 байт buildings bitmask + 1 байт (special) |
+| 12 | Spell availability in Magic Guild | `GetTownSpell` (line 7542) | Зависит от town type: Castle=4 spells, Tower=6, Stronghold/Fortress=3, другие=5. Парсится из 197-байтного spell pool после town record |
+| 13 | Hero primary stats (attack/defense/power/knowledge) | `GetHeroesContent` (line 7723) | В alt block: `+0`=color, `+17`=TreeNumber, `+18`=LastWisdom, `+29`=LastMagic, `+31-32`=MP u16 LE, `+39-42`=Experience u32 LE, `+49-50`=Level u16 LE. Атака/защита/etc — через h3sed |
+
+### ⚠️ ЧАСТИЧНО ЗАКРЫТЫЕ (2 из 13)
+
+| # | Поле | Что есть | Чего нет |
+|---|------|---------|----------|
+| 5 | Current day / week / month counter | `GetCurrentState` (line 7668) — `decmp[currentState + 11]` = день, `+13` = неделя, `+15` = месяц (одиночные байты, cp1251 ASCII-цифры) | Точный offset `currentState` от начала save — `map.CurrentState = map.HeroState + HeroCount*2` (зависит от HeroCount, который = 156 для SoD) |
+| 7 | Diplomacy / alliances state | `GetAlliance` (line 6273) — ищет блок teams, потом для каждого игрока проверяет `decmp[teams + i + 1] == hTeam` | ProspectorRT только определяет СОЮЗНИКОВ (ally), но не записывает состояние альянсов в сейве. Используется для фильтрации "союзные города/герои/гарнизоны исключаются из анализа опыта" |
+
+### ❌ НЕ ЗАКРЫТЫЕ (4 из 13)
+
+| # | Поле | Почему не закрыто |
+|---|------|-------------------|
+| 3 | **Fog of war bit mask** (отдельно от path-records) | ProspectorRT не парсит fog of war — он анализирует только стартовый сейв (нулевой день), где тумана ещё нет. В его коде нет ни одного упоминания "Fog". У нас fog of war частично локализован через `cluster_finder` (кластер `fog`), но точная структура bitmask неизвестна. |
+| 4 | **AI player state and decision memory** | ProspectorRT не парсит AI — он только читает текущее состояние объектов (кто владелец, какие постройки, какие заклинания). AI state (решения, планирование, стратегия) — это внутренняя движковая структура, которая ProspectorRT'у не нужна. HeroesInfo (редактор) тоже не работает с AI state. |
+| 8 | **Random seed / RNG state** | ProspectorRT не использует и не читает RNG state. Это внутреннее состояние движка HoMM3, которое не отображается в UI анализатора. |
+| 10 | **Hero biography** (variable-length, перед hero stats) | ProspectorRT и HeroesInfo не показывают биографию героя в UI. Это текстовое поле, которое хранится перед hero stats, но его offset/structure мы пока не локализовали. В нашем h3sed-based `HERO_FIELD_OFFSETS` нет bio offset. |
+
+### 🔍 ДОПОЛНИТЕЛЬНЫЕ НАХОДКИ (не из known_unknowns, но полезные)
+
+#### Player state section structure (`map.Color`)
+
+Из `GetColorContent` (line 7653):
+```
+for (int i = 0; i < 8; i++)  // 8 players (colors)
+{
+    aExistColor[i] = decmp[color + i*145 + 24] + decmp[color + i*145 + 1];
+    aTavernGuest[i, 0] = decmp[color + i*145 + 12];  // hero in tavern slot 1
+    aTavernGuest[i, 1] = decmp[color + i*145 + 11];  // hero in tavern slot 2
+    if (decmp[color + i*145 + 14] == 3)  // human player type
+        human = i;
+}
+```
+
+**Player state**: 8 × 145 байт = 1160 байт. Это совпадает с `map.Town = map.Color + 1160` — town section начинается сразу после 8 players × 145 байт.
+
+Каждый player (145 байт):
+- `+0`, `+1` — exist color flag
+- `+11`, `+12` — tavern guests (hero IDs)
+- `+14` — player type (3 = human, другие = AI types)
+- `+24` — additional exist color
+
+#### Town spell pool depth (по town type)
+
+Из `GetTownContent` (line 7505):
+- type 0 (Castle): 4 уровня spell guild
+- type 1 (Rampart): 5 уровней
+- type 2 (Tower): 6 уровней
+- type 3 (Inferno): 5 уровней
+- type 4 (Necropolis): 5 уровней
+- type 5 (Dungeon): 5 уровней
+- type 6 (Stronghold): 3 уровня
+- type 7 (Fortress): 3 уровня
+- type 8 (Conflux): 5 уровней
+
+#### Town buildings structure
+
+Из `GetTimerTown`:
+- 5 байт buildings bitmask (`array4[0..4]`) — каждый байт = 1 группа из 8 бит
+- 1 байт special (`array4[5]`) — `Byte='6' AND Bit='0'` — special building
+- Bit lookup: `Type='townType' AND Byte='1-6' AND Bit='0-7'` → building name
+
+#### HeroesInfo — дополнительные hero fields
+
+Из `DataSet1.cs` (HeroesInfo):
+- `Stables` — visit flag for stables (бонус движения)
+- `WithoutArts` — primary stats without artifacts (A-D-P-K без учёта артефактов)
+- `Orientation` — hero orientation (для popup формы)
+- `Was` — предыдущее состояние (undo?)
+- `Exist` — существует ли герой
+- `IsTavern` — в таверне ли
+- `Machine` — war machines (ballista, ammo cart, first aid tent, catapult)
+- `Book` — spell book presence
+
+Это **дополнительные поля**, которые можно добавить в `HERO_FIELD_OFFSETS` если потребуется.
+

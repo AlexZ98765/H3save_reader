@@ -53,6 +53,11 @@ from save_layout import (
     HERO_BLOCK_SIZE, HERO_STRIDE_SOD,
     HERO_NAME_OFFSET_FROM_BLOCK_START,
     TOWN_NAME_OFFSET_FROM_BLOCK_START,
+    TOWN_RECORD_BASE_SIZE,
+    HERO_ALT_BLOCK_OFFSET, HERO_ALT_FIELD_OFFSETS,
+    PLAYER_STATE_COUNT, PLAYER_STATE_SIZE, PLAYER_STATE_OFFSETS,
+    CURRENT_STATE_OFFSETS, OBJECT_TYPE_IDS, TOWN_SPELL_POOL_DEPTH,
+    SAVE_SECTION_ORDER,
 )
 from header_parser import parse_header
 from cluster_finder import find_all_object_clusters
@@ -191,6 +196,33 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         data = struct.unpack("<I", slot[4:])[0]
         equipment.append((artifact_id, data))
     fields["equipment"] = equipment
+
+    # ----- Alt block fields (from ProspectorRT GetHeroesContent) -----
+    # Alt block starts at block_offset + HERO_ALT_BLOCK_OFFSET (26)
+    # These fields are DUPLICATED in the alt block (also exist in pre-alt)
+    # ProspectorRT reads from alt block; h3sed reads from pre-alt.
+    # We read both for verification.
+    alt_start = block_offset + HERO_ALT_BLOCK_OFFSET
+    ao = HERO_ALT_FIELD_OFFSETS
+    try:
+        # Extra size (u16 LE at block_offset + 22) — determines variable part
+        fields["extra_size"] = struct.unpack("<H", raw[block_offset + 22:block_offset + 24])[0]
+
+        # Alt block fields
+        fields["alt_color"] = raw[alt_start + ao["Color"]]
+        fields["tree_number"] = raw[alt_start + ao["TreeNumber"]]
+        fields["last_wisdom"] = raw[alt_start + ao["LastWisdom"]]
+        fields["last_magic"] = raw[alt_start + ao["LastMagic"]]
+        fields["alt_mp"] = struct.unpack("<H", raw[alt_start + ao["MP"]:alt_start + ao["MP"] + 2])[0]
+        fields["alt_experience"] = struct.unpack("<I", raw[alt_start + ao["Experience"]:alt_start + ao["Experience"] + 4])[0]
+        fields["alt_level"] = struct.unpack("<H", raw[alt_start + ao["Level"]:alt_start + ao["Level"] + 2])[0]
+    except (struct.error, IndexError):
+        # Alt block might be out of bounds for some heroes
+        pass
+
+    # Town spell pool depth for this hero's town (if hero is in a town)
+    # Not directly applicable here, but stored for reference
+    fields["spell_pool_depth_hint"] = TOWN_SPELL_POOL_DEPTH
 
     return fields
 
@@ -404,6 +436,9 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     for tb in town_section.blocks:
         try:
             fields = parse_town_block(raw, tb.block_offset)
+            # Add spell pool depth for this town type (from ProspectorRT)
+            ttype = fields.get("type", -1)
+            fields["spell_pool_depth"] = TOWN_SPELL_POOL_DEPTH.get(ttype, 5)
         except Exception as e:
             fields = {"error": str(e)}
         towns_parsed.append({
@@ -415,6 +450,106 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             "x": tb.x, "y": tb.y, "z": tb.z,
             "fields": fields,
         })
+
+    # ----- 6b. Player state (from ProspectorRT GetColorContent) -----
+    # Player state section starts 1160 bytes before town section
+    # (map.Town = map.Color + 1160 → map.Color = first_town_offset - 1160)
+    player_states: List[Dict[str, Any]] = []
+    if towns_parsed:
+        first_town_off = towns_parsed[0]["block_offset"]
+        # Town count is 2 bytes before first town; player state ends 2 bytes before town count
+        color_section_start = first_town_off - 1160 - 2  # -2 for u16 town count
+        if color_section_start > 0:
+            ps_block = ParsedBlock(
+                name="player_states",
+                start=color_section_start,
+                end=color_section_start + PLAYER_STATE_COUNT * PLAYER_STATE_SIZE,
+                description=f"Player state section — {PLAYER_STATE_COUNT} players × "
+                            f"{PLAYER_STATE_SIZE} bytes (from ProspectorRT GetColorContent)",
+            )
+            for pidx in range(PLAYER_STATE_COUNT):
+                base = color_section_start + pidx * PLAYER_STATE_SIZE
+                if base + PLAYER_STATE_SIZE > len(raw):
+                    break
+                ps = {
+                    "player_index": pidx,
+                    "offset": base,
+                }
+                for fname, foff in PLAYER_STATE_OFFSETS.items():
+                    ps[fname] = raw[base + foff]
+                # Identify human player
+                ps["is_human"] = (ps.get("player_type", 0) == 3)
+                ps["color_name"] = PLAYER_COLOR_NAMES.get(pidx, f"?{pidx}")
+                player_states.append(ps)
+            ps_block.fields = [ParsedField(
+                name=f"player_{pidx}", offset=color_section_start + pidx * PLAYER_STATE_SIZE,
+                size=PLAYER_STATE_SIZE, type="bytes",
+                value=ps, raw_bytes=raw[color_section_start + pidx * PLAYER_STATE_SIZE:
+                                        color_section_start + (pidx + 1) * PLAYER_STATE_SIZE],
+                description=f"Player {pidx} ({ps.get('color_name', '?')}): "
+                            f"type={'human' if ps.get('is_human') else 'AI'}, "
+                            f"tavern=({ps.get('tavern_guest_1', '?')}, "
+                            f"{ps.get('tavern_guest_2', '?')})",
+            ) for pidx, ps in enumerate(player_states)]
+            blocks.append(ps_block)
+
+    # ----- 6c. Current state (from ProspectorRT GetCurrentState) -----
+    # CurrentState = HeroState + HeroCount * 2
+    # HeroState is right after hero blocks (= after last hero block + stride)
+    current_state_parsed: Dict[str, Any] = {}
+    if hero_section.blocks and hero_section.count > 0:
+        # HeroState = after last hero block (approx: last block + stride)
+        # More accurately: HeroState = first_hero_block + HeroCount * stride
+        # But HeroCount may differ from actual found blocks (some may be inactive)
+        # We use the ProspectorRT formula: HeroState = first_hero_block + 156 * 1094
+        first_hero_off = hero_section.blocks[0].block_offset
+        hero_count = hero_section.count
+        hero_state_off = first_hero_off + hero_count * HERO_STRIDE_SOD
+        current_state_off = hero_state_off + hero_count * 2
+
+        if current_state_off + 50 < len(raw):
+            cs = CURRENT_STATE_OFFSETS
+            current_state_parsed = {
+                "offset": current_state_off,
+            }
+            # Grail location
+            current_state_parsed["grail_x"] = raw[current_state_off + cs["grail_x"]]
+            current_state_parsed["grail_y"] = raw[current_state_off + cs["grail_y"]]
+            current_state_parsed["grail_z"] = raw[current_state_off + cs["grail_z"]]
+            current_state_parsed["has_grail"] = (current_state_parsed["grail_x"] != 0xFF)
+
+            # Day / week / month (stored as ASCII digit bytes)
+            day_byte = raw[current_state_off + cs["day"]]
+            week_byte = raw[current_state_off + cs["week"]]
+            month_byte = raw[current_state_off + cs["month"]]
+            current_state_parsed["day"] = day_byte - 0x30 if 0x30 <= day_byte <= 0x39 else day_byte
+            current_state_parsed["week"] = week_byte - 0x30 if 0x30 <= week_byte <= 0x39 else week_byte
+            current_state_parsed["month"] = month_byte - 0x30 if 0x30 <= month_byte <= 0x39 else month_byte
+
+            cs_block = ParsedBlock(
+                name="current_state",
+                start=current_state_off,
+                end=current_state_off + 50,
+                description="Current game state — day/week/month, Grail location "
+                            "(from ProspectorRT GetCurrentState)",
+            )
+            cs_block.fields = [ParsedField(
+                name=fname, offset=current_state_off + foff, size=1, type="u8",
+                value=fval, raw_bytes=bytes([fval]) if isinstance(fval, int) else b"",
+                description=desc,
+            ) for fname, foff, fval, desc in [
+                ("grail_x", cs["grail_x"], current_state_parsed["grail_x"],
+                 f"Grail X (0xFF = no grail) = {current_state_parsed['grail_x']}"),
+                ("grail_y", cs["grail_y"], current_state_parsed["grail_y"], "Grail Y"),
+                ("grail_z", cs["grail_z"], current_state_parsed["grail_z"], "Grail Z"),
+                ("day", cs["day"], current_state_parsed["day"],
+                 f"Day = {current_state_parsed['day']}"),
+                ("week", cs["week"], current_state_parsed["week"],
+                 f"Week = {current_state_parsed['week']}"),
+                ("month", cs["month"], current_state_parsed["month"],
+                 f"Month = {current_state_parsed['month']}"),
+            ]]
+            blocks.append(cs_block)
 
     # ----- 7. Build ParsedSave -----
     parsed = ParsedSave(
@@ -436,6 +571,9 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             for ci, off in object_offsets.items()
         ],
     )
+    # Attach extra parsed data (not in ParsedSave dataclass yet)
+    parsed._player_states = player_states
+    parsed._current_state = current_state_parsed
     return parsed
 
 
@@ -470,6 +608,8 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         "heroes": parsed.heroes,
         "towns":  parsed.towns,
         "objects_on_map": parsed.objects_on_map,
+        "player_states": getattr(parsed, "_player_states", []),
+        "current_state": getattr(parsed, "_current_state", {}),
     }
 
 
