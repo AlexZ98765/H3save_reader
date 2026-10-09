@@ -3128,6 +3128,73 @@ class GM1ParserWindow(QMainWindow):
         # Store the loaded MapConfig
         self.map_config = config
 
+        # If no Map JSON loaded yet, build objects_by_coord from config
+        # (config contains object_offsets → coord_int → save_offset mapping,
+        #  but no type/category/sprite info — that comes from map JSON)
+        if not self.map_data:
+            # Build minimal objects_by_coord from config
+            # We have coord_int → save_offsets, but no type/category
+            # Still useful for cluster verification and object table display
+            from collections import defaultdict
+            oc = {}
+            for ci_str, off_data in config.object_offsets.items():
+                ci = int(ci_str)
+                # Decode coord_int → x:y:z
+                x = ci & 0xFF
+                y = (ci >> 8) & 0xFF
+                z = (ci >> 16) & 0xFF
+                ck = f"{x}:{y}:{z}"
+                oc[ck] = {
+                    "coord_key": ck,
+                    "coord_int": ci,
+                    "x": x, "y": y, "z": z,
+                    "type": "(unknown — load Map JSON for type info)",
+                    "category": "unknown",
+                    "sprite_def": "",
+                    "details": {},
+                    "overlays": [],
+                }
+            if oc:
+                self._cached_objects_by_coord = oc
+                # Build minimal MapData-like object
+                class _MinimalMapData:
+                    def __init__(self, config):
+                        self.map_name = config.meta.get("map_name", "?")
+                        self.map_size = config.meta.get("map_size", 0)
+                        self.has_underground = config.meta.get("has_underground", False)
+                        self.n_objects = config.meta.get("n_objects", 0)
+                        self.n_towns = config.meta.get("n_towns", 0)
+                        self.n_heroes = config.meta.get("n_heroes_total", 0)
+                        self.n_players = 8
+                        self.n_sprites = 0
+                        self.objects_by_coord = {}
+                        self.coord_int_lookup = {}
+                        self.type_index = defaultdict(list)
+                        self.category_index = defaultdict(list)
+                        # Populate from config
+                        for ci_str, off in config.object_offsets.items():
+                            ci = int(ci_str)
+                            x = ci & 0xFF
+                            y = (ci >> 8) & 0xFF
+                            z = (ci >> 16) & 0xFF
+                            ck = f"{x}:{y}:{z}"
+                            rec = {
+                                "coord_key": ck, "coord_int": ci,
+                                "x": x, "y": y, "z": z,
+                                "type": "(unknown)", "category": "unknown",
+                                "sprite_def": "", "details": {},
+                            }
+                            self.objects_by_coord[ck] = rec
+                            self.coord_int_lookup[ci] = ck
+                    def summary(self):
+                        return (f"Map: {self.map_name} ({self.map_size}×{self.map_size}"
+                                f"{' + underground' if self.has_underground else ''}), "
+                                f"{self.n_objects} objects, {self.n_towns} towns, "
+                                f"{self.n_heroes} heroes (from MapConfig, no Map JSON)")
+
+                self.map_data = _MinimalMapData(config)
+                self._cached_objects_by_coord = self.map_data.objects_by_coord
+
         # Update status
         n_heroes = config.hero_section.count
         n_towns = config.town_section.count
@@ -3136,12 +3203,13 @@ class GM1ParserWindow(QMainWindow):
         map_size = config.meta.get("map_size", 0)
         has_ug = config.meta.get("has_underground", False)
         n_objects = config.meta.get("n_objects", 0)
+        has_map_json = "Map JSON" if self.map_data and hasattr(self.map_data, 'n_sprites') and self.map_data.n_sprites > 0 else "NO Map JSON"
 
         self._set_idle()
         self.status.showMessage(
             f"Map Config loaded: {map_name} | "
             f"{n_objects} objects, {n_heroes} heroes, {n_towns} towns, "
-            f"{n_clusters} clusters", 10000
+            f"{n_clusters} clusters ({has_map_json})", 10000
         )
 
         QMessageBox.information(
@@ -3155,7 +3223,12 @@ class GM1ParserWindow(QMainWindow):
             f"  Heroes:       {n_heroes}\n"
             f"  Towns:        {n_towns}\n"
             f"  Clusters:     {n_clusters}\n\n"
-            f"You can now open ANY save from this map (Ctrl+O).\n"
+            f"  Map JSON:     {has_map_json}\n"
+            + ("" if has_map_json == "Map JSON" else
+               "\n⚠ No Map JSON loaded — object types/categories are unknown.\n"
+               "  Load Map JSON (Ctrl+M) for type info, sprite names, and\n"
+               "  map description. Parsing still works without it.\n")
+            + f"\nYou can now open ANY save from this map (Ctrl+O).\n"
             f"The parser will use Phase 3 (save_parser) for universal parsing."
         )
 

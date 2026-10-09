@@ -28,19 +28,29 @@
 
 ## С чего начать
 
-1. **Прочитать** `FILES_DESCRIPTION.md` — подробное описание всех файлов.
-2. **Прочитать** `02_format_docs/header_pointer_search.md` — стратегия универсального поиска секций.
-3. **Построить per-map config** для своей карты:
-   ```bash
-   python3 01_tools/map_config_builder.py \
-     --map-json /path/to/MyMap.h3m.zip \
-     --day0-save /path/to/0000.GM1 \
-     --output-dir /tmp/
-   ```
-4. **Запустить GUI парсер** (требует доработки для использования config):
-   ```bash
-   python3 01_tools/gm1_parser.py
-   ```
+### Workflow A (полный — с построением config)
+```
+1. Map JSON…     (Ctrl+M) — загрузить .h3m.zip (ТРЕБУЕТСЯ для построения config)
+2. Day-Zero Save…(Ctrl+D) — загрузить 0000.GM1 → строит MapConfig
+3. Open Save…    (Ctrl+O) — открыть любой сейв той же карты
+```
+
+### Workflow B (быстрый — с готовым config, БЕЗ map JSON)
+```
+2b. Map Config…  (Ctrl+L) — загрузить готовый map_config_*.json
+3.  Open Save…   (Ctrl+O) — открыть любой сейв
+```
+Workflow B не требует map JSON — всё необходимое уже в config.
+Однако без map JSON типы объектов будут показаны как "unknown".
+
+### Workflow C (с map JSON для enrichment — рекомендуемый)
+```
+1.  Map JSON…    (Ctrl+M) — загрузить .h3m.zip (опционально, но даёт типы/спрайты)
+2b. Map Config…  (Ctrl+L) — загрузить готовый map_config_*.json
+3.  Open Save…   (Ctrl+O) — открыть любой сейв
+```
+Map JSON добавляет: sprite .def names, object types/categories, map description,
+disabled artifacts/spells/skills, rumors, global events, overlay objects.
 
 ## Координатная кодировка
 
