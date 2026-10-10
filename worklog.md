@@ -1351,3 +1351,17 @@ Stage Summary:
 - ⭐ XLSX export: save_map_objects_<map_name>.xlsx
 - ⭐ Все пути по умолчанию — рядом с загруженным сейвом
 - Архив пересобран
+
+---
+Task ID: export-binary-path-2026-10-10
+Agent: main (Super Z)
+Task: Export binary — предлагать папку рядом с загруженным сейвом
+
+Work Log:
+- Пользователь: "при экспорте бинарника в диалоге по дефолту предлагать папку, откуда был загружен сейв"
+- Исправлено: путь по умолчанию для export binary теперь = os.path.dirname(self.current_file) + "<save_name>_decompressed.bin"
+- Синтаксис OK
+
+Stage Summary:
+- ⭐ Export Binary: путь по умолчанию = папка загруженного сейва
+- Архив пересобран

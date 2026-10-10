@@ -3426,7 +3426,9 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         # Suggest a filename based on the loaded save
         if self.current_file:
             base = os.path.splitext(os.path.basename(self.current_file))[0]
-            suggested = f"{base}_decompressed.bin"
+            suggested_name = f"{base}_decompressed.bin"
+            save_dir = os.path.dirname(self.current_file)
+            suggested = os.path.join(save_dir, suggested_name)
         else:
             suggested = "save_decompressed.bin"
         path, _ = QFileDialog.getSaveFileName(
