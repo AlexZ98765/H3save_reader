@@ -539,3 +539,98 @@ Stage Summary:
 - Проблема: прямые dict-accesses `block["description"]` и `f["description"]` падали с KeyError для cluster blocks (поля `start`/`end` без description)
 - Решение: заменено на `.get(key, default)` для всех 5 полей в `export_to_json`
 - Тест: старая логика → KeyError, новая → success
+
+---
+Task ID: compare-prt-xlsx-2026-10-10
+Agent: main (Super Z)
+Task: Сравнить ProspectorRT 0000.xlsx (22 листа) с нашим parsed_save.json и найти, чего не хватает
+
+Work Log:
+- Загружен `upload/0000.xlsx` (PRT Excel export для Myth and Legend) — 22 листа
+- Загружен `upload/Myth and Legend.h3m_results01.zip` → `parsed_save.json` (10.9 МБ, наш парсинг day-0 сейва)
+- Загружен `upload/map_config_Мифы_и_легенды.json` (2.0 МБ, наш map_config)
+- Создан скрипт `scripts/compare_prt_xlsx_vs_our_parser.py` (300+ строк) — построчное сравнение каждого PRT листа с нашим output
+- Создан детальный отчёт `02_format_docs/PRT_xlsx_vs_our_parser.md` с выводами
+
+Главные выводы:
+- ✅ Все 23 алгоритма у нас реализованы в `post_tile_parser.py`
+- ❌ parsed_save.json **НЕ экспонирует post_tile_content** в JSON output (данные есть во внутреннем `_post_tile_content`, но не попадают в export)
+- ❌ 4 aggregators (Все Арты/Заклы/Навыки/Опыт) — НЕ экспонируются (хотя 3 из 4 уже реализованы)
+- ❌ 16 "сырых" таблиц (Артефакты, Монстры, Банки, ...) — НЕ экспонируются (хотя парсеры есть)
+- ⚠️ 2 базовые таблицы (Герои, Города) — частично: Герои не хватает 3 полей (Hire/Machine/Book), Города не расширены в spell rows
+
+Что нужно реализовать для соответствия PRT (дорожная карта на 6 этапов):
+1. ✅-этап (10 строк): Добавить `post_tile_content` в `export_to_json`
+2. ✅-этап (10 строк): Добавить aggregators в `export_to_json` (3 уже написаны)
+3. ⏳-этап (~80 строк): Написать `aggregate_all_artifacts` — единственный отсутствующий алгоритм
+4. ⏳-этап (~20 строк): Добавить 3 hero columns (Hire flag, War Machines, Spell Book)
+5. ⏳-этап (~30 строк): Расширить town до spell rows в JSON output
+6. ⏳-этап (~300 строк): Tile-scan + post-tile merge (для листов Артефакты/Монстры/Ресурсы/Chests)
+
+ВСЕ 6 этапов реализуемы без дополнительного реверс-инжиниринга — у нас есть все исходные алгоритмы. Это чисто post-processing pipeline.
+
+Stage Summary:
+- ⭐ Главный вывод: проблема НЕ в отсутствии алгоритмов, а в том, что `export_to_json` в gm1_parser.py не экспонирует уже готовые данные
+- Создан детальный отчёт `02_format_docs/PRT_xlsx_vs_our_parser.md` (180 строк)
+- Создан скрипт `scripts/compare_prt_xlsx_vs_our_parser.py` для повторного сравнения
+- Архив пересобран
+
+---
+Task ID: honest-audit-2026-10-10
+Agent: main (Super Z)
+Task: ЧЕСТНЫЙ полный аудит — что реально не реализовано из PRT (только чтение, без агрегации)
+
+Work Log:
+- Пользователь указал на несоответствие: я 3 раза говорил "все 23 алгоритма реализованы", но предыдущее сравнение с PRT xlsx показало кучу нереализованного
+- Пользователь сказал: агрегацию игнорировать, проверить только ЧТЕНИЕ данных из сейва
+- Создан новый скрипт `scripts/audit_prt_vs_ours.py` (300+ строк) — построчное сравнение MainForm.cs с 01_tools/*.py
+- Скрипт проверяет ВСЕ методы MainForm.cs, не только те 23 что были в предыдущем аудите
+- Разделил методы на 4 категории:
+  A. Tile-level парсеры (IsObject dispatcher → 37 Save* методов)
+  B. Post-tile парсеры (Get/Scan/Content/Analysis → 56 функций)
+  C. Агрегаторы (GetAllSpell/Skill/Experience → игнорируем)
+  D. UI форматирование + helpers → игнорируем
+
+РЕАЛЬНЫЙ РЕЗУЛЬТАТ:
+- Tile-level: 24/37 реализовано, 13 НЕ реализовано
+- Post-tile: 51/56 реализовано, 5 НЕ реализовано
+- ВСЕГО 18 алгоритмов ЧТЕНИЯ отсутствуют (не 0, как я заявлял раньше!)
+
+Подробный список отсутствующих:
+13 tile-level парсеров:
+  - type 104 SaveUniver (тривиально, 5 строк)
+  - type 78 SaveCamp (10 строк)
+  - type 7 SaveMarket (5 строк)
+  - type 33 SaveGarrison (5 строк)
+  - type 83 SaveSeerHut (10 строк)
+  - type 215 SavePassDuard (8 строк)
+  - type 62 SavePrison (8 строк)
+  - type 100 SaveLearningStone (5 строк)
+  - type 34 SaveHero (40 строк, средне)
+  - types 2,35,95,102,213 SaveObject (15 строк, Hill Fort upgrade cost)
+  - types 43,44,45 SaveMonolith (5 строк)
+  - type 10 SaveTent (8 строк)
+  - type 103 SaveTopologyObj (5 строк)
+
+5 post-tile парсеров:
+  - GetTimerTown (80 строк — buildings bitmask decoding для town timed events)
+  - IsHeroTavern (10 строк — helper для GetHeroesContent)
+  - GetBankResource (15 строк — уже встроен в parse_bank_content, cosmetic)
+  - GetBankMonster (10 строк — уже встроен в parse_bank_content, cosmetic)
+  - HeroOnObject (25 строк — hero-on-object tile scenario)
+
+ИТОГО: ~290 строк кода для полной реализации. Все алгоритмы описаны в MainForm.cs, нового реверс-инжиниринга не нужно.
+
+Создан честный отчёт `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` с детальным списком и примерами кода для каждого отсутствующего парсера.
+
+Причина моей предыдущей ошибки:
+- Аудит-документ `unimplemented_algorithms_audit.md` покрывал только 23 post-tile парсера, но НЕ включал tile-level парсеры (Save* методы)
+- Я неправильно обобщил "23 post-tile реализованы" на "все алгоритмы реализованы"
+- Tile-level парсеры у нас частично отсутствуют в `tile_scanner.parse_object_content` диспетчере — диспетчер не имеет веток для 13 типов из 37
+
+Stage Summary:
+- ⭐ ЧЕСТНЫЙ ИТОГ: 18 алгоритмов чтения отсутствуют (13 tile + 5 post-tile)
+- ⭐ 75 алгоритмов чтения реализованы (24 tile + 51 post-tile)
+- ⭐ ~290 строк кода для полной реализации, всё уже есть в MainForm.cs
+- ⭐ Главный недочёт: `tile_scanner.parse_object_content` диспетчер не имеет веток для 13 типов
+- Архив пересобран
