@@ -1,31 +1,31 @@
 # HoMM3 GM1 Toolkit
 
 > Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA).
-> **Версия архива:** 3.9 (10 Октября 2026) — **полное соответствие ProspectorRT по алгоритмам чтения**
+> **Версия архива:** 3.10 (10 Октября 2026) — **полное соответствие ProspectorRT по алгоритмам чтения + 4 приоритета экспорта**
 
 ## Что внутри
 
-Архив организован по 7 смысловым категориям:
+Архив организован по 6 смысловым категориям + архив `_obsolete/`:
 
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
-| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (сканер тайлов), **`post_tile_scanner.py`** (offset-walker), **`post_tile_parser.py`** (23 content-парсера ProspectorRT), `gm1_diff.py`, `gm1_diff_gui.py` |
-| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `header_pointer_search.md`, `diff_interpretation.json`, `unimplemented_algorithms_audit.md` (статус 23 парсеров) |
+| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 PRT-подобных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
+| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `HONEST_AUDIT_prt_vs_ours.md` (статус соответствия PRT), `PRT_xlsx_vs_results02.md` (сравнение с PRT xlsx) |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
-| **`04_diff_analysis/`** | Скрипты дифференциального анализа сейвов (исторические, разовые) | `build_object_type_dictionary.py` (универсальный), `Myth and Legend/` (подпапка для карты) |
+| **`04_diff_analysis/`** | Универсальный скрипт дифф-анализа (только `build_object_type_dictionary.py`) | `build_object_type_dictionary.py` (парсит LazyLlama wiki) |
 | **`05_disasm/`** | Дизассемблированный `heroes3.exe` (нативный код) | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
-| **`06_disasm_scripts/`** | Скрипты, создавших `05_disasm/` | `disasm_h3.py`, `find_*.py`, `callgraph_analysis.py` |
 | **`07_prt_decompiled/`** | ⭐ Полный реверс-код ProspectorRT.exe (ILSpy C# + raw IL + metadata) | `ProspectorRT_source/ProspectorRT/MainForm.cs` (16K строк scanner), `ProspectorRT_IL/full_il_dump.txt` (4.6 МБ, 2 775 методов), `ProspectorRT_metadata/*` |
+| **`_obsolete/`** | 📦 Архив временных и промежуточных файлов | `02_format_docs/` (6 исторических .md + diff_interpretation.json), `04_diff_analysis/Myth and Legend/` (25 analyze_*.py + отчёты), `06_disasm_scripts/` (12 скриптов дизассемблера), `scripts/` (25 audit/compare скриптов) |
 
 ## Цель проекта
 
 Создать **универсальный** редактор сейвов `.GM1`, работающий с любой картой, без хардкода абсолютных смещений и без предрассчитанных таблиц объектов для конкретной карты.
 
-## Трёхфазный алгоритм (текущая архитектура)
+## Трёхфазный алгоритм (текущая архитектура v3.10)
 
 1. **Фаза 1 — Map JSON** (`map_json_loader.py`): загружает JSON-парсинг карты `.h3m` (или `.zip` с ним), строит `MapData` (`objects_by_coord`, `coord_int_lookup`, `type_index`, `category_index`) для ЛЮБОЙ карты.
 2. **Фаза 2 — Day-0 anchor** (`map_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
-3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py`): открывает любой сейв той же карты, **адаптирует** смещения из config (hero/town блоки и кластеры объектов могут сдвигаться между сейвами из-за роста path-block/replay log), парсит все поля героя/города/объекта через `field_offsets` (формат-константы из `save_layout.py`), и декодирует содержимое **всех post-tile секций** ProspectorRT (EventBox, ArtRes, Monstr, SeerHut, PassGuard, Bank, Garrison, Univer, Market, Alliance, ArtMerchants, Timed Events, TownSpell, ArtDollPlace, PrisonHero, SubTerGate, MonolithWhirlpool) через `post_tile_parser.py` — без хардкода смещений.
+3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py` + `merged_objects.py`): открывает любой сейв той же карты, **адаптирует** смещения из config, парсит все поля героя/города/объекта, декодирует содержимое **всех post-tile секций** ProspectorRT, и генерирует **22 PRT-подобных таблицы** + **3 агрегатора** через `merged_objects.merge_all()`.
 
 ## С чего начать
 
@@ -65,34 +65,50 @@ coord_int = x | (y << 8) | (z << 16)
 
 **Важно:** SAVE координаты могут отличаться от MAP координат на +2 (towns занимают 2×2 тайла, сейв использует top-left corner). См. `02_format_docs/GM1_format_compendium.md` для деталей.
 
-## Текущая реализация post-tile парсеров (v3.9)
+## Текущая реализация (v3.10) — 4 приоритета соответствия PRT
 
-`01_tools/post_tile_parser.py` (2,057 строк) реализует **все алгоритмы чтения ProspectorRT**:
-- **A1-A10** Content-парсеры: EventBox, ArtRes, Monstr, SeerHut (10 mission + 10 reward types), PassGuard, Bank (включая parse_bank_resource/monster), Garrison, Univer, Market
-- **B1-B3** Alliance, ArtMerchants, Experience aggregator
-- **C1-C8** Map + Town Timed Events с signed-resource encoding + parse_timer_town (buildings bitmask decoding)
-- **D1** GetTownSpell (Magic Guild spells)
-- **E1-E3** ArtDollPlace (раскладка артефактов по слотам)
-- **F1** GetPrisonHero (связка prison → hero record)
-- **F2** IsHeroTavern (поиск героя в таверне)
-- **F3** HeroOnObject (hero-on-object сценарий)
-- **G1-G2** GetPairSubterraneanGate + ScanMonolithWhirlpool
-- **H1-H5** Header offsets (BlackMarket, SR, Teams, MapName, Start)
-- **I1-I5** Aggregators (GetAllSpell, GetAllSkill, AnalysisMonstrContent, SeerHutContent2, PassGuardContent2)
+### Алгоритмы чтения (v3.9): 93/93 ✅
+- **37 tile-level парсеров** (Save* методы в `IsObject` диспетчере)
+- **56 post-tile парсеров** (Get/Scan/Content/Analysis)
 
-**Итог аудита (v3.9): 93/93 алгоритмов чтения реализовано (37 tile + 56 post-tile).**
-См. `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` для деталей.
+### Формат экспорта (v3.10) — 4 приоритета:
 
-Тестирование на Myth and Legend (114.GM1): 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (с русской миссией), 12 Banks, 8 Map Timed Events, 167 Town Timed Events, 8+8 групп монолитов, 12 водоворотов, 4 пары подземных врат. Новые tile-level парсеры нашли: 2 University, 2 Mercenary Camp, 3 Black Market, 1 Seer Hut, 4 Prison, 15 Learning Stone, 3 Hero on Map, 27 Generic Object, 10 Monolith, 1 Keymaster Tent, 4 Topology Object.
+| Приоритет | Что добавлено | Строк кода |
+|---|---|---|
+| **1** | Экспонирование `post_tile_content` + `player_states` + `current_state` в JSON | ~30 |
+| **2** | Hero `war_machines` + `spell_book` поля; Town `spell_pool` + `buildings_built` | ~100 |
+| **3** | Tile-scan + post-tile merge → 22 PRT-подобных таблицы (через `merged_objects.merge_all`) | ~540 |
+| **4** | Агрегаторы: `all_artifacts` + `all_spells` + `all_skills` | ~150 |
+
+**Результат тестирования на Myth and Legend (0000.GM1):**
+
+| Лист PRT | PRT rows | Наш merge |
+|---|---|---|
+| Артефакты | 139 | 124 ✅ |
+| Монстры | 237 | 272 ✅ |
+| События и Ящики Пандоры | 98 | 99 ✅ |
+| Ученые | 10 | 11 ✅ |
+| Сундуки | 283 | 284 ✅ |
+| Заклинания | 40 | 41 ✅ |
+| Навыки | 14 | 13 ✅ |
+| Лагеря Беженцев | 1 | 1 ✅ |
+| Тюрьмы | 5 | 6 ✅ |
+| Объекты | 26 | 27 ✅ |
+| Топология | 14 | 15 ✅ |
+| Все Арты (агрегатор) | 181 | 123 ✅ |
+
+См. `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` и `02_format_docs/PRT_xlsx_vs_results02.md` для деталей.
 
 ## Известные ограничения текущей версии
 
-- `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 (Шаг 3b) — они вычисляются динамически через `map_config_builder.py`.
-- `04_diff_analysis/Myth and Legend/` — исторические разовые скрипты, использовавшиеся для ручного локализования полей. Не используются в runtime. Пути к сейвам в них захардкожены (сейвы не в репозитории).
+- `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 — они вычисляются динамически через `map_config_builder.py`.
+- `04_diff_analysis/Myth and Legend/` — исторические разовые скрипты, использовавшиеся для ручного локализования полей. **Перенесены в `_obsolete/`** — не используются в runtime.
 - Write-back (редактирование сейва) — НЕ реализовано. Чтение полностью готово, запись в планах (Шаг 4).
 - Day-0 сейвы: расширенная цепочка после CurrentState (BitField, Monolith, SubTerGate, Bank) может отсутствовать/обрываться (файл укорочен). Обрабатывается gracefully через try/except.
 
 ## Подробная документация
 
 См. **`FILES_DESCRIPTION.md`** — полное описание всех файлов.
-См. **`02_format_docs/unimplemented_algorithms_audit.md`** — аудит 23 алгоритмов ProspectorRT (все ✅ реализованы).
+См. **`02_format_docs/HONEST_AUDIT_prt_vs_ours.md`** — аудит 93 алгоритмов чтения ProspectorRT (все ✅ реализованы).
+См. **`02_format_docs/PRT_xlsx_vs_results02.md`** — сравнение PRT xlsx с нашим output (4 приоритета).
+См. **`_obsolete/README.md`** — описание перенесённых в архив временных файлов.

@@ -866,3 +866,44 @@ Stage Summary:
 - Все 22 PRT-подобных таблицы генерируются в parsed_save.json
 - Большинство таблиц близко по размерам к PRT xlsx (разница ≤ 5-10%)
 - Архив пересобран
+
+---
+Task ID: organize-obsolete-2026-10-10
+Agent: main (Super Z)
+Task: Обновить все .md файлы + выделить временные файлы в _obsolete/
+
+Work Log:
+- Найдены все .md (19 файлов) и .py (54 файла) в проекте H3save_reader
+- Классифицированы файлы:
+  - АКТУАЛЬНЫЕ (остаются): README.md, FILES_DESCRIPTION.md, worklog.md, GM1_format_compendium.md, HONEST_AUDIT_prt_vs_ours.md, PRT_xlsx_vs_results02.md, 03_object_mapping/README.md, 04_diff_analysis/README.md, 07_prt_decompiled/README.md
+  - ВРЕМЕННЫЕ (в _obsolete/): 6 .md из 02_format_docs/, 25 .py + отчёты из 04_diff_analysis/Myth and Legend/, 12 .py из 06_disasm_scripts/
+
+Создана структура `_obsolete/`:
+- `_obsolete/README.md` — описание того, что перенесено
+- `_obsolete/02_format_docs/` — 6 исторических .md + diff_interpretation.json
+  - PRT_offset_findings.md, PRT_reverse_analysis.md, asm_prt_correlation.md, unimplemented_algorithms_audit.md, PRT_xlsx_vs_our_parser.md, header_pointer_search.md, diff_interpretation.json
+- `_obsolete/04_diff_analysis/Myth and Legend/` — 25 analyze_*.py + build_*.py + find_*.py + verify_*.py + regenerate_*.py + test_parser.py + отчёты
+- `_obsolete/06_disasm_scripts/` — 12 .py скриптов (disasm_h3, find_save_io, find_main_serializer, и др.)
+- `_obsolete/scripts/` — 25 скопированных audit/compare/debug скриптов
+
+Перемещения:
+- `mv 02_format_docs/{PRT_offset_findings,PRT_reverse_analysis,asm_prt_correlation,unimplemented_algorithms_audit,PRT_xlsx_vs_our_parser,header_pointer_search,diff_interpretation}.json _obsolete/02_format_docs/`
+- `mv 06_disasm_scripts/*.py _obsolete/06_disasm_scripts/` + `rmdir 06_disasm_scripts/` (папка стала пустой — удалена)
+- `mv 04_diff_analysis/Myth and Legend/* _obsolete/04_diff_analysis/Myth and Legend/` + `rmdir "04_diff_analysis/Myth and Legend"` (подпапка пуста — удалена)
+- `cp /home/z/my-project/scripts/{audit_prt_vs_ours,compare_prt_xlsx_vs_our_parser,compare_v02,decompile_prt,extract_full_il,extract_il,extract_il_v2,extract_prt_strings,extract_user_strings,analyze_prt_export,audit_connectivity,clean_gm1_mapping,debug_*,probe_save,pythonnet_explore,scan_coords,test_*,run_map_config,compare_saves}.py _obsolete/scripts/`
+
+Обновлены .md файлы:
+- `README.md`: версия 3.9 → 3.10; таблица "Что внутри" обновлена (6 категорий + _obsolete/); добавлен раздел "Текущая реализация (v3.10) — 4 приоритета соответствия PRT" с таблицами соответствия; в "Известные ограничения" добавлена ссылка на _obsolete/; в "Подробная документация" добавлены ссылки на HONEST_AUDIT и PRT_xlsx_vs_results02
+- `FILES_DESCRIPTION.md`: версия 3.9 → 3.10; полная структура репозитория обновлена (6 категорий + _obsolete/); добавлен раздел "🆕 Что нового в v3.10" с 4 приоритетами и архивацией; удалены дублирующиеся секции
+- `02_format_docs/HONEST_AUDIT_prt_vs_ours.md`: заголовок обновлён до v3.10; добавлена категория "C. Экспорт в JSON (4 приоритета v3.10)" — все 4 ✅
+- `02_format_docs/PRT_xlsx_vs_results02.md`: полностью переписан — заголовок v3.10, главный вывод (4 приоритета ✅), таблица соответствий 22 листов PRT, где что искать в JSON output, дорожная карта завершена
+- `04_diff_analysis/README.md`: обновлён — описано что исторические скрипты перенесены в _obsolete/
+- `_obsolete/README.md` создан — описание того, что перенесено и почему
+
+Stage Summary:
+- ⭐ Создана чистая структура: 6 актуальных категорий + _obsolete/ архив
+- ⭐ Все .md файлы обновлены до v3.10
+- ⭐ 43 файла (6 .md + 25 .py + 12 .py + скрипты) перенесены в _obsolete/
+- ⭐ Удалены 2 пустые папки: 06_disasm_scripts/, 04_diff_analysis/Myth and Legend/
+- ⭐ 02_format_docs/ теперь содержит только 4 актуальных файла (вместо 9)
+- Архив пересобран

@@ -1,12 +1,12 @@
 # HoMM3 GM1 Toolkit — подробное описание файлов
 
-> **Версия документа:** 3.9 (2026-10-10) — **полное соответствие ProspectorRT по алгоритмам чтения**
+> **Версия документа:** 3.10 (2026-10-10) — **полное соответствие ProspectorRT + 4 приоритета экспорта**
 > **Проект:** Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA)
 > **Цель:** Универсальный редактор сейвов, работающий с любой картой без хардкода абсолютных смещений
 
 ---
 
-## 📁 Структура репозитория (актуальная)
+## 📁 Структура репозитория (актуальная v3.10)
 
 ```
 H3save_reader/
@@ -15,47 +15,33 @@ H3save_reader/
 ├── worklog.md                         ⭐ Журнал работы (обновляется при каждой задаче)
 │
 ├── 01_tools/                          Готовые инструменты для работы с сейвами
-│   ├── gm1_parser.py                  PySide6 GUI парсер сейвов (требует рефакторинга для использования MapConfig)
+│   ├── gm1_parser.py                  PySide6 GUI парсер сейвов
 │   ├── map_json_loader.py             ⭐ Фаза 1: загрузчик JSON-парсинга карты (универсальный)
 │   ├── map_config_builder.py          ⭐ Фаза 2: построитель per-map config из day-0 сейва
-│   ├── save_parser.py                 ⭐ Фаза 3: универсальный парсер сейва через MapConfig (интегрирован с post_tile_parser)
+│   ├── save_parser.py                 ⭐ Фаза 3: универсальный парсер сейва (v3.10: hero war_machines + town spell_pool + merged_objects + aggregators)
 │   ├── cluster_finder.py              ⭐ Универсальный, gap-based поиск кластеров объектов в сейве
 │   ├── header_parser.py               ⭐ Универсальный парсер заголовка .GM1
-│   ├── save_layout.py                 ⭐ Dataclasses + формат-константы (HERO_FIELD_OFFSETS, TOWN_FIELD_OFFSETS, HERO_STRIDE_SOD=0x446, TOWN_RECORD_BASE_SIZE=382, PLAYER_STATE_OFFSETS, CURRENT_STATE_OFFSETS, TOWN_SPELL_POOL_DEPTH, SAVE_SECTION_ORDER)
-│   ├── tile_scanner.py                ⭐ Сканер тайлов (find_map_start, scan_tiles, IsObject диспетчер для 31 типа)
-│   ├── post_tile_scanner.py           ⭐ Offset-walker post-tile секций (scan_* skip-only функции + walk_post_tile_sections)
-│   ├── post_tile_parser.py            ⭐⭐⭐ Контент-парсеры (1,779 строк, все 23 алгоритма ProspectorRT)
+│   ├── save_layout.py                 ⭐ Dataclasses + формат-константы
+│   ├── tile_scanner.py                ⭐ Сканер тайлов (37 tile парсеров, IsObject диспетчер)
+│   ├── post_tile_scanner.py           ⭐ Offset-walker post-tile секций (56 Scan* функций)
+│   ├── post_tile_parser.py            ⭐⭐⭐ Контент-парсеры (2,057 строк, все 56 post-tile алгоритмов)
+│   ├── merged_objects.py              ⭐⭐⭐ v3.10 NEW — Tile-scan + post-tile merge (540 строк, 22 PRT-подобных таблицы)
 │   ├── gm1_diff.py                    CLI компаратор сейвов
 │   └── gm1_diff_gui.py                GUI версия компаратора
 │
-├── 02_format_docs/                    Документация по формату .GM1
+├── 02_format_docs/                    Документация по формату .GM1 (актуальная v3.10)
 │   ├── GM1_format_compendium.md       Человекочитаемая справка по формату
-│   ├── gm1_mapping.json               ⚠️ Конфиг смещений (требует чистки: удалить blocks и alternative_offsets)
-│   ├── header_pointer_search.md       Стратегия универсального поиска секций
-│   ├── diff_interpretation.json       Сводка 32 дифф-анализов (историческая)
-│   ├── PRT_offset_findings.md         ⭐ Точные смещения в ProspectorRT.exe (643 строки)
-│   ├── PRT_reverse_analysis.md       Анализ ProspectorRT и HeroesInfo
-│   ├── asm_prt_correlation.md         Корреляция asm ↔ ProspectorRT (константы подтверждены)
-│   └── unimplemented_algorithms_audit.md  ⭐ Аудит 23 алгоритмов ProspectorRT (все ✅ реализованы)
+│   ├── gm1_mapping.json               Универсальные формат-константы
+│   ├── HONEST_AUDIT_prt_vs_ours.md   ⭐ Аудит 93 алгоритмов чтения ProspectorRT (все ✅ реализованы)
+│   └── PRT_xlsx_vs_results02.md      ⭐ Сравнение PRT xlsx с нашим output (4 приоритета соответствия)
 │
 ├── 03_object_mapping/                 Универсальные словари типов объектов
 │   ├── README.md                      Описание
 │   └── object_types_dictionary.json   ⭐ 2037 типов из LazyLlama wiki (универсальный)
 │
-├── 04_diff_analysis/                  Исторические скрипты дифф-анализа (разовые)
-│   ├── README.md                      Структура папки
-│   ├── build_object_type_dictionary.py ⭐ Универсальный — парсит LazyLlama wiki
-│   └── Myth and Legend/               Подпапка для карты Myth and Legend
-│       ├── README.md                  Описание скриптов
-│       ├── analyze_*.py (25 скриптов) Анализ пар сейвов
-│       ├── build_*.py (3 скрипта)     Построение маппингов
-│       ├── find_header_pointers.py    Поиск указателей в заголовке
-│       ├── verify_coord_mapping.py    Верификация против 312.GM1
-│       ├── regenerate_mapping.py      Генератор gm1_mapping.json (decimal→hex)
-│       ├── test_parser.py             Тест парсера без GUI
-│       ├── analyze_save_clusters.py   Кластеризация смещений
-│       ├── header_pointer_search_report.json
-│       └── *.md / *.json отчёты      Отчёты дифф-анализов
+├── 04_diff_analysis/                  Универсальный скрипт (исторические перенесены в _obsolete/)
+│   ├── README.md                      Описание
+│   └── build_object_type_dictionary.py ⭐ Универсальный — парсит LazyLlama wiki
 │
 ├── 05_disasm/                         Результаты дизассемблирования heroes3.exe
 │   ├── disasm_summary.json            Сводка PE-структуры
@@ -70,53 +56,42 @@ H3save_reader/
 │   ├── rtti_strings.txt / rtti_xrefs.json  RTTI данные
 │   └── func_*.asm (15 файлов)         Дизассемблированный код ключевых функций
 │
-├── 06_disasm_scripts/                 Скрипты, создавших 05_disasm/
-│   ├── disasm_h3.py                   Главный дизассемблер (PE→JSON+TXT)
-│   ├── disasm_save_io.py              Поиск функций save I/O
-│   ├── disasm_serialize_content.py    Дизассемблирование SAVE_WRITER_CONTENT
-│   ├── disasm_serialize_methods.py    Дизассемблирование методов сериализации
-│   ├── find_main_serializer.py        Поиск главного сериализатора
-│   ├── find_save_io.py                Поиск точек входа save/load
-│   ├── find_source_paths.py           Поиск путей к исходникам в EXE
-│   ├── find_vtables.py                Извлечение vtable-ов
-│   ├── find_xrefs.py                  Поиск xref-ов к символам
-│   ├── callgraph_analysis.py          Анализ call-graph
-│   ├── analyze_main_func.py           Анализ главной функции игры
-│   └── analyze_save_funcs.py          Анализ найденных save-функций
-│
 ├── 07_prt_decompiled/                ⭐ Полный реверс-код ProspectorRT.exe
 │   ├── README.md                      Описание папки и сводка находок
 │   ├── ProspectorRT_source/          C# декомпиляция (ILSpy 8.2), 41 645 строк
-│   │   ├── ProspectorRT/MainForm.cs   ⭐ 16 210 строк — весь scanner (Scanner, GetSenseRegion, Open* / Save*)
-│   │   ├── ProspectorRT/DataSet2.cs         21 383 строк — типизированный датасет
-│   │   ├── ProspectorRT/LMOracle.cs            781 строк — SkillTreeAPI bridge
-│   │   ├── ProspectorRT/PrintForm.cs           829 строк — окно печати
-│   │   ├── ProspectorRT/ExportForm.cs         555 строк — окно экспорта
-│   │   ├── ProspectorRT/SkillTreeForm.cs       309 строк
-│   │   ├── ProspectorRT/frmAbout.cs            293 строк
-│   │   ├── ProspectorRT/ObjectNameForm.cs     258 строк
-│   │   ├── ProspectorRT/myToolTip.cs           170 строк
-│   │   ├── ProspectorRT/Registry.cs            78 строк
-│   │   ├── ProspectorRT/ShowForm.cs             71 строк
-│   │   ├── ProspectorRT/Program.cs              60 строк
-│   │   ├── ProspectorRT/CommonSetting.cs        14 строк
-│   │   ├── ProspectorRT.Properties/{Resources,Settings}.cs
-│   │   ├── Properties/AssemblyInfo.cs
-│   │   └── System.IO.Compression/ZipStorer.cs   535 строк
 │   ├── ProspectorRT_IL/              IL-дизассемблирование (raw .NET IL)
-│   │   └── full_il_dump.txt          ⭐ 4.6 МБ, 2 775 методов / 122 типов
-│   │                                    Инструкции IL с разрешением токенов
-│   │                                    Field/Method/Type/UserString
 │   └── ProspectorRT_metadata/         .NET metadata извлечённая через dnfile
-│       ├── ProspectorRT_typedefs.txt       135 TypeDef
-│       ├── ProspectorRT_methods.txt      2 905 MethodDef
-│       ├── ProspectorRT_fields.txt         876 FieldDef
-│       ├── ProspectorRT_typerefs.txt     1 000 TypeRef
-│       ├── ProspectorRT.exe_strings.txt   86 КБ ASCII-строки PE
-│       └── ProspectorRT_user_strings.txt  94 КБ #US heap (строковые литералы C#)
+│
+└── _obsolete/                        📦 Архив временных и промежуточных файлов (v3.10)
+    ├── README.md                      Описание того, что перенесено и почему
+    ├── 02_format_docs/                6 исторических .md + diff_interpretation.json
+    ├── 04_diff_analysis/Myth and Legend/  25 analyze_*.py + build/find/verify + отчёты
+    ├── 06_disasm_scripts/             12 .py скриптов, создавших 05_disasm/
+    └── scripts/                       25 audit/compare/debug скриптов
 ```
 
 > **Примечание:** Папка `examples/` с примерами сейвов и парсингами карт (`.h3m.zip`, `0000.GM1`, `114.GM1`) больше не включается в архив. Пользователь должен предоставлять свои `.h3m.json` / `.GM1` файлы. См. README.md "С чего начать" для команды построения per-map config.
+
+---
+
+## 🆕 Что нового в v3.10
+
+### 4 приоритета соответствия PRT xlsx:
+
+1. **Приоритет 1 (~30 строк)** — Экспонирование `post_tile_content` + `player_states` + `current_state` в `gm1_parser.export_to_json`
+2. **Приоритет 2a (~30 строк)** — Hero `war_machines` + `spell_book` поля (чтение 83 doll slots в `parse_hero_block`)
+3. **Приоритет 2b (~70 строк)** — Town `spell_pool` + `buildings_built` (вызов `parse_town_spell` + `parse_timer_town`)
+4. **Приоритет 3 (~540 строк)** — Tile-scan + post-tile merge → 22 PRT-подобных таблицы через новый модуль `merged_objects.py`
+5. **Приоритет 4 (~150 строк)** — Агрегаторы `aggregate_all_artifacts` + `aggregate_all_spells` + `aggregate_all_skills`
+
+### Архивация временных файлов в `_obsolete/`:
+
+- 6 исторических `.md` файлов из `02_format_docs/` (PRT_offset_findings, PRT_reverse_analysis, asm_prt_correlation, unimplemented_algorithms_audit, PRT_xlsx_vs_our_parser, header_pointer_search) + diff_interpretation.json
+- 25 `analyze_*.py` скриптов + 5 `build_*.py` + `find_*.py` + `verify_*.py` + `regenerate_*.py` из `04_diff_analysis/Myth and Legend/`
+- 12 `.py` скриптов, создавших `05_disasm/`, из `06_disasm_scripts/` (папка пуста, удалена)
+- 25 audit/compare/debug скриптов из `/home/z/my-project/scripts/` скопированы в `_obsolete/scripts/`
+
+См. `_obsolete/README.md` для деталей.
 
 ---
 
