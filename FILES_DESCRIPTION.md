@@ -31,9 +31,7 @@ H3save_reader/
 │
 ├── 02_format_docs/                    Документация по формату .GM1 (актуальная v3.10)
 │   ├── GM1_format_compendium.md       Человекочитаемая справка по формату
-│   ├── gm1_mapping.json               Универсальные формат-константы
-│   ├── HONEST_AUDIT_prt_vs_ours.md   ⭐ Аудит 93 алгоритмов чтения ProspectorRT (все ✅ реализованы)
-│   └── PRT_xlsx_vs_results02.md      ⭐ Сравнение PRT xlsx с нашим output (4 приоритета соответствия)
+│   └── gm1_mapping.json               Универсальные формат-константы
 │
 ├── 03_object_mapping/                 Универсальные словари типов объектов
 │   ├── README.md                      Описание
@@ -64,7 +62,16 @@ H3save_reader/
 │
 └── _obsolete/                        📦 Архив временных и промежуточных файлов (v3.10)
     ├── README.md                      Описание того, что перенесено и почему
-    ├── 02_format_docs/                6 исторических .md + diff_interpretation.json
+    ├── 02_format_docs/                8 исторических .md + diff_interpretation.json
+    │   ├── HONEST_AUDIT_prt_vs_ours.md       (v3.9 — аудит 93 алгоритмов, завершён)
+    │   ├── PRT_xlsx_vs_results02.md          (v3.10 — сравнение с PRT xlsx, завершено)
+    │   ├── PRT_offset_findings.md            (v3.8 — промежуточные находки PRT)
+    │   ├── PRT_reverse_analysis.md          (v3.8 — анализ ProspectorRT)
+    │   ├── PRT_xlsx_vs_our_parser.md        (v3.8 — первое сравнение PRT xlsx)
+    │   ├── asm_prt_correlation.md            (v3.8 — корреляция asm ↔ PRT)
+    │   ├── unimplemented_algorithms_audit.md (v3.8 — первый аудит 23 алгоритмов)
+    │   ├── header_pointer_search.md         (v3.0 — стратегия поиска)
+    │   └── diff_interpretation.json         (v2.0 — сводка 32 дифф-анализов)
     ├── 04_diff_analysis/Myth and Legend/  25 analyze_*.py + build/find/verify + отчёты
     ├── 06_disasm_scripts/             12 .py скриптов, создавших 05_disasm/
     └── scripts/                       25 audit/compare/debug скриптов
@@ -84,9 +91,13 @@ H3save_reader/
 4. **Приоритет 3 (~540 строк)** — Tile-scan + post-tile merge → 22 PRT-подобных таблицы через новый модуль `merged_objects.py`
 5. **Приоритет 4 (~150 строк)** — Агрегаторы `aggregate_all_artifacts` + `aggregate_all_spells` + `aggregate_all_skills`
 
-### Архивация временных файлов в `_obsolete/`:
+### Архивация временных файлов в `_obsolete/` (v3.10):
 
-- 6 исторических `.md` файлов из `02_format_docs/` (PRT_offset_findings, PRT_reverse_analysis, asm_prt_correlation, unimplemented_algorithms_audit, PRT_xlsx_vs_our_parser, header_pointer_search) + diff_interpretation.json
+- **8 исторических `.md` файлов** из `02_format_docs/`:
+  - `HONEST_AUDIT_prt_vs_ours.md` — аудит 93 алгоритмов чтения ProspectorRT (завершён, все ✅)
+  - `PRT_xlsx_vs_results02.md` — сравнение PRT xlsx с нашим output (завершено, 4 приоритета ✅)
+  - `PRT_offset_findings.md`, `PRT_reverse_analysis.md`, `PRT_xlsx_vs_our_parser.md`, `asm_prt_correlation.md`, `unimplemented_algorithms_audit.md`, `header_pointer_search.md` — промежуточные находки
+  - `diff_interpretation.json` — сводка 32 дифф-анализов (v2.0)
 - 25 `analyze_*.py` скриптов + 5 `build_*.py` + `find_*.py` + `verify_*.py` + `regenerate_*.py` из `04_diff_analysis/Myth and Legend/`
 - 12 `.py` скриптов, создавших `05_disasm/`, из `06_disasm_scripts/` (папка пуста, удалена)
 - 25 audit/compare/debug скриптов из `/home/z/my-project/scripts/` скопированы в `_obsolete/scripts/`

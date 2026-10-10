@@ -907,3 +907,27 @@ Stage Summary:
 - ⭐ Удалены 2 пустые папки: 06_disasm_scripts/, 04_diff_analysis/Myth and Legend/
 - ⭐ 02_format_docs/ теперь содержит только 4 актуальных файла (вместо 9)
 - Архив пересобран
+
+---
+Task ID: move-comparisons-to-obsolete-2026-10-10
+Agent: main (Super Z)
+Task: Перенести завершённые сравнения HONEST_AUDIT и PRT_xlsx_vs_results02 в _obsolete/
+
+Work Log:
+- Пользователь спросил: "вот эти сравнения завершены? HONEST_AUDIT_prt_vs_ours.md, PRT_xlsx_vs_results02.md — если да, то их тоже в obsolete"
+- Проверены оба файла:
+  - HONEST_AUDIT_prt_vs_ours.md — аудит 93/93 алгоритмов чтения ProspectorRT, ЗАВЕРШЁН (v3.9)
+  - PRT_xlsx_vs_results02.md — сравнение PRT xlsx с нашим output, 4/4 приоритета реализованы, ЗАВЕРШЁНО (v3.10)
+- Перемещено:
+  - `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` → `_obsolete/02_format_docs/`
+  - `02_format_docs/PRT_xlsx_vs_results02.md` → `_obsolete/02_format_docs/`
+- Обновлены .md файлы:
+  - `README.md`: убраны ссылки на HONEST_AUDIT и PRT_xlsx_vs_results02 из таблицы "Что внутри" и "Подробная документация"; добавлена заметка "Исторические сравнения с ProspectorRT (HONEST_AUDIT, PRT_xlsx_vs_results02) перенесены в _obsolete/02_format_docs/"
+  - `FILES_DESCRIPTION.md`: убраны строки HONEST_AUDIT и PRT_xlsx_vs_results02 из дерева 02_format_docs/; обновлена секция "_obsolete/" с перечислением всех 8 исторических .md + 1 .json; обновлён раздел "🆕 Что нового в v3.10" с уточнением про 8 исторических .md
+  - `_obsolete/README.md`: обновлён — добавлена таблица "Содержимое 02_format_docs/ (8 .md + 1 .json)" с описанием каждого файла и его статуса (✅ Завершён / Промежуточный / Заменено); обновлена история v3.9 и v3.10
+
+Stage Summary:
+- ⭐ 02_format_docs/ теперь содержит только 2 файла (вместо 4): GM1_format_compendium.md + gm1_mapping.json
+- ⭐ _obsolete/02_format_docs/ теперь содержит 8 .md + 1 .json (все исторические сравнения и аудиты)
+- ⭐ Все ссылки в README и FILES_DESCRIPTION обновлены
+- Архив пересобран

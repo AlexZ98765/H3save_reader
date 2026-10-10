@@ -10,7 +10,7 @@
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
 | **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 PRT-подобных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
-| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `HONEST_AUDIT_prt_vs_ours.md` (статус соответствия PRT), `PRT_xlsx_vs_results02.md` (сравнение с PRT xlsx) |
+| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md` (справка по формату), `gm1_mapping.json` (формат-константы) |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
 | **`04_diff_analysis/`** | Универсальный скрипт дифф-анализа (только `build_object_type_dictionary.py`) | `build_object_type_dictionary.py` (парсит LazyLlama wiki) |
 | **`05_disasm/`** | Дизассемблированный `heroes3.exe` (нативный код) | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
@@ -97,7 +97,8 @@ coord_int = x | (y << 8) | (z << 16)
 | Топология | 14 | 15 ✅ |
 | Все Арты (агрегатор) | 181 | 123 ✅ |
 
-См. `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` и `02_format_docs/PRT_xlsx_vs_results02.md` для деталей.
+См. `02_format_docs/GM1_format_compendium.md` для справки по формату.
+Исторические сравнения с ProspectorRT (HONEST_AUDIT, PRT_xlsx_vs_results02) перенесены в `_obsolete/02_format_docs/`.
 
 ## Известные ограничения текущей версии
 
@@ -109,6 +110,4 @@ coord_int = x | (y << 8) | (z << 16)
 ## Подробная документация
 
 См. **`FILES_DESCRIPTION.md`** — полное описание всех файлов.
-См. **`02_format_docs/HONEST_AUDIT_prt_vs_ours.md`** — аудит 93 алгоритмов чтения ProspectorRT (все ✅ реализованы).
-См. **`02_format_docs/PRT_xlsx_vs_results02.md`** — сравнение PRT xlsx с нашим output (4 приоритета).
-См. **`_obsolete/README.md`** — описание перенесённых в архив временных файлов.
+См. **`_obsolete/README.md`** — описание перенесённых в архив временных файлов (включая исторические сравнения с ProspectorRT).
