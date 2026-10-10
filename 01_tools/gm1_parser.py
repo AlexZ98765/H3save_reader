@@ -29,7 +29,7 @@ import contextlib
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QAction
+from PySide6.QtGui import QFont, QAction, QColor
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLineEdit, QLabel, QPlainTextEdit, QComboBox,
@@ -1835,7 +1835,21 @@ class GM1ParserWindow(QMainWindow):
         self.json_text = QTextEdit()
         self.json_text.setReadOnly(True)
         self.json_text.setFont(QFont("Courier New", 10))
-        self.tabs.addTab(self.json_text, "JSON Preview")
+        self.tabs.addTab(self.json_text, "JSON Preview (raw)")
+
+        # v3.11: Collapsible JSON tree viewer (alternative tab)
+        self.json_tree = QTreeWidget()
+        self.json_tree.setHeaderLabels(["Key", "Value/Type"])
+        self.json_tree.setFont(QFont("Courier New", 10))
+        self.json_tree.setColumnWidth(0, 300)
+        self.json_tree.setColumnWidth(1, 500)
+        self.json_tree.setAlternatingRowColors(True)
+        self.json_tree.setUniformRowHeights(True)
+        self.json_tree.setRootIsDecorated(True)
+        self.json_tree.setItemsExpandable(True)
+        self.json_tree.setAnimated(True)
+        self.json_tree.setHeaderHidden(False)
+        self.tabs.addTab(self.json_tree, "JSON Preview")
 
         self.mapping_text = QTextEdit()
         self.mapping_text.setReadOnly(True)
@@ -2692,6 +2706,9 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                                     coord_int_lookup=getattr(self.map_data, "coord_int_lookup", {}) if self.map_data else {},
                                     computed_offsets=self._load_objects_with_offsets())
             self.json_text.setPlainText(json_str)
+
+        # v3.11: Also populate the collapsible JSON tree
+        self._populate_json_tree(self.parsed_data)
         self._set_idle()
 
     def _populate_tree(self):
@@ -2945,6 +2962,15 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
 
         self.details_text.setPlainText("\n".join(details))
 
+        # v3.11: Update JSON Preview tree — focus on this item's location
+        focus_path = self._path_to_json_focus(item, type_, offset_str)
+        if focus_path:
+            # Reuse existing tree if populated, just focus on the new item
+            if self.json_tree.topLevelItemCount() == 0:
+                self._populate_json_tree(self.parsed_data, focus_path)
+            else:
+                self._focus_json_tree_item(focus_path)
+
     def _show_map_object_details(self, item: QTreeWidgetItem):
         """Show detailed information for a map object, including save-file offsets
         and the structure of the object record at main_offset."""
@@ -3107,6 +3133,205 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                 pass
 
         self.details_text.setPlainText("\n".join(lines))
+
+    # ========================================================================
+    # v3.11: Collapsible JSON tree viewer
+    # ========================================================================
+
+    def _json_to_tree(self, parent_item, key, value, path=""):
+        """Recursively build a QTreeWidget from a JSON structure.
+
+        Args:
+            parent_item: QTreeWidgetItem (parent) or None for root
+            key:         dict key, list index, or "root" for top level
+            value:       dict, list, scalar
+            path:        dotted path for lookup (e.g. "heroes_found[3].fields.name")
+        """
+        full_path = f"{path}.{key}" if path else str(key)
+
+        if isinstance(value, dict):
+            n = len(value)
+            type_str = f"object ({n} keys)" if n else "object (empty)"
+            item = QTreeWidgetItem(parent_item, [str(key), type_str])
+            item.setData(0, Qt.UserRole, full_path)
+            item.setData(1, Qt.UserRole, value)
+            if n == 0:
+                item.setExpanded(True)
+            else:
+                # collapse large dicts by default
+                item.setExpanded(n <= 3)
+            for k, v in value.items():
+                self._json_to_tree(item, k, v, full_path)
+            return item
+        elif isinstance(value, list):
+            n = len(value)
+            type_str = f"array ({n} items)" if n else "array (empty)"
+            item = QTreeWidgetItem(parent_item, [str(key), type_str])
+            item.setData(0, Qt.UserRole, full_path)
+            item.setData(1, Qt.UserRole, value)
+            if n == 0:
+                item.setExpanded(True)
+            else:
+                # collapse large lists by default
+                item.setExpanded(n <= 3)
+            for i, v in enumerate(value):
+                self._json_to_tree(item, f"[{i}]", v, full_path)
+            return item
+        else:
+            # scalar value
+            if value is None:
+                v_str = "null"
+            elif isinstance(value, bool):
+                v_str = "true" if value else "false"
+            elif isinstance(value, (int, float)):
+                v_str = str(value)
+            elif isinstance(value, str):
+                # truncate long strings for display
+                if len(value) > 200:
+                    v_str = f'"{value[:200]}…" ({len(value)} chars)'
+                else:
+                    v_str = f'"{value}"'
+            else:
+                v_str = str(value)
+            type_str = type(value).__name__
+            item = QTreeWidgetItem(parent_item, [str(key), v_str])
+            item.setData(0, Qt.UserRole, full_path)
+            item.setData(1, Qt.UserRole, value)
+            # Color-code by type
+            if isinstance(value, str):
+                item.setForeground(1, QColor("#008800"))  # green for strings
+            elif isinstance(value, (int, float)):
+                item.setForeground(1, QColor("#0000AA"))  # blue for numbers
+            elif isinstance(value, bool):
+                item.setForeground(1, QColor("#AA0000"))  # red for booleans
+            elif value is None:
+                item.setForeground(1, QColor("#888888"))  # grey for null
+            return item
+
+    def _populate_json_tree(self, parsed_data=None, focus_path=None):
+        """Populate the collapsible JSON tree from parsed_data.
+
+        Args:
+            parsed_data: dict to display (defaults to self.parsed_data)
+            focus_path:  dotted path to expand and focus on (e.g. "heroes_found.0")
+        """
+        parsed_data = parsed_data if parsed_data is not None else self.parsed_data
+        if not parsed_data:
+            self.json_tree.clear()
+            return
+
+        self.json_tree.clear()
+        # Build tree starting from a root
+        root_item = QTreeWidgetItem(self.json_tree, ["(root)", ""])
+        root_item.setData(0, Qt.UserRole, "")
+        root_item.setExpanded(True)
+        if isinstance(parsed_data, dict):
+            for k, v in parsed_data.items():
+                self._json_to_tree(root_item, k, v, "")
+        elif isinstance(parsed_data, list):
+            for i, v in enumerate(parsed_data):
+                self._json_to_tree(root_item, f"[{i}]", v, "")
+
+        # If focus_path is given, expand and scroll to it
+        if focus_path:
+            self._focus_json_tree_item(focus_path)
+
+    def _focus_json_tree_item(self, focus_path):
+        """Find the tree item matching `focus_path` (dotted path),
+        expand all parents, scroll to it, and select it.
+
+        `focus_path` looks like: "heroes_found.0.fields.name"
+        or with array indices: "heroes_found.[0].fields.name"
+        """
+        # Walk down the tree matching each segment of the path
+        # Tree items have their full path stored in Qt.UserRole on column 0
+        # Find the matching item by iterating top-level items
+        def find_item_by_path(parent, remaining_path):
+            # remaining_path is like "heroes_found.0.fields.name"
+            if not remaining_path:
+                return parent
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                child_path = child.data(0, Qt.UserRole) or ""
+                if child_path == remaining_path:
+                    return child
+                # Also try matching the next segment
+                first_segment = remaining_path.split(".", 1)
+                head = first_segment[0]
+                tail = first_segment[1] if len(first_segment) > 1 else ""
+                child_key = child.text(0)
+                if child_key == head or child_key == f"[{head}]" or child_key == head.strip("[]"):
+                    # Recurse with remaining path
+                    found = find_item_by_path(child, tail)
+                    if found:
+                        return found
+            return None
+
+        root = self.json_tree.topLevelItem(0)
+        if not root:
+            return
+        target = find_item_by_path(root, focus_path)
+        if target:
+            # Expand all ancestors
+            p = target.parent()
+            while p is not None:
+                p.setExpanded(True)
+                p = p.parent()
+            target.setExpanded(True)
+            # Scroll to and select
+            self.json_tree.scrollToItem(target, QTreeWidget.PositionAtCenter)
+            self.json_tree.setCurrentItem(target)
+            self.json_tree.setItemSelected(target, True)
+
+    def _path_to_json_focus(self, item, type_, offset_str):
+        """Convert a clicked tree item to a JSON path in parsed_data.
+
+        Args:
+            item:        QTreeWidgetItem (clicked)
+            type_:       item type string ("hero", "town", "block", "map_object")
+            offset_str:  hex offset string ("0x...")
+
+        Returns dotted path like "heroes_found.0" or "towns_found.2" or
+        "blocks.5" or "merged_objects.Артефакты.3" — or None if no match.
+        """
+        if type_ == "hero" and offset_str.startswith("0x"):
+            try:
+                hero_off = int(offset_str, 16)
+                for i, h in enumerate(self.parsed_data.get("heroes_found", [])):
+                    if h.get("offset") == hero_off:
+                        return f"heroes_found.{i}"
+            except ValueError:
+                pass
+        elif type_ == "town" and offset_str.startswith("0x"):
+            try:
+                town_off = int(offset_str, 16)
+                for i, t in enumerate(self.parsed_data.get("towns_found", [])):
+                    if t.get("offset") == town_off:
+                        return f"towns_found.{i}"
+            except ValueError:
+                pass
+        elif type_ == "block":
+            name = item.text(0)
+            # Try to find this block name in blocks list
+            for i, b in enumerate(self.parsed_data.get("blocks", [])):
+                if b.get("name") == name:
+                    return f"blocks.{i}"
+            # Or check merged_objects (by Russian sheet name)
+            mo = self.parsed_data.get("merged_objects", {})
+            if isinstance(mo, dict):
+                for k, v in mo.items():
+                    if k == name and isinstance(v, list):
+                        # find first item — won't be able to track to a specific row, so just open the list
+                        return f"merged_objects.{k}"
+        elif type_ == "map_object":
+            o = item.data(0, Qt.UserRole)
+            if o and "coord_int" in o:
+                # Find this coord_int in map_objects list
+                target_ci = o["coord_int"]
+                for i, mo in enumerate(self.parsed_data.get("map_objects", [])):
+                    if isinstance(mo, dict) and mo.get("coord_int") == target_ci:
+                        return f"map_objects.{i}"
+        return None
 
     def _on_export_json(self):
         if not self.parsed_data:

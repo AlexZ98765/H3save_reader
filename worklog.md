@@ -1046,3 +1046,65 @@ Stage Summary:
 - ⭐ Источник имён: ProspectorRT MainForm.cs::CreateTblObject (русские) + CreateTblObjectSoDEn (английские)
 - ⭐ Для типов вне PRT TblObject добавлены описательные имена (Random_*)
 - Архив пересобран
+
+---
+Task ID: collapsible-json-tree-2026-10-10
+Agent: main (Super Z)
+Task: Добавить collapsible JSON tree viewer с позиционированием на выбранный элемент
+
+Work Log:
+- Пользователь попросил: "на вкладке JSON Preview показывать конкретный блок элемента с возможностью сворачивания/разворачивания и позиционированием именно на том объекте, который выбран"
+
+Реализация в gm1_parser.py:
+1. Добавлен новый QTreeWidget для JSON Preview (коллапсируемое дерево):
+   - Колонки: "Key", "Value/Type"
+   - columnWidth(0, 300), columnWidth(1, 500)
+   - alternatingRowColors, setItemsExpandable, setAnimated
+   - Цветовое кодирование: строки — зелёный, числа — синий, bool — красный, null — серый
+   - Старый QTextEdit переименован в "JSON Preview (raw)" — оставлен как fallback
+
+2. Метод `_json_to_tree(parent, key, value, path)`:
+   - Рекурсивно строит дерево из JSON-структуры
+   - dict → "object (N keys)" с детьми
+   - list → "array (N items)" с детьми [0], [1], ...
+   - scalar → тип + значение (длинные строки обрезаются до 200 символов)
+   - Сохраняет полный путь в Qt.UserRole для последующего поиска
+   - Маленькие dict/list (≤3 ключа) разворачиваются, большие — сворачиваются
+
+3. Метод `_populate_json_tree(parsed_data, focus_path=None)`:
+   - Заполняет дерево из parsed_data
+   - Опционально фокусируется на focus_path
+
+4. Метод `_focus_json_tree_item(focus_path)`:
+   - Ищет элемент по dotted path (например "heroes_found.0.fields.name")
+   - Разворачивает всех родителей
+   - Прокручивает к элементу (PositionAtCenter)
+   - Выделяет элемент
+
+5. Метод `_path_to_json_focus(item, type_, offset_str)`:
+   - Преобразует кликнутый элемент в JSON path
+   - hero → "heroes_found.N"
+   - town → "towns_found.N"
+   - block → "blocks.N" или "merged_objects.{sheet}"
+   - map_object → "map_objects.N" (по coord_int)
+
+6. Интеграция в `_on_tree_item_clicked`:
+   - После отображения details вычисляет focus_path
+   - Если дерево JSON уже заполнено — просто фокусируется на новом элементе
+   - Если пустое — заполняет и фокусируется
+
+7. Интеграция в `load_file`:
+   - После загрузки сейва заполняет и json_text (raw), и json_tree (collapsible)
+
+Импорты:
+- Добавлен QColor из PySide6.QtGui для цветового кодирования
+
+Stage Summary:
+- ⭐ Добавлен collapsible JSON tree viewer на новой вкладке "JSON Preview"
+- ⭐ Старый raw JSON остаётся на вкладке "JSON Preview (raw)" — fallback
+- ⭐ При клике на любой элемент в дереве объектов — JSON tree автоматически фокусируется на соответствующем элементе
+- ⭐ Цветовое кодирование по типам (строки/числа/bool/null)
+- ⭐ Большие dict/list сворачиваются по умолчанию (для производительности)
+- ⭐ Все родители выбранного элемента автоматически разворачиваются
+- ⭐ Автоскролл к выбранному элементу (PositionAtCenter)
+- Архив пересобран
