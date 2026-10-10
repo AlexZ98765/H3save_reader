@@ -1000,6 +1000,16 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
         "player_states":   getattr(parsed, "_player_states", []),
         "current_state":   getattr(parsed, "_current_state", {}),
         "post_tile_sections": getattr(parsed, "_post_tile_sections", {}),  # structure-walking chain
+        # v3.10: also surface _post_tile_content (results of parse_all_post_tile_sections)
+        "_post_tile_content": getattr(parsed, "_post_tile_content", {}),
+        "post_tile_content": getattr(parsed, "_post_tile_content", {}),
+        "town_timer_links": getattr(parsed, "_town_timer_links", []),
+        "merged_objects": getattr(parsed, "_merged_objects", {}),
+        "aggregators": {
+            "all_artifacts": getattr(parsed, "_aggregate_all_artifacts", []),
+            "all_spells": getattr(parsed, "_aggregate_all_spells", []),
+            "all_skills": getattr(parsed, "_aggregate_all_skills", []),
+        },
     }
 
 
@@ -1301,6 +1311,82 @@ def export_to_json(parsed: Dict, raw: bytes,
                     field_export["raw_bytes"] = raw[off:off + sz].hex()
             block_export["fields"].append(field_export)
         export_data["blocks"].append(block_export)
+
+    # ----- v3.10: Expose post_tile_content + player_states + current_state -----
+    # These are parsed by save_parser.parse_save() (in _parse_save_via_config)
+    # and attached to the parsed dict as "_post_tile_content".
+    # Now we surface them in the JSON export so users can see the data.
+    ptc = parsed.get("_post_tile_content") or parsed.get("post_tile_content")
+    if ptc:
+        if isinstance(ptc, dict) and "error" not in ptc:
+            try:
+                from dataclasses import asdict, is_dataclass
+                serialized_ptc = {}
+                for k, v in ptc.items():
+                    if k == "offsets":
+                        serialized_ptc[k] = v
+                    elif isinstance(v, list):
+                        items = []
+                        for item in v:
+                            if is_dataclass(item):
+                                try:
+                                    items.append(asdict(item))
+                                except Exception:
+                                    items.append(str(item))
+                            else:
+                                items.append(item)
+                        serialized_ptc[k] = items
+                    elif is_dataclass(v):
+                        try:
+                            serialized_ptc[k] = asdict(v)
+                        except Exception:
+                            serialized_ptc[k] = str(v)
+                    elif isinstance(v, dict):
+                        # nested dict (e.g., sub_ter_gates)
+                        nested = {}
+                        for kk, vv in v.items():
+                            if isinstance(vv, list):
+                                nested[kk] = [
+                                    asdict(i) if is_dataclass(i) else i for i in vv
+                                ]
+                            elif is_dataclass(vv):
+                                nested[kk] = asdict(vv)
+                            else:
+                                nested[kk] = vv
+                        serialized_ptc[k] = nested
+                    else:
+                        serialized_ptc[k] = v
+                export_data["post_tile_content"] = serialized_ptc
+            except Exception as e:
+                export_data["post_tile_content"] = {"error": f"serialization failed: {e}"}
+        else:
+            export_data["post_tile_content"] = ptc
+
+    if "player_states" in parsed:
+        export_data["player_states"] = serialize(parsed["player_states"])
+
+    if "current_state" in parsed:
+        export_data["current_state"] = serialize(parsed["current_state"])
+
+    if "map_objects" in parsed:
+        # Map objects from tile_scanner — list of dicts with type_id, type_name, x/y/z, ...
+        export_data["map_objects"] = serialize(parsed["map_objects"])
+
+    if "map_start_info" in parsed:
+        export_data["map_start_info"] = parsed["map_start_info"]
+
+    if "post_tile_sections" in parsed:
+        export_data["post_tile_sections"] = parsed["post_tile_sections"]
+
+    if "town_timer_links" in parsed:
+        export_data["town_timer_links"] = parsed["town_timer_links"]
+
+    if "merged_objects" in parsed:
+        # merged_objects is already a dict of lists of plain dicts (output of merge_all)
+        export_data["merged_objects"] = parsed["merged_objects"]
+
+    if "aggregators" in parsed:
+        export_data["aggregators"] = parsed["aggregators"]
 
     return json.dumps(export_data, indent=2, ensure_ascii=False)
 

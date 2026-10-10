@@ -200,6 +200,32 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         equipment.append((artifact_id, data))
     fields["equipment"] = equipment
 
+    # ----- v3.10: War machines + Spell Book (PRT columns "Машина" and "Книга заклинаний") -----
+    # PRT reads 83 doll slots × 8 bytes from offset +561 onwards (see MainForm.cs:7723).
+    # Slot index = 0 → Spell Book (artifact_id == 0)
+    # Slot index 4/5/6 → War machines (Ballista=4, Ammo Cart=5, First Aid Tent=6)
+    # We extract these as separate fields for clarity.
+    doll_start = name_offset + 561  # 83 × 8 = 686 bytes
+    war_machines = []  # list of (slot_index, artifact_id, data)
+    spell_book = False
+    for i in range(83):
+        slot_off = doll_start + i * 8
+        if slot_off + 8 > len(raw):
+            break
+        art_id = raw[slot_off]
+        if art_id == 0:
+            spell_book = True  # has spell book
+        elif art_id in (4, 5, 6):
+            machine_name = {4: "Ballista", 5: "Ammo Cart", 6: "First Aid Tent"}.get(art_id, f"Unknown({art_id})")
+            war_machines.append({
+                "slot_index": i,
+                "machine_id": art_id,
+                "machine_name": machine_name,
+                "data": struct.unpack("<I", raw[slot_off + 4:slot_off + 8])[0],
+            })
+    fields["war_machines"] = war_machines
+    fields["spell_book"] = spell_book
+
     # ----- Alt block fields (from ProspectorRT GetHeroesContent) -----
     # Alt block starts at block_offset + HERO_ALT_BLOCK_OFFSET (26)
     # These fields are DUPLICATED in the alt block (also exist in pre-alt)
@@ -252,6 +278,12 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["y"] = raw[block_offset + o["y"]]
     fields["z"] = raw[block_offset + o["z"]]
 
+    # v3.10: Town ID (used to link with town timed events from parse_timer_town)
+    # ProspectorRT GetTownContent reads `decmp[town]` (first byte = town ID)
+    # at block_offset (before the type/x/y/z fields).
+    # The ID is at block_offset + 0 (the first byte of the town record).
+    fields["id"] = raw[block_offset] if block_offset < len(raw) else 0
+
     # Army — 7 × u32 creature IDs + 7 × u32 counts
     army_types = []
     for i in range(7):
@@ -275,6 +307,43 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         fields["name"] = _decode_cp1251(raw[name_start:name_start + name_len])
     else:
         fields["name"] = "?"
+
+    # ----- v3.10: Spell Pool (Magic Guild spells) -----
+    # ProspectorRT GetTownContent (line 7458) reads spell_pool after each town.
+    # The spell pool starts at block_offset + 72 + name_len + 113 (after town name
+    # and a 113-byte gap before spell slots).
+    # Town spell pool depth depends on town type (TOWN_SPELL_POOL_DEPTH).
+    # We call post_tile_parser.parse_town_spell to extract spells per level.
+    try:
+        # Lazy import to avoid circular dependency
+        import os, sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from post_tile_parser import parse_town_spell
+        from save_layout import TOWN_SPELL_POOL_DEPTH
+
+        # Spell section starts after town record + 113 bytes gap
+        # block_offset + 72 (name_len_offset) + name_len + 113
+        # but ProspectorRT calls GetTownSpell AFTER skipping town record
+        # (town stride = 72 + name_len + 113 + spell_section + 197)
+        # Let's compute: end of "town main body" = block_offset + 72 + name_len + 113
+        spell_section_offset = block_offset + 72 + name_len + 113
+        # Library check: if Tower (type=2), library built = bit 0x40 in some byte
+        # For simplicity, assume library = False unless we can read it
+        lvl = TOWN_SPELL_POOL_DEPTH.get(fields["type"], 5)
+        # parse_town_spell expects (raw, s, lvl, library_built, mg5_built)
+        # We pass library_built = False (will need to fix later if needed)
+        spell_pool, _ = parse_town_spell(raw, spell_section_offset, lvl)
+        # spell_pool is TownSpellPool dataclass with .levels (list of lists)
+        # Convert to dict for JSON
+        fields["spell_pool"] = {
+            "address": spell_pool.address,
+            "has_library": spell_pool.has_library,
+            "has_mage_guild_level_5": spell_pool.has_mage_guild_level_5,
+            "levels": spell_pool.levels,  # list of [spell_id, ...]
+        }
+    except Exception as e:
+        # If post_tile_parser fails (e.g., out of bounds), don't break the whole town
+        fields["spell_pool"] = {"error": str(e)}
 
     return fields
 
@@ -636,6 +705,80 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._map_start_info = map_start_info
     parsed._post_tile_sections = post_tile_sections
     parsed._post_tile_content = post_tile_content
+
+    # v3.10: Link town timed events to towns (parse_timer_town)
+    # For each town, find all timed events with matching town ID and decode
+    # the 6-byte building bitmask into building names.
+    try:
+        import os, sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from post_tile_parser import parse_timer_town
+        tte = post_tile_content.get("town_timed_events", []) if isinstance(post_tile_content, dict) else []
+        if tte and towns_parsed:
+            # Build town list for parse_timer_town (it expects dicts with 'id'/'fields' structure)
+            town_dicts = [
+                {
+                    "id": t.get("fields", {}).get("id", 0),
+                    "name": t.get("name") or t.get("fields", {}).get("name", ""),
+                    "fields": t.get("fields", {}),
+                }
+                for t in towns_parsed
+            ]
+            town_links = parse_timer_town(town_dicts, tte)
+            # Convert TownTimerLink dataclasses to dicts and attach to each town
+            from dataclasses import asdict
+            links_by_id = {link.town_id: link for link in town_links}
+            for town in towns_parsed:
+                town_id = town.get("fields", {}).get("id", 0)
+                if town_id in links_by_id:
+                    link = links_by_id[town_id]
+                    town["timed_events_count"] = len(link.events)
+                    town["buildings_built"] = link.buildings_built
+            # Also store the links themselves
+            parsed._town_timer_links = [asdict(l) for l in town_links]
+    except Exception as e:
+        parsed._town_timer_links = {"error": str(e)}
+
+    # v3.10: Merge tile-scan results with post-tile content (Priority 3)
+    # Produce PRT-like "raw" tables: Артефакты, Монстры, Банки, etc.
+    try:
+        import os, sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from merged_objects import merge_all
+        if map_objects and isinstance(post_tile_content, dict):
+            heroes_for_merge = [
+                {"fields": h.get("fields", {}), "name": h.get("name")}
+                for h in heroes_parsed
+            ]
+            parsed._merged_objects = merge_all(
+                tile_objects=map_objects,
+                post_tile_content=post_tile_content,
+                heroes_parsed=heroes_for_merge,
+            )
+        else:
+            parsed._merged_objects = {}
+    except Exception as e:
+        parsed._merged_objects = {"error": str(e)}
+
+    # v3.10: Aggregators (Priority 4) — "Все Арты", "Все Заклы", "Все Навыки"
+    # These collect artifacts/spells/skills from ALL sources on the map.
+    try:
+        import os, sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from post_tile_parser import (
+            aggregate_all_artifacts,
+            aggregate_all_spells,
+            aggregate_all_skills,
+        )
+        parsed._aggregate_all_artifacts = aggregate_all_artifacts(parsed)
+        parsed._aggregate_all_spells = aggregate_all_spells(parsed)
+        parsed._aggregate_all_skills = aggregate_all_skills(parsed)
+    except Exception as e:
+        parsed._aggregate_all_artifacts = []
+        parsed._aggregate_all_spells = []
+        parsed._aggregate_all_skills = []
+        parsed._aggregator_error = str(e)
+
     return parsed
 
 
@@ -644,7 +787,6 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
 # ============================================================================
 
 def _serialize_post_tile_content(content):
-    """Convert post_tile_content dataclasses to JSON-serializable dicts."""
     if not content or not isinstance(content, dict):
         return content
     out = {}
@@ -670,6 +812,51 @@ def _serialize_post_tile_content(content):
                 out[k] = asdict(v)
             except Exception:
                 out[k] = str(v)
+        else:
+            out[k] = v
+    return out
+
+
+def _serialize_merged_objects(merged):
+    """Convert merged_objects dict (output of merged_objects.merge_all) to JSON-serializable.
+
+    merged_objects has lists of dicts, but some dicts contain dataclass
+    instances (e.g., SubTerGate from post_tile_content.sub_ter_gates.gates).
+    We need to convert those to plain dicts.
+    """
+    if not merged or not isinstance(merged, dict):
+        return merged
+    if "error" in merged:
+        return merged
+    out = {}
+    for k, v in merged.items():
+        if isinstance(v, list):
+            new_list = []
+            for item in v:
+                if isinstance(item, dict):
+                    new_item = {}
+                    for kk, vv in item.items():
+                        # If value is a dataclass or has __dict__, convert
+                        if hasattr(vv, "__dict__") and not isinstance(vv, (int, str, bool, list, dict)):
+                            try:
+                                from dataclasses import asdict
+                                new_item[kk] = asdict(vv)
+                            except Exception:
+                                new_item[kk] = str(vv)
+                        elif isinstance(vv, tuple):
+                            new_item[kk] = list(vv)
+                        else:
+                            new_item[kk] = vv
+                    new_list.append(new_item)
+                elif hasattr(item, "__dict__"):
+                    try:
+                        from dataclasses import asdict
+                        new_list.append(asdict(item))
+                    except Exception:
+                        new_list.append(str(item))
+                else:
+                    new_list.append(item)
+            out[k] = new_list
         else:
             out[k] = v
     return out
@@ -709,6 +896,15 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         "post_tile_sections": getattr(parsed, "_post_tile_sections", {}),
         "post_tile_content": _serialize_post_tile_content(
             getattr(parsed, "_post_tile_content", {})),
+        "town_timer_links": getattr(parsed, "_town_timer_links", []),
+        "merged_objects": _serialize_merged_objects(
+            getattr(parsed, "_merged_objects", {})),
+        "aggregators": {
+            "all_artifacts": getattr(parsed, "_aggregate_all_artifacts", []),
+            "all_spells": getattr(parsed, "_aggregate_all_spells", []),
+            "all_skills": getattr(parsed, "_aggregate_all_skills", []),
+            "error": getattr(parsed, "_aggregator_error", None),
+        },
     }
 
 

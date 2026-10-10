@@ -1759,6 +1759,192 @@ def aggregate_monstr_content(parsed_save) -> List[MonstrContent]:
 
 
 # ============================================================================
+# aggregate_all_artifacts — collect artifacts from ALL sources on the map
+# (Reference: PRT R_AllArts DataTable, populated throughout Scanner())
+# ============================================================================
+
+@dataclass
+class AllArtifactRow:
+    """One row in the "Все Арты" aggregator table.
+
+    Sources include: hero equipment/doll, prison heroes, market, art merchants,
+    ground artifacts, chests, event boxes, banks, seer hut rewards.
+    """
+    x: int = 0
+    y: int = 0
+    z: int = 0
+    locality: str = ""
+    object: str = ""           # "Artifact", "Hero", "Prison", "Market", "Bank", etc.
+    slot: int = 0              # slot index (1-based) or 0
+    artifact_id: int = -1
+    artifact_name: str = ""   # if we can resolve
+    class_: str = ""           # Treasure/Minor/Major/Relic
+    relic_combo: str = ""     # if it's part of a relic combo
+    hero: str = ""            # hero name (if from hero)
+    doll_slot: str = ""       # doll slot name (if from hero)
+    flag: str = ""            # player color (if from hero)
+    place: str = ""           # location string ("X.Y.Z")
+    mission: str = ""          # seer hut mission text
+    guard: List[Any] = field(default_factory=list)  # guard slots if guarded
+
+
+def aggregate_all_artifacts(parsed_save) -> List[Dict[str, Any]]:
+    """Aggregate all artifacts from EVERY source on the map (PRT "Все Арты" sheet).
+
+    Sources (in ProspectorRT order):
+    1. Heroes (R_AllArts populated by GetHeroesContent for each hero)
+    2. Prison heroes (GetPrisonHero)
+    3. Black Market (GetMarketContent + SaveMarket)
+    4. Art Merchants (GetArtMerchants — in CurrentState)
+    5. Ground artifacts (SaveArt + ArtResContent)
+    6. Chests (SaveChest when artifact_id != 0xFF)
+    7. Event boxes (EventBoxContent artifacts list)
+    8. Creature Banks (BankContent artifact_ids list, for artifact banks)
+    9. Seer Hut rewards (SeerHutContent reward_type == 8 = artifact)
+
+    Returns list of AllArtifactRow dicts.
+    """
+    rows: List[Dict[str, Any]] = []
+
+    # 1. Hero doll + equipment
+    for h in getattr(parsed_save, "heroes", []):
+        f = h.get("fields", {}) if isinstance(h, dict) else {}
+        hero_name = f.get("name", "?")
+        if isinstance(hero_name, (list, tuple)) and hero_name:
+            hero_name = hero_name[0] if hero_name else "?"
+        # Hero player/color
+        player = f.get("player_name", "")
+        if isinstance(player, (list, tuple)) and player:
+            player = player[0]
+        # Hero coords
+        loc_x = f.get("location_x", -1)
+        loc_y = f.get("location_y", -1)
+        loc_z = f.get("location_z", -1)
+        if isinstance(loc_x, (list, tuple)): loc_x = loc_x[0] if loc_x else -1
+        if isinstance(loc_y, (list, tuple)): loc_y = loc_y[0] if loc_y else -1
+        if isinstance(loc_z, (list, tuple)): loc_z = loc_z[0] if loc_z else -1
+        # Equipment: 19 × (artifact_id, data)
+        for i, eq in enumerate(f.get("equipment", [])):
+            if isinstance(eq, (list, tuple)) and len(eq) >= 2:
+                art_id, _data = eq[0], eq[1]
+                if art_id != 0xFFFFFFFF and art_id > 0:  # not empty, not spell book/machines
+                    rows.append({
+                        "x": loc_x, "y": loc_y, "z": loc_z,
+                        "object": "Hero",
+                        "slot": i + 1,
+                        "artifact_id": art_id,
+                        "hero": hero_name,
+                        "flag": player,
+                        "place": f"{loc_x}.{loc_y}.{loc_z}" if loc_x >= 0 else "?",
+                    })
+        # War machines (artifact_id 4/5/6 in doll) — skip in artifact aggregation
+        # Spell book (artifact_id 0) — skip in artifact aggregation
+        # (PRT doesn't include machines/book in "Все Арты" sheet)
+
+    # 2. Prison heroes — get from merge_prisons output
+    # (Their equipment is the same as the linked hero's equipment, so if we
+    # already walked heroes above, we don't need to add them again here.)
+
+    # 3-4. Black Market + Art Merchants
+    # Markets: from merged_objects.merge_market output (we don't have content yet)
+    # For now, just mark that markets exist
+    for mo_obj in (getattr(parsed_save, "_merged_objects", {}) or {}).get("Рынки", []):
+        rows.append({
+            "x": mo_obj.get("x"), "y": mo_obj.get("y"), "z": mo_obj.get("z"),
+            "object": "Black Market",
+        })
+    # Art Merchants — from post_tile_content (parse_art_merchants)
+    # These are in current_state section, not currently surfaced
+
+    # 5. Ground artifacts (SaveArt)
+    for mo_obj in (getattr(parsed_save, "_merged_objects", {}) or {}).get("Артефакты", []):
+        if mo_obj.get("object") == "Artifact":
+            rows.append({
+                "x": mo_obj.get("x"), "y": mo_obj.get("y"), "z": mo_obj.get("z"),
+                "object": "Artifact",
+                "artifact_id": mo_obj.get("artifact_id", -1),
+                "guard": mo_obj.get("guard", []),
+            })
+
+    # 6. Chests with artifacts (SaveChest when decmp[s+8] != 0xFF)
+    for mo_obj in (getattr(parsed_save, "_merged_objects", {}) or {}).get("Сундуки", []):
+        if mo_obj.get("has_artifact"):
+            rows.append({
+                "x": mo_obj.get("x"), "y": mo_obj.get("y"), "z": mo_obj.get("z"),
+                "object": mo_obj.get("object", "Chest"),
+                "artifact_id": mo_obj.get("artifact_id", -1),
+            })
+
+    # 7. Event boxes with artifacts
+    ptc = getattr(parsed_save, "_post_tile_content", {}) or {}
+    if isinstance(ptc, dict):
+        for eb in ptc.get("event_boxes", []):
+            eb = _to_dict_or_self(eb)
+            for art_id in eb.get("artifacts", []):
+                rows.append({
+                    "address": eb.get("address"),
+                    "object": "Event Box",
+                    "artifact_id": art_id,
+                    "guard": _serialize_guard(eb.get("guard", [])),
+                })
+
+    # 8. Creature Banks with artifact rewards
+        for bank in ptc.get("banks", []):
+            bank = _to_dict_or_self(bank)
+            if bank.get("is_artifact_bank"):
+                for art_id in bank.get("artifact_ids", []):
+                    rows.append({
+                        "address": bank.get("address"),
+                        "object": "Bank",
+                        "artifact_id": art_id,
+                        "guard": _serialize_guard(bank.get("guard", [])),
+                    })
+
+    # 9. Seer Hut rewards with artifacts (reward_type == 8)
+        for sh in ptc.get("seer_huts", []):
+            sh = _to_dict_or_self(sh)
+            if sh.get("reward_type") == 8:
+                art_id = sh.get("reward", {}).get("artifact_id", -1)
+                if art_id >= 0:
+                    rows.append({
+                        "address": sh.get("address"),
+                        "object": "Seer Hut",
+                        "artifact_id": art_id,
+                        "mission": str(sh.get("mission", {})),
+                    })
+
+    return rows
+
+
+def _to_dict_or_self(obj):
+    """Convert dataclass to dict (or return as-is if already a dict)."""
+    if isinstance(obj, dict):
+        return obj
+    if hasattr(obj, "__dict__"):
+        from dataclasses import asdict
+        try:
+            return asdict(obj)
+        except Exception:
+            return {k: getattr(obj, k) for k in dir(obj) if not k.startswith('_')}
+    return obj
+
+
+def _serialize_guard(guard):
+    """Helper for aggregate_all_artifacts — convert guard list to plain dicts."""
+    if not guard:
+        return []
+    out = []
+    for s in guard:
+        if isinstance(s, dict):
+            out.append({"monster_id": s.get("monster_id", -1), "count": s.get("count", 0)})
+        elif hasattr(s, "monster_id"):
+            out.append({"monster_id": s.monster_id, "count": s.count})
+        else:
+            out.append({"raw": str(s)})
+    return out
+
+
+# ============================================================================
 # AnalysisContent (generic post-tile section parser)
 # ============================================================================
 
