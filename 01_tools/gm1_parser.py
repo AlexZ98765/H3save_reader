@@ -3598,7 +3598,6 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             # Scroll to and select
             self.json_tree.scrollToItem(target, QTreeWidget.PositionAtCenter)
             self.json_tree.setCurrentItem(target)
-            self.json_tree.setItemSelected(target, True)
 
     def _path_to_json_focus(self, item, type_, offset_str):
         """Convert a clicked tree item to a JSON path in parsed_data.
