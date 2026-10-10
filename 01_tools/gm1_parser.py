@@ -1762,6 +1762,12 @@ class GM1ParserWindow(QMainWindow):
         export_bin_btn = QPushButton("Binary…")
         export_bin_btn.clicked.connect(self._on_export_binary)
         export_layout.addWidget(export_bin_btn)
+        cov_btn = QPushButton("Coverage…")
+        cov_btn.setToolTip("Export a text report showing all major blocks in the save file,\n"
+                           "their start/end offsets, what they contain, and whether\n"
+                           "we fully parse them.")
+        cov_btn.clicked.connect(self._on_export_coverage)
+        export_layout.addWidget(cov_btn)
         toolbar.addWidget(export_group)
 
         # Group 3: Tools
@@ -3454,6 +3460,41 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             self._set_idle()
             self.status.showMessage("Export failed")
             QMessageBox.critical(self, "Error", f"Failed to export binary:\n{e}")
+
+    def _on_export_coverage(self):
+        """Export a coverage report text file showing all major blocks in the save."""
+        if not self.raw_data or not self.current_file:
+            QMessageBox.warning(self, "Warning", "No save file loaded")
+            return
+        # Build default path
+        map_name = "unknown"
+        if self.parsed_data:
+            map_name = self.parsed_data.get("file_info", {}).get("map_name", "unknown")
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
+        if not safe_name:
+            safe_name = "unknown"
+        default_name = f"save_coverage_report_{safe_name}.txt"
+        if self.current_file:
+            save_dir = os.path.dirname(self.current_file)
+            default_path = os.path.join(save_dir, default_name)
+        else:
+            default_path = default_name
+        path, _ = QFileDialog.getSaveFileName(self, "Export Coverage Report", default_path, "Text files (*.txt)")
+        if not path:
+            return
+        try:
+            self._set_loading("Generating coverage report…")
+            from export_coverage_report import generate_coverage_report
+            generate_coverage_report(self.current_file, "", path)
+            self._set_idle()
+            self.status.showMessage(f"Coverage report: {path}")
+            QMessageBox.information(self, "Coverage Report",
+                f"Coverage report saved to:\n{path}\n\n"
+                f"Open this file to see which parts of the save file are\n"
+                f"fully parsed, partially parsed, or still unknown.")
+        except Exception as e:
+            self._set_idle()
+            QMessageBox.critical(self, "Error", f"Failed to generate report:\n{e}")
 
     def _on_reload_mapping(self):
         self._load_mapping()
