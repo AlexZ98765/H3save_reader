@@ -86,8 +86,16 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     # ── Teams / Alliance ──
     add("Teams / Alliance setup",
         teams, save_filename_start,
-        "16-byte sequence [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7] identifying team setup + map name area + map filename + save filename",
+        "16-byte sequence [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7] identifying team setup + map name area + map filename",
         "PARTIAL", "find_map_start() finds teams offset. parse_alliance() exists in post_tile_parser but not called by default.")
+
+    # ── Save filename + game setup ──
+    sf_name = msi.get('save_filename', '')
+    sf_end = save_filename_start + len(sf_name) + 1  # +1 for null terminator
+    add("Save filename + game setup (688 bytes from sf_null to SR)",
+        sf_null, sr_offset,
+        f"null byte + save_filename '{sf_name}' ({len(sf_name)} bytes) + null + {688 - 8 - len(sf_name)} bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). ProspectorRT skips ALL of this with 's += 688'.",
+        "UNKNOWN", "ProspectorRT GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.")
 
     # ── SR section ──
     add("SR (Script/Random) section — 28 bytes",
