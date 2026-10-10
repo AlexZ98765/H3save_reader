@@ -1662,6 +1662,308 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws4, max_widths={"I": 80})
 
     # ----- Save -----
+    # v3.17: Add PRT-like sheets from merged_objects + post_tile_content + unknown_sections
+    mo = parsed.get("merged_objects", {})
+    ptc = parsed.get("post_tile_content", {})
+    if isinstance(mo, dict) and mo and "error" not in mo:
+
+        # ── Артефакты ──
+        ws = wb.create_sheet("Артефакты")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Золото", "Ресурс", "Охрана", "∑ HP"])
+        for rec in mo.get("Артефакты", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Артефакт"), None,
+                       rec.get("artifact_id"), None, None, None, None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Монстры ──
+        ws = wb.create_sheet("Монстры")
+        ws.append(["X", "Y", "Z", "Район", "Монстр", "Количество", "Настроение", "Уровень", "∑ HP", "Артефакт", "Золото", "Ресурс", "Прирост"])
+        for rec in mo.get("Монстры", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("monster_type"), rec.get("count"),
+                       rec.get("mood"), None, None,
+                       rec.get("has_artifact"), None, None, rec.get("grows")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Банки ──
+        ws = wb.create_sheet("Банки")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Монстр", "Золото", "Ресурс"])
+        for rec in mo.get("Банки", []):
+            guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Bank"), guard_str, None,
+                       rec.get("monster_reward_id") if rec.get("monster_reward_id", -1) >= 0 else None,
+                       rec.get("gold"), rec.get("resources")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── События и Ящики Пандоры ──
+        ws = wb.create_sheet("События и Ящики Пандоры")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Опыт", "Мана", "Мораль", "Удача", "Золото", "Ресурс", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно"])
+        for rec in ptc.get("event_boxes", []):
+            if isinstance(rec, dict):
+                guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
+                ws.append([None, None, None, None, "Событие", guard_str, None,
+                           rec.get("experience"), rec.get("mana"), rec.get("morale"), rec.get("luck"),
+                           rec.get("resources", {}).get("Gold"), rec.get("resources"),
+                           rec.get("primary_skills"), rec.get("secondary_skills"),
+                           rec.get("artifacts"), rec.get("spells"), rec.get("monsters"),
+                           rec.get("apply")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Ученые ──
+        ws = wb.create_sheet("Ученые")
+        ws.append(["X", "Y", "Z", "Район", "Первичный навык", "Вторичный навык", "Заклинание"])
+        for rec in mo.get("Ученые", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       None, rec.get("skill_id"), rec.get("spell_id")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Ресурсы ──
+        ws = wb.create_sheet("Ресурсы")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Ресурс", "Золото", "Охрана", "∑ HP"])
+        for rec in mo.get("Ресурсы", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Ресурс", rec.get("resource_name"), None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Сундуки ──
+        ws = wb.create_sheet("Сундуки")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Золото", "Опыт", "Артефакт", "Класс", "Реликт-С"])
+        for rec in mo.get("Сундуки", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Сундук"), rec.get("gold"), rec.get("experience"),
+                       rec.get("artifact_id") if rec.get("has_artifact") else None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Заклинания ──
+        ws = wb.create_sheet("Заклинания")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Заклинание", "Уровень", "Охрана", "∑ HP"])
+        for rec in mo.get("Заклинания_Святилища", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Святыня", rec.get("spell_id"), None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Навыки ──
+        ws = wb.create_sheet("Навыки")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Навык"])
+        for rec in mo.get("Ведьмины_Хижины", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Хижина ведьмы", rec.get("skill_id")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Лагеря Беженцев ──
+        ws = wb.create_sheet("Лагеря Беженцев")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Монстр", "Количество", "Уровень"])
+        for rec in mo.get("Лагеря_Беженцев", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Лагерь беженцев", rec.get("monster_type"), rec.get("count"), None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Рынки ──
+        ws = wb.create_sheet("Рынки")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Цена на Черном Рынке"])
+        for rec in mo.get("Рынки", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Black Market"), None, None, None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Провидцы ──
+        ws = wb.create_sheet("Провидцы")
+        ws.append(["X", "Y", "Z", "Район", "Задание", "Награда", "Срок"])
+        for rec in mo.get("Провидцы", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       str(rec.get("mission", {})), str(rec.get("reward", {})), rec.get("deadline")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Тюрьмы ──
+        ws = wb.create_sheet("Тюрьмы")
+        ws.append(["X", "Y", "Z", "Район", "Герой", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
+        for rec in mo.get("Тюрьмы", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("hero_name"), rec.get("hero_level"), rec.get("hero_experience"),
+                       rec.get("hero_primary_skills"), None, None,
+                       rec.get("hero_spells_book"), rec.get("hero_army_types"),
+                       None, None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Объекты ──
+        ws = wb.create_sheet("Объекты")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Плата"])
+        for rec in mo.get("Объекты", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object_subtype", "Объект"), rec.get("upgrade_cost")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Топология ──
+        ws = wb.create_sheet("Топология")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Тип", "Цвет", "Пара"])
+        for rec in mo.get("Топология_Палатки", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Палатка ключника", None, rec.get("color_name"), None])
+        for rec in mo.get("Топология_Монолиты", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Монолит"), None, None, None])
+        for rec in mo.get("Топология_Подземные_Врата", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       rec.get("object", "Врата"), None, None, rec.get("pair_id")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── События-Таймеры ──
+        ws = wb.create_sheet("События-Таймеры")
+        ws.append(["Объект", "День", "Повтор", "Город", "Тип", "Местоположение", "Флаг", "Доступно", "Золото", "Ресурс", "Постройки", "Монстр"])
+        for ev in ptc.get("map_timed_events", []):
+            if isinstance(ev, dict):
+                ws.append(["Карта", ev.get("day"), ev.get("repeat"), None, None, None, None, None,
+                           ev.get("resources", {}).get("Gold"), ev.get("resources"), None, None])
+        for ev in ptc.get("town_timed_events", []):
+            if isinstance(ev, dict):
+                ws.append(["Город", ev.get("day"), ev.get("repeat"), ev.get("id"), None, None, None, None,
+                           ev.get("resources", {}).get("Gold"), ev.get("resources"),
+                           ev.get("buildings"), ev.get("monsters")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Герои ──
+        ws = wb.create_sheet("Герои")
+        ws.append(["№", "Герой", "Местоположение", "Флаг", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
+        for i, h in enumerate(parsed.get("heroes_found", [])):
+            f = h.get("fields", {})
+            wm = f.get("war_machines", [])
+            machines_str = ", ".join(m.get("machine_name", "") for m in wm) if wm else None
+            army_str = ", ".join(f"{t} {c}" for t, c in zip(f.get("army_types", []), f.get("army_counts", [])) if t != -1)
+            loc_x = f.get("location_x", -1)
+            loc_y = f.get("location_y", -1)
+            loc_z = f.get("location_z", -1)
+            loc_str = f"{loc_x}.{loc_y}.{loc_z}" if loc_x >= 0 else None
+            player = f.get("player_name", "")
+            ws.append([i, f.get("name", "?"), loc_str, player,
+                       f.get("level"), f.get("experience"),
+                       f"{f.get('attack',0)}-{f.get('defense',0)}-{f.get('power',0)}-{f.get('knowledge',0)}",
+                       None, None, None, army_str, None, machines_str,
+                       "Да" if f.get("spell_book") else None, f.get("movement_total")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Города ──
+        ws = wb.create_sheet("Города")
+        ws.append(["X", "Y", "Z", "Город", "Тип", "Флаг", "Уровень", "Заклинание", "Построен", "Доступен", "Таймер", "Библиотека", "Гарнизон", "∑ HP"])
+        for t in parsed.get("towns_found", []):
+            f = t.get("fields", {})
+            sp = f.get("spell_pool", {})
+            levels = sp.get("levels", []) if isinstance(sp, dict) else []
+            spells_str = ", ".join(str(s) for lvl in levels for s in lvl if s)
+            army_str = ", ".join(f"{t2} {c}" for t2, c in zip(f.get("army_types", []), f.get("army_counts", [])) if t2 != -1)
+            ws.append([f.get("x"), f.get("y"), f.get("z"),
+                       f.get("name", "?"), f.get("type_name", "?"),
+                       f.get("faction_name", ""), None, spells_str,
+                       None, None, None, None, army_str, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Все Арты (aggregator) ──
+        ws = wb.create_sheet("Все Арты")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Герой", "Кукла", "Флаг", "Местоположение", "Монстр", "Задание", "Охрана"])
+        aggr = parsed.get("aggregators", {})
+        for rec in aggr.get("all_artifacts", []):
+            if isinstance(rec, dict):
+                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                           "суша" if rec.get("z", 0) == 0 else "подземелье",
+                           rec.get("object"), rec.get("slot"),
+                           rec.get("artifact_id"), None, None,
+                           rec.get("hero"), None, rec.get("flag"),
+                           rec.get("place"), None, rec.get("mission"), None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Все Заклы (aggregator) ──
+        ws = wb.create_sheet("Все Заклы")
+        ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана"])
+        for rec in aggr.get("all_spells", []):
+            if isinstance(rec, dict):
+                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                           rec.get("object"), rec.get("spell_id"), None, None,
+                           None, None, None, None, None, None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Все Навыки (aggregator) ──
+        ws = wb.create_sheet("Все Навыки")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Уровень", "Навык", "Задание", "Охрана"])
+        for rec in aggr.get("all_skills", []):
+            if isinstance(rec, dict):
+                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                           "суша" if rec.get("z", 0) == 0 else "подземелье",
+                           rec.get("object"), None, rec.get("skill_id"), None, None])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Опыт (aggregator) ──
+        ws = wb.create_sheet("Опыт")
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP"])
+        # Experience aggregator is optional — populate from Learning Stones
+        for rec in mo.get("Learning_Stones", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "Камень знаний", None, None, None, None, None, None, None, None,
+                       rec.get("experience", 1000), rec.get("experience", 1000)])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+    # ----- Save -----
     wb.save(output_path)
     return output_path
 
