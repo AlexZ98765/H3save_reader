@@ -527,38 +527,98 @@ CURRENT_STATE_OFFSETS = {
 # Object type IDs — from ProspectorRT IsObject (line 9484)
 # decmp[s] == type_id → object type
 # Used by Scanner to dispatch object parsing
+# Complete OBJECT_TYPE_IDS — from ProspectorRT MainForm.cs::CreateTblObject (line 10709)
+# Includes ALL object codes used in tile scan dispatcher (IsObject, line 9484)
+# Note: code 16 has 7 subtypes (bank types); others have only one name.
+# We use the bank name "Bank" + subtype name for clarity.
 OBJECT_TYPE_IDS = {
-    5:   "Artifact",
-    6:   "PandoraBox",
-    12:  "Campfire",
-    16:  "Bank_DragonUtopia",
-    17:  "Mine_Wood",
-    20:  "Mine_Gold",
-    22:  "Skeleton",
-    24:  "Bank_Cyclops",
-    25:  "Bank_DragonFlyHive",
-    26:  "Event",
-    29:  "Floatsam",
-    39:  "RefugeeCamp",
-    53:  "Mine_Generic",
-    54:  "Monster",
-    55:  "MysticalGarden",
-    63:  "Pyramid",
-    79:  "Resource",
-    81:  "Scholar",
-    82:  "SeaChest",
-    84:  "Bank_Naga",
-    85:  "Bank_Shipwreck",
-    86:  "ShipwreckSurvivor",
-    88:  "Shrine_Gesture",
-    89:  "Shrine_Thought",
-    90:  "Shrine_Incantation",
-    93:  "SpellScroll",
-    101: "Chest",
-    105: "Wagon",
-    108: "Tomb",
-    112: "Windmill",
-    113: "WitchHut",
+    # ── From ProspectorRT TblObject (CreateTblObject, MainForm.cs:10709) ──
+    2:   "Altar of Sacrifice",            # "Жертвенный алтарь" (PRT)
+    4:   "Monster_Generator",             # not in PRT TblObject — observed in tile scan
+    5:   "Artifact",                      # "Артефакт"
+    6:   "Pandora's Box",                 # "Ящик Пандоры"
+    7:   "Black Market",                  # "Черный рынок"
+    9:   "Random_Town",                   # not in PRT TblObject — observed in tile scan
+    10:  "Keymaster's Tent",              # "Палатка ключника"
+    12:  "Campfire",                      # "Кострище покинутого лагеря"
+    13:  "Mine_Type2",                    # not in PRT TblObject — observed in tile scan (mine variant)
+    14:  "Random_Mine",                   # not in PRT TblObject — observed in tile scan
+    16:  "Bank",                          # bank variants: subtype 0..6
+    17:  "Mine_Wood",                     # "Заброшенная шахта" (subtype wood)
+    20:  "Mine_Gold",                     # subtype gold
+    22:  "Skeleton",                      # "Труп"
+    23:  "Random_Dwelling",               # not in PRT TblObject — observed in tile scan
+    24:  "Bank_Derelict",                 # "Ветхий корабль" (bank variant)
+    25:  "Bank_DragonUtopia",             # "Утопия драконов"
+    26:  "Event",                         # "Событие"
+    27:  "Random_Resource_Pile",          # not in PRT TblObject — observed in tile scan
+    28:  "Random_Artifact",               # not in PRT TblObject — observed in tile scan
+    29:  "Floatsam",                      # "Обломки"
+    30:  "Random_Town2",                  # not in PRT TblObject — observed in tile scan
+    31:  "Random_Monster",                # not in PRT TblObject — observed in tile scan
+    32:  "Random_Monster2",               # not in PRT TblObject — observed in tile scan
+    33:  "Garrison",                      # "Гарнизон"
+    34:  "Hero",                          # "Герой"
+    35:  "Hill Fort",                     # "Форт на холме"
+    37:  "Random_Dwelling6",              # not in PRT TblObject — observed in tile scan
+    38:  "Random_Resource_Pile2",         # not in PRT TblObject — observed in tile scan
+    39:  "Refugee Camp",                  # "Чей-то погреб"
+    41:  "Random_Dwelling2",              # not in PRT TblObject — observed in tile scan
+    42:  "Random_Dwelling4",              # not in PRT TblObject — observed in tile scan
+    43:  "Monolith One Way Entrance",    # "Монолит входа"
+    44:  "Monolith One Way Exit",         # "Монолит выхода"
+    45:  "Monolith Two Way",              # "Двухсторонний монолит"
+    47:  "Random_Artifact2",              # not in PRT TblObject — observed in tile scan
+    49:  "Random_Resource_Pile3",        # not in PRT TblObject — observed in tile scan
+    51:  "Random_Town3",                  # not in PRT TblObject — observed in tile scan
+    53:  "Mine_Generic",                 # "Заброшенная шахта"
+    54:  "Monster",                       # "Монстр"
+    55:  "Mystical Garden",               # "Мистический сад"
+    56:  "Random_Dwelling5",              # not in PRT TblObject — observed in tile scan
+    57:  "Random_Monster3",               # not in PRT TblObject — observed in tile scan
+    58:  "Random_Resource_Pile4",         # not in PRT TblObject — observed in tile scan
+    61:  "Random_Dwelling3",              # not in PRT TblObject — observed in tile scan
+    62:  "Prison",                        # "Тюрьма"
+    63:  "Pyramid",                       # "Пирамида"
+    64:  "Random_Monster4",               # not in PRT TblObject — observed in tile scan
+    78:  "Mercenary Camp",                # "Лагерь беженцев" (note: PRT uses 78 for both
+                                            #  refugee camp AND mercenary camp; tile scan uses 39
+                                            #  for refugee camp and 78 for mercenary camp)
+    79:  "Resource",                      # "Ресурс"
+    80:  "Random_Resource_Pile6",         # not in PRT TblObject — observed in tile scan
+    81:  "Scholar",                       # "Ученый"
+    82:  "Sea Chest",                     # "Морской сундук"
+    83:  "Seer's Hut",                    # "Хижина провидца"
+    84:  "Crypt",                         # "Склеп" (bank variant)
+    85:  "Shipwreck",                     # "Кораблекрушение" (bank variant)
+    86:  "Shipwreck Survivor",            # "Потерпевший кораблекрушение"
+    88:  "Shrine of Magic Incantation",   # "Святыня магического воплощения"
+    89:  "Shrine of Magic Gesture",        # "Святыня магического жеста"
+    90:  "Shrine of Magic Thought",       # "Святыня магической мысли"
+    91:  "Random_Monster8",               # not in PRT TblObject — observed in tile scan
+    92:  "Random_Monster9",               # not in PRT TblObject — observed in tile scan
+    93:  "Spell Scroll",                  # "Свиток с заклинанием"
+    94:  "Random_Monster5",               # not in PRT TblObject — observed in tile scan
+    95:  "Tavern",                        # "Таверна" (not in PRT TblObject — observed)
+    96:  "Random_Resource_Pile5",         # not in PRT TblObject — observed in tile scan
+    97:  "Random_Monster6",               # not in PRT TblObject — observed in tile scan
+    98:  "Town",                          # "Городок" (Town — observed in tile scan)
+    99:  "Random_Artifact3",              # not in PRT TblObject — observed in tile scan
+    100: "Learning Stone",                # "Камень знаний"
+    101: "Treasure Chest",                # "Сундук с сокровищами"
+    102: "Tree of Knowledge",             # "Древо знаний"
+    103: "Subterranean Gate",             # "Врата подземного мира"
+    104: "University",                    # "Университет"
+    105: "Wagon",                         # "Телега"
+    107: "Random_Monster7",               # not in PRT TblObject — observed in tile scan
+    108: "Warrior's Tomb",                # "Могила воина"
+    109: "Random_Artifact4",              # not in PRT TblObject — observed in tile scan
+    111: "Whirlpool",                     # "Водоворот"
+    112: "Windmill",                      # "Ветряная мельница"
+    113: "Witch Hut",                     # "Хижина ведьмы"
+    213: "Freelancer's Guild",            # "Гильдия наемников"
+    215: "Quest Guard",                   # "Страж прохода"
+    255: "Artifact Merchants",            # "Торговцы Артефактами"
 }
 
 # Town spell pool depth — number of spell guild levels by town type
