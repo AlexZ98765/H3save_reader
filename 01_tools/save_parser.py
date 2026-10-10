@@ -157,7 +157,10 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["player"] = raw[p_addr]
     fields["player_name"] = PLAYER_COLOR_NAMES.get(fields["player"], f"?{fields['player']}")
     fields["_detail_player"] = make_u8_field("player", raw, p_addr)
-    fields["_detail_player"]["value"] = fields["player_name"]  # override with human-readable
+    # Override value with human-readable name, but keep value_int as the raw u8
+    fields["_detail_player"]["value"] = fields["player_name"]
+    fields["_detail_player"]["value_int"] = fields["player"]
+    fields["_detail_player"]["value_dec"] = fields["player"]
 
     # Movement (u32 LE)
     mt_addr = name_offset + o["MaxMovementPoints"]
@@ -378,6 +381,8 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["faction_name"] = PLAYER_COLOR_NAMES.get(fields["faction"], f"?{fields['faction']}")
     fields["_detail_faction"] = make_u8_field("faction", raw, f_addr)
     fields["_detail_faction"]["value"] = fields["faction_name"]
+    fields["_detail_faction"]["value_int"] = fields["faction"]
+    fields["_detail_faction"]["value_dec"] = fields["faction"]
 
     # Type
     t_addr = block_offset + o["type"]
@@ -385,6 +390,8 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["type_name"] = TOWN_TYPE_NAMES.get(fields["type"], f"?{fields['type']}")
     fields["_detail_type"] = make_u8_field("type", raw, t_addr)
     fields["_detail_type"]["value"] = fields["type_name"]
+    fields["_detail_type"]["value_int"] = fields["type"]
+    fields["_detail_type"]["value_dec"] = fields["type"]
 
     # Coords
     x_addr = block_offset + o["x"]

@@ -1205,3 +1205,29 @@ Stage Summary:
 - ⭐ OverflowError исправлен — убраны item.setData(1, Qt.UserRole, value) из _json_to_tree
 - ⭐ Path (column 0, Qt.UserRole) остаётся — используется для фокусировки на выбранном элементе
 - Архив пересобран
+
+---
+Task ID: fix-value-int-for-strings-2026-10-10
+Agent: main (Super Z)
+Task: Не заполнять value_int для строковых полей
+
+Work Log:
+- Пользователь попросил: "не заполнять value_int, если само значение строковое"
+- Исправлено в field_formatter.py::make_field:
+  - value_int заполняется только если value — int/bool, или если value_int передан явно
+  - value_dec заполняется только если value — int/bool
+  - Для strings, lists — value_int/value_dec отсутствуют
+- Для enum-полей (player, faction, type) — value переопределяется на человекочитаемое имя,
+  но value_int сохраняет raw u8 (0 для Red, 255 для Neutral) — это правильно
+
+Проверка:
+- _detail_name (string "Одиссей"): value_int ОТСУТСТВУЕТ ✅
+- _detail_player (enum "Red"): value_int=0 (raw byte) ✅
+- _detail_location_x (int 46): value_int=46 ✅
+- _detail_army_types (list): value_int ОТСУТСТВУЕТ ✅
+- Town _detail_faction (enum "Neutral"): value_int=255 (raw byte) ✅
+
+Stage Summary:
+- ⭐ value_int/value_dec больше не заполняются для строковых и list полей
+- ⭐ Для enum полей (player/faction/type) value_int сохраняет raw байт — корректно
+- Архив пересобран

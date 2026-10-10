@@ -79,16 +79,25 @@ def make_field(name: str, addr: int, length: int, value_type: str,
         "value_type": value_type,
         "value": value,
     }
+    # value_int: only for numeric values — skip for strings, lists, etc.
     if value_int is not None:
         field_dict["value_int"] = value_int
-    elif isinstance(value, int):
+    elif isinstance(value, int) and not isinstance(value, bool):
         field_dict["value_int"] = value
-    else:
-        field_dict["value_int"] = _bytes_to_int_le(raw_bytes)
+    elif isinstance(value, bool):
+        field_dict["value_int"] = int(value)
+    # For strings, lists, bytes — no value_int
+
+    # value_dec: ALWAYS fill (even for strings — use raw bytes as LE int)
     if value_dec is not None:
         field_dict["value_dec"] = value_dec
+    elif "value_int" in field_dict:
+        field_dict["value_dec"] = field_dict["value_int"]
     else:
-        field_dict["value_dec"] = field_dict.get("value_int")
+        # For strings/lists: decode raw_bytes as LE integer (may be None)
+        decoded = _bytes_to_int_le(raw_bytes)
+        field_dict["value_dec"] = decoded
+
     field_dict["value_hex"] = _bytes_to_hex(raw_bytes) if raw_bytes else ""
     field_dict["value_bin"] = _bytes_to_bin(raw_bytes) if raw_bytes else ""
     return field_dict
