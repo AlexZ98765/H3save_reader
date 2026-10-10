@@ -5,7 +5,7 @@
 
 ## Что внутри
 
-Архив организован по 6 смысловым категориям:
+Архив организован по 7 смысловым категориям:
 
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
@@ -13,8 +13,9 @@
 | **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `header_pointer_search.md`, `diff_interpretation.json` |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
 | **`04_diff_analysis/`** | Скрипты дифференциального анализа сейвов (исторические, разовые) | `build_object_type_dictionary.py` (универсальный), `Myth and Legend/` (подпапка для карты) |
-| **`05_disasm/`** | Дизассемблированный `heroes3.exe` | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
+| **`05_disasm/`** | Дизассемблированный `heroes3.exe` (нативный код) | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
 | **`06_disasm_scripts/`** | Скрипты, создавших `05_disasm/` | `disasm_h3.py`, `find_*.py`, `callgraph_analysis.py` |
+| **`07_prt_decompiled/`** | ⭐ Полный реверс-код ProspectorRT.exe (ILSpy C# + raw IL + metadata) | `ProspectorRT_source/ProspectorRT/MainForm.cs` (16K строк scanner), `ProspectorRT_IL/full_il_dump.txt` (4.6 МБ, 2 775 методов), `ProspectorRT_metadata/*` |
 
 ## Цель проекта
 

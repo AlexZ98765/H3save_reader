@@ -76,6 +76,37 @@ H3save_reader/
 │   ├── callgraph_analysis.py          Анализ call-graph
 │   ├── analyze_main_func.py           Анализ главной функции игры
 │   └── analyze_save_funcs.py          Анализ найденных save-функций
+│
+├── 07_prt_decompiled/                ⭐ Полный реверс-код ProspectorRT.exe
+│   ├── README.md                      Описание папки и сводка находок
+│   ├── ProspectorRT_source/          C# декомпиляция (ILSpy 8.2), 41 645 строк
+│   │   ├── ProspectorRT/MainForm.cs   ⭐ 16 210 строк — весь scanner (Scanner, GetSenseRegion, Open* / Save*)
+│   │   ├── ProspectorRT/DataSet2.cs         21 383 строк — типизированный датасет
+│   │   ├── ProspectorRT/LMOracle.cs            781 строк — SkillTreeAPI bridge
+│   │   ├── ProspectorRT/PrintForm.cs           829 строк — окно печати
+│   │   ├── ProspectorRT/ExportForm.cs         555 строк — окно экспорта
+│   │   ├── ProspectorRT/SkillTreeForm.cs       309 строк
+│   │   ├── ProspectorRT/frmAbout.cs            293 строк
+│   │   ├── ProspectorRT/ObjectNameForm.cs     258 строк
+│   │   ├── ProspectorRT/myToolTip.cs           170 строк
+│   │   ├── ProspectorRT/Registry.cs            78 строк
+│   │   ├── ProspectorRT/ShowForm.cs             71 строк
+│   │   ├── ProspectorRT/Program.cs              60 строк
+│   │   ├── ProspectorRT/CommonSetting.cs        14 строк
+│   │   ├── ProspectorRT.Properties/{Resources,Settings}.cs
+│   │   ├── Properties/AssemblyInfo.cs
+│   │   └── System.IO.Compression/ZipStorer.cs   535 строк
+│   ├── ProspectorRT_IL/              IL-дизассемблирование (raw .NET IL)
+│   │   └── full_il_dump.txt          ⭐ 4.6 МБ, 2 775 методов / 122 типов
+│   │                                    Инструкции IL с разрешением токенов
+│   │                                    Field/Method/Type/UserString
+│   └── ProspectorRT_metadata/         .NET metadata извлечённая через dnfile
+│       ├── ProspectorRT_typedefs.txt       135 TypeDef
+│       ├── ProspectorRT_methods.txt      2 905 MethodDef
+│       ├── ProspectorRT_fields.txt         876 FieldDef
+│       ├── ProspectorRT_typerefs.txt     1 000 TypeRef
+│       ├── ProspectorRT.exe_strings.txt   86 КБ ASCII-строки PE
+│       └── ProspectorRT_user_strings.txt  94 КБ #US heap (строковые литералы C#)
 ```
 
 > **Примечание:** Папка `examples/` с примерами сейвов и парсингами карт (`.h3m.zip`, `0000.GM1`, `114.GM1`) больше не включается в архив. Пользователь должен предоставлять свои `.h3m.json` / `.GM1` файлы. См. README.md "С чего начать" для команды построения per-map config.

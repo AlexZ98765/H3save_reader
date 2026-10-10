@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>ProspectorRT</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="ProspectorRT.exe.licenses" />
+    <EmbeddedResource Include="ProspectorRT.exe.licenses" LogicalName="ProspectorRT.exe.licenses" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Data">
+      <HintPath>../../../.dotnet/shared/Microsoft.NETCore.App/6.0.35/System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v11.1">
+      <HintPath>../DevExpress.XtraBars.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v11.1">
+      <HintPath>../DevExpress.Utils.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.1">
+      <HintPath>../DevExpress.XtraTreeList.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraRichEdit.v11.1">
+      <HintPath>../DevExpress.XtraRichEdit.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraPrinting.v11.1">
+      <HintPath>../DevExpress.XtraPrinting.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.1">
+      <HintPath>../DevExpress.XtraEditors.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>../../../.dotnet/shared/Microsoft.NETCore.App/6.0.35/System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v11.1">
+      <HintPath>../DevExpress.XtraGrid.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Data.v11.1">
+      <HintPath>../DevExpress.Data.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.RichEdit.v11.1.Core">
+      <HintPath>../DevExpress.RichEdit.v11.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.v11.1.Core">
+      <HintPath>../DevExpress.Printing.v11.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SkinLib">
+      <HintPath>../SkinLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

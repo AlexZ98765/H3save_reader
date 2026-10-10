@@ -1,0 +1,3650 @@
+  
+        Сервис        
+        Справка        
+        Старт        
+        Стоп        
+        Файл       
+       Обновить       
+     OT-3     
+     SPT     
+   [
+   ver. 2.3
+  (
+  -  
+  HoMM3 3.2 EN
+  HoMM3 4.0 EN
+  HoMM3 4.0 RU
+  [
+ (
+ +
+ - 
+ ...
+ 12
+ 20
+ 40, 
+ 6
+ 9, 
+ К сожалению, ошибка обработки сейва. 
+ Пожалуйста, вышлите его и карту на e-mail 
+ 
+               prospectorrt@yandex.ru 
+ 
+ Будет возможность в ответном сообщении 
+ получить исправленный файл программы.
+".
+$this.Icon
+%'
+&Color...
+&Вид
+&Макет страницы
+&ОК
+&Печать...
+&Подложка...
+&Показать пробелы
+&Скрыть пробелы
+&Файл
+&Экспорт...
+' AND Bit='
+' AND Byte='
+' AND Byte='6' AND Bit='0'
+' AND Level='
+' AND Type='
+' AND Y='
+' AND Z='
+' OR Place IS NULL)
++1
+, 
+.  
+..
+...
+.GM1
+.xlsx
+.xml
+/docProps/app.xml
+/docProps/core.xml
+/xl/sharedStrings.xml
+/xl/styles.xml
+/xl/theme/theme1.xml
+/xl/workbook.xml
+/xl/worksheets/sheet
+0.3
+0.7
+0.75
+1 ступени
+1 этаж Гильдии магов
+1.
+100%
+105
+12.0000
+124226
+124519
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+14805
+15
+1:
+2 ступени
+2 этаж Гильдии магов
+2.
+2000
+240
+3 ступени
+3 этаж Гильдии магов
+3.
+4 этаж Гильдии магов
+4505
+5 этаж Гильдии магов
+8010
+A.
+A1:
+AB
+ANSI (1251)
+Achieve level
+Achieve skill
+Address
+Admiral's Hat
+Advanced
+Air Elemental
+Air Magic
+Air Shield
+Alchemist
+AlexSpl, AmberSoler
+Altar
+Altar of Air
+Altar of Earth
+Altar of Fire
+Altar of Sacrifice
+Altar of Thought
+Altar of Water
+Altar of Wishes
+Ambassador's Sash
+Ammo Cart
+Amulet of the Undertaker
+Ancient Behemoth
+Angel
+Angel Feather Arrows
+Angel Wings
+Angelic Alliance
+Animate Dead
+Anti-Magic
+AntiMagic
+AppVersion
+Application
+Apply
+Arch Devil
+Arch Mage
+Archangel
+Archer
+Archers' Tower
+Archery
+Armageddon
+Armageddon's Blade
+Armor of Wonder
+Armor of the Damned
+Armorer
+Arms of Legion
+Art
+Artefact
+Artefact IS NULL
+Artifact
+Artifact Merchants
+Artillery
+Aurora Borealias
+Available
+Azure Dragon
+B.
+BackPack
+Background
+Badge of Courage
+Ballista
+Ballista Yard
+Ballistics
+Barbarian
+Barracks
+Bars
+Basic
+Basilisk
+Basilisk Pit
+Battle Dwarf
+Battle Mage
+Battle Scholar Academy
+Be Hero
+Beastmaster
+Behemoth
+Behemoth Crag
+Behemoth Lair
+Beholder
+Belong to player
+Berserk
+Bird of Perception
+Birthing Pools
+Bit
+Black
+Black Dragon
+Black Knight
+Black Market
+Blackshard of the Dead Knight
+Blacksmith
+Bless
+Blind
+Blood Obelisk
+Bloodlust
+Blue
+Boar
+Boat
+Bold
+Bone Dragon
+Book
+Boots of Levitation
+Boots of Polarity
+Boots of Speed
+Bow of Elven Cherrywood
+Bow of the Sharpshooter
+Bowstring of the Unicorn's Mane
+Breastplate of Brimstone
+Breastplate of Petrified Wood
+Brimstone Stormclouds
+Brotherhood
+Brown
+Buckler of the Gnoll King
+Building
+Built
+Byte
+CGM
+CHRON
+CSV File
+Cage of Warlords
+Cages
+Campfire
+CanTake
+Cape of Conjuring
+Cape of Velocity
+Capitol
+Captain's Quarters
+Cards of Prophecy
+Carnivorous Plant
+Castle
+Castle Gate
+Catapult
+Cavalier
+Celestial Necklace of Bliss
+Centaur
+Centaur Captain
+Centaur Stables
+Centaurs Axe
+Central directory currently does not exist
+Cerberus
+Chain Lightning
+Champion
+Chaos Hydra
+Chapel of Stilled Voices
+Charm of Mana
+Choose file
+Citadel
+City Hall
+Class
+ClassID
+Cleric
+Cliff Nest
+Cloak of the Undead King
+Clone
+Cloud Temple
+Clover of Fortune
+Code
+Code='
+Code='100'
+Code='255'
+Code='26'
+Code='33'
+Code='34'
+Code='5'
+Code='53'
+Code='54'
+Code='6'
+Code='81'
+Code='83'
+Code='98'
+CodePage
+Collar of Conjuring
+Color
+Colossus
+Company
+Complete
+Conflux
+Constructed
+ContentType
+Cornucopia
+Corpse
+Cost
+Counterstrike
+Courier New
+Cover of Darkness
+Creatures
+Crest of Valor
+Crown of Dragontooth
+Crown of the Supreme Magi
+Crusader
+Crypt
+Crystal
+Crystal Cavern
+Crystal Dragon
+Ctrl+C
+Ctrl+D
+Ctrl+E
+Ctrl+P
+Ctrl+R
+Ctrl+W
+Cure
+Curse
+Cursed Temple
+Customize
+Cyclops
+Cyclops Cave
+Cyclops King
+Cyclops Stockpile
+Dark Blue
+DataColumn1
+DataSet2
+Day
+Day, Object, ID
+Dead Man's Boots
+Deadline
+Death Knight
+Death Ripple
+Default
+Defeat Hero
+Defeat monster
+Deity of Fire
+Demon
+Demon Gate
+Demoniac
+Dendroid Arches
+Dendroid Guard
+Dendroid Saplings
+Dendroid Soldier
+Depth
+Derelict Ship
+Designed  for
+Destroy Undead
+Devil
+Diamond Golem
+Dimension Door
+Diplomacy
+Diplomat's Ring
+Disable
+Disguise
+Dispel
+Disrupting Ray
+DocSecurity
+Document Map
+Doll
+Dragon Cave
+Dragon Cliffs
+Dragon Fly
+Dragon Fly Hive
+Dragon Scale Armor
+Dragon Scale Shield
+Dragon Utopia
+Dragon Vault
+Dragon Wing Tabard
+Dragonbone Greaves
+Dread Knight
+Druid
+Dungeon
+Dwarf
+Dwarf Cottage
+Dwarven Treasury
+E-mail:
+E.
+Eagle Eye
+Earth Elemental
+Earth Elemental Conflux
+Earth Magic
+Earthquake
+Efreet Sultan
+Efreeti
+Elemental Conflux
+Elementalist
+Elixir of Life
+Emblem of Cognizance
+Enchanted Spring
+Enchanter
+Enchanter's Hollow
+Endless Bag of Gold
+Endless Purse of Gold
+Endless Sack of Gold
+Energy Elemental
+Equestrian's Gloves
+Escape Tunnel
+Estate
+Estates
+Event
+Everflowing Crystal Cloak
+Everpouring Vial of Mercury
+Eversmoking Ring of Sulfur
+Evil
+Evil Eye
+Excel файлы|*.xlsx|Все файлы|*.*
+Experience
+Expert
+ExportForm
+Extension
+Faerie Dragon
+Familiar
+Feet
+Files
+Fire Elemental
+Fire Lake
+Fire Magic
+Fire Shield
+Fire Wall
+Fireball
+Firebird
+First Aid
+First Aid Tent
+Flotsam
+Fly
+Font
+Force Field
+Forgetfulness
+Forsaken Palace
+Fort
+Fortress
+Fortune
+Fountain of Fortune
+Freelancer's Guild
+Frenzy
+Frost Ring
+Frozen Cliffs
+G10
+G5
+GM1
+GM2
+GM3
+Garden of Life
+Garniture of Interference
+Garrison
+Garrison IS NOT NULL
+Gems
+Generator_ColumnVarNameInTable
+Generator_UserColumnName
+Genie
+Ghost Dragon
+Giant
+Glyph of Gallantry
+Glyphs of Fear
+Gnoll
+Gnoll Hut
+Gnoll Marauder
+Goblin
+Goblin Barracks
+Gog
+Gold
+Gold Dragon
+Gold Golem
+Golden Arrow
+Golden Bow
+Golden Pavilion
+Golem Factory
+Good
+Gorgon
+Gorgon Lair
+Grand Elf
+Graveyard
+Greater Basilisk
+Greater Gnoll's Flail
+Green
+Green Dragon
+Gremlin
+Griffin
+Griffin Bastion
+Griffin Conservatory
+Griffin Tower
+Guard
+Guard IS NOT NULL
+Guard IS NOT NULL OR Experience IS NOT NULL
+Guardhouse
+Guardian of Earth
+H3C
+H3M
+H3SV
+HP
+HP IS NOT NULL
+HTML File
+Halberdier
+Halfling
+Hall of Darkness
+Hall of Sins
+Hall of Valhalla
+Harpy
+Harpy Hag
+Harpy Loft
+Haste
+Head
+Head of Legion
+HeadingPairs
+Height
+Hell Hole
+Hell Hound
+Hellstorm Helmet
+Helm of Chaos
+Helm of Heavenly Enlightenment
+Helm of the Alabaster Unicorn
+Heretic
+Hero
+Heroes of Might and Magic III
+HeroesPortal.net
+Hill Fort
+Hire
+HoMM 3.2 EN
+HoMM3 4.0 EN
+HoMM3 4.0 RU
+HoMM3 Files|*.CGM;*.GM1;*GM0|All Files|*.*
+Hobgoblin
+Homestead
+Horned Demon
+Hourglass of the Evil Hour
+Hydra
+Hydra Pond
+HyperlinksChanged
+Hypnotize
+ID
+ID='
+IExplore.exe
+Ice Bolt
+Ice Elemental
+Id
+Ideology
+Image File
+Imp
+Imp Cache
+Imp Crucible
+Implosion
+Increase
+Inexhaustible Cart of Lumber
+Inexhaustible Cart of Ore
+Infernal Troglodyte
+Inferno
+Intelligence
+Iron Golem
+Italic
+Kennels
+Keymaster's Tent
+Knight
+LM Oracle files|*.lmh|All files|*.*
+Labyrinth
+Ladybird of Luck
+Land Mine
+LastDir
+LastMagic
+LastWisdom
+Leadership
+Lean To
+Learning
+Learning Stone
+Left Hand
+Left Ring
+Legs of Legion
+Level
+Level-Up Oracle
+LibTimer
+Library
+Lich
+Light Blue
+Lighthouse
+Lightning Bolt
+LinksUpToDate
+Lion's Shield of Courage
+Lizard Den
+Lizard Warrior
+Lizardman
+Locality
+Logistics
+Loins of Legion
+Lookout Tower
+Luck
+MHT File
+MP
+Machine
+Mage
+Mage Guild Level 1
+Mage Guild Level 2
+Mage Guild Level 3
+Mage Guild Level 4
+Mage Guild Level 5
+Mage Tower
+MageTimer
+Magic Arrow
+Magic Elemental
+Magic Forest
+Magic Lantern
+Magic Mirror
+Magic Stick
+Magic University
+Magma Elemental
+Magog
+Main Menu
+MainForm
+Major
+Mana
+Mana Vortex
+Manticore
+Manticore Lair
+Map
+Marketplace
+Marksman
+Master Genie
+Master Gremlin
+Mausoleum
+Maximized
+Medusa
+Medusa Queen
+Medusa Stores
+Mercury
+Mess Hall
+Meteor Shower
+Microsoft Excel
+Microsoft Sans Serif
+Mighty Gorgon
+Mine
+Miners' Guild
+Minor
+Minotaur
+Minotaur King
+Mirth
+Misc1
+Misc2
+Misc3
+Misc4
+Misc5
+Misfortune
+Mission
+Mission LIKE '{*'
+Mission LIKE '}*'
+Monastery
+Monk
+Monolith One Way Entrance
+Monolith One Way Exit
+Monolith Two Way
+Monster
+Monster IS NOT NULL AND Color IS NOT NULL AND Place <> '
+Monster Strength
+Mood
+Morale
+Mummy
+Mushroom Rings
+MySkin_Lilian1
+Mystic Orb of Mana
+Mystic Pond
+Mystical Garden
+Mysticism
+N00
+NOT USED
+Naga
+Naga Bank
+Naga Queen
+Name
+Name = '
+Name='
+Navigation
+Neck
+Necklace of Dragonteeth
+Necklace of Ocean Guidance
+Necklace of Swiftness
+Necromancer
+Necromancy
+Necromancy Amplifier
+Necropolis
+Neutral
+No
+Nomad
+Normal
+Nothing
+Num
+Number
+OEM (866)
+OK
+OT-3
+OT3
+OTForm
+Object
+Object='
+ObjectName
+ObjectNameForm
+Obsidian Gargoyle
+Offense
+Ogre
+Ogre Fort
+Ogre Mage
+Ogre's Club of Havoc
+Oracle
+Orange
+Orb of Driving Rain
+Orb of Inhibition
+Orb of Silt
+Orb of Tempestuous Fire
+Orb of Vulnerability
+Orb of the Firmament
+Orc
+Orc Chieftain
+Orc Tower
+Order of Fire
+Ore
+Overlord
+Override
+P&rint
+PDF File
+PageOfPages
+Pair
+Pandora's Box
+Parameters
+Parapet
+PartName
+Path
+Pathfinding
+Payment
+Peasant
+Pegasus
+Pendant of Courage
+Pendant of Death
+Pendant of Dispassion
+Pendant of Free Will
+Pendant of Holiness
+Pendant of Life
+Pendant of Negativity
+Pendant of Second Sight
+Pendant of Total Recall
+Phoenix
+Pikeman
+Pillar of Eyes
+Pink
+Pit Fiend
+Pit Lord
+Pixie
+Place
+Place DESC, Color, ID
+Planeswalker
+Portal of Glory
+Portal of Summoning
+Power Lich
+Power of the Dragon Father
+Prayer
+Precision
+PrimarySkill
+PrintForm
+Prison
+Properties
+ProspectorRT
+ProspectorRT  -  HoMM 3  Стартовый сейв
+ProspectorRT - 
+ProspectorRT - Экспорт в Excel
+ProspectorRT.Properties.Resources
+ProspectorRT;MainForm;
+Protection from Air
+Protection from Earth
+Protection from Fire
+Protection from Water
+Psychic Elemental
+Purple
+Pyramid
+Pyre
+Quest Guard
+Quick Print
+Quicksand
+Quiet Eye of the Dragon
+RTF File
+R_AllArts
+R_AllArtsDataTable
+R_AllExperience
+R_AllExperienceDataTable
+R_AllSkill
+R_AllSkillDataTable
+R_AllSpell
+R_AllSpellDataTable
+R_AllTimer
+R_AllTimerDataTable
+R_Art
+R_ArtDataTable
+R_Bank
+R_BankDataTable
+R_Camp
+R_CampDataTable
+R_Chest
+R_ChestDataTable
+R_EventBox
+R_EventBoxDataTable
+R_Garrison
+R_GarrisonDataTable
+R_GarrisonPrKey
+R_Heroes
+R_HeroesDataTable
+R_Market
+R_MarketDataTable
+R_Mine
+R_MineDataTable
+R_Monstr
+R_MonstrDataTable
+R_MonstrPrKey
+R_Object
+R_ObjectDataTable
+R_PassGuard
+R_PassGuardDataTable
+R_PassGuardPrKey
+R_Prison
+R_PrisonDataTable
+R_Resource
+R_ResourceDataTable
+R_Scholar
+R_ScholarDataTable
+R_SeerHut
+R_SeerHutDataTable
+R_SeerHutPrKey
+R_Skill
+R_SkillDataTable
+R_Spell
+R_SpellDataTable
+R_Topology
+R_TopologyDataTable
+R_Town
+R_TownDataTable
+Rampart
+Ranger
+Recanter's Cloak
+Recent
+RecentFiles
+Red
+Red Dragon
+Red Dragon Flame Tongue
+Refugee Camp
+Regular
+Relationship
+Relationships
+Relic
+Relic-C
+Remove Obstacle
+RemoveEntries is allowed just over streams of type FileStream
+Repeat
+Resistance
+Resource
+Resource Silo
+Resurrection
+Return with artifacts
+Return with creatures
+Return with resources
+Reward
+Reward LIKE '%
+Reward LIKE '%.%'
+Reward LIKE 'Заклинание%'
+Rib Cage
+Right Hand
+Right Ring
+Ring of Conjuring
+Ring of Infinite Gems
+Ring of Life
+Ring of Vitality
+Ring of the Magi
+Ring of the Wayfarer
+RoE
+Roc
+Rogue
+Royal Griffin
+Rust Dragon
+SPT
+SPTForm
+Sacrifice
+Sandals of the Saint
+ScaleCrop
+Scales of the Greater Basilisk
+Scholar
+Scorpicore
+Scouting
+Sculptor's Wings
+Scuttle Boat
+Sea Captain's Hat
+Sea Chest
+SecondarySkill
+SecondarySkill IS NOT NULL
+Seer's Hut
+Send via E-Mail...
+Sentinel's Shield
+Serpent Fly
+Serpent Fly Hive
+Shackles of War
+SharedDoc
+Sharpshooter
+Sheet
+Shield
+Shield of the Damned
+Shield of the Dwarven Lords
+Shield of the Yawning Dead
+Shipwreck
+Shipwreck Survivor
+Shipyard
+Shoulders
+ShowForm
+Shrine of Magic Gesture
+Shrine of Magic Incantation
+Shrine of Magic Thought
+Silver Pegasus
+Skeleton
+Skeleton Transformer
+Skeleton Warrior
+Skill
+Skill IS NOT NULL
+SkillTreeForm
+Skull Helmet
+Skyship
+Slayer
+Slot
+Slot='1' AND (Code='2' OR Code='5' OR Code='8')
+Slow
+SoD
+SoDEn
+Software\
+Sorcery
+Sorrow
+Soul Prison
+Speculum
+Spell
+Spell Book
+Spell IS NOT NULL
+Spell IS NOT NULL AND (Place <> '
+Spell Scroll
+Spell points
+Spellbinder's Hat
+Sphere of Permanence
+Spirit Guardian
+Spirit of Oppression
+Sprite
+Spyglass
+Stables
+StartButton
+Statesman's Medal
+Statue of Legion
+Still Eye of the Dragon
+Stoic Watchman
+Stone Gargoyle
+Stone Gaze
+Stone Golem
+Stone Skin
+Stop
+Storm Elemental
+Stormbringer
+Stream cannot be written
+Stream cannot seek
+Strikeout
+Stronghold
+Subterranean Gate
+Sulfur
+Sulfurous Lair
+Summon Boat
+Surcoat of Counterpoise
+Sword of Hellfire
+Sword of Judgement
+Swordsman
+System.Boolean
+System.Int32
+System.String
+Tactics
+Tahoma
+Talisman of Mana
+Tan
+Targ of the Rampaging Ogre
+Target
+Tavern
+Teal
+Teleport
+Template
+Template.XML
+Template.zip
+Templates\
+Text File
+Text Files|*.TXT|All Files|*.*
+The Grail
+The Shadow of Death
+Thunder Helmet
+Thunderbird
+Timer
+Titan
+Titan's Cuirass
+Titan's Gladius
+Titan's Lightning Bolt
+Titan's Thunder
+TitlesOfParts
+Tomb of Souls
+Tome of Air Magic
+Tome of Earth Magic
+Tome of Fire Magic
+Tome of Water Magic
+Toolbar
+Torso
+Torso of Legion
+Tower
+Town
+Town Hall
+Town Portal
+Town='
+Training Grounds
+Treasure
+Treasure Chest
+Treasury
+Tree of Knowledge
+TreeNumber
+Troglodyte
+Troll
+Troll Bridge
+Tunic of the Cyclops King
+Type
+Type='
+Types
+UTF8
+Underline
+Unearthed Graves
+Unicorn
+Unicorn Glade
+University
+Upg. Altar of Air
+Upg. Altar of Earth
+Upg. Altar of Fire
+Upg. Altar of Thought
+Upg. Altar of Water
+Upg. Altar of Wishes
+Upg. Archers' Tower
+Upg. Barracks
+Upg. Basilisk Pit
+Upg. Behemoth Lair
+Upg. Centaur Stables
+Upg. Cliff Nest
+Upg. Cloud Temple
+Upg. Cursed Temple
+Upg. Cyclops Cave
+Upg. Demon Gate
+Upg. Dendroid Arches
+Upg. Dragon Cave
+Upg. Dragon Cliffs
+Upg. Dragon Vault
+Upg. Dwarf Cottage
+Upg. Enchanted Spring
+Upg. Estate
+Upg. Fire Lake
+Upg. Forsaken Palace
+Upg. Gnoll Hut
+Upg. Goblin Barracks
+Upg. Golden Pavilion
+Upg. Golem Factory
+Upg. Gorgon Lair
+Upg. Graveyard
+Upg. Griffin Tower
+Upg. Guardhouse
+Upg. Hall of Darkness
+Upg. Hall of Sins
+Upg. Harpy Loft
+Upg. Hell Hole
+Upg. Homestead
+Upg. Hydra Pond
+Upg. Imp Crucible
+Upg. Kennels
+Upg. Labyrinth
+Upg. Lizard Den
+Upg. Mage Tower
+Upg. Magic Lantern
+Upg. Manticore Lair
+Upg. Mausoleum
+Upg. Monastery
+Upg. Ogre Fort
+Upg. Orc Tower
+Upg. Parapet
+Upg. Pillar of Eyes
+Upg. Portal of Glory
+Upg. Pyre
+Upg. Serpent Fly Hive
+Upg. Stilled Voices
+Upg. Tomb of Souls
+Upg. Training Grounds
+Upg. Unicorn Glade
+Upg. Warren
+Upg. Wolf Pen
+Upg. Workshop
+Upg. Wyvern Nest
+Vampire
+Vampire Lord
+Vampire's Cowl
+Version
+Vial of Dragon Blood
+Vial of Lifeblood
+View Air
+View Earth
+Visions
+W10
+W5
+Wagon
+Walking Dead
+Wall of Knowledge
+War Unicorn
+Warlock
+Warlords' Monument
+Warren
+Warrior's Tomb
+Water Elemental
+Water Magic
+Water Walk
+Weakness
+Whirlpool
+White
+Width
+Wight
+Windmill
+WindowState
+Wisdom
+Witch
+Witch Hut
+WithoutGame
+Wizard
+Wizard's Well
+Wolf Pen
+Wolf Raider
+Wolf Rider
+Wood
+Wood Elf
+Worksheets
+Workshop
+Wraith
+Writing is not alowed
+Wyvern
+Wyvern Monarch
+Wyvern Nest
+X='
+XLS File
+XLSX
+XLSX File
+XML Files(*.XML)|*.XML
+XP
+XP10
+XP15
+XP5
+XmlSchema
+Yes
+Z, Y, X
+Z, Y, X, Slot
+Zealot
+Zombie
+ZoomFactor
+[ArtClass]
+[Art]
+[Color]
+[Content_Types].xml
+[Doll]
+[Dwelling]
+[FullLevelSkill]
+[HeroClass]
+[Ideology]
+[LevelSkill]
+[Locality]
+[Mine]
+[Monstr]
+[Object]
+[Place]
+[Quest]
+[Reply]
+[Reward]
+[Skill]
+[Spell]
+[Status]
+[Tent]
+[Town]
+\Data
+\LMOracle.SkillTreeAPI.dll
+\OT-3.dll
+\Readme.txt
+\SPT.dll
+]  
+]   «
+_columnRelic_C
+_rels\.rels
+appName
+application/vnd.openxmlformats-officedocument.extended-properties+xml
+application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml
+application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml
+application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml
+application/vnd.openxmlformats-officedocument.theme+xml
+application/vnd.openxmlformats-package.core-properties+xml
+application/vnd.openxmlformats-package.relationships+xml
+application/xml
+bButtonClear
+bButtonOpen
+barButtonItem1
+barStaticItem1
+barSubItem1
+barSubItem3
+barToolbarsListItem1
+baseType
+biDepth
+biRecent
+bookViews
+bottom
+bsiVerOracle
+btnAdd
+btnCancel
+btnClear
+btnCollapseAll
+btnExpandAll
+btnOK
+btnPath
+calcId
+calcPr
+cbCodePg
+ce
+ce0
+ce1
+ce10
+ce11
+ce12
+ce13
+ce14
+ce15
+ce16
+ce17
+ce18
+ce19
+ce2
+ce20
+ce21
+ce22
+ce23
+ce3
+ce4
+ce5
+ce6
+ce7
+ce8
+ce9
+chi32EN
+chi40EN
+chi40RU
+chiFree
+chiStart
+colAntiMagic
+colApply
+colApply2
+colArt
+colArt1
+colArt2
+colArt21
+colArt3
+colArt4
+colArtefact
+colArtefact1
+colAvailable
+colBook
+colBook1
+colBuilding
+colBuilt
+colBuilt1
+colCanTake
+colClass
+colClass1
+colClass2
+colClass3
+colColor
+colColor1
+colColor13
+colColor2
+colColor21
+colColor3
+colColor4
+colColor5
+colCost
+colDay
+colDeadline
+colDeadline1
+colDoll
+colExperience
+colExperience1
+colExperience2
+colExperience3
+colGarrison
+colGarrison1
+colGold
+colGold1
+colGold13
+colGold2
+colGold3
+colGold4
+colGold5
+colGuard
+colGuard1
+colGuard2
+colGuard3
+colGuard4
+colGuard5
+colGuard6
+colGuard7
+colGuard8
+colGuard9
+colHP1
+colHP10
+colHP11
+colHP2
+colHP21
+colHP3
+colHP4
+colHP5
+colHP6
+colHP7
+colHP8
+colHP9
+colHero
+colHero1
+colHero2
+colHero3
+colHero4
+colHeroClass
+colHire
+colID
+colID1
+colID2
+colID3
+colIdeology
+colIncrease
+colLevel
+colLevel1
+colLevel13
+colLevel2
+colLevel3
+colLevel4
+colLevel9
+colLibrary
+colLocality
+colLocality1
+colLocality10
+colLocality11
+colLocality12
+colLocality13
+colLocality14
+colLocality15
+colLocality16
+colLocality17
+colLocality18
+colLocality19
+colLocality2
+colLocality3
+colLocality4
+colLocality5
+colLocality6
+colLocality7
+colLocality8
+colLocality9
+colLuck
+colMP
+colMP1
+colMachine
+colMachine1
+colMana
+colMission
+colMission1
+colMission2
+colMission3
+colMission4
+colMission5
+colMonster
+colMonster1
+colMonster2
+colMonster3
+colMonster4
+colMonster5
+colMonster6
+colMonster7
+colMood
+colMorale
+colName
+colName1
+colName2
+colName3
+colName4
+colNumber
+colNumber1
+colObject
+colObject1
+colObject10
+colObject11
+colObject12
+colObject13
+colObject14
+colObject2
+colObject3
+colObject4
+colObject5
+colObject6
+colObject7
+colObject8
+colObject9
+colPair
+colPayment
+colPlace
+colPlace1
+colPlace2
+colPlace3
+colPrimarySkill
+colPrimarySkill1
+colPrimarySkill2
+colPrimarySkill3
+colRelicC
+colRelicC6
+colRepeat
+colRepeat1
+colResource
+colResource1
+colResource2
+colResource21
+colResource3
+colResource4
+colResource5
+colReward
+colSSkill
+colSecondarySkill
+colSecondarySkill1
+colSecondarySkill2
+colSecondarySkill3
+colSkill
+colSkill1
+colSlot
+colSlot1
+colSlot13
+colSlot2
+colSlot3
+colSpell
+colSpell1
+colSpell2
+colSpell21
+colSpell3
+colSpell4
+colSpell5
+colSpell6
+colTimer
+colTown
+colTown21
+colType
+colType1
+colType2
+colX
+colX1
+colX10
+colX11
+colX12
+colX13
+colX14
+colX15
+colX16
+colX17
+colX18
+colX19
+colX2
+colX20
+colX21
+colX3
+colX4
+colX5
+colX6
+colX7
+colX8
+colX9
+colXP
+colXP1
+colXP2
+colXP3
+colY
+colY1
+colY10
+colY11
+colY12
+colY13
+colY14
+colY15
+colY16
+colY17
+colY18
+colY19
+colY2
+colY20
+colY21
+colY3
+colY4
+colY5
+colY6
+colY7
+colY8
+colY9
+colZ
+colZ1
+colZ10
+colZ11
+colZ12
+colZ13
+colZ14
+colZ15
+colZ16
+colZ17
+colZ18
+colZ19
+colZ2
+colZ20
+colZ21
+colZ3
+colZ4
+colZ5
+colZ6
+colZ7
+colZ8
+colZ9
+count
+defaultRowHeight
+defaultThemeVersion
+dimension
+docProps\app.xml
+docProps\core.xml
+false
+fileVersion
+filterPrivacy
+footer
+frmAbout
+grdAllArts
+grdAllSkill
+grdAllSpell
+grdAllTimer
+grdArt
+grdBank
+grdCamp
+grdChest
+grdEventBox
+grdExperience
+grdGarrison
+grdHero
+grdMarket
+grdMonster
+grdObject
+grdPassGuard
+grdPrison
+grdResource
+grdScholar
+grdSeerHut
+grdSkill
+grdSpell
+grdTopology
+grdTown
+gridColumn1
+gridColumn2
+grpControl
+header
+http://HeroesPortal.net
+http://heroesportal.net/tavern/?id=367658
+http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes
+http://schemas.openxmlformats.org/officeDocument/2006/extended-properties
+http://schemas.openxmlformats.org/officeDocument/2006/relationships
+http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings
+http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles
+http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme
+http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet
+http://schemas.openxmlformats.org/package/2006/content-types
+http://schemas.openxmlformats.org/package/2006/relationships
+http://schemas.openxmlformats.org/spreadsheetml/2006/main
+http://sites.google.com/site/prospectorrt
+http://tempuri.org/DataSet2.xsd
+http://www.heroesportal.net
+http://www.w3.org/2001/XMLSchema
+input
+label1
+labelControl1
+labelControl10
+labelControl11
+labelControl13
+labelControl2
+labelControl3
+labelControl4
+labelControl5
+labelControl6
+labelControl7
+land
+lastEdited
+left
+linkLabel1
+linkLabel2
+lowestEdited
+lpstr
+mnuButtonHelp
+myToolTip
+name
+namespace
+okButton
+pageMargins
+panelControl1
+pictureBox1
+pictureBox1.Image
+popupMenu1
+ppmFile
+printBarManager1.ImageStream
+printControl1
+printPreviewBarCheckItem1
+printPreviewBarCheckItem10
+printPreviewBarCheckItem11
+printPreviewBarCheckItem12
+printPreviewBarCheckItem13
+printPreviewBarCheckItem14
+printPreviewBarCheckItem15
+printPreviewBarCheckItem16
+printPreviewBarCheckItem17
+printPreviewBarCheckItem2
+printPreviewBarCheckItem3
+printPreviewBarCheckItem4
+printPreviewBarCheckItem5
+printPreviewBarCheckItem6
+printPreviewBarCheckItem7
+printPreviewBarCheckItem8
+printPreviewBarCheckItem9
+printPreviewBarItem1
+printPreviewBarItem10
+printPreviewBarItem11
+printPreviewBarItem12
+printPreviewBarItem13
+printPreviewBarItem14
+printPreviewBarItem15
+printPreviewBarItem16
+printPreviewBarItem17
+printPreviewBarItem18
+printPreviewBarItem19
+printPreviewBarItem2
+printPreviewBarItem20
+printPreviewBarItem21
+printPreviewBarItem22
+printPreviewBarItem23
+printPreviewBarItem24
+printPreviewBarItem25
+printPreviewBarItem26
+printPreviewBarItem27
+printPreviewBarItem28
+printPreviewBarItem3
+printPreviewBarItem4
+printPreviewBarItem5
+printPreviewBarItem6
+printPreviewBarItem7
+printPreviewBarItem8
+printPreviewBarItem9
+printPreviewRepositoryItemComboBox1
+printPreviewStaticItem1
+printPreviewStaticItem2
+printPreviewSubItem1
+printPreviewSubItem2
+printPreviewSubItem3
+printPreviewSubItem4
+progressBarEditItem1
+prospector
+prospectorrt@yandex.ru
+r:id
+rId
+reCell
+ref
+rels
+repositoryItemProgressBar1
+repositoryItemSpinEdit1
+repositoryItemSpinEdit2
+repositoryItemZoomTrackBar1
+rgObjectName
+right
+row
+ru
+ru-RU
+rupBuild
+sea
+sharedStrings.xml
+sheet
+sheetData
+sheetFormatPr
+sheetId
+sheetView
+sheetViews
+sheets
+si
+size
+spans
+sst
+statusStrip1
+styles.xml
+tabAllArts
+tabAllSkill
+tabAllSpell
+tabAllTimer
+tabArt
+tabBank
+tabBoxEvent
+tabCamp
+tabChest
+tabControl
+tabExperience
+tabGarrison
+tabHero
+tabMarket
+tabMonster
+tabObject
+tabPassGuard
+tabPrison
+tabResource
+tabScholar
+tabSeerHut
+tabSelected
+tabSkill
+tabSpell
+tabTopology
+tabTown
+tableTypeName
+tePath
+textBox1
+theme/theme1.xml
+toolStripStatusLabel1
+toolStripStatusLabel3
+top
+treeSkill
+tsAbout
+tsButtonExcel
+tsButtonFile
+tsButtonHelp
+tsButtonOT
+tsButtonObjectName
+tsButtonRefresh
+tsButtonSPT
+tsButtonStart
+tsButtonStop
+tsLabelGrail
+tsLabelLink
+tsLabelStatusL
+tsMenuService
+uniqueCount
+urn:schemas-microsoft-com:xml-diffgram-v1
+variant
+ver. 2.3
+vt:i4
+vt:lpstr
+vt:variant
+vt:vector
+vwAllArts
+vwAllSkill
+vwAllSpell
+vwAllTimer
+vwArt
+vwBank
+vwCamp
+vwChest
+vwEventBox
+vwExperience
+vwGarrison
+vwHero
+vwMarket
+vwMonster
+vwObject
+vwPassGuard
+vwPrison
+vwResource
+vwScholar
+vwSeerHut
+vwSkill
+vwSpell
+vwTopology
+vwTown
+windowHeight
+windowWidth
+workbook
+workbookPr
+workbookView
+workbookViewId
+worksheet
+worksheets/sheet
+xWindow
+xl
+xl\_rels
+xl\_rels\workbook.xml.rels
+xl\sharedStrings.xml
+xl\styles.xml
+xl\theme\theme1.xml
+xl\workbook.xml
+xl\worksheets
+xl\worksheets\sheet
+xml
+xmlns
+xmlns:r
+xmlns:vt
+yWindow
+zip
+zoomBarEditItem1
+zoomTrackBarEditItem1
+{0} 
+
+© Copyright  Stormbringer  2012-2021
+Автор:
+Автоширина столбцов
+Адская Гончая
+Адская гончая
+Адская дыра
+Адский Меч
+Адский Троглодит
+Адский меч
+Адский троглодит
+Адское Отродье
+Адское отродье
+Академия боевых искусств
+Алебардщик
+Алмазный Голем
+Алмазный голем
+Алтарь Жертвоприношиния
+Алтарь Земли
+Алтарь Мыслей
+Алтарь Разума
+Алтарь воды
+Алтарь воздуха
+Алтарь грез
+Алтарь желаний
+Алтарь земли
+Алтарь мечты
+Алтарь мыслей
+Алтарь мысли
+Алтарь огня
+Алтарь разума
+Алхимик
+Альянс Ангелов
+Амулет Гробовщика
+Амулет Маны
+Амулет гробовщика
+Амулет маны
+Амулет некроманта
+Ангел
+Ангельский союз
+Анти-Магия
+Антимагический
+Антимагия
+Арбалетчик
+Арена
+Арка Дендроидов
+Арка дендроидов
+Армагеддон
+Артефакт
+Артефакты
+Артиллерия
+Архангел
+Архи-Маг
+Архи-маг
+Архидьявол
+Архимаг
+Атака
+Б.
+Багровый
+Базовый
+Баллиста
+Баллистика
+Банк Наг
+Банки
+Бараки
+Бараки гоблинов
+Бастион
+Бастион грифонов
+Башмаки левитации
+Башмаки мертвеца
+Башмаки полярности
+Башмаки скороходы
+Башня
+Башня Грифонов
+Башня лучников
+Башня магов
+Башня орков
+Башня стрелков
+Без запуска игры
+Бездонная сума золота
+Бездонный кошель золота
+Бездонный мешок золота
+Бездонный сосуд ртути
+Безмолвный глаз дракона
+Белая
+Берлога Мантикор
+Берлога мантикор
+Берсерк
+Бес
+Бесконечная повозка дров
+Бесстрашный Хранитель
+Бесстрашный хранитель
+Бехолдер
+Бешенство
+Библиотека
+Библиотека LMOracle.SkillTreeAPI.dll не найдена.
+Построение дерева прокачки невозможно.
+Бивачный Костер
+Бирюзовый
+Благодарности:
+Благородный эльф
+Благословение
+Благословление
+Блэкшард Мертвого Рыцаря
+Бог Огня
+Боевая машина
+Боевой Гном
+Боевой Единорог
+Боевой гном
+Боевой единорог
+Боевой маг
+Боевой меч титана
+Боевой цеп гнолла
+Большая усадьба
+Большие псарни
+Большое поместье
+Большой
+Боров
+Братство меча
+Брелок Абсолютной Памяти
+Брелок Бесстрастия
+Брелок Жизни
+Брелок Отрицательности
+Брелок Свободы
+Брелок Смелости
+Брелок Смерти
+Брелок Ясновидения
+Брелок абсолютной памяти
+Брелок бесстрастия
+Брелок жизни
+Брелок отрицательности
+Брелок свободы
+Брелок смелости
+Брелок смерти
+Брелок ясновидения
+Быть героем
+В&ыход
+Валгалла
+Вампир
+Вампир Лорд
+Вампир лорд
+Варвар
+Василиск
+Ведьма
+Великая глазница
+Великий
+Великий Василиск
+Великий Гноллий кистень
+Великий Гномий Кистень
+Великий Эльф
+Великий василиск
+Великий лабиринт
+Версия
+Верфь
+Верховный лорд
+Ветряная мельница
+Ветхий Корабль
+Ветхий корабль
+Вечное Кольцо Серы
+Вечное кольцо серы
+Взгляд, превращяющий в камень
+Взрыв
+Виверн
+Виверн-Монарх
+Виверн-монарх
+Виверна
+Виверна-монарх
+Видения
+Виденье
+Вихрь маны
+Владыка бездны
+Владыка джиннов
+Вода
+Водный Элементаль
+Водный элементал
+Водоворот
+Военная академия
+Вождь орков
+Воздух
+Воздушный Щит
+Воздушный Элементаль
+Воздушный щит
+Воздушный элементал
+Воздушный элементаль
+Воин Скелет
+Воин скелет
+Волна Смерти
+Волна смерти
+Волчий загон
+Волчье логово
+Волшебная книга
+Волшебная палочка
+Волшебная стрела
+Волшебная сфера маны
+Волшебное зеркало
+Волшебный источник
+Волшебный лес
+Волшебный омут
+Волшебный родник
+Волшебный свиток
+Волшебный фонарь
+Волшебный элементал
+Волшебство
+Вор
+Ворожба
+Воскрешение
+Восстановить шаблон
+Восстановление
+Врата Ада
+Врата Подземного Мира
+Врата города
+Врата демонов
+Врата замка
+Врата подземного мира
+Всадник
+Все Арты
+Все Заклы
+Все Навыки
+Вторичный навык
+Вуаль тьмы
+Выберите соответствующую версию или в "Heroes of Might and Magic 3" загрузите сейв "
+Выберите таблицы для экспорта в Excel
+Выберите файл
+Выбрать все
+Вызвать Корабль
+Вызвать корабль
+Высокий эльф
+Выход
+Гарнизон
+Гарнизоны
+Гарпия
+Гарпия ведьма
+Гарпия-Ведьма
+Гарпия-ведьма
+Геенна
+Герб Доблести
+Герб доблести
+Герои
+Герои Меча и Магии III
+Герой
+Гигант
+Гидра
+Гидра Хаоса
+Гидра хаоса
+Гильдия горняков
+Гильдия магов 1-го уровня
+Гильдия магов 2-го уровня
+Гильдия магов 3-го уровня
+Гильдия магов 4-го уровня
+Гильдия магов 5-го уровня
+Гильдия наемников
+Гильдия свободных работников
+Гипноз
+Главное меню
+Гладиус Титана
+Глазница
+Глиф доблести
+Глифы Ужаса
+Гнездо Вивернов
+Гнездо виверн
+Гнездо вивернов
+Гнездо горгон
+Гнездо мантикор
+Гнездо на скале
+Гнездо на утесе
+Гнездовой утес
+Гнолл
+Гнолл мародер
+Гнолл-Мародер
+Гнолл-мародер
+Гном
+Гоблин
+Гог
+Гога
+Голова
+Голова Легиона
+Голова Легионера
+Голова легиона
+Голубая
+Голубка Удачи
+Голубка удачи
+Гончая ада
+Горгон
+Горгона
+Город
+Города
+Городок
+Городской портал
+Готово
+Грааль
+Грамотность
+Гремли
+Гремлин
+Грибные кольца
+Грифон
+Гробница воина
+Гробница дракона
+Гробница душ
+Гром Титанов
+Гром титана
+Гром титанов
+Громовая птица
+Громовой шлем
+Грохот Титана
+Да
+Дата - 
+Дверь измерений
+Движение по воде
+Двор баллист
+Двор кентавров
+Дворец пророков
+Дворец тьмы
+Двухсторонний Монолит
+Двухсторонний монолит
+Демон
+Демон бездны
+Дендроид Охранник
+Дендроид Солдат
+Дендроид воин
+Дендроид охранник
+Дендроид солдат
+Дендроид страж
+День
+Дерево прокачки
+Джин
+Джинн
+Дивный доспех
+Дипломатия
+Добро
+Доспех проклятого
+Доспех черного дракона
+Доспехи
+Доспехи Проклятого
+Доспехи из Чешуи Дракона
+Доспехи из окаменевшего древа
+Доспехи из ребер
+Доспехи из чешуи Дракона
+Доспехи проклятого
+Доспехи самородной серы
+Достичь уровня
+Доступен
+Доступно
+Дракон-Привидение
+Дракон-привидение
+Драконьи скалы
+Древесина
+Древнее Чудище
+Древнее чудище
+Древо Знаний
+Древо знаний
+Древо познания
+Дрожь смерти
+Друид
+Дурной Глаз
+Дух Уныния
+Дух угнетения
+Дух уныния
+Дух-хранитель
+Дыхание Смерти
+Дьявол
+Единорог
+Еретик
+Жажда крови
+Жар-птица
+Железный голем
+Жертва
+Жертвенник
+Жертвенный алтарь
+Жертвоприношение
+Живой Мертвец
+Живой мертвец
+Жилье капитана
+Заброшенная шахта
+Заброшенный дворец
+Заброшенный замок
+Заброшенный корабль
+Забывчивость
+Завеса тьмы
+Завод големов
+Загон
+Загрузить шаблон
+Задание
+Заклинание
+Заклинание 
+Заклинания
+Заколдованный ручей
+Зал грехов
+Залы Тьмы
+Залы тьмы
+Замедление
+Замок
+Замороженный утес
+Заоблачный храм
+Запрещен
+Застывшей Глаз Дракона
+Застывший глаз Дракона
+Затопить корабль
+Защита
+Защита от воды
+Защита от воздуха
+Защита от земли
+Защита от огня
+Звездопад
+Зверолов
+Зеленая
+Зеленый
+Зеленый Дракон
+Зеленый дракон
+Землетрясение
+Земля
+Земляной Элементаль
+Земное око
+Земной элементал
+Зеркало
+Зло
+Злобоглаз
+Зловещий рыцарь
+Злой глаз
+Змеиное гнездо
+Змеиное логово
+Змей
+Змий
+Змий-дракон
+Знак Отваги
+Знак мужества
+Знак отваги
+Знаки страха
+Значение для столбца 'Address' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Address' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'AntiMagic' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'Apply' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Apply' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Art' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Artefact' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Artefact' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Available' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Book' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Book' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Building' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Built' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Built' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'CanTake' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'Class' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Class' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Class' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Class' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Class' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'ClassID' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Code' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Color' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Cost' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Day' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Deadline' в таблице 'R_PassGuard' равно DBNull.
+Значение для столбца 'Deadline' в таблице 'R_SeerHut' равно DBNull.
+Значение для столбца 'Doll' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Experience' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Experience' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Experience' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Experience' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Garrison' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Garrison' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Gold' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Guard' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'HP' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Hero' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Hero' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Hero' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Hero' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Hero' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Hire' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'ID' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'ID' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'ID' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'ID' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'ID' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Ideology' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Increase' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'LastMagic' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'LastWisdom' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Level' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'LibTimer' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Library' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Garrison' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Mine' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_PassGuard' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_SeerHut' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'Locality' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Luck' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'MP' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'MP' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Machine' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Machine' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'MageTimer' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Mana' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_PassGuard' равно DBNull.
+Значение для столбца 'Mission' в таблице 'R_SeerHut' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Monster' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Mood' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Morale' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Name' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Name' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Name' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Name' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Name' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Number' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Number' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'Object' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Pair' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Payment' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Place' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Place' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Place' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Place' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'PrimarySkill' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'PrimarySkill' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'PrimarySkill' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'PrimarySkill' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Relic-C' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Relic-C' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Relic-C' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Relic-C' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Repeat' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Repeat' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_Monstr' равно DBNull.
+Значение для столбца 'Resource' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Reward' в таблице 'R_SeerHut' равно DBNull.
+Значение для столбца 'SecondarySkill' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'SecondarySkill' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'SecondarySkill' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'SecondarySkill' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Skill' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Skill' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Slot' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'Spell' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Timer' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Town' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Town' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'TreeNumber' в таблице 'R_Heroes' равно DBNull.
+Значение для столбца 'Type' в таблице 'R_AllTimer' равно DBNull.
+Значение для столбца 'Type' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Type' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'X' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'X' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'X' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'X' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'X' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Mine' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'X' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'XP' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'XP10' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'XP15' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'XP5' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Mine' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Y' в таблице 'R_Town' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_AllArts' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_AllExperience' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_AllSkill' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_AllSpell' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Art' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Bank' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Camp' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Chest' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_EventBox' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Market' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Mine' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Object' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Prison' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Resource' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Scholar' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Skill' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Spell' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Topology' равно DBNull.
+Значение для столбца 'Z' в таблице 'R_Town' равно DBNull.
+Значок Смелости
+Значок смелости
+Золотая стрела
+Золото
+Золотой Голем
+Золотой Дракон
+Золотой Лук
+Золотой Павильон
+Золотой голем
+Золотой дракон
+Золотой лук
+Золотой павильон
+Золотой сад
+Зомби
+Зоркость
+Зыбучие пески
+Идеология
+Из файла
+Избушка гномов
+Изменить
+Изобильная накидка кристаллов
+Иметь цвет флага
+Имущество
+Имя файла
+Инкубатор
+Интеллект
+Инферно
+Ипподром
+Источник чародея
+Итоги по группам
+Ифрит
+Ифрит-султан
+Кабан
+Кавалерист
+Казармы
+Казармы гоблинов
+Казначей
+Каменная Горгулья
+Каменная горгулья
+Каменная кожа
+Каменный Голем
+Каменный голем
+Камень Знаний
+Камень глаз
+Камень знаний
+Камень учености
+Капелла безмолвия
+Капелла тишины
+Капитан Кентавров
+Капитан кентавров
+Капитолий
+Караулка
+Карающая Дубина Орга
+Карающая дубина Огра
+Каркас
+Карта
+Карты Пророчества
+Карты пророчества
+Катапульта
+Квартира капитана
+Кентавр
+Кираса титана
+Кладбище
+Класс
+Клевер Удачи
+Клевер Фортуны
+Клевер удачи
+Клерик
+Клетка богов войны
+Клетки
+Клеть воителя
+Клинок Армагеддона
+Клинок армагеддона
+Клирик
+Клон
+Книга Заклинаний
+Книга Магии Воды
+Книга Магии Воздуха
+Книга Магии Земли
+Книга Магии Огня
+Книга заклинаний
+Книга магии Воды
+Книга магии Воздуха
+Книга магии Земли
+Книга магии Огня
+Книжник
+Кнопка  «Старт»
+Кодировка
+Колдун
+Количество
+Колодец Волшебника
+Колодец волшебника
+Колония
+Колония земных элементалов
+Колония элементалов
+Колонтитулы
+Колосс
+Колье Неприступности
+Колье заклинателя
+Колье неприступности
+Кольца грибов
+Кольцо Дипломата
+Кольцо Драгоценных Камней
+Кольцо Жизненной Силы
+Кольцо Жизни
+Кольцо Мага
+Кольцо Странника
+Кольцо дипломата
+Кольцо драгоценных камней
+Кольцо жизненной силы
+Кольцо жизни
+Кольцо заклинателя
+Кольцо здоровья
+Кольцо мага
+Кольцо странника
+Кольцо холода
+Кольчуга Великого Василиска
+Консерватория Грифонов
+Консерватория грифонов
+Контрудар
+Конюшни
+Конюшни кентавров
+Копейщик
+Копировать
+Копировать 
+Копировать ячейку
+Кораблекрушение
+Коричневая
+Коричневый
+Королева Медуза
+Королева Нага
+Королева медуз
+Королева медуза
+Королева наг
+Королева нага
+Королевский Грифон
+Королевский грифон
+Королевский минотавров
+Королевский циклоп
+Король Минотавр
+Король Циклопов
+Король минотавр
+Король циклопов
+Корона Главного Мага
+Корона верховного волхва
+Корона верховного мага
+Корона дракона
+Корона из Зубов Дракона
+Корона из зубов Дракона
+Костер
+Кострище покинутого лагеря
+Костяной Дракон
+Костяной дракон
+Котел бесов
+Коттедж гномов
+Кочевник
+Красная
+Красный
+Красный Дракон
+Красный дракон
+Крепость
+Крепость грифонов
+Крепость огров
+Крепость орков
+Крест отваги
+Крестоносец
+Крестьянин
+Кристаллическая пещера
+Кристаллы
+Кристальная пещера
+Кристальный Дракон
+Кристальный дракон
+Кровавый обелиск
+Крылья Ангела
+Крылья ангела
+Крылья ваятеля
+Кузница
+Кукла
+Кулон бесстрастия
+Кулон внутреннего зрения
+Кулон жизни
+Кулон мужества
+Кулон отрицания
+Кулон свободной воли
+Кулон святости
+Кулон смерти
+Кулон твердой памяти
+Курган
+Лабиринт
+Лагерь Беженцов
+Лагерь беженцев
+Лагеря Беженцев
+Лазурный Дракон
+Лазурный дракон
+Ларец с сокровищами
+Латы Титана
+Лачуга гноллов
+Левая рука
+Левое кольцо
+Ледяная молния
+Ледяная стрела
+Ледяной Элементаль
+Ледяной утес
+Ледяной элементал
+Ледяной элементаль
+Лента Посла
+Лента посла
+Лес дендроидов
+Лесной Ельф
+Лесной эльф
+Летучий змей
+Летучий змий
+Лечение
+Лидерство
+Лиловая
+Лиловый
+Лич
+Логистика
+Логово Горгон
+Логово василисков
+Логово горгон
+Логово драконов
+Логово мантикор
+Логово циклопов
+Логово чудищ
+Логово ящериц
+Логово ящеров
+Лодка
+Ложбина Чародеев
+Ложбина чародеев
+Лорд
+Лорд вампиров
+Лужайка единорогов
+Лук Снайпера
+Лук из Вишневого Дерева Эльфов
+Лук снайпера
+Лупа
+Лучник
+Людоед
+Людоед Маг
+Мавзолей
+Маг
+Магистрат
+Магическая Медаль Маны
+Магическая Накидка
+Магическая медаль маны
+Магическая накидка
+Магические Доспехи
+Магические доспехи
+Магический Ошейник
+Магический Элементаль
+Магический лес
+Магический университет
+Магический элементаль
+Магическое Кольцо
+Магическое кольцо
+Магическое ожерелье
+Магог
+Магога
+Максимум уровней
+Маленькая Фея
+Маленькая фея
+Малый
+Мана
+Мантикора
+Мантия Вампира
+Мантия Равновесия
+Мантия равновесия
+Мануфактура
+Маскировка
+Мастер гремлин
+Мастер-Гремлин
+Мастер-Джин
+Мастер-гремлин
+Мастер-джинн
+Мастерская
+Мастерская скульптора
+Масштаб
+Машина
+Машина скелетов
+Маяк
+Медаль Дипломата
+Медаль Уязвимости
+Медаль дипломата
+Медаль уязвимости
+Медаль чиновника
+Медлительность
+Медуза
+Мерзлые утесы
+Местоположение
+Метеоритный Дождь
+Метеоритный дождь
+Меткость
+Меч Правосудия
+Меч адского пламени
+Меч правосудия
+Мечник
+Минное поле
+Минотавр
+Мины
+Мистицизм
+Мистический сад
+Могила Воина
+Могила воина
+Могучая Горгона
+Могучая горгона
+Могучий горгон
+Могучий лич
+Могущественный Лич
+Могущественный лич
+Можно забрать
+Молитва
+Молния
+Молния титана
+Молодые дендроиды
+Монастырь
+Монах
+Монолит Входа
+Монолит Выхода
+Монолит входа
+Монолит выхода
+Монстр
+Монстры
+Монумент полководца
+Мораль
+Морской сундук
+Мост Троллей
+Мост троллей
+Мощь отца Драконов
+Мудрость
+Мумия
+Муниципалитет
+НЕ ИСПОЛЬЗУЕТСЯ
+Навес
+Навигация
+Навык
+Навыки
+Нага
+Нага Банк
+Награда
+Нагрудник из Окаменелого Дерева
+Нагрудник из Серного Камня
+Нагрудник из окаменелого дерева
+Нагрудник из серного камня
+Наездник на волках
+Наездник на волке
+Названия Объектов
+Названия объектов
+Найм
+Найти
+Накидка Мертвого короля
+Накидка Скорости
+Накидка заклинателя
+Накидка отречения
+Накидка скорости
+Наколенники из Драконьей Кости
+Наколенники из Драконьей кости
+Налетчик
+Нападение
+Насест виверн
+Наследный доспех
+Настроение
+Настройка
+Начали
+Не указан файл с названиями объектов
+Не указан файл экспорта.
+Небесное око
+Небесный корабль
+Небесный храм
+Небесный чертог
+Недопустимая версия карты
+Неиссякаемая Мошна Золота
+Неиссякаемая Склянка Ртути
+Неиссякаемая Сума Золота
+Неиссякаемая мошна золота
+Неиссякаемая склянка ртути
+Неиссякаемая сума золота
+Неиссякаемое кольцо серы
+Неиссякаемый Мешок Золота
+Неиссякаемый мешок золота
+Неистощимая Подвода Леса
+Неистощимая Подвода с Рудой
+Неистощимая подвода леса
+Неистощимая подвода с рудой
+Неисчерпаемая вагонетка руды
+Нейтрал
+Некромант
+Некромантия
+Некрополис
+Некрополь
+Неподвижный Глаз Дракона
+Неподвижный глаз Дракона
+Неподвижный глаз дракона
+Несколько страниц
+Нескончаемое кольцо самоцветов
+Нет
+Нет выбранных таблиц для экспорта.
+Неудача
+Ноги
+Ноги Легиона
+Ноги Легионера
+Ноги легиона
+О программе
+Обелиск крови
+Оберег Воды
+Оберег Воздуха
+Оберег Земли
+Оберег Огня
+Обиталище чудищ
+Облака серы
+Облачный Храм
+Обломки
+Обоз
+Обсидиановая Горгулья
+Обсидиановая горгулья
+Обсуждение:
+Обучаемость
+Обучение
+Общие итоги
+Объединить ячейки
+Объект
+Объекты
+Огенный Элементаль
+Огненная Птица
+Огненная птица
+Огненное море
+Огненное озеро
+Огненный Шар
+Огненный Элементаль
+Огненный шар
+Огненный щит
+Огненный элементал
+Огненный элементаль
+Огненный язык красного дракона
+Огонь
+Огр
+Огр-маг
+Огр-шаман
+Огрова дубина разрушения
+Одержимый
+Ожерелье Божественной Благодати
+Ожерелье Морского Проведения
+Ожерелье Стремительности
+Ожерелье божественной благодати
+Ожерелье из Зубов Дракона
+Ожерелье из зубов Дракона
+Ожерелье из зубов дракона
+Ожерелье морского проведения
+Ожерелье навигатора
+Ожерелье небесного блаженства
+Ожерелье скорости
+Ожерелье стремительности
+Оживление мертвецов
+Озеро гидр
+Оковы Войны
+Оковы войны
+Оплот
+Оплот магов
+Опушка Единорогов
+Опушка единорогов
+Опыт
+Оракул
+Оранжевый
+Орден огня
+Орк
+Орк на кабане
+Орк-Вождь
+Орк-вождь
+Орлиный глаз
+Ослепление
+Ответный удар
+Открыть
+Отмена
+Охрана
+Очистить
+Очистить все
+Ошибка
+Ошибка доступа к процессу
+Ошибка загрузки LMOracle.SkillTreeAPI.dll
+Ошибка открытия
+Ошибка построения дерева прокачки
+П.
+Па&раметры страницы...
+Палатка Ключника
+Палатка Первой Помощи
+Палатка ключника
+Палатка первой помощи
+Палач
+Пальцы левой руки
+Пальцы правой руки
+Памятник богам войны
+Пара
+Параметры страницы...
+Парапет
+Пегас
+Первая помощь
+Первая страница
+Первичный навык
+Перемещать
+Перчатки Всадника
+Перчатки всадника
+Песочные Часы Недоброго Часа
+Песочные часы недоброго часа
+Печаль
+Печать
+Печать...
+Пещера Драконов
+Пещера Циклопов
+Пещера драконов
+Пещера циклопов
+Пещера ящеров
+Пикси
+Пирамида
+Плата
+Плащ Бесконечных Кристаллов
+Плащ Короля Нечисти
+Плащ Отречения
+Плащ бесконечных кристаллов
+Плащ вампира
+Плащ из Драконьих Крыльев
+Плащ из Драконьих крыльев
+Плащ из крыла дракона
+Плащ короля нежити
+Плащ отречения
+Плащ равновесия
+Плечи
+Плотоядное растение
+По умолчанию
+Победить героя
+Победить монстра
+Повозка
+Повтор
+Погребальный костер
+Подвода с Боеприпасами
+Подвода с боеприпасами
+Подземелье
+Подземные врата
+Подземный ход
+Подзорная Труба
+Подзорная труба
+Подложка...
+Поднять мертвецов
+Поиск Пути
+Поиск пути
+Показать ячейку
+Покинутый дворец
+Полет
+Полное Собрание
+Полурослик
+Получить навык
+Поляна единорогов
+Полярное сияние
+Поместье
+Поместья
+Поножи из кости дракона
+Порождение Зла
+Порождение зла
+Портал
+Портал Славы
+Портал входа
+Портал вызова
+Портал выхода
+Портал города
+Портал доблести
+Портал славы
+Последних открытых файлов
+Последняя страница
+Построен
+Построено
+Постройки
+Потерпевший Кораблекрушение
+Потерпевший кораблекрушение
+Похоронный костер
+Поясница Легиона
+Поясница Легионера
+Поясница легиона
+Правая рука
+Правое кольцо
+Предыдущая страница
+Преисподняя
+Преобразователь скелетов
+Префектура
+Привидение
+Призвать корабль
+Призрак
+Призрачный дракон
+Принести артефакты
+Принести монстров
+Принести ресурсы
+Прирост
+Прислониться к
+Пристанище душ
+Провал
+Провидцы
+Продвинутый
+Проклятие
+Проклятый замок
+Проклятый чертог
+Проклятье
+Просмотр
+Просмотр Воздуха
+Просмотр Земли
+Просмотр воздуха
+Просмотр земли
+Пространственные врата
+Процесс "Heroes of Might and Magic 3" не найден.
+Запустите игру или выберите соответствующую версию.
+Пруд Гидр
+Пруд гидр
+Псарни
+Психический Элементаль
+Психический элементаль
+Птица Грома
+Птица Познания
+Птица Рух
+Птица познания
+Птица проницательности
+Птица рух
+Птица счастья
+Птица-гром
+Пузырек с Кровью Дракона
+Пузырек с кровью Дракона
+Пурпурная
+Пурпурный
+Путешественник
+Радость
+Радуга
+Разбившийся корабль
+Разбойник
+Разбойник на волке
+Разведка
+Развернуть все
+Разлом Элементалей Земли
+Разлом элементалей земли
+Разное1
+Разное2
+Разное3
+Разное4
+Разное5
+Разрушающий луч
+Разрушительный луч
+Разрытые могилы
+Разум
+Район
+Ракшас
+Ратуша
+Ребра
+Рейнджер
+Реликвия
+Реликвия-С
+Реликт-С
+Ресурс
+Ресурсы
+Ржавый Дракон
+Ржавый дракон
+Ристалище
+Рог изобилия
+Рогатый Демон
+Рогатый демон
+Розовый
+Роща
+Роща Жизни
+Роща дендроидов
+Ртуть
+Руда
+Руки Легиона
+Руки Легионера
+Руки легиона
+Рух
+Рынки
+Рынок
+Рыцарь
+Рыцарь Смерти
+Рыцарь смерти
+Рюкзак
+Сад жизни
+Садок
+Сайт:
+Самоцветы
+Сандалии Святых
+Сандалии святого
+Сандалии святых
+Санитарная Палатка
+Сапоги Левитации
+Сапоги Мертвеца
+Сапоги Противодействия
+Сапоги левитации
+Сапоги противодействия
+Сапоги-Скороходы
+Сапоги-скороходы
+Свернуть все
+Светло-голубая
+Свиток заклинания
+Свиток с Заклинанием
+Свиток с Заклинаниями
+Свиток с заклинанием
+Свод Драконов
+Свод драконов
+Своды дендроидов
+Святилище магических жестов
+Святилище магических мыслей
+Святилище магических песнопений
+Святыня Магического Воплощения
+Святыня Магического Жеста
+Святыня Магической Мысли
+Святыня магического воплощения
+Святыня магического жеста
+Святыня магической мысли
+Священник
+Священный Брелок
+Священный брелок
+Секира Кентавра
+Сера
+Серая
+Серебрянный Пегас
+Серебряный пегас
+Серная Берлога
+Серная берлога
+Сернистое логово
+Серные тучи
+Серый
+Сизый
+Сила Отца драконов
+Сила монстра
+Силовое поле
+Символ Знаний
+Символ знаний
+Символ знания
+Синий
+Синяя
+Сказочный Дракон
+Сказочный дракон
+Скала дракона
+Скелет
+Скелет воин
+Склад ресурсов
+Склады Циклопов
+Склады медуз
+Склады циклопов
+Склеп
+Склеп дракона
+Склеп драконов
+Склеп душ
+Склянка Жизненной Силы
+Склянка жизненой силы
+Скорпикора
+Слабость
+Следопыт
+Следующая страница
+Слепота
+Слот
+Смотровая башня
+Снайпер
+Снятие Заклинаний
+Снятие заклинания
+Снять чары
+Событие
+События и Ящики Пандоры
+События-Таймеры
+Создать шаблон по умолчанию
+Созерцатель
+Сокровище
+Сокровищница
+Сокровищница Гномов
+Сокровищница гномов
+Сопротивление
+Сопряжение
+Сосуд с кровью жизни
+Сохранить
+Сохранить шаблон
+Справка
+Срок
+Стальной Голем
+Стальной голем
+Старт
+Старый мавзолей
+Статуя Легиона
+Статуя Легионера
+Статуя легиона
+Стена Огня
+Стена знаний
+Стена огня
+Стойкий часовой
+Столовая
+Стоп
+Сторожевая
+Сторожевая башня
+Сторожевой пост
+Страж
+Страж задания
+Страж земли
+Страж прохода
+Стражи Прохода
+Странник
+Стрекоза
+Стрелок
+Стрелы из Ангельских Перьев
+Стрелы из Ангельских перьев
+Стрелы с перьями ангела
+Стрельба
+Строка статуса
+Султан ифритов
+Сундук
+Сундук Сокровищ
+Сундук с сокровищами
+Сундуки
+Сфера Бушующего Огня
+Сфера Запрещения
+Сфера Илистого Озера
+Сфера Небесного Свода
+Сфера Проливного Дождя
+Сфера буйного пламени
+Сфера бушующего огня
+Сфера запрещения
+Сфера илистого озера
+Сфера небесного свода
+Сфера подавления
+Сфера постоянства
+Сфера проливного дождя
+Сфера тверди земной
+Сфера уязвимости
+Таверна
+Таинственный пруд
+Таинственный сад
+Таймер
+Тайник Бесов
+Тайник бесов
+Тактика
+Талисман Маны
+Талисман маны
+Телега
+Тележка с Боеприпасами
+Телепорт
+Телепортация
+Телескоп
+Тело
+Темница
+Темница душ
+Темно-синяя
+Тетива из Волоса Гривы Единорога
+Тетива из волос гривы Единорога
+Тетива из гривы единорога
+Тигель бесов
+Тип
+Титан
+Топология
+Топор кентавра
+Торговец артефактами
+Торговцы Артефактами
+Торговцы артефактами
+Торс
+Торс Легионера
+Точность
+Трапезная
+Тренировочная площадка
+Троглодит
+Тролль
+Труп
+Туловище Легиона
+Туловище легиона
+Туника Короля Циклопов
+Туника короля циклопов
+Тюрьма
+Тюрьмы
+Тяжелый арбалетчик
+Убийца
+Убрать препятствие
+Увеличить
+Удалить шаблон по умолчанию
+Удар молнии
+Удача
+Удушение
+Ул. монастырь
+Ул.алтарь воды
+Ул.алтарь воздуха
+Ул.алтарь желаний
+Ул.алтарь земли
+Ул.алтарь мысли
+Ул.алтарь огня
+Ул.арка дендроидов
+Ул.башня грифонов
+Ул.башня лучников
+Ул.башня магов
+Ул.башня орков
+Ул.волчий загон
+Ул.волшебный фонарь
+Ул.врата демонов
+Ул.гнездо виверн
+Ул.гнездо на скале
+Ул.дворец пророков
+Ул.дворец тьмы
+Ул.драконьи скалы
+Ул.загон
+Ул.заколдованный ручей
+Ул.заоблачный храм
+Ул.золотой павильон
+Ул.ипподром
+Ул.казармы
+Ул.казармы гоблинов
+Ул.камень глаз
+Ул.кладбище
+Ул.конюшни кентавров
+Ул.костер
+Ул.котел бесов
+Ул.коттедж гномов
+Ул.лабиринт
+Ул.логово горгон
+Ул.логово мантикор
+Ул.логово ящериц
+Ул.лужайка единорогов
+Ул.мавзолей
+Ул.мастерская
+Ул.огненное озеро
+Ул.парапет
+Ул.пещера драконов
+Ул.пещера циклопов
+Ул.покинутый дворец
+Ул.поместье
+Ул.портал славы
+Ул.пристанище душ
+Ул.провал
+Ул.проклятый замок
+Ул.пруд гидр
+Ул.псарни
+Ул.склеп драконов
+Ул.сторожевой пост
+Ул.улей змиев
+Ул.усадьба
+Ул.утес чудищ
+Ул.фабрика големов
+Ул.форт огров
+Ул.хижина гноллов
+Ул.часовня безмолвия
+Ул.чердак гарпий
+Ул.яма василиска
+Улей Змиев
+Улей змиев
+Улей летучих змиев
+Уменьшить
+Университет
+Университет магии
+Уничтожить Нечисть
+Уничтожить нежить
+Уничтожить нечисть
+Уровень
+Усадьба
+Усилитель некромантии
+Усилитель черной магии
+Ускорение
+Устойчивость к магии
+Устранение преград
+Утес Драконов
+Утес Чудищ
+Утес драконов
+Утес чудищ
+Утесы дракона
+Утопия Драконов
+Утопия драконов
+Ученые
+Ученый
+Ученый книжник
+Ф&он
+Фабрика Големов
+Фабрика големов
+Файл
+Фанатик
+Фантом
+Феникс
+Фея
+Фиал драконьей крови
+Фиал с кровью жизни
+Фильтр с помечаемым списком
+Флаг
+Фолиант магии воды
+Фолиант магии воздуха
+Фолиант магии земли
+Фолиант магии огня
+Фонтан удачи
+Форт
+Форт на холме
+Форт огров
+Фортуна
+Хибара гноллов
+Хижина Ведьмы
+Хижина Провидца
+Хижина ведьмы
+Хижина гноллов
+Хижина предсказателя
+Хижина провидца
+Хоббит
+Хобгоблин
+Ходячий мертвец
+Хождение по воде
+Хозяин зверей
+Хоромы гномов
+Хоры гарпий
+Храм
+Храм Тьмы
+Храм валгаллы
+Храм грехов
+Храм грома
+Храм льда
+Храм магии
+Храм магмы
+Храм энергии
+Хранилище Медуз
+Хранилище медуз
+Хранилище наг
+Хранилище ресурсов
+Хранилище циклопов
+Хранитель Вопроса
+Хранитель духа
+Хранитель земли
+Цвет
+Цена на Черном Рынке
+Ценный
+Цепная молния
+Цепь молний
+Цербер
+Циклоп
+Цитадель
+Чайный
+Чародей
+Чародейство
+Часовня
+Часовня безмолвия
+Часы недоброго часа
+Чей-то погреб
+Чемпион
+Чердак гарпий
+Черная
+Чернокнижник
+Черный Дракон
+Черный Рынок
+Черный Рыцарь
+Черный дракон
+Черный клинок мертвого рыцаря
+Черный меч мертвого рыцаря
+Черный рынок
+Черный рыцарь
+Черный ход
+Черт
+Чертог Тьмы
+Чешуя большого василиска
+Чудище
+Чёрт
+Шар Постоянства
+Шар постоянства
+Шатры хранителя ключей
+Шахта
+Шея
+Шлем Белого Единорога
+Шлем Божественного Просвещения
+Шлем Небесного Грома
+Шлем Сатанинской Ярости 
+Шлем Хаоса
+Шлем адской бури
+Шлем белого Единорога
+Шлем белого единорога
+Шлем божественного просвещения
+Шлем небесного грома
+Шлем небесного просветления
+Шлем сатанинской ярости
+Шлем хаоса
+Шлем-Череп
+Шлем-череп
+Шляпа Адмирала
+Шляпа Морского Капитана
+Шляпа Оратора
+Шляпа адмирала
+Шляпа заклинателя
+Шляпа капитана
+Шляпа морского капитана
+Шляпа оратора
+Шрифт
+Штормовой элементал
+Щит
+Щит Гномьих Богов
+Щит Короля Гноллов
+Щит Львиной Храбрости
+Щит Проклятых
+Щит Тоскующих Мертвецов
+Щит Часового
+Щит Яростного Орга
+Щит гномьих Героев
+Щит дракона
+Щит из Чешуи Дракона
+Щит из чешуи Дракона
+Щит королей гномов
+Щит короля Гноллов
+Щит короля гноллов
+Щит львиной храбрости
+Щит неистового огра
+Щит неупокоенных
+Щит проклятых
+Щит стража
+Щит тоскующих мертвецов
+Щит часового
+Щит яростного Огра
+Э.
+Экспертный
+Экспорт  в  Excel  завершен.
+Открыть  файл
+Экспорт в Excel
+Экспорт в LMOracle
+Экспорт...
+Элементал магмы
+Элементал мысли
+Элементалист
+Элементаль Воды
+Элементаль Земли
+Элементаль Магмы
+Элементаль Шторма
+Элементаль воды
+Элементаль земли
+Элементаль магмы
+Элементаль шторма
+Эликсир Жизни
+Эликсир жизни
+Эльфийский лук из вишневого дерева
+Энергетический Элементаль
+Энергетический элементаль
+Эфрит
+Эфрит-Султан
+Языки Пламени Красного Дракона
+Языки пламени Красного Дракона
+Яма бесов
+Яма василиска
+Яма василисков
+Яма заклинателей
+Ящер
+Ящер воин
+Ящер-Воин
+Ящер-воин
+Ящик Пандоры
+море
+не существует.
+Удалить из списка?
+не является шаблоном для этой Таблицы.
+ошибка открытия файла
+с названиями объектов не существует.
+Проверьте пункт меню "Сервис->Настройка->Названия объектов"
+Использованы значения по умолчанию.
+суша
+∑ HP
+∑ XP
+∑ XP+10%
+∑ XP+15%
+∑ XP+5%
