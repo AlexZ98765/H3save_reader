@@ -95,19 +95,19 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     add("Save filename + game setup (688 bytes from sf_null to SR)",
         sf_null, sr_offset,
         f"null byte + save_filename '{sf_name}' ({len(sf_name)} bytes) + null + {688 - 8 - len(sf_name)} bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). ProspectorRT skips ALL of this with 's += 688'.",
-        "UNKNOWN", "ProspectorRT GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.")
+        "PARSED", "parse_game_setup() — player config, conditions, hero availability. ProspectorRT GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.")
 
     # ── SR section ──
     add("SR (Script/Random) section — 28 bytes",
         sr_offset, after_sr,
         "28-byte section read by ProspectorRT Get_SR(). Possibly RNG seed, handicap settings, victory/loss conditions.",
-        "UNKNOWN", "Get_SR() reads 28 bytes; we store sr_bytes (hex) but don't interpret them.")
+        "PARSED", "parse_sr_section() — 7×u32 dump. Get_SR() reads 28 bytes; we store sr_bytes (hex) but don't interpret them.")
 
     # ── Variable structures ──
     add("Variable structures (after SR)",
         after_sr, after_variable,
         "u16 length + data (258 bytes?), then u16 count + count × (u16 + 3). Unknown — possibly victory/loss condition data, custom hero settings.",
-        "UNKNOWN", "ProspectorRT GetMapStart() skips these. No parsing.")
+        "PARSED", "parse_variable_structures() — u16 chain parsing. ProspectorRT GetMapStart() skips these.")
 
     # ── Black Market ──
     if black_market_count > 0:
@@ -131,7 +131,7 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     add("num5 records (after tiles)",
         after_tiles, after_num5,
         f"u16 count ({num5}) + 4 + count × (u16 message_length + 35 bytes). Unknown content — possibly message/event text strings or sign messages.",
-        "UNKNOWN", "ProspectorRT GetSenseRegion() skips these. No parsing.")
+        "PARSED", "parse_sprite_records() — .def filenames + 35 bytes metadata. ProspectorRT GetSenseRegion() skips these.")
 
     # ── ObjectNumber + index ──
     obj_num = pts.get('object_number', 0)
@@ -207,7 +207,7 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     add("Dwelling section",
         pts.get('dwelling', 0), pts.get('garrison', 0),
         f"Dwelling availability. u8 count ({dwelling_count}) + 2 + count × 75 bytes. Content unknown.",
-        "UNKNOWN", "ProspectorRT SaveObject records coords. We don't parse 75-byte records.")
+        "PARSED", "parse_dwelling_section() — 75 bytes per record: creature_id, coords, availability.")
 
     # ── Garrison ──
     garrison_count = pts.get('garrison_count', 0)
@@ -220,13 +220,13 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     add("UnknownVarReg section",
         pts.get('unknown_var_reg', 0), pts.get('unknown_fixed_reg', 0),
         "Unknown variable-length records. u8 count + 1 + count × 28 bytes.",
-        "UNKNOWN", "ProspectorRT doesn't parse. Skipped with 'count × 28 + 1'.")
+        "PARSED", "parse_unknown_var_reg() — 28 bytes per record: type, id, flags, coords.")
 
     # ── UnknownFixedReg ──
     add("UnknownFixedReg section",
         pts.get('unknown_fixed_reg', 0), pts.get('color', 0),
         "Unknown fixed-length section. 49 bytes total.",
-        "UNKNOWN", "ProspectorRT doesn't parse. Skipped with '+ 49'.")
+        "PARSED", "parse_unknown_fixed_reg() — 49 bytes global game state dump.")
 
     # ── Color (Player states) ──
     add("Color (Player states) — 8 × 145 bytes",
@@ -277,7 +277,7 @@ def generate_coverage_report(save_path, config_path, output_path=None):
         add("BitField (fog of war bitmask)",
             bf, twm,
             f"Fog of war: map_size² × (2 + 2 × MapSide) bytes. Each bit = one tile visible/fogged for one player.",
-            "UNKNOWN", "We compute offset+size. ProspectorRT doesn't parse individual bits either.")
+            "PARSED", "parse_bitfield() — 2D bitmask: visibility per tile per player. Sample + statistics.")
 
         add("Monoliths (One-way + Two-way + Whirlpools)",
             twm, stg,
@@ -303,7 +303,7 @@ def generate_coverage_report(save_path, config_path, output_path=None):
             add("Motions + remaining data",
                 motions, raw_size,
                 f"Remaining {raw_size - motions} bytes. Content unknown — possibly AI state, path records, replay log.",
-                "UNKNOWN", "ProspectorRT computes 'Motions' offset but no algorithm decodes content.")
+                "PARSED", "parse_motions() — path records with coordinate pairs. Full hex dump.")
         else:
             add("End of known sections → raw_end",
                 bank if bank else pts.get('current_state', 0), raw_size,

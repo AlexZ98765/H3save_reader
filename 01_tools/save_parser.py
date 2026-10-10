@@ -845,6 +845,16 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._post_tile_sections = post_tile_sections
     parsed._post_tile_content = post_tile_content
 
+    # v3.16: Parse ALL unknown sections (close coverage gaps)
+    try:
+        import os as _os, sys as _sys
+        _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+        from unknown_sections_parser import parse_all_unknown_sections
+        parsed._unknown_sections = parse_all_unknown_sections(
+            raw, post_tile_sections, map_start_info, header)
+    except Exception as e:
+        parsed._unknown_sections = {"error": str(e)}
+
     # v3.15: Fill in cluster offsets (main, visiting, alive, fog, treasure, decoration)
     # for each map object's _detail_coords field.
     # Cluster offsets are stored in object_offsets (from adapt_config_to_save).
@@ -1110,6 +1120,7 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
             "all_skills": getattr(parsed, "_aggregate_all_skills", []),
             "error": getattr(parsed, "_aggregator_error", None),
         },
+        "unknown_sections": getattr(parsed, "_unknown_sections", {}),
     }
 
 
