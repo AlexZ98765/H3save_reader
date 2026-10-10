@@ -63,6 +63,7 @@ from header_parser import parse_header
 from cluster_finder import find_all_object_clusters
 from tile_scanner import find_map_start, scan_tiles
 from post_tile_scanner import walk_post_tile_sections
+from post_tile_parser import parse_all_post_tile_sections
 
 
 # ============================================================================
@@ -557,6 +558,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     map_objects = []
     map_start_info = {}
     post_tile_sections = {}
+    post_tile_content = {}
     try:
         ms, map_start_info = find_map_start(raw)
         map_objects = scan_tiles(raw, ms, header.map_size,
@@ -582,12 +584,30 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
         after_num5 = s2
         obj_num = struct.unpack("<H", raw[after_num5:after_num5 + 2])[0]
         
-        post_tile_sections = walk_post_tile_sections(raw, after_num5, obj_num)
+        hero_count_for_walk = hero_section.count if hero_section else 156
+        post_tile_sections = walk_post_tile_sections(
+            raw, after_num5, obj_num,
+            hero_count=hero_count_for_walk,
+            map_size=header.map_size,
+            has_underground=header.has_underground,
+        )
+
+        # ----- 6f. Post-tile content (parse_event_box, parse_seer_hut, etc.) -----
+        try:
+            post_tile_content = parse_all_post_tile_sections(
+                raw, after_num5, obj_num,
+                hero_count=hero_count_for_walk,
+                map_size=header.map_size,
+                has_underground=header.has_underground,
+            )
+        except Exception as e:
+            post_tile_content = {"error": str(e)}
     except Exception as e:
         # Tile/post-tile scanning is optional — parser still works without it
         if not map_objects:
             map_start_info = {"error": str(e)}
         post_tile_sections = {"error": str(e)}
+        post_tile_content = {"error": str(e)}
 
     # ----- 7. Build ParsedSave -----
     parsed = ParsedSave(
@@ -615,12 +635,45 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._map_objects = map_objects
     parsed._map_start_info = map_start_info
     parsed._post_tile_sections = post_tile_sections
+    parsed._post_tile_content = post_tile_content
     return parsed
 
 
 # ============================================================================
 # Convenience: parsed_save_to_dict (for JSON serialization)
 # ============================================================================
+
+def _serialize_post_tile_content(content):
+    """Convert post_tile_content dataclasses to JSON-serializable dicts."""
+    if not content or not isinstance(content, dict):
+        return content
+    out = {}
+    for k, v in content.items():
+        if k == "offsets":
+            out[k] = v
+        elif isinstance(v, list):
+            serialized_list = []
+            for item in v:
+                if hasattr(item, "__dict__"):
+                    # dataclass — use asdict or __dict__
+                    try:
+                        from dataclasses import asdict
+                        serialized_list.append(asdict(item))
+                    except Exception:
+                        serialized_list.append(vars(item) if not isinstance(item, type) else str(item))
+                else:
+                    serialized_list.append(item)
+            out[k] = serialized_list
+        elif hasattr(v, "__dict__"):
+            try:
+                from dataclasses import asdict
+                out[k] = asdict(v)
+            except Exception:
+                out[k] = str(v)
+        else:
+            out[k] = v
+    return out
+
 
 def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
     """Convert ParsedSave to a JSON-serializable dict."""
@@ -654,6 +707,8 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         "map_objects": getattr(parsed, "_map_objects", []),
         "map_start_info": getattr(parsed, "_map_start_info", {}),
         "post_tile_sections": getattr(parsed, "_post_tile_sections", {}),
+        "post_tile_content": _serialize_post_tile_content(
+            getattr(parsed, "_post_tile_content", {})),
     }
 
 

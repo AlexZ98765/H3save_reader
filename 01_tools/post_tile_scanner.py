@@ -181,20 +181,28 @@ def scan_heroes_content(raw, s, hero_count=156):
 # Main: walk_post_tile_sections
 # ============================================================================
 
-TOWN_HERO_GAP = 26  # Fixed constant (u8 skip: 26, u16 skip: 25)
+# ProspectorRT GetSenseRegion (MainForm.cs:6172):
+#   map.Hero = ScanTownsContent(map.Town);   ← NO gap between towns and heroes
+# Hero records start immediately after the last town record.
+TOWN_HERO_GAP = 0  # was incorrectly 26 — corrected after ProspectorRT source review
 
 
 def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
-                             object_number: int, hero_count: int = 156
+                             object_number: int, hero_count: int = 156,
+                             map_size: int = 0, has_underground: bool = False,
+                             chrn: int = 0
                              ) -> Dict[str, int]:
     """
     Walk post-tile sections forward from after tile data.
 
     Args:
         raw:                decompressed save bytes
-        after_tiles_offset:  offset after tile loop + num5 records
+        after_tiles_offset:  offset of ObjectNumber u16 (after tile loop + num5 records)
         object_number:      number of objects on map (from tile scan)
         hero_count:         number of heroes (156 for SoD)
+        map_size:           map width/height (needed for BitField)
+        has_underground:    True if map has underground (MapSide=1)
+        chrn:               chronobranch offset (HotA feature; usually 0)
 
     Returns dict with all section offsets.
     """
@@ -247,7 +255,7 @@ def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
     # Town = Color + 1160
     town = color + 1160
 
-    # Hero = ScanTownsContent(Town) + TOWN_HERO_GAP
+    # Hero = ScanTownsContent(Town) + TOWN_HERO_GAP (0)
     hero = scan_towns_content(raw, town) + TOWN_HERO_GAP
 
     # HeroState = ScanHeroesContent(Hero)
@@ -256,7 +264,7 @@ def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
     # CurrentState = HeroState + HeroCount × 2
     current_state = hero_state + hero_count * 2
 
-    return {
+    result = {
         "event_box": event_box,
         "art_res": art_res,
         "monstr": monstr,
@@ -281,3 +289,67 @@ def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
         "dwelling_count": raw[dwelling],
         "garrison_count": raw[garrison],
     }
+
+    # Extended chain (after CurrentState) — requires map_size + has_underground
+    # NOTE: Day-0 saves often don't have these sections fully populated (the
+    # save file is truncated before BitField ends). We wrap in try/except so
+    # the basic offsets are still returned.
+    if map_size > 0:
+        try:
+            # BitField = CurrentState + 130 - Chrn
+            bit_field = current_state + 130 - chrn
+            # TwoWayMonolith = BitField + MapSize² × (2 + 2 × MapSide)
+            bit_field_size = map_size * map_size * (2 + 2 * (1 if has_underground else 0))
+            two_way_monolith = bit_field + bit_field_size
+            # SubTerGate = ScanMonolithWhirlpool(TwoWayMonolith)
+            # ProspectorRT: 8 groups × (u16 + count × 4) for OneWay
+            #               8 groups × (u16 + count × 4) for TwoWay
+            #               1 group  × (u16 + count × 4) for Whirlpools
+            s = two_way_monolith
+            for _ in range(8):  # 8 One Way groups
+                n = _u16(raw, s); s += n * 4 + 2
+            one_way_monolith = two_way_monolith  # ProspectorRT sets map.OneWayMonolith here
+            for _ in range(8):  # 8 Two Way groups
+                n = _u16(raw, s); s += n * 4 + 2
+            whirlpool = s
+            # 1 Whirlpool group
+            n = _u16(raw, s); s += n * 4 + 2
+            sub_ter_gate = s
+
+            # SubTerGatePair = SubTerGate + count × 4 + 2
+            n = _u16(raw, sub_ter_gate)
+            sub_ter_gate_pair = sub_ter_gate + n * 4 + 2
+
+            # Univer = SubTerGatePair + count × 4 + 2
+            n = _u16(raw, sub_ter_gate_pair)
+            univer = sub_ter_gate_pair + n * 4 + 2
+
+            # Bank = Univer + count × 16 + 2
+            n = raw[univer]
+            bank = univer + n * 16 + 2
+
+            # Motions = ScanBankContent(Bank) — bank has u16 count + count × (89 + count × 4 + 2)
+            s = bank
+            bn = _u16(raw, s); s += 2
+            for _ in range(bn):
+                s += 89
+                inner = raw[s]
+                s += inner * 4 + 2
+            motions = s
+
+            result.update({
+                "bit_field": bit_field,
+                "one_way_monolith": one_way_monolith,
+                "two_way_monolith": two_way_monolith,
+                "whirlpool": whirlpool,
+                "sub_ter_gate": sub_ter_gate,
+                "sub_ter_gate_pair": sub_ter_gate_pair,
+                "univer": univer,
+                "bank": bank,
+                "motions": motions,
+            })
+        except (IndexError, struct.error) as e:
+            # Day-0 saves often have these sections truncated — gracefully skip
+            result["extended_chain_error"] = str(e)
+
+    return result
