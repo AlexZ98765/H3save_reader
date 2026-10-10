@@ -1281,3 +1281,43 @@ Stage Summary:
 - ⭐ 28 индивидуальных парсеров обновлены с _enrich_typed_field() вызовами
 - ⭐ Можно вручную найти ЛЮБОЙ параметр в бинарнике и поправить
 - Архив пересобран
+
+---
+Task ID: add-cluster-coord-addresses-v3.15-2026-10-10
+Agent: main (Super Z)
+Task: Добавить адреса координат из кластеров для всех map objects
+
+Work Log:
+- Пользователь: "добавь адреса координат из кластеров в каждый map object, и место где они лежат сейчас тоже оставь"
+
+Реализация:
+1. В tile_scanner.py::_enrich_map_object_fields():
+   - Добавлены _detail_coords (3 байта x,y,z), _detail_x, _detail_y, _detail_z
+   - Initially first_addr = None (будет заполнено позже в save_parser)
+
+2. В save_parser.py (после parse_save, перед _town_timer_links):
+   - Построен coord_int → cluster_offsets dict из parsed.objects_on_map
+   - Для каждого map_object найден его coord_int в cluster_offsets
+   - Заполнены:
+     - _detail_coords.first_addr / first_addr_hex → адрес в main cluster (3 байта)
+     - _detail_coords.value_hex → реальные байты из сейва (проверка verified=True)
+     - _detail_coords.cluster_offsets → все 6 кластеров (main, visiting, alive, fog, treasure, decoration) с hex адресами
+     - _detail_x.first_addr → main_offset + 0
+     - _detail_y.first_addr → main_offset + 1
+     - _detail_z.first_addr → main_offset + 2
+
+Тестирование:
+- Treasure Chest at (58,0,0):
+  - _detail_coords.first_addr = 0x127504, value_hex = "3a 00 00", verified = True ✅
+  - _detail_x.first_addr = 0x127504, _detail_y.first_addr = 0x127505, _detail_z.first_addr = 0x127506 ✅
+  - cluster_offsets: main=0x127504, visiting=0x10e0d7, treasure=0x154992, decoration=0x13fc87 ✅
+- JSON size: 11.2 МБ (увеличение за счёт cluster_offsets для каждого объекта)
+- JSON serialization: SUCCESS
+
+Stage Summary:
+- ⭐ Координаты x, y, z теперь имеют АБСОЛЮТНЫЕ адреса в сейве (main cluster array)
+- ⭐ _detail_x: first_addr = main_offset + 0, _detail_y: main_offset + 1, _detail_z: main_offset + 2
+- ⭐ _detail_coords: 3 байта сразу + cluster_offsets для всех 6 кластеров
+- ⭐ verified = True если байты в бинарнике совпадают с ожидаемыми координатами
+- ⭐ Пользователь может вручную найти координаты: hex editor → 0x127504 → 3a 00 00 → поменять на новые координаты
+- Архив пересобран

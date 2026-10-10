@@ -327,13 +327,16 @@ def _enrich_map_object_fields(raw: bytes, obj: dict):
       [offset+4..5]  obj_id    (u16 LE)
       [offset+6]     content   (u8) — varies by type
       [offset+7]     content2  (u8) — varies by type
+
+    v3.15: Also enriches coordinates (x, y, z) from the object's coord_int.
+    Coordinates are stored in cluster arrays (main, visiting, alive, fog,
+    treasure, decoration) — each as 3 bytes (x, y, z).
     """
     s = obj.get('offset', 0)
     # type_id at s+0
     _enrich_field(raw, obj, 'type_id', s, 1, "u8")
-    # x, y, z are computed from tile position, not stored directly in object record
-    # But we can store the tile-level coords with the object offset
-    _enrich_field(raw, obj, 'loc', s - 7, 1, "u8")  # loc is the first byte of tile record
+    # loc is the first byte of tile record (7 bytes before object offset)
+    _enrich_field(raw, obj, 'loc', s - 7, 1, "u8")
     # offset itself
     obj['_detail_offset'] = {
         "first_addr": s,
@@ -341,6 +344,64 @@ def _enrich_map_object_fields(raw: bytes, obj: dict):
         "length": 0,
         "value_type": "object_offset",
         "value": f"Object record at 0x{s:x}",
+    }
+
+    # v3.15: Enrich coordinates (x, y, z) — stored as 3 bytes in cluster arrays
+    x = obj.get('x', 0)
+    y = obj.get('y', 0)
+    z = obj.get('z', 0)
+    coord_bytes = bytes([x & 0xFF, y & 0xFF, z & 0xFF])
+    coord_int = x | (y << 8) | (z << 16)
+    coord_value_str = f"({x},{y},{z})"
+
+    # We don't have cluster offsets here (they're in save_parser), but we can
+    # at least store the coord_int and the 3-byte representation so user
+    # can search for it in the binary.
+    obj['_detail_coords'] = {
+        "first_addr": None,  # set later by save_parser when cluster offsets are known
+        "first_addr_hex": None,
+        "length": 3,
+        "value_type": "coords3",
+        "value": coord_value_str,
+        "value_int": coord_int,
+        "value_dec": coord_int,
+        "value_hex": f"{x:02x} {y:02x} {z:02x}",
+        "value_bin": f"{x:08b} {y:08b} {z:08b}",
+        "coord_int": coord_int,
+    }
+    # Also enrich individual x, y, z as computed fields
+    obj['_detail_x'] = {
+        "first_addr": None,
+        "first_addr_hex": None,
+        "length": 1,
+        "value_type": "u8_computed",
+        "value": x,
+        "value_int": x,
+        "value_dec": x,
+        "value_hex": f"{x:02x}",
+        "value_bin": f"{x:08b}",
+    }
+    obj['_detail_y'] = {
+        "first_addr": None,
+        "first_addr_hex": None,
+        "length": 1,
+        "value_type": "u8_computed",
+        "value": y,
+        "value_int": y,
+        "value_dec": y,
+        "value_hex": f"{y:02x}",
+        "value_bin": f"{y:08b}",
+    }
+    obj['_detail_z'] = {
+        "first_addr": None,
+        "first_addr_hex": None,
+        "length": 1,
+        "value_type": "u8_computed",
+        "value": z,
+        "value_int": z,
+        "value_dec": z,
+        "value_hex": f"{z:02x}",
+        "value_bin": f"{z:08b}",
     }
 
 

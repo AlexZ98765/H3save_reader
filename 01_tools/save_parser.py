@@ -845,6 +845,72 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._post_tile_sections = post_tile_sections
     parsed._post_tile_content = post_tile_content
 
+    # v3.15: Fill in cluster offsets (main, visiting, alive, fog, treasure, decoration)
+    # for each map object's _detail_coords field.
+    # Cluster offsets are stored in object_offsets (from adapt_config_to_save).
+    # For each map object, find its coord_int in object_offsets and fill first_addr.
+    try:
+        # Build coord_int → cluster_offsets dict
+        coord_to_clusters = {}
+        for o in parsed.objects_on_map:
+            ci = o.get("coord_int")
+            if ci is not None:
+                coord_to_clusters[ci] = {
+                    "main_offset": o.get("main_offset"),
+                    "visiting_offset": o.get("visiting_offset"),
+                    "fog_offset": o.get("fog_offset"),
+                    "alive_offset": o.get("alive_offset"),
+                    "treasure_offset": o.get("treasure_offset"),
+                    "decoration_offset": o.get("decoration_offset"),
+                }
+
+        # For each map object, fill _detail_coords with cluster addresses
+        for obj in map_objects:
+            x = obj.get('x', 0)
+            y = obj.get('y', 0)
+            z = obj.get('z', 0)
+            ci = x | (y << 8) | (z << 16)
+            clusters = coord_to_clusters.get(ci)
+            if clusters:
+                # Fill main cluster address (where coords are stored as 3 bytes)
+                main_off = clusters.get("main_offset")
+                detail = obj.get("_detail_coords")
+                if detail and main_off is not None:
+                    detail["first_addr"] = main_off
+                    detail["first_addr_hex"] = f"0x{main_off:x}"
+                    # Read and verify actual bytes
+                    if main_off + 3 <= len(raw):
+                        bx, by, bz = raw[main_off], raw[main_off+1], raw[main_off+2]
+                        detail["value_hex"] = f"{bx:02x} {by:02x} {bz:02x}"
+                        detail["value_bin"] = f"{bx:08b} {by:08b} {bz:08b}"
+                        detail["verified"] = (bx == x and by == y and bz == z)
+                    detail["cluster_offsets"] = {
+                        "main": clusters.get("main_offset"),
+                        "main_hex": f"0x{clusters['main_offset']:x}" if clusters.get("main_offset") else None,
+                        "visiting": clusters.get("visiting_offset"),
+                        "visiting_hex": f"0x{clusters['visiting_offset']:x}" if clusters.get("visiting_offset") else None,
+                        "alive": clusters.get("alive_offset"),
+                        "alive_hex": f"0x{clusters['alive_offset']:x}" if clusters.get("alive_offset") else None,
+                        "fog": clusters.get("fog_offset"),
+                        "fog_hex": f"0x{clusters['fog_offset']:x}" if clusters.get("fog_offset") else None,
+                        "treasure": clusters.get("treasure_offset"),
+                        "treasure_hex": f"0x{clusters['treasure_offset']:x}" if clusters.get("treasure_offset") else None,
+                        "decoration": clusters.get("decoration_offset"),
+                        "decoration_hex": f"0x{clusters['decoration_offset']:x}" if clusters.get("decoration_offset") else None,
+                    }
+                    # Also fill individual x, y, z with main_offset + byte index
+                    obj["_detail_x"]["first_addr"] = main_off
+                    obj["_detail_x"]["first_addr_hex"] = f"0x{main_off:x}"
+                    obj["_detail_x"]["value_type"] = "u8_at_main_offset"
+                    obj["_detail_y"]["first_addr"] = main_off + 1
+                    obj["_detail_y"]["first_addr_hex"] = f"0x{main_off + 1:x}"
+                    obj["_detail_y"]["value_type"] = "u8_at_main_offset+1"
+                    obj["_detail_z"]["first_addr"] = main_off + 2
+                    obj["_detail_z"]["first_addr_hex"] = f"0x{main_off + 2:x}"
+                    obj["_detail_z"]["value_type"] = "u8_at_main_offset+2"
+    except Exception:
+        pass  # best-effort — don't break parsing if cluster mapping fails
+
     # v3.10: Link town timed events to towns (parse_timer_town)
     # For each town, find all timed events with matching town ID and decode
     # the 6-byte building bitmask into building names.
