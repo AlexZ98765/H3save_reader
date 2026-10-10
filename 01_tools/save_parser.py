@@ -62,6 +62,7 @@ from save_layout import (
 from header_parser import parse_header
 from cluster_finder import find_all_object_clusters
 from tile_scanner import find_map_start, scan_tiles
+from post_tile_scanner import walk_post_tile_sections
 
 
 # ============================================================================
@@ -555,14 +556,38 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     # ----- 6d. Map tiles (tile_scanner) — scan tiles for objects -----
     map_objects = []
     map_start_info = {}
+    post_tile_sections = {}
     try:
         ms, map_start_info = find_map_start(raw)
         map_objects = scan_tiles(raw, ms, header.map_size,
                                   header.has_underground)
+        
+        # ----- 6e. Post-tile sections (structure-walking chain) -----
+        # Compute after_tiles_offset (same logic as tile_scanner internal)
+        s = ms
+        total_tiles = header.map_size * header.map_size * (2 if header.has_underground else 1)
+        for tile_num in range(total_tiles):
+            if s + 18 > len(raw): break
+            s += 18
+            if s + 2 <= len(raw):
+                var_count = struct.unpack("<H", raw[s:s + 2])[0]
+                s += var_count * 4 + 4
+            else: break
+        after_tiles = s
+        num5 = struct.unpack("<H", raw[after_tiles:after_tiles + 2])[0]
+        s2 = after_tiles + 4
+        for i in range(num5):
+            n = struct.unpack("<H", raw[s2:s2 + 2])[0]
+            s2 += n + 35
+        after_num5 = s2
+        obj_num = struct.unpack("<H", raw[after_num5:after_num5 + 2])[0]
+        
+        post_tile_sections = walk_post_tile_sections(raw, after_num5, obj_num)
     except Exception as e:
-        # Tile scanning is optional — parser still works without it
-        map_objects = []
-        map_start_info = {"error": str(e)}
+        # Tile/post-tile scanning is optional — parser still works without it
+        if not map_objects:
+            map_start_info = {"error": str(e)}
+        post_tile_sections = {"error": str(e)}
 
     # ----- 7. Build ParsedSave -----
     parsed = ParsedSave(
@@ -589,6 +614,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._current_state = current_state_parsed
     parsed._map_objects = map_objects
     parsed._map_start_info = map_start_info
+    parsed._post_tile_sections = post_tile_sections
     return parsed
 
 
@@ -627,6 +653,7 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         "current_state": getattr(parsed, "_current_state", {}),
         "map_objects": getattr(parsed, "_map_objects", []),
         "map_start_info": getattr(parsed, "_map_start_info", {}),
+        "post_tile_sections": getattr(parsed, "_post_tile_sections", {}),
     }
 
 

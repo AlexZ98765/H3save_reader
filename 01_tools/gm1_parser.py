@@ -999,6 +999,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
         "map_start_info":  getattr(parsed, "_map_start_info", {}),  # find_map_start debug
         "player_states":   getattr(parsed, "_player_states", []),
         "current_state":   getattr(parsed, "_current_state", {}),
+        "post_tile_sections": getattr(parsed, "_post_tile_sections", {}),  # structure-walking chain
     }
 
 
