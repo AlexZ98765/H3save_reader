@@ -1697,11 +1697,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Монстр", "Золото", "Ресурс"])
         for rec in mo.get("Банки", []):
             guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
+            res_str = str(rec.get("resources", {})) if rec.get("resources") else None
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("z", 0) == 0 else "подземелье",
                        rec.get("object", "Bank"), guard_str, None,
                        rec.get("monster_reward_id") if rec.get("monster_reward_id", -1) >= 0 else None,
-                       rec.get("gold"), rec.get("resources")])
+                       rec.get("gold"), res_str])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1712,12 +1713,17 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in ptc.get("event_boxes", []):
             if isinstance(rec, dict):
                 guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
+                res_str = str(rec.get("resources", {})) if rec.get("resources") else None
+                ps_str = str(rec.get("primary_skills", {})) if rec.get("primary_skills") else None
+                ss_str = str(rec.get("secondary_skills", [])) if rec.get("secondary_skills") else None
+                art_str = str(rec.get("artifacts", [])) if rec.get("artifacts") else None
+                spl_str = str(rec.get("spells", [])) if rec.get("spells") else None
+                mon_str = str(rec.get("monsters", [])) if rec.get("monsters") else None
+                apply_str = str(rec.get("apply", ())) if rec.get("apply") else None
                 ws.append([None, None, None, None, "Событие", guard_str, None,
                            rec.get("experience"), rec.get("mana"), rec.get("morale"), rec.get("luck"),
-                           rec.get("resources", {}).get("Gold"), rec.get("resources"),
-                           rec.get("primary_skills"), rec.get("secondary_skills"),
-                           rec.get("artifacts"), rec.get("spells"), rec.get("monsters"),
-                           rec.get("apply")])
+                           rec.get("resources", {}).get("Gold"), res_str,
+                           ps_str, ss_str, art_str, spl_str, mon_str, apply_str])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1815,11 +1821,14 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Тюрьмы")
         ws.append(["X", "Y", "Z", "Район", "Герой", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
         for rec in mo.get("Тюрьмы", []):
+            ps_str = str(rec.get("hero_primary_skills")) if rec.get("hero_primary_skills") else None
+            sb_str = str(rec.get("hero_spells_book")) if rec.get("hero_spells_book") else None
+            at_str = str(rec.get("hero_army_types")) if rec.get("hero_army_types") else None
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("z", 0) == 0 else "подземелье",
                        rec.get("hero_name"), rec.get("hero_level"), rec.get("hero_experience"),
-                       rec.get("hero_primary_skills"), None, None,
-                       rec.get("hero_spells_book"), rec.get("hero_army_types"),
+                       ps_str, None, None,
+                       sb_str, at_str,
                        None, None, None, None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -1860,13 +1869,17 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["Объект", "День", "Повтор", "Город", "Тип", "Местоположение", "Флаг", "Доступно", "Золото", "Ресурс", "Постройки", "Монстр"])
         for ev in ptc.get("map_timed_events", []):
             if isinstance(ev, dict):
+                res_str = str(ev.get("resources", {})) if ev.get("resources") else None
                 ws.append(["Карта", ev.get("day"), ev.get("repeat"), None, None, None, None, None,
-                           ev.get("resources", {}).get("Gold"), ev.get("resources"), None, None])
+                           ev.get("resources", {}).get("Gold"), res_str, None, None])
         for ev in ptc.get("town_timed_events", []):
             if isinstance(ev, dict):
+                res_str = str(ev.get("resources", {})) if ev.get("resources") else None
+                bld_str = str(ev.get("buildings", [])) if ev.get("buildings") else None
+                mon_str = str(ev.get("monsters", [])) if ev.get("monsters") else None
                 ws.append(["Город", ev.get("day"), ev.get("repeat"), ev.get("id"), None, None, None, None,
-                           ev.get("resources", {}).get("Gold"), ev.get("resources"),
-                           ev.get("buildings"), ev.get("monsters")])
+                           ev.get("resources", {}).get("Gold"), res_str,
+                           bld_str, mon_str])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
