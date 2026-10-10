@@ -1231,3 +1231,53 @@ Stage Summary:
 - ⭐ value_int/value_dec больше не заполняются для строковых и list полей
 - ⭐ Для enum полей (player/faction/type) value_int сохраняет raw байт — корректно
 - Архив пересобран
+
+---
+Task ID: enrich-map-objects-v3.14-2026-10-10
+Agent: main (Super Z)
+Task: Добавить _detail_ поля с адресами + hex для всех map objects
+
+Work Log:
+- Пользователь спросил: "почему для map objects отсутствуют hex поля? детализация только для отдельных блоков?"
+- Проблема: tile_scanner.parse_object_content добавляла только простые поля (type_id, x, y, z, offset) без _detail_ с адресами и hex
+- Исправление в tile_scanner.py:
+  - Добавлены helper функции: _enrich_field(), _enrich_map_object_fields(), _enrich_typed_field()
+  - В parse_object_content вызывается _enrich_map_object_fields() для базовых полей (type_id, loc, offset)
+  - В КАЖДЫЙ индивидуальный парсер добавлены вызовы _enrich_typed_field() для каждого поля:
+    - _parse_artifact: artifact_id, has_guard
+    - _parse_resource: resource_type, amount
+    - _parse_chest: gold, experience, has_artifact, artifact_id
+    - _parse_sea_chest: gold, experience
+    - _parse_monster: monster_type, count, mood, grows, has_artifact
+    - _parse_mine: owner
+    - _parse_campfire: gold, resource_amount
+    - _parse_windmill: resource_amount
+    - _parse_mystical_garden: resource_amount
+    - _parse_tomb: content
+    - _parse_pandora_box: event_num
+    - _parse_survivor: content
+    - _parse_scroll: spell_id
+    - _parse_refugee_camp: monster_type, count
+    - _parse_floatsam: content
+    - _parse_shrine: shrine_type, spell_id
+    - _parse_pyramid: spell_id
+    - _parse_skeleton: content
+    - _parse_wagon: content
+    - _parse_witch_hut: skill_id
+    - _parse_camp: monster_id, number
+    - _parse_garrison: anti_magic
+    - _parse_seer_hut: num
+    - _parse_pass_guard: num
+    - _parse_prison: hero_id
+
+Тестирование:
+- Object 0 (Treasure Chest): 6 _detail_ полей — type_id, loc, offset, gold, experience, has_artifact ✅
+  - _detail_gold: first_addr=0x101e, value_hex="ff 9b" ✅
+  - _detail_experience: first_addr=0x1020, value_hex="ff ff" ✅
+- save_parser self-test: OK
+
+Stage Summary:
+- ⭐ ВСЕ map objects теперь имеют _detail_ поля с first_addr, first_addr_hex, value_hex, value_bin
+- ⭐ 28 индивидуальных парсеров обновлены с _enrich_typed_field() вызовами
+- ⭐ Можно вручную найти ЛЮБОЙ параметр в бинарнике и поправить
+- Архив пересобран

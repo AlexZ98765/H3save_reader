@@ -298,6 +298,59 @@ def scan_tiles(raw: bytes, map_start: int, map_size: int,
 
 
 # ============================================================================
+# v3.14: Field enrichment helpers — add _detail_ sub-dicts with address + hex
+# ============================================================================
+
+def _enrich_field(raw: bytes, obj: dict, field_name: str, addr: int,
+                  length: int, value_type: str = "u8"):
+    """Add a _detail_ sub-dict for a field in a map object.
+
+    Reads raw[addr:addr+length] and stores first_addr, first_addr_hex,
+    length, value_type, value, value_dec, value_hex, value_bin.
+    """
+    from field_formatter import make_field, _bytes_to_int_le
+    b = raw[addr:addr + length] if addr + length <= len(raw) else b""
+    value = obj.get(field_name)
+    f = make_field(field_name, addr, length, value_type, value, b)
+    obj[f"_detail_{field_name}"] = f
+
+
+def _enrich_map_object_fields(raw: bytes, obj: dict):
+    """Add _detail_ for base map object fields: type_id, x, y, z, offset, loc.
+
+    The object record in the save starts at `obj['offset']`.
+    Layout (from ProspectorRT Scanner):
+      [offset+0]     type_id   (u8)
+      [offset+1]     ???       (u8)
+      [offset+2]     subtype   (u8) — used for artifact_id, resource_type, etc.
+      [offset+3..5]  ???       (3 bytes)
+      [offset+4..5]  obj_id    (u16 LE)
+      [offset+6]     content   (u8) — varies by type
+      [offset+7]     content2  (u8) — varies by type
+    """
+    s = obj.get('offset', 0)
+    # type_id at s+0
+    _enrich_field(raw, obj, 'type_id', s, 1, "u8")
+    # x, y, z are computed from tile position, not stored directly in object record
+    # But we can store the tile-level coords with the object offset
+    _enrich_field(raw, obj, 'loc', s - 7, 1, "u8")  # loc is the first byte of tile record
+    # offset itself
+    obj['_detail_offset'] = {
+        "first_addr": s,
+        "first_addr_hex": f"0x{s:x}",
+        "length": 0,
+        "value_type": "object_offset",
+        "value": f"Object record at 0x{s:x}",
+    }
+
+
+def _enrich_typed_field(raw: bytes, obj: dict, field_name: str,
+                        addr: int, length: int, value_type: str):
+    """Add _detail_ for a typed field (u8, u16, u32) at a specific address."""
+    _enrich_field(raw, obj, field_name, addr, length, value_type)
+
+
+# ============================================================================
 # 3. parse_object_content — IsObject dispatcher → Save* methods
 # ============================================================================
 
@@ -314,6 +367,8 @@ def parse_object_content(raw: bytes, s: int, type_id: int,
         loc:     first byte of tile record (terrain/ground type?)
 
     Returns dict with object data, or None if type is unknown/skipped.
+
+    v3.14: Each field now includes _detail_ sub-dict with address + hex info.
     """
     obj = {
         'type_id': type_id,
@@ -322,6 +377,9 @@ def parse_object_content(raw: bytes, s: int, type_id: int,
         'offset': s,
         'loc': loc,
     }
+
+    # v3.14: Add _detail_ for the base fields (type_id, x, y, z, offset, loc)
+    _enrich_map_object_fields(raw, obj)
 
     # Dispatch based on type_id (from ProspectorRT IsObject, line 9484)
     if type_id == 5:
@@ -419,55 +477,71 @@ def _safe_read(raw, off, size=1):
 def _parse_artifact(raw, s, obj):
     """Artifact on ground (ProspectorRT SaveArt, line 10115)"""
     obj['artifact_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'artifact_id', s + 2, 1, "u8")
     # Check if guarded (from ArtResContent)
     obj['has_guard'] = raw[s + 8] != 0xFF if s + 9 <= len(raw) else False
+    _enrich_typed_field(raw, obj, 'has_guard', s + 8, 1, "bool")
 
 
 def _parse_resource(raw, s, obj):
     """Resource pile (ProspectorRT SaveRes, line 10392)"""
     obj['resource_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'resource_type', s + 2, 1, "u8")
     # Resource amount is encoded in the tile data
     obj['amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'amount', s + 6, 2, "u16")
 
 
 def _parse_chest(raw, s, obj):
     """Treasure chest (ProspectorRT SaveChest, line 10215)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'experience', s + 8, 2, "u16")
     # If decmp[s+8] != 0xFF, it's an artifact instead of XP
     obj['has_artifact'] = raw[s + 8] != 0xFF if s + 9 <= len(raw) else False
+    _enrich_typed_field(raw, obj, 'has_artifact', s + 8, 1, "bool")
     if obj['has_artifact']:
         obj['artifact_id'] = raw[s + 8]
+        _enrich_typed_field(raw, obj, 'artifact_id', s + 8, 1, "u8")
         obj['experience'] = 0
 
 
 def _parse_sea_chest(raw, s, obj):
     """Sea chest (ProspectorRT SaveSeaChest, line 10262)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'experience', s + 8, 2, "u16")
 
 
 def _parse_monster(raw, s, obj):
     """Monster stack (ProspectorRT SaveMonster, line 10498)"""
     obj['monster_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'monster_type', s + 2, 1, "u8")
     # Count: u16 LE = (decmp[s+7] & 0x0F << 8) + decmp[s+6]
     if s + 8 <= len(raw):
         obj['count'] = ((raw[s + 7] & 0x0F) << 8) + raw[s + 6]
+        _enrich_typed_field(raw, obj, 'count', s + 6, 2, "u16")
         # Mood/disposition: (decmp[s+7] & 0xF0) >> 4
         mood = (raw[s + 7] & 0xF0) >> 4
         obj['mood'] = -4 if mood == 12 else mood
+        _enrich_typed_field(raw, obj, 'mood', s + 7, 1, "u8")
     else:
         obj['count'] = 0
         obj['mood'] = 0
     # Growth flag: decmp[s+8] & 4
     obj['grows'] = bool(raw[s + 8] & 4) if s + 9 <= len(raw) else False
+    _enrich_typed_field(raw, obj, 'grows', s + 8, 1, "bool")
     # Has artifact: decmp[s+9] & 0x80
     obj['has_artifact'] = bool(raw[s + 9] & 0x80) if s + 10 <= len(raw) else False
+    _enrich_typed_field(raw, obj, 'has_artifact', s + 9, 1, "bool")
 
 
 def _parse_mine(raw, s, obj):
     """Mine (ProspectorRT SaveMine, line 9665)"""
     obj['owner'] = raw[s + 4] if s + 5 <= len(raw) else 0xFF
+    _enrich_typed_field(raw, obj, 'owner', s + 4, 1, "u8")
     obj['owner_name'] = {0: 'Red', 1: 'Blue', 2: 'Tan', 3: 'Green',
                          4: 'Orange', 5: 'Purple', 6: 'Teal', 7: 'Pink',
                          0xFF: 'Neutral'}.get(obj['owner'], f'?{obj["owner"]}')
@@ -476,27 +550,33 @@ def _parse_mine(raw, s, obj):
 def _parse_campfire(raw, s, obj):
     """Campfire (ProspectorRT SaveCampfire, line 9817)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['resource_amount'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'resource_amount', s + 8, 2, "u16")
 
 
 def _parse_windmill(raw, s, obj):
     """Windmill (ProspectorRT SaveWindmill, line 9834)"""
     obj['resource_amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'resource_amount', s + 6, 2, "u16")
 
 
 def _parse_mystical_garden(raw, s, obj):
     """Mystical Garden (ProspectorRT SaveMysticalGarden, line 9850)"""
     obj['resource_amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'resource_amount', s + 6, 2, "u16")
 
 
 def _parse_tomb(raw, s, obj):
     """Tomb (ProspectorRT SaveTomb, line 10535)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_pandora_box(raw, s, obj):
     """Pandora's Box (ProspectorRT SaveBox, line 10091)"""
     obj['event_num'] = ((raw[s + 7] & 1) << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'event_num', s + 6, 2, "u16")
 
 
 def _parse_event(raw, s, obj):
@@ -511,6 +591,7 @@ def _parse_event(raw, s, obj):
 def _parse_survivor(raw, s, obj):
     """Shipwreck Survivor (ProspectorRT SaveSurvivor, line 10033)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_bank(raw, s, obj):
@@ -550,43 +631,53 @@ def _parse_scholar(raw, s, obj):
 def _parse_scroll(raw, s, obj):
     """Spell Scroll (ProspectorRT SaveScroll, line 10421)"""
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
 
 
 def _parse_refugee_camp(raw, s, obj):
     """Refugee Camp (ProspectorRT SaveHovel, line 9801)"""
     obj['monster_type'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'monster_type', s + 6, 1, "u8")
     obj['count'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'count', s + 6, 2, "u16")
 
 
 def _parse_floatsam(raw, s, obj):
     """Floatsam (ProspectorRT SaveFloatsam, line 9711)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_shrine(raw, s, obj, type_id):
     """Shrine (ProspectorRT SaveShrine, line 10484)"""
     obj['shrine_type'] = type_id  # 88=gesture, 89=thought, 90=incantation
+    _enrich_typed_field(raw, obj, 'shrine_type', s, 1, "u8")
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
 
 
 def _parse_pyramid(raw, s, obj):
     """Pyramid (ProspectorRT SavePyramid, line 10445)"""
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
 
 
 def _parse_skeleton(raw, s, obj):
     """Skeleton (ProspectorRT SaveSkeleton, line 10302)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_wagon(raw, s, obj):
     """Wagon (ProspectorRT SaveWagon, line 10337)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_witch_hut(raw, s, obj):
     """Witch Hut (ProspectorRT SaveWitchHut, line 10376)"""
     obj['skill_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'skill_id', s + 6, 1, "u8")
 
 
 # ============================================================================
@@ -607,7 +698,9 @@ def _parse_camp(raw, s, obj):
     decmp[s+2] = monster_id, decmp[s+6] = number available"""
     obj['object_kind'] = 'mercenary_camp'
     obj['monster_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'monster_id', s + 2, 1, "u8")
     obj['number'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    _enrich_typed_field(raw, obj, 'number', s + 6, 1, "u8")
 
 
 def _parse_market(raw, s, obj):
@@ -622,8 +715,7 @@ def _parse_garrison(raw, s, obj):
     decmp[s+2] = AntiMagic flag (0/1)"""
     obj['object_kind'] = 'garrison'
     obj['anti_magic'] = bool(raw[s + 2]) if s + 3 <= len(raw) else False
-    # Full content (7-slot guard + color + can_take) parsed by
-    # post_tile_parser.parse_garrison_content
+    _enrich_typed_field(raw, obj, 'anti_magic', s + 2, 1, "bool")
 
 
 def _parse_seer_hut(raw, s, obj):
@@ -631,7 +723,7 @@ def _parse_seer_hut(raw, s, obj):
     decmp[s+6] = Num (quest identifier)"""
     obj['object_kind'] = 'seer_hut'
     obj['num'] = raw[s + 6] if s + 7 <= len(raw) else 0
-    # Full quest/reward parsed by post_tile_parser.parse_seer_hut_content
+    _enrich_typed_field(raw, obj, 'num', s + 6, 1, "u8")
 
 
 def _parse_pass_guard(raw, s, obj):
@@ -639,7 +731,7 @@ def _parse_pass_guard(raw, s, obj):
     Num = (decmp[s+7] << 8) + decmp[s+6] — quest/key identifier"""
     obj['object_kind'] = 'border_guard'
     obj['num'] = ((raw[s + 7] << 8) + raw[s + 6]) if s + 8 <= len(raw) else 0
-    # Full mission + deadline parsed by post_tile_parser.parse_pass_guard_content
+    _enrich_typed_field(raw, obj, 'num', s + 6, 2, "u16")
 
 
 def _parse_prison(raw, s, obj):
@@ -647,7 +739,7 @@ def _parse_prison(raw, s, obj):
     decmp[s+6] = hero_id"""
     obj['object_kind'] = 'prison'
     obj['hero_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
-    # Full hero stats linked by post_tile_parser.parse_prison_hero
+    _enrich_typed_field(raw, obj, 'hero_id', s + 6, 1, "u8")
 
 
 def _parse_learning_stone(raw, s, obj):
