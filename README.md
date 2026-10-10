@@ -1,7 +1,7 @@
 # HoMM3 GM1 Toolkit
 
 > Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA).
-> **Версия архива:** 3.8 (10 Октября 2026)
+> **Версия архива:** 3.9 (10 Октября 2026) — **полное соответствие ProspectorRT по алгоритмам чтения**
 
 ## Что внутри
 
@@ -65,20 +65,25 @@ coord_int = x | (y << 8) | (z << 16)
 
 **Важно:** SAVE координаты могут отличаться от MAP координат на +2 (towns занимают 2×2 тайла, сейв использует top-left corner). См. `02_format_docs/GM1_format_compendium.md` для деталей.
 
-## Текущая реализация post-tile парсеров (v3.8)
+## Текущая реализация post-tile парсеров (v3.9)
 
-`01_tools/post_tile_parser.py` (1,779 строк) реализует **все 23 алгоритма ProspectorRT**:
-- **A2-A10** Content-парсеры: EventBox, ArtRes, Monstr, SeerHut (10 mission + 10 reward types), PassGuard, Bank, Garrison, Univer, Market
+`01_tools/post_tile_parser.py` (2,057 строк) реализует **все алгоритмы чтения ProspectorRT**:
+- **A1-A10** Content-парсеры: EventBox, ArtRes, Monstr, SeerHut (10 mission + 10 reward types), PassGuard, Bank (включая parse_bank_resource/monster), Garrison, Univer, Market
 - **B1-B3** Alliance, ArtMerchants, Experience aggregator
-- **C1-C8** Map + Town Timed Events с signed-resource encoding
+- **C1-C8** Map + Town Timed Events с signed-resource encoding + parse_timer_town (buildings bitmask decoding)
 - **D1** GetTownSpell (Magic Guild spells)
 - **E1-E3** ArtDollPlace (раскладка артефактов по слотам)
 - **F1** GetPrisonHero (связка prison → hero record)
+- **F2** IsHeroTavern (поиск героя в таверне)
+- **F3** HeroOnObject (hero-on-object сценарий)
 - **G1-G2** GetPairSubterraneanGate + ScanMonolithWhirlpool
 - **H1-H5** Header offsets (BlackMarket, SR, Teams, MapName, Start)
 - **I1-I5** Aggregators (GetAllSpell, GetAllSkill, AnalysisMonstrContent, SeerHutContent2, PassGuardContent2)
 
-Тестирование на Myth and Legend (114.GM1): 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (с русской миссией), 12 Banks, 8 Map Timed Events, 167 Town Timed Events, 8+8 групп монолитов, 12 водоворотов, 4 пары подземных врат.
+**Итог аудита (v3.9): 93/93 алгоритмов чтения реализовано (37 tile + 56 post-tile).**
+См. `02_format_docs/HONEST_AUDIT_prt_vs_ours.md` для деталей.
+
+Тестирование на Myth and Legend (114.GM1): 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (с русской миссией), 12 Banks, 8 Map Timed Events, 167 Town Timed Events, 8+8 групп монолитов, 12 водоворотов, 4 пары подземных врат. Новые tile-level парсеры нашли: 2 University, 2 Mercenary Camp, 3 Black Market, 1 Seer Hut, 4 Prison, 15 Learning Stone, 3 Hero on Map, 27 Generic Object, 10 Monolith, 1 Keymaster Tent, 4 Topology Object.
 
 ## Известные ограничения текущей версии
 

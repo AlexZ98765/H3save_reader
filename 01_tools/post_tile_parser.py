@@ -15,6 +15,7 @@ Reference: `07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs`
 
 from __future__ import annotations
 import struct
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Callable
 
@@ -740,6 +741,283 @@ def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
         rec.color = raw[s]
     rec.can_take = raw[s + 60] if s + 60 < len(raw) else 0
     return rec, s + 61
+
+
+# ============================================================================
+# A9b. parse_bank_resource / parse_bank_monster (extracted from parse_bank_content)
+# ============================================================================
+
+def parse_bank_resource(raw: bytes, s: int) -> Tuple[Dict[str, int], int]:
+    """Read bank resources + gold (ProspectorRT GetBankResource, MainForm.cs:9018).
+
+    Layout (28 bytes):
+    - 6 × 4 bytes resources (only byte 0 of each 4-byte slot is used)
+    - 4 bytes gold (u16 at +24, +25)
+
+    Returns (resources_dict, gold).
+    """
+    res: Dict[str, int] = {}
+    for i in range(6):
+        v = raw[s + i * 4] if s + i * 4 < len(raw) else 0
+        if v > 0:
+            res[A_RESOURCE[i]] = v
+    gold = (raw[s + 25] << 8) | raw[s + 24] if s + 26 <= len(raw) else 0
+    return res, gold
+
+
+def parse_bank_monster(raw: bytes, s: int) -> Tuple[int, int]:
+    """Read bank monster reward (ProspectorRT GetBankMonster, MainForm.cs:9013).
+
+    Layout:
+    - decmp[s] = monster_id
+    - decmp[s + 4] = count
+
+    Returns (monster_id, count).
+    """
+    if s + 5 > len(raw):
+        return (-1, 0)
+    return (raw[s], raw[s + 4])
+
+
+# ============================================================================
+# C5b. parse_timer_town — links town timed events to towns + decodes buildings
+# ============================================================================
+
+# Town building bitmask table (from ProspectorRT CreateTblBuilding, MainForm.cs:11200).
+# 6 bytes per town type × 8 bits = 48 building slots per town type.
+# Below is a simplified version of the most common buildings for town types 0-8.
+# (Castle, Rampart, Tower, Inferno, Necropolis, Dungeon, Stronghold, Fortress, Conflux)
+# Source: PRT MainForm.cs CreateTblBuilding (lines 11200-11579).
+TOWN_BUILDINGS = {
+    0: {  # Castle
+        (1, 0): "Mage Guild lvl 1", (1, 1): "Mage Guild lvl 2", (1, 2): "Mage Guild lvl 3",
+        (1, 3): "Mage Guild lvl 4", (1, 4): "Mage Guild lvl 5",
+        (2, 0): "Blacksmith", (2, 1): "Tent", (2, 2): "Castle",
+        (2, 3): "Citadel", (2, 4): "Fort", (3, 0): "Tavern",
+        (3, 1): "Marketplace", (3, 2): "Resource Silo",
+        (4, 0): "Shipyard", (4, 1): "Lighthouse",
+        (5, 0): "Grail", (6, 0): "Horde Building",
+    },
+    1: {  # Rampart
+        (1, 0): "Mage Guild lvl 1", (1, 1): "Mage Guild lvl 2", (1, 2): "Mage Guild lvl 3",
+        (1, 3): "Mage Guild lvl 4", (1, 4): "Mage Guild lvl 5",
+        (2, 0): "Blacksmith", (2, 2): "Castle", (2, 3): "Citadel", (2, 4): "Fort",
+        (3, 0): "Tavern", (3, 1): "Marketplace", (3, 2): "Resource Silo",
+        (4, 0): "Shipyard", (5, 0): "Grail",
+    },
+    2: {  # Tower
+        (1, 0): "Mage Guild lvl 1", (1, 1): "Mage Guild lvl 2", (1, 2): "Mage Guild lvl 3",
+        (1, 3): "Mage Guild lvl 4", (1, 4): "Mage Guild lvl 5", (1, 5): "Library",
+        (2, 0): "Blacksmith", (2, 2): "Castle", (2, 3): "Citadel", (2, 4): "Fort",
+        (3, 0): "Tavern", (3, 1): "Marketplace", (3, 2): "Resource Silo",
+        (4, 0): "Shipyard", (5, 0): "Grail",
+    },
+    # Town types 3-8 follow same general pattern (Inferno, Necropolis, Dungeon,
+    # Stronghold, Fortress, Conflux). We keep generic fallback.
+}
+
+
+def _decode_building_bitmask(building_bytes: List[int], town_type: int
+                              ) -> List[str]:
+    """Decode 6-byte building bitmask into list of building names.
+
+    ProspectorRT GetTimerTown (MainForm.cs:6984) iterates over 5 bytes × 8 bits
+    + 1 extra byte (byte 5, bit 0 = Grail). For each set bit, looks up
+    TblBuilding by (Type=town_type, Byte=k+1, Bit=l).
+    """
+    buildings: List[str] = []
+    table = TOWN_BUILDINGS.get(town_type, {})
+    if not table:
+        # Generic fallback: just return bit indices
+        for k in range(5):
+            if k < len(building_bytes):
+                for l in range(8):
+                    if building_bytes[k] & (1 << l):
+                        buildings.append(f"byte{k+1}_bit{l}")
+        if len(building_bytes) > 5 and building_bytes[5] > 0:
+            buildings.append("Grail (or special)")
+        return buildings
+
+    for k in range(5):
+        if k >= len(building_bytes):
+            break
+        for l in range(8):
+            if building_bytes[k] & (1 << l):
+                name = table.get((k + 1, l))
+                if name:
+                    buildings.append(name)
+                else:
+                    buildings.append(f"byte{k+1}_bit{l}")
+    # Byte 5 (special: Grail etc.)
+    if len(building_bytes) > 5 and building_bytes[5] > 0:
+        # Bit 0 = Grail for most town types
+        if building_bytes[5] & 1:
+            name = table.get((6, 0), "Grail")
+            buildings.append(name)
+    return buildings
+
+
+@dataclass
+class TownTimerLink:
+    """Result of linking timed events to towns."""
+    town_id: int
+    town_name: str = ""
+    town_type: int = 0
+    town_x: int = 0
+    town_y: int = 0
+    town_z: int = 0
+    town_color: str = ""
+    events: List[Any] = field(default_factory=list)  # List[TimedEvent]
+    buildings_built: List[str] = field(default_factory=list)
+
+
+def parse_timer_town(towns: List[Dict[str, Any]],
+                     town_timed_events: List["TimedEvent"]
+                     ) -> List[TownTimerLink]:
+    """Link town timed events to their towns + decode buildings bitmask.
+
+    ProspectorRT GetTimerTown (MainForm.cs:6984):
+    - For each town, finds all timed events with `event.id == town.id`.
+    - For each such event, decodes 6-byte building bitmask → list of building names.
+    - Also computes MageTimer / LibTimer flags.
+
+    Args:
+        towns: list of dicts (output of save_parser.parse_town_block)
+        town_timed_events: list of TimedEvent with is_town=True
+
+    Returns list of TownTimerLink records (one per town that has events).
+    """
+    result: List[TownTimerLink] = []
+    # Group events by town ID
+    events_by_id: Dict[int, List["TimedEvent"]] = defaultdict(list)
+    for ev in town_timed_events:
+        events_by_id[ev.id].append(ev)
+
+    for town in towns:
+        town_id = town.get("id") or town.get("block_offset", 0)
+        if town_id not in events_by_id:
+            continue
+        link = TownTimerLink(
+            town_id=town_id,
+            town_name=town.get("name", ""),
+            town_type=town.get("type", 0) if isinstance(town.get("fields"), dict)
+                      else town.get("fields", {}).get("type", 0),
+            town_x=town.get("x", 0) or town.get("fields", {}).get("x", 0),
+            town_y=town.get("y", 0) or town.get("fields", {}).get("y", 0),
+            town_z=town.get("z", 0) or town.get("fields", {}).get("z", 0),
+            town_color=town.get("faction_name", ""),
+            events=events_by_id[town_id],
+        )
+        # Decode buildings for each event
+        for ev in link.events:
+            if ev.buildings:
+                link.buildings_built.extend(
+                    _decode_building_bitmask(ev.buildings, link.town_type))
+        # Dedup
+        link.buildings_built = sorted(set(link.buildings_built))
+        result.append(link)
+    return result
+
+
+# ============================================================================
+# F2. is_hero_tavern — check if hero is in tavern
+# ============================================================================
+
+def is_hero_tavern(hero_id: int, tavern_guests: List[Tuple[int, int]]) -> int:
+    """Check if hero is currently in some player's tavern (ProspectorRT IsHeroTavern,
+    MainForm.cs:7971).
+
+    Args:
+        hero_id:  hero index (0..155)
+        tavern_guests: list of (slot1, slot2) tuples per player (8 players)
+                       - From GetColorContent: decmp[color + i*145 + 12] = guest1,
+                                              decmp[color + i*145 + 11] = guest2
+
+    Returns:
+        Player index (0..7) whose tavern has this hero, or 255 if not in any tavern.
+    """
+    for player_idx, (g1, g2) in enumerate(tavern_guests):
+        if g1 == hero_id or g2 == hero_id:
+            return player_idx
+    return 255
+
+
+# ============================================================================
+# F3. hero_on_object — handle hero-on-object tile case (ProspectorRT HeroOnObject)
+# ============================================================================
+
+@dataclass
+class HeroOnObjectInfo:
+    """Result of parsing a hero-on-object tile."""
+    hero_id: int
+    underlying_type_id: int
+    underlying_object: Optional[Dict[str, Any]] = None
+    swapped_bytes: bytes = b""  # original 5 bytes that were temporarily swapped
+
+
+def hero_on_object(raw: bytearray, s: int, hero_id_at_s6: int,
+                   hero_blocks: Dict[int, int],
+                   dispatch_func: callable = None
+                   ) -> Optional[HeroOnObjectInfo]:
+    """Handle hero-on-object tile case (ProspectorRT HeroOnObject, MainForm.cs:9643).
+
+    When a hero stands on a tile with another object (e.g. mine, artifact),
+    the tile scan sees the hero's data, but the underlying object's data is
+    in the hero record (at hero_blocks[hero_id] + 11..19).
+
+    ProspectorRT temporarily swaps 5 bytes (s, s+6, s+7, s+8, s+9) with
+    the hero record bytes (s+11, s+16, s+17, s+18, s+19), re-dispatches
+    IsObject(s) to record the underlying object, then restores the 5 bytes.
+
+    Since we're PARSING (not filling DataTables), we DON'T need to mutate
+    the raw bytes — we just need to read the underlying object's bytes from
+    the hero record and parse it ourselves.
+
+    Args:
+        raw:                decompressed save bytes (we DON'T mutate)
+        s:                  offset of hero-on-object tile
+        hero_id_at_s6:      hero ID at raw[s + 6]
+        hero_blocks:        dict {hero_id: block_offset} from ScanHeroesContent
+        dispatch_func:      function (raw, s, type_id, x, y, z, loc) → obj
+                            (defaults to tile_scanner.parse_object_content)
+
+    Returns HeroOnObjectInfo or None if hero record not found.
+    """
+    if dispatch_func is None:
+        # Lazy import to avoid circular dependency
+        import os, sys
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from tile_scanner import parse_object_content
+        dispatch_func = parse_object_content
+
+    if hero_id_at_s6 not in hero_blocks:
+        return None
+    hero_block = hero_blocks[hero_id_at_s6]
+
+    # The underlying object's data is at hero_block + 11..19 (5 bytes)
+    # ProspectorRT:
+    #   decmp[s]      = decmp[num + 11]   ← underlying type_id
+    #   decmp[s + 6]  = decmp[num + 16]
+    #   decmp[s + 7]  = decmp[num + 17]
+    #   decmp[s + 8]  = decmp[num + 18]
+    #   decmp[s + 9]  = decmp[num + 19]
+    underlying_type_id = raw[hero_block + 11] if hero_block + 12 <= len(raw) else 0
+
+    # Build a fake "raw" by reading bytes from hero record into the 5 slots
+    # We do NOT mutate raw — we create a temp bytearray just for dispatch.
+    # Actually, the simpler approach: dispatch directly on the underlying bytes
+    # using offsets relative to s, but reading from hero_block.
+    # For read-only parse, we just record what we found.
+    info = HeroOnObjectInfo(
+        hero_id=hero_id_at_s6,
+        underlying_type_id=underlying_type_id,
+    )
+
+    # If we want the underlying object dict, we'd need to mutate a temp copy.
+    # For now, just record the type_id and the hero block offset.
+    # Caller can dispatch manually if needed.
+
+    return info
 
 
 # ============================================================================

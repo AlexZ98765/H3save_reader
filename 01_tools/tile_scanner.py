@@ -370,6 +370,33 @@ def parse_object_content(raw: bytes, s: int, type_id: int,
         _parse_wagon(raw, s, obj)
     elif type_id == 113:
         _parse_witch_hut(raw, s, obj)
+    # ----- 13 new tile-level parsers (from honest audit, v3.9) -----
+    elif type_id == 104:
+        _parse_univer(raw, s, obj)
+    elif type_id == 78:
+        _parse_camp(raw, s, obj)
+    elif type_id == 7:
+        _parse_market(raw, s, obj)
+    elif type_id == 33:
+        _parse_garrison(raw, s, obj)
+    elif type_id == 83:
+        _parse_seer_hut(raw, s, obj)
+    elif type_id == 215:
+        _parse_pass_guard(raw, s, obj)
+    elif type_id == 62:
+        _parse_prison(raw, s, obj)
+    elif type_id == 100:
+        _parse_learning_stone(raw, s, obj)
+    elif type_id == 34:
+        _parse_hero_on_map(raw, s, obj)
+    elif type_id in (2, 35, 95, 102, 213):
+        _parse_generic_object(raw, s, obj)
+    elif type_id in (43, 44, 45):
+        _parse_monolith(raw, s, obj)
+    elif type_id == 10:
+        _parse_tent(raw, s, obj)
+    elif type_id == 103:
+        _parse_topology_obj(raw, s, obj)
     else:
         # Unknown type — store raw bytes for analysis
         obj['raw_bytes'] = raw[s:s + 20].hex(' ') if s + 20 <= len(raw) else ''
@@ -560,3 +587,137 @@ def _parse_wagon(raw, s, obj):
 def _parse_witch_hut(raw, s, obj):
     """Witch Hut (ProspectorRT SaveWitchHut, line 10376)"""
     obj['skill_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+
+
+# ============================================================================
+# 13 new tile-level parsers (from honest audit, v3.9)
+# All extracted from ProspectorRT MainForm.cs Save* methods
+# ============================================================================
+
+def _parse_univer(raw, s, obj):
+    """University (ProspectorRT SaveUniver, line 9978)
+    Records x,y,z + Object; content (4 secondary skills) parsed
+    separately by post_tile_parser.parse_univer_content."""
+    obj['object_kind'] = 'university'
+    obj['locality'] = 'underground' if obj.get('loc') == 8 else 'surface'
+
+
+def _parse_camp(raw, s, obj):
+    """Mercenary Camp (ProspectorRT SaveCamp, line 10465)
+    decmp[s+2] = monster_id, decmp[s+6] = number available"""
+    obj['object_kind'] = 'mercenary_camp'
+    obj['monster_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
+    obj['number'] = raw[s + 6] if s + 7 <= len(raw) else 0
+
+
+def _parse_market(raw, s, obj):
+    """Black Market (ProspectorRT SaveMarket, line 9994)
+    Records x,y,z only; content (7 artifacts for sale) parsed separately
+    by post_tile_parser.parse_market_content."""
+    obj['object_kind'] = 'black_market'
+
+
+def _parse_garrison(raw, s, obj):
+    """Garrison (ProspectorRT SaveGarrison, line 10017)
+    decmp[s+2] = AntiMagic flag (0/1)"""
+    obj['object_kind'] = 'garrison'
+    obj['anti_magic'] = bool(raw[s + 2]) if s + 3 <= len(raw) else False
+    # Full content (7-slot guard + color + can_take) parsed by
+    # post_tile_parser.parse_garrison_content
+
+
+def _parse_seer_hut(raw, s, obj):
+    """Seer Hut (ProspectorRT SaveSeerHut, line 10157)
+    decmp[s+6] = Num (quest identifier)"""
+    obj['object_kind'] = 'seer_hut'
+    obj['num'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    # Full quest/reward parsed by post_tile_parser.parse_seer_hut_content
+
+
+def _parse_pass_guard(raw, s, obj):
+    """Border Guard / Border Gate (ProspectorRT SavePassDuard, line 10199)
+    Num = (decmp[s+7] << 8) + decmp[s+6] — quest/key identifier"""
+    obj['object_kind'] = 'border_guard'
+    obj['num'] = ((raw[s + 7] << 8) + raw[s + 6]) if s + 8 <= len(raw) else 0
+    # Full mission + deadline parsed by post_tile_parser.parse_pass_guard_content
+
+
+def _parse_prison(raw, s, obj):
+    """Hero Prison (ProspectorRT SavePrison, line 10180)
+    decmp[s+6] = hero_id"""
+    obj['object_kind'] = 'prison'
+    obj['hero_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    # Full hero stats linked by post_tile_parser.parse_prison_hero
+
+
+def _parse_learning_stone(raw, s, obj):
+    """Learning Stone (ProspectorRT SaveLearningStone, line 9699)
+    Always gives fixed 1000 XP to visiting hero."""
+    obj['object_kind'] = 'learning_stone'
+    obj['experience'] = 1000  # fixed amount per PRT source
+
+
+def _parse_hero_on_map(raw, s, obj):
+    """Hero on map (ProspectorRT SaveHero + HeroOnObject, line 9675 + 9643)
+
+    SaveHero: just records x,y,z as artifact-bearing object.
+    HeroOnObject: if hero is on top of another object (e.g. standing on mine),
+    temporarily swaps 5 bytes (s, s+6..s+9), re-dispatches IsObject to record
+    the underlying object, then restores the 5 bytes.
+
+    For parsing (read-only) we just record the hero_id at s+6 — the
+    underlying object would have been already parsed by the regular
+    tile loop on a different tile (or we don't need HeroOnObject because
+    PRT does it to FILL DataTables that we don't use)."""
+    obj['object_kind'] = 'hero_on_map'
+    obj['hero_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
+    obj['hero_id_2'] = raw[s + 7] if s + 8 <= len(raw) else 0
+    # If hero is on top of an object (s+4 and s+5 not 0xFF), record it
+    if s + 6 <= len(raw):
+        obj['on_object'] = (raw[s + 4] != 0xFF and raw[s + 5] != 0xFF)
+
+
+def _parse_generic_object(raw, s, obj):
+    """Generic object (ProspectorRT SaveObject, line 9740)
+    For type 102 (Hill Fort): decmp[s+7] = upgrade cost encoding
+      32 = 2000 gold, 64 = 10 gems.
+    Other types (2=altar?, 35=mine_entrance?, 95=?, 213=?): just records coords."""
+    obj['object_kind'] = 'generic_object'
+    type_id = obj['type_id']
+    if type_id == 102:  # Hill Fort
+        obj['object_subtype'] = 'hill_fort'
+        if s + 8 <= len(raw):
+            cost_byte = raw[s + 7]
+            if cost_byte == 32:
+                obj['upgrade_cost'] = '2000 gold'
+            elif cost_byte == 64:
+                obj['upgrade_cost'] = '10 gems'
+
+
+def _parse_monolith(raw, s, obj):
+    """Monolith — one-way or two-way (ProspectorRT SaveMonolith, line 9766)
+    decmp[s+2] = monolith subtype."""
+    obj['object_kind'] = 'monolith'
+    obj['monolith_subtype'] = raw[s + 2] if s + 3 <= len(raw) else 0
+
+
+def _parse_tent(raw, s, obj):
+    """Keymaster Tent (ProspectorRT SaveTent, line 9778)
+    decmp[s+2] = color of tent (aTent[] lookup)"""
+    obj['object_kind'] = 'keymaster_tent'
+    color_id = raw[s + 2] if s + 3 <= len(raw) else 0
+    # ProspectorRT aTent[]: 0=Blue, 1=Green, 2=Red, 3=Yellow, 4=Orange,
+    # 5=Purple, 6=Teal, 7=Pink (matches aColor[])
+    TENT_COLORS = {0: 'Blue', 1: 'Green', 2: 'Red', 3: 'Yellow',
+                   4: 'Orange', 5: 'Purple', 6: 'Teal', 7: 'Pink'}
+    obj['color_id'] = color_id
+    obj['color_name'] = TENT_COLORS.get(color_id, f'?{color_id}')
+
+
+def _parse_topology_obj(raw, s, obj):
+    """Subterranean Gate or Whirlpool entry on tile level
+    (ProspectorRT SaveTopologyObj, line 9790)
+    Records x,y,z only; pairing done in post_tile_parser."""
+    obj['object_kind'] = 'topology_object'
+    # Type 103 is used for subterranean gates in tile scan; the actual
+    # pairs are in post-tile section (map.SubTerGate / map.SubTerGatePair).
