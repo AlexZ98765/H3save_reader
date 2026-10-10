@@ -1281,16 +1281,21 @@ def export_to_json(parsed: Dict, raw: bytes,
         }
 
     for block in parsed["blocks"]:
-        block_export = {"name": block["name"], "description": block["description"], "fields": []}
+        block_export = {
+            "name": block["name"],
+            "description": block.get("description", ""),
+            "fields": [],
+        }
         for f in block["fields"]:
             field_export = {
                 "name": f["name"],
                 "offset": f"0x{f['offset']:08x}" if isinstance(f["offset"], int) and f["offset"] >= 0 else f["offset"],
-                "size": f["size"], "type": f["type"],
+                "size": f.get("size", 0), "type": f.get("type", ""),
                 "value": serialize(f.get("value")),
-                "formatted": f["formatted"], "description": f["description"],
+                "formatted": f.get("formatted", ""),
+                "description": f.get("description", ""),
             }
-            if isinstance(f["offset"], int) and f["offset"] >= 0 and isinstance(f["size"], int) and f["size"] > 0:
+            if isinstance(f["offset"], int) and f["offset"] >= 0 and isinstance(f.get("size"), int) and f["size"] > 0:
                 off, sz = f["offset"], f["size"]
                 if off + sz <= len(raw):
                     field_export["raw_bytes"] = raw[off:off + sz].hex()

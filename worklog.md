@@ -512,3 +512,30 @@ Stage Summary:
 - Все ссылки на `post_tile_parser.py` и `unimplemented_algorithms_audit.md` добавлены
 - Исторические документы (04_diff_analysis/Myth and Legend/README.md, 03_object_mapping/README.md) проверены — не требуют обновления
 - Аудит-документ из todo-списка превращён в историческую справку "всё реализовано"
+
+---
+Task ID: bugfix-export-json-2026-10-10
+Agent: main (Super Z)
+Task: Исправить ошибку 'description' при Export JSON в gm1_parser.py
+
+Work Log:
+- Пользователь сообщил: "пробую сделать export JSON и выдаёт ошибку: Failed to export: 'description'"
+- Найдена причина: в `gm1_parser.py::export_to_json` (строки 1284 и 1291) использовался прямой доступ `block["description"]` и `f["description"]` (KeyError если ключа нет)
+- Блоки из `_parse_save_via_config` (Path 1 — через MapConfig) имеют поля без `description`:
+  - Cluster blocks: поля `start` и `end` не имеют `description` (только name/offset/size/type/value/formatted)
+  - Аналогично `size`/`type`/`formatted` могут отсутствовать на некоторых полях
+- Исправление (6 замен в `export_to_json`):
+  - `block["description"]` → `block.get("description", "")`
+  - `f["size"]` → `f.get("size", 0)`
+  - `f["type"]` → `f.get("type", "")`
+  - `f["formatted"]` → `f.get("formatted", "")`
+  - `f["description"]` → `f.get("description", "")`
+- Тестирование логики: старая → KeyError 'description' (воспроизведено), новая → passed (3 поля корректно сериализованы)
+- `_populate_tree` (line 2612) использует `f["formatted"], f["type"], str(f["size"])` напрямую, но это работает в GUI потому что все поля header block имеют все ключи (не относится к cluster blocks напрямую). Оставлено как есть — не сломать работающее.
+- Архив пересобран
+
+Stage Summary:
+- ⭐ Bug fix: Export JSON теперь работает для saves, открытых через MapConfig (Path 1)
+- Проблема: прямые dict-accesses `block["description"]` и `f["description"]` падали с KeyError для cluster blocks (поля `start`/`end` без description)
+- Решение: заменено на `.get(key, default)` для всех 5 полей в `export_to_json`
+- Тест: старая логика → KeyError, новая → success
