@@ -3152,7 +3152,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             type_str = f"object ({n} keys)" if n else "object (empty)"
             item = QTreeWidgetItem(parent_item, [str(key), type_str])
             item.setData(0, Qt.UserRole, full_path)
-            item.setData(1, Qt.UserRole, value)
+            # v3.13: Don't store raw value in Qt.UserRole(1) — large ints/dicts cause OverflowError
             if n == 0:
                 item.setExpanded(True)
             else:
@@ -3166,7 +3166,6 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             type_str = f"array ({n} items)" if n else "array (empty)"
             item = QTreeWidgetItem(parent_item, [str(key), type_str])
             item.setData(0, Qt.UserRole, full_path)
-            item.setData(1, Qt.UserRole, value)
             if n == 0:
                 item.setExpanded(True)
             else:
@@ -3194,7 +3193,6 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             type_str = type(value).__name__
             item = QTreeWidgetItem(parent_item, [str(key), v_str])
             item.setData(0, Qt.UserRole, full_path)
-            item.setData(1, Qt.UserRole, value)
             # Color-code by type
             if isinstance(value, str):
                 item.setForeground(1, QColor("#008800"))  # green for strings

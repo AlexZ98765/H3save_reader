@@ -1189,3 +1189,19 @@ Stage Summary:
 - ⭐ Координаты героя (location_x/y/z) теперь содержат first_addr, first_addr_hex, value_hex, value_bin
 - ⭐ Tree view в GUI корректно обрабатывает новый формат (пропускает _detail_ в дереве)
 - Архив пересобран
+
+---
+Task ID: fix-overflow-json-tree-2026-10-10
+Agent: main (Super Z)
+Task: Исправить OverflowError при построении JSON tree
+
+Work Log:
+- Пользователь сообщил: OverflowError при загрузке сейва в GUI (libshiboken: Value exceeds limits of signed __int64)
+- Причина: `item.setData(1, Qt.UserRole, value)` хранил сырые значения (dict'ы, list'ы, большие числа) в Qt QVariant — Qt не может конвертировать большие Python objects
+- Исправление: убраны все 3 вызова `item.setData(1, Qt.UserRole, value)` — они не использовались нигде, нужен только path (column 0, Qt.UserRole)
+- Синтаксис OK
+
+Stage Summary:
+- ⭐ OverflowError исправлен — убраны item.setData(1, Qt.UserRole, value) из _json_to_tree
+- ⭐ Path (column 0, Qt.UserRole) остаётся — используется для фокусировки на выбранном элементе
+- Архив пересобран
