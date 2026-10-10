@@ -931,3 +931,34 @@ Stage Summary:
 - ⭐ _obsolete/02_format_docs/ теперь содержит 8 .md + 1 .json (все исторические сравнения и аудиты)
 - ⭐ Все ссылки в README и FILES_DESCRIPTION обновлены
 - Архив пересобран
+
+---
+Task ID: gui-fixes-status-and-save-dialog-2026-10-10
+Agent: main (Super Z)
+Task: GUI fix — (1) обновление флагов после загрузки Map JSON, (2) предложение сохранения конфига при загрузке day-0 сейва
+
+Work Log:
+- Пользователь сообщил 2 проблемы:
+  1. После загрузки парсинга карты НЕ обновляется флаг внизу формы
+  2. При загрузке сейва нулевого дня нужно предлагать сохранение конфига карты
+
+Причина проблемы 1:
+- В `_on_load_map_json` (строка 3257) вызов `self._update_load_status()` стоял ВНУТРИ условия `if self.parsed_data:` — если сейв ещё не загружен, флаг НЕ обновлялся
+- Исправление: вынес `self._update_load_status()` из-под условия — теперь вызывается безусловно после загрузки Map JSON
+
+Причина проблемы 2:
+- В `_on_load_day_zero` (строка 3356) конфиг сохранялся автоматически через `save_config(config, toolkit_dir)` без диалога — путь генерировался из map_name и сохранялся в toolkit_dir
+- Пользователь не видел диалога сохранения и не мог выбрать место/имя файла
+- Исправление: заменил `save_config(config, toolkit_dir)` на `QFileDialog.getSaveFileName(...)` с дефолтным путём `toolkit_dir/map_config_<safe_name>.json`
+- Если пользователь отменил диалог — конфиг остаётся только в памяти (с пометкой "not saved")
+- Если выбрал путь — добавляется .json расширение (если не указано) и сохраняется через `config.save(config_path)`
+
+Дополнительные исправления:
+- В `_on_load_map_config` (строка 3563) НЕ вызывались `_update_load_status()` и `_populate_objects_table()` — добавил, чтобы флаги внизу обновлялись и при загрузке готового конфига
+
+Stage Summary:
+- ⭐ Фикс 1: Map JSON loading теперь обновляет флаг внизу формы (call _update_load_status unconditionally)
+- ⭐ Фикс 2: Day-Zero Save loading показывает диалог сохранения конфига (QFileDialog.getSaveFileName)
+- ⭐ Бонус: Map Config loading теперь тоже обновляет флаги внизу формы
+- Синтаксис проверен (ast.parse OK)
+- Архив пересобран

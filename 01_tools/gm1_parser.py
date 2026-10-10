@@ -3256,7 +3256,10 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         self._populate_objects_table()
         if self.parsed_data:
             self._populate_tree()
-            self._update_load_status()
+
+        # Update status flags (bottom of form) — call unconditionally
+        # so the "Map JSON" checkbox reflects the loaded state even without a save
+        self._update_load_status()
 
         # Update status
         n_ver = sum(1 for v in getattr(self, "_computed_offsets", {}).values() if v.get("verified")) if self.raw_data else 0
@@ -3347,10 +3350,30 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             QMessageBox.critical(self, "Error", f"Failed to build config:\n{e}")
             return
 
-        # Save config to file
+        # Suggest saving config to file (with file dialog)
         script_dir = os.path.dirname(os.path.abspath(__file__))
         toolkit_dir = os.path.normpath(os.path.join(script_dir, ".."))
-        config_path = save_config(config, toolkit_dir)
+        map_name = config.meta.get("map_name", "unknown_map")
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
+        if not safe_name:
+            safe_name = "unknown_map"
+        default_filename = f"map_config_{safe_name}.json"
+        default_path = os.path.join(toolkit_dir, default_filename)
+
+        # Ask user where to save the config
+        config_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Map Config",
+            default_path,
+            "Map Config files (*.json);;All files (*)"
+        )
+        if not config_path:
+            # User cancelled — keep config in memory only
+            config_path = "(not saved — kept in memory only)"
+        else:
+            # Ensure .json extension
+            if not config_path.lower().endswith(".json"):
+                config_path += ".json"
+            config.save(config_path)
 
         # Store config and day-zero raw data
         self.map_config = config
@@ -3536,6 +3559,10 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
 
                 self.map_data = _MinimalMapData(config)
                 self._cached_objects_by_coord = self.map_data.objects_by_coord
+
+        # Update status flags (bottom of form) and objects table
+        self._update_load_status()
+        self._populate_objects_table()
 
         # Update status
         n_heroes = config.hero_section.count
