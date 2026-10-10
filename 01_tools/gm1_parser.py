@@ -925,35 +925,17 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
     heroes_found = []
     for h in parsed.heroes:
         f = h.get("fields", {})
-        # Convert to legacy format: name, offset, fields dict with (val, formatted) tuples
+        # v3.12: Pass through ALL fields (including _detail_* with address+hex info)
+        # instead of cherry-picking only specific named fields.
+        # The _detail_* fields contain first_addr, first_addr_hex, value_hex, etc.
         hero_dict = {
             "name":   h.get("name") or f.get("name", "?"),
             "offset": h["block_offset"],
+            "fields": f,  # ALL fields — including _detail_*
         }
-        # Build fields dict — legacy expected {field_name: (value, formatted_str)}
-        hero_fields_dict = {}
-        for fname in ["name", "player", "player_name", "level", "experience",
-                       "movement_total", "movement_left", "mana_left",
-                       "location_x", "location_y", "location_z",
-                       "attack", "defense", "power", "knowledge",
-                       "num_skills"]:
-            if fname in f:
-                v = f[fname]
-                hero_fields_dict[fname] = (v, str(v))
-        # Army, skills, spells, equipment as summary lines
-        if "army_types" in f:
-            hero_fields_dict["army_types"] = (f["army_types"], str(f["army_types"]))
-        if "army_counts" in f:
-            hero_fields_dict["army_counts"] = (f["army_counts"], str(f["army_counts"]))
-        if "skill_levels" in f:
-            hero_fields_dict["skill_levels"] = (f["skill_levels"], f"<{sum(1 for x in f['skill_levels'] if x)} skills>")
-        if "equipment" in f:
-            equipped = sum(1 for aid, _ in f["equipment"] if aid != 0xFFFFFFFF)
-            hero_fields_dict["equipment"] = (f["equipment"], f"<{equipped} equipped>")
-        hero_dict["fields"] = hero_fields_dict
         heroes_found.append(hero_dict)
 
-    # ----- towns_found (convert to legacy dict format) -----
+    # ----- towns_found (pass through ALL fields, including _detail_*) -----
     towns_found = []
     for t in parsed.towns:
         f = t.get("fields", {})
@@ -967,6 +949,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
             "location":     (f.get("x", 0), f.get("y", 0), f.get("z", 0)),
             "army_types":   f.get("army_types", [-1]*7),
             "army_counts":  f.get("army_counts", [0]*7),
+            "fields":       f,  # ALL fields — including _detail_*
         })
 
     # ----- object_offsets (from parsed.objects_on_map) -----
@@ -2745,7 +2728,15 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             hero_parent = QTreeWidgetItem([f"Heroes Found ({len(self.parsed_data['heroes_found'])})", "", "summary", "", ""])
             for h in self.parsed_data["heroes_found"]:
                 h_item = QTreeWidgetItem([f"{h['name']} @ 0x{h['offset']:08x}", "", "hero", f"0x{h['offset']:08x}", "~1122"])
-                for fname, (fval, fstr) in h["fields"].items():
+                # v3.12: fields is now a plain dict (not {name: (val, str)} tuples)
+                for fname, fval in h["fields"].items():
+                    if fname.startswith("_detail_"):
+                        continue  # skip detail sub-dicts in tree view
+                    # Handle both tuple format (legacy) and plain values (v3.12)
+                    if isinstance(fval, (list, tuple)) and len(fval) == 2 and not isinstance(fval, dict):
+                        fstr = str(fval[1])
+                    else:
+                        fstr = str(fval)
                     h_item.addChild(QTreeWidgetItem([fname, fstr, "", "", ""]))
                 hero_parent.addChild(h_item)
             self.tree.addTopLevelItem(hero_parent)
@@ -2900,7 +2891,14 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             for h in self.parsed_data.get("heroes_found", []):
                 if h["offset"] == hero_off:
                     details += ["", "Hero Fields:"]
-                    for fname, (fval, fstr) in h["fields"].items():
+                    # v3.12: fields is now a plain dict (not {name: (val, str)} tuples)
+                    for fname, fval in h["fields"].items():
+                        if fname.startswith("_detail_"):
+                            continue  # skip detail sub-dicts in text view
+                        if isinstance(fval, (list, tuple)) and len(fval) == 2 and not isinstance(fval, dict):
+                            fstr = str(fval[1])
+                        else:
+                            fstr = str(fval)
                         details.append(f"  {fname:25s} = {fstr}")
                     break
 

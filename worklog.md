@@ -1166,3 +1166,26 @@ Stage Summary:
 - ⭐ `parse_town_block` теперь возвращает 10 _detail полей с адресами + hex
 - ⭐ Формат полностью соответствует .h3m.json (first_addr, first_addr_hex, length, value_type, value, value_int, value_dec, value_hex, value_bin)
 - Архив пересобран
+
+---
+Task ID: fix-detail-fields-in-export-2026-10-10
+Agent: main (Super Z)
+Task: Исправить потерю _detail полей при экспорте JSON через gm1_parser
+
+Work Log:
+- Пользователь сообщил: "точно ли всё выводится в итоговый JSON при экспорте? мне важны адреса и hex значения координат"
+- Найдена причина: `_parse_save_via_config` в gm1_parser.py конвертировал heroes/towns в "legacy format" с (value, formatted_str) tuples и ВЫБРАСЫВАЛ все _detail_* поля
+- Исправление: вместо cherry-picking конкретных полей, теперь передаём ВСЕ fields (включая _detail_*) напрямую
+- Также исправлены 2 места в _on_tree_item_clicked и _populate_tree, которые ожидали tuple формат — теперь обрабатывают и tuple, и plain values, и пропускают _detail_ в tree view
+
+Проверка координат героя в JSON:
+- location_x: first_addr=0x142225, value_hex="2e 00" (= 46)
+- location_y: first_addr=0x142227, value_hex="65 00" (= 101)
+- location_z: first_addr=0x142229, value_hex="00 00" (= 0)
+- Можно вручную найти координаты в бинарнике и поправить!
+
+Stage Summary:
+- ⭐ _detail поля больше НЕ теряются при экспорте через gm1_parser.export_to_json
+- ⭐ Координаты героя (location_x/y/z) теперь содержат first_addr, first_addr_hex, value_hex, value_bin
+- ⭐ Tree view в GUI корректно обрабатывает новый формат (пропускает _detail_ в дереве)
+- Архив пересобран
