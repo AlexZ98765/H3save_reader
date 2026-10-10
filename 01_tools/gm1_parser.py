@@ -1097,12 +1097,28 @@ def export_to_json(parsed: Dict, raw: bytes,
     def serialize(obj):
         if isinstance(obj, (bytes, bytearray)):
             return obj.hex()
+        if isinstance(obj, memoryview):
+            return obj.tobytes().hex()
         if isinstance(obj, dict):
             return {k: serialize(v) for k, v in obj.items()}
         if isinstance(obj, list):
             return [serialize(v) for v in obj]
         if isinstance(obj, tuple):
             return list(serialize(v) for v in obj)
+        if isinstance(obj, set):
+            return [serialize(v) for v in obj]
+        # dataclass-like objects with __dict__
+        if hasattr(obj, "__dict__") and not isinstance(obj, (int, float, str, bool, type(None))):
+            try:
+                from dataclasses import asdict, is_dataclass
+                if is_dataclass(obj):
+                    return serialize(asdict(obj))
+            except Exception:
+                pass
+            try:
+                return serialize(vars(obj))
+            except Exception:
+                return str(obj)
         return obj
 
     # Use data passed by caller (from loaded Map JSON + save scan)
@@ -1360,7 +1376,7 @@ def export_to_json(parsed: Dict, raw: bytes,
             except Exception as e:
                 export_data["post_tile_content"] = {"error": f"serialization failed: {e}"}
         else:
-            export_data["post_tile_content"] = ptc
+            export_data["post_tile_content"] = serialize(ptc)
 
     if "player_states" in parsed:
         export_data["player_states"] = serialize(parsed["player_states"])
@@ -1373,22 +1389,23 @@ def export_to_json(parsed: Dict, raw: bytes,
         export_data["map_objects"] = serialize(parsed["map_objects"])
 
     if "map_start_info" in parsed:
-        export_data["map_start_info"] = parsed["map_start_info"]
+        export_data["map_start_info"] = serialize(parsed["map_start_info"])
 
     if "post_tile_sections" in parsed:
-        export_data["post_tile_sections"] = parsed["post_tile_sections"]
+        export_data["post_tile_sections"] = serialize(parsed["post_tile_sections"])
 
     if "town_timer_links" in parsed:
-        export_data["town_timer_links"] = parsed["town_timer_links"]
+        export_data["town_timer_links"] = serialize(parsed["town_timer_links"])
 
     if "merged_objects" in parsed:
         # merged_objects is already a dict of lists of plain dicts (output of merge_all)
-        export_data["merged_objects"] = parsed["merged_objects"]
+        # but it may contain bytes somewhere — wrap in serialize() to be safe
+        export_data["merged_objects"] = serialize(parsed["merged_objects"])
 
     if "aggregators" in parsed:
-        export_data["aggregators"] = parsed["aggregators"]
+        export_data["aggregators"] = serialize(parsed["aggregators"])
 
-    return json.dumps(export_data, indent=2, ensure_ascii=False)
+    return json.dumps(export_data, indent=2, ensure_ascii=False, default=str)
 
 
 def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,

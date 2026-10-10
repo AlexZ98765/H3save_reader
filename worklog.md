@@ -962,3 +962,44 @@ Stage Summary:
 - ⭐ Бонус: Map Config loading теперь тоже обновляет флаги внизу формы
 - Синтаксис проверен (ast.parse OK)
 - Архив пересобран
+
+---
+Task ID: fix-bytes-json-serialization-2026-10-10
+Agent: main (Super Z)
+Task: Исправить ошибку "Object of type bytes is not JSON serializable" при Export JSON
+
+Work Log:
+- Пользователь сообщил ошибку из скриншота pasted_image_1791626109319.png
+- Использовал VLM skill для чтения текста ошибки: "Failed to export: Object of type bytes is not JSON serializable"
+- Найдены 3 места с bytes в данных парсера:
+  1. `post_tile_content.seer_huts[*].mission_progress` — List[bytes] в SeerHutContent
+  2. `post_tile_content.pass_guards[*].mission_progress` — List[bytes] в PassGuardContent
+  3. `find_header_offsets` returns HeaderOffsets with `sr_bytes: bytes = b""`
+  4. `HeroOnObjectInfo.swapped_bytes: bytes = b""`
+- Также `gm1_parser.export_to_json` добавлял town_timer_links, merged_objects, aggregators, map_start_info, post_tile_sections БЕЗ вызова serialize() — bytes могли пройти через
+
+Исправления:
+1. В `post_tile_parser.py`:
+   - SeerHutContent.mission_progress: List[bytes] → List[str] (CP1251 decoded)
+   - PassGuardContent.mission_progress: List[bytes] → List[str]
+   - В parse_seer_hut_content и parse_pass_guard_content добавлена декодировка bytes в CP1251 (с fallback на hex)
+   - HeaderOffsets.sr_bytes: bytes → str (hex-encoded)
+   - HeroOnObjectInfo.swapped_bytes: bytes → str (hex-encoded)
+
+2. В `gm1_parser.export_to_json`:
+   - Усилена функция serialize() — теперь обрабатывает bytes, bytearray, memoryview, set, и dataclass-подобные объекты
+   - Все секции теперь проходят через serialize(): post_tile_content (else branch), town_timer_links, merged_objects, aggregators, map_start_info, post_tile_sections
+   - Добавлен default=str в json.dumps как последняя линия защиты от не-сериализуемых типов
+
+Тестирование на Myth and Legend (0000.GM1):
+- JSON сериализуется успешно: 3.8 МБ
+- Поиск bytes в d (post_tile_content, merged_objects, aggregators, player_states, map_objects): НЕТ bytes
+- save_parser self-test: OK
+
+Stage Summary:
+- ⭐ Исправлена ошибка "Object of type bytes is not JSON serializable"
+- ⭐ Найдено 3 источника bytes в post_tile_parser (mission_progress, sr_bytes, swapped_bytes) — все конвертированы в str (CP1251/hex)
+- ⭐ Усилена функция serialize() в export_to_json — теперь обрабатывает все типы и dataclass'ы
+- ⭐ Все секции export_data проходят через serialize()
+- ⭐ Добавлен default=str в json.dumps как fallback
+- Архив пересобран

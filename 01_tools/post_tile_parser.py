@@ -397,7 +397,7 @@ class SeerHutContent:
     mission_type: int = 0
     mission: Dict[str, Any] = field(default_factory=dict)
     deadline: Optional[Tuple[int, int, int]] = None  # (month, week, day)
-    mission_progress: List[bytes] = field(default_factory=list)  # 3 variable sections
+    mission_progress: List[str] = field(default_factory=list)  # 3 variable sections (CP1251 decoded)
     reward_type: int = 0
     reward: Dict[str, Any] = field(default_factory=dict)
 
@@ -512,10 +512,15 @@ def parse_seer_hut_content(raw: bytes, s: int) -> Tuple[SeerHutContent, int]:
     for _ in range(3):
         n = _u16(raw, s)
         if n != 0:
-            rec.mission_progress.append(raw[s + 4:s + 4 + n])
+            chunk = raw[s + 4:s + 4 + n]
+            # Try CP1251 decode — these often contain Russian mission text
+            try:
+                rec.mission_progress.append(chunk.decode("cp1251", errors="replace"))
+            except Exception:
+                rec.mission_progress.append(chunk.hex())
             s = s + n + 4
         else:
-            rec.mission_progress.append(b"")
+            rec.mission_progress.append("")
             s += 4
 
     # Reward (15 bytes)
@@ -567,7 +572,7 @@ class PassGuardContent:
     mission_type: int = 0
     mission: Dict[str, Any] = field(default_factory=dict)
     deadline: Optional[Tuple[int, int, int]] = None
-    mission_progress: List[bytes] = field(default_factory=list)
+    mission_progress: List[str] = field(default_factory=list)  # CP1251 decoded
 
 
 def parse_pass_guard_content(raw: bytes, s: int) -> Tuple[PassGuardContent, int]:
@@ -642,10 +647,14 @@ def parse_pass_guard_content(raw: bytes, s: int) -> Tuple[PassGuardContent, int]
     for _ in range(3):
         n = _u16(raw, s)
         if n != 0:
-            rec.mission_progress.append(raw[s + 4:s + 4 + n])
+            chunk = raw[s + 4:s + 4 + n]
+            try:
+                rec.mission_progress.append(chunk.decode("cp1251", errors="replace"))
+            except Exception:
+                rec.mission_progress.append(chunk.hex())
             s = s + n + 4
         else:
-            rec.mission_progress.append(b"")
+            rec.mission_progress.append("")
             s += 4
 
     return rec, s
@@ -952,7 +961,7 @@ class HeroOnObjectInfo:
     hero_id: int
     underlying_type_id: int
     underlying_object: Optional[Dict[str, Any]] = None
-    swapped_bytes: bytes = b""  # original 5 bytes that were temporarily swapped
+    swapped_bytes: str = ""  # original 5 bytes hex-encoded for JSON safety
 
 
 def hero_on_object(raw: bytearray, s: int, hero_id_at_s6: int,
@@ -1623,7 +1632,7 @@ def parse_monolith_whirlpool(raw: bytes, s: int) -> Tuple[MonolithInfo, int]:
 class HeaderOffsets:
     save_name: int = 0
     sr: int = 0  # script/random 28 bytes
-    sr_bytes: bytes = b""
+    sr_bytes: str = ""  # 28 bytes hex-encoded for JSON safety
     teams: int = 0  # 16-byte [0..7,0..7] sequence
     map_name: int = 0  # 341 bytes after teams
     black_market: int = 0
@@ -1677,7 +1686,7 @@ def find_header_offsets(raw: bytes, scan_start: int = 0,
     # s = i + 688; map.SR = s; Get_SR(s); s += 28
     s = i + 688
     info.sr = s
-    info.sr_bytes = raw[s:s + 28]
+    info.sr_bytes = raw[s:s + 28].hex()
     s += 28
 
     # 5. u16 length + skip length + 258 + 4
