@@ -1,8 +1,9 @@
 # 07_prt_decompiled — ProspectorRT полный реверс-код
 
-> **Версия:** 1.0 (2026-10-10)
+> **Версия:** 1.1 (2026-10-10)
 > **Источник:** `ProspectorRT.exe` (796 672 байт, .NET 4.x)
 > **Декомпилятор:** ILSpy 8.2 (C# source) + dnfile + custom IL disassembler
+> **Статус реализации:** ✅ Все 23 алгоритма ProspectorRT реализованы в `01_tools/post_tile_parser.py`
 
 Эта папка содержит **полные результаты дизасемблирования / восстановления исходного кода**
 утилиты **ProspectorRT** — единственного известного стороннего редактора сейвов
@@ -12,6 +13,10 @@ ProspectorRT служит эталонной реализацией для па�
 мы используем его алгоритмы и константы, но убираем искусственное ограничение
 «только day-0 сейв» (см. `02_format_docs/PRT_reverse_analysis.md` и
 `02_format_docs/PRT_offset_findings.md`).
+
+**⭐ Все 23 алгоритма ProspectorRT теперь реализованы** в `01_tools/post_tile_parser.py`
+(1,779 строк). См. `02_format_docs/unimplemented_algorithms_audit.md` для полного
+списка с указанием статуса и эквивалентов в MainForm.cs.
 
 ---
 

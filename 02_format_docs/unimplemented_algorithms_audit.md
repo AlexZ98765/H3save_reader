@@ -1,41 +1,64 @@
-# Audit: алгоритмы ProspectorRT, которые мы ещё не реализовали
+# Audit: алгоритмы ProspectorRT — статус реализации
 
-> **Дата:** 2026-10-10
+> **Дата:** 2026-10-10 (оригинал), обновлено 2026-10-10 (v3.8 — все реализованы)
 > **Source:** `07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs`
-> **Что у нас есть:** `01_tools/` (save_parser.py, tile_scanner.py, post_tile_scanner.py, save_layout.py)
+> **Реализация:** `01_tools/post_tile_parser.py` (1,779 строк)
 
 ## TL;DR
 
 ProspectorRT `Scanner()` (MainForm.cs:6172) после `GetSenseRegion()` вызывает **32 функции парсинга**.
-У нас реализовано эквивалентно **9** (`find_map_start`, `scan_tiles`, `IsObject`-диспетчер, hero/town блоки, player state, current state, и scan-only версии post-tile секций).
 
-**Не реализовано 23 функции парсинга + весь editing pipeline.** Они перечислены ниже в порядке приоритета.
+✅ **Все 23 нереализованных алгоритма ProspectorRT теперь реализованы в `01_tools/post_tile_parser.py`.**
+Этот документ изначально был todo-списком отсутствующих парсеров; теперь он сохранён как
+историческая справка по соответствию `MainForm.cs` ↔ `post_tile_parser.py`.
+
+Осталось нереализованным только: **write-back pipeline** (редактирование сейва, Шаг 4).
 
 ---
 
-## Что уже реализовано ✅
+## ⭐ Статус реализации по категориям (v3.8)
+
+| Категория | Парсеры | Реализация в `post_tile_parser.py` | Статус |
+|---|---|---|---|
+| **A. Post-tile content** | `parse_event_box_content`, `parse_art_res_content`, `parse_monstr_content`, `parse_seer_hut_content`, `parse_pass_guard_content`, `parse_bank_content`, `parse_garrison_content`, `parse_univer_content`, `parse_market_content` | `EventBoxContent`, `ArtResContent`, `MonstrContent`, `SeerHutContent`, `PassGuardContent`, `BankContent`, `GarrisonContent`, `UniverContent`, `MarketContent` dataclasses | ✅ |
+| **B. Alliance + ArtMerchants + EXP** | `parse_alliance`, `parse_art_merchants`, `parse_experience_sources` | `AllianceInfo`, `ArtMerchant`, `ExperienceSource` dataclasses | ✅ |
+| **C. Timed events** | `parse_map_timed_events`, `parse_town_timed_events`, `_parse_timer_res`, `_parse_timer_content` | `TimedEvent` dataclass + helpers | ✅ |
+| **D. Town spells** | `parse_town_spell` | `TownSpellPool` dataclass | ✅ |
+| **E. ArtDollPlace** | `parse_art_doll` | `DollPlace` dataclass | ✅ |
+| **F. Prison heroes** | `parse_prison_hero` | `PrisonHero` dataclass | ✅ |
+| **G. Topology** | `parse_pair_subterranean_gate`, `parse_monolith_whirlpool` | `SubTerGate`, `MonolithInfo` dataclasses | ✅ |
+| **H. Header offsets** | `find_header_offsets` | `HeaderOffsets` dataclass | ✅ |
+| **I. Aggregators** | `aggregate_all_spells`, `aggregate_all_skills`, `aggregate_monstr_content` | helper functions | ✅ |
+| **J. Editing / write-back** | (отсутствует) | НЕ реализовано — следующий шаг | ❌ |
+| **K. Reference tables** | (заменено) | `03_object_mapping/object_types_dictionary.json` (2037 типов из LazyLlama) | ✅ (другой подход) |
+
+---
+
+## Что уже реализовано ✅ (оригинальная таблица — сохранена для исторической справки)
 
 | ProspectorRT функция | Строка | Эквивалент в `01_tools/` |
 |---|---|---|
-| `GetStart()` | 9443 | `tile_scanner.find_map_start()` (частично — только `map.Start`) |
-| `GetMapStart()` | 9411 | `tile_scanner.find_map_start()` (частично) |
+| `GetStart()` | 9443 | `tile_scanner.find_map_start()` + `post_tile_parser.find_header_offsets()` (полная версия с Teams, MapName, BlackMarket, SR) |
+| `GetMapStart()` | 9411 | `tile_scanner.find_map_start()` + `post_tile_parser.find_header_offsets()` |
 | tile loop в `Scanner()` | 6211-6267 | `tile_scanner.scan_tiles()` |
 | `IsObject()` (31 type dispatcher) | 9484 | `tile_scanner.parse_object_content()` |
-| `GetSenseRegion()` | 6124 | `post_tile_scanner.walk_post_tile_sections()` (offsets only) |
-| `Scan*Content()` (10 функций) | 9081-9335 | `post_tile_scanner.scan_*` (offsets only) |
+| `GetSenseRegion()` | 6124 | `post_tile_scanner.walk_post_tile_sections()` (offsets + расширенная цепочка BitField/Monolith/SubTerGate/Bank/Motions) |
+| `Scan*Content()` (10 функций) | 9081-9335 | `post_tile_scanner.scan_*` (offsets only) + `post_tile_parser.parse_*` (content extraction) |
 | `GetColorContent()` | 7653 | `save_parser.parse_hero_block()` + `PLAYER_STATE_OFFSETS` |
-| `GetCurrentState()` | 7668 | `save_parser` + `CURRENT_STATE_OFFSETS` (частично) |
-| `GetTownContent()` | 7458 | `save_parser.parse_town_block()` (базовые поля) |
-| `GetHeroesContent()` | 7723 | `save_parser.parse_hero_block()` (базовые поля) |
+| `GetCurrentState()` | 7668 | `save_parser` + `CURRENT_STATE_OFFSETS` + `post_tile_parser.parse_art_merchants()` |
+| `GetTownContent()` | 7458 | `save_parser.parse_town_block()` (базовые поля) + `post_tile_parser.parse_town_spell()` (Magic Guild) |
+| `GetHeroesContent()` | 7723 | `save_parser.parse_hero_block()` (базовые поля) + `post_tile_parser.parse_art_doll()` (doll slots) |
 
 ---
 
-## Категория A: Парсинг post-tile секций (большой блок)
+## ⭐ ⭐ ⭐ Категории A-I (теперь все ✅ реализованы)
 
-У нас есть только `scan_*` функции, которые **пропускают** секцию и возвращают её конец.
-ProspectorRT также имеет `*Content` функции, которые **расшифровывают содержимое**.
+См. ниже оригинальные описания категорий A-K — они сохранены для справки.
+Каждый пункт имеет заголовок "✅ Реализовано в ..." для указания текущего статуса.
 
 ### A1. `AnalysisContent` (строка 6809) — генерический post-tile парсер
+
+✅ **Реализовано в `post_tile_parser.parse_analysis_content()`** — generic helper для EventBox/ArtRes/SeerHut/PassGuard.
 
 Универсальная функция, которая по DataTable + делегату парсит все записи секции:
 ```csharp

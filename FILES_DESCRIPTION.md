@@ -1,6 +1,6 @@
 # HoMM3 GM1 Toolkit — подробное описание файлов
 
-> **Версия документа:** 3.0-dev (2026-10-10)
+> **Версия документа:** 3.8 (2026-10-10)
 > **Проект:** Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA)
 > **Цель:** Универсальный редактор сейвов, работающий с любой картой без хардкода абсолютных смещений
 
@@ -12,16 +12,19 @@
 H3save_reader/
 ├── README.md                          Точка входа (краткая навигация)
 ├── FILES_DESCRIPTION.md               Этот файл (подробное описание)
+├── worklog.md                         ⭐ Журнал работы (обновляется при каждой задаче)
 │
 ├── 01_tools/                          Готовые инструменты для работы с сейвами
 │   ├── gm1_parser.py                  PySide6 GUI парсер сейвов (требует рефакторинга для использования MapConfig)
 │   ├── map_json_loader.py             ⭐ Фаза 1: загрузчик JSON-парсинга карты (универсальный)
 │   ├── map_config_builder.py          ⭐ Фаза 2: построитель per-map config из day-0 сейва
-│   ├── save_parser.py                 ⭐ Фаза 3: универсальный парсер сейва через MapConfig
+│   ├── save_parser.py                 ⭐ Фаза 3: универсальный парсер сейва через MapConfig (интегрирован с post_tile_parser)
 │   ├── cluster_finder.py              ⭐ Универсальный, gap-based поиск кластеров объектов в сейве
 │   ├── header_parser.py               ⭐ Универсальный парсер заголовка .GM1
-│   ├── save_layout.py                 ⭐ Dataclasses (HeaderInfo, ObjectCluster, HeroSection, TownSection, MapConfig) + формат-константы (HERO_FIELD_OFFSETS, TOWN_FIELD_OFFSETS)
-│   ├── block_finder.py                Старый универсальный поиск hero/town блоков (regex + имена)
+│   ├── save_layout.py                 ⭐ Dataclasses + формат-константы (HERO_FIELD_OFFSETS, TOWN_FIELD_OFFSETS, HERO_STRIDE_SOD=0x446, TOWN_RECORD_BASE_SIZE=382, PLAYER_STATE_OFFSETS, CURRENT_STATE_OFFSETS, TOWN_SPELL_POOL_DEPTH, SAVE_SECTION_ORDER)
+│   ├── tile_scanner.py                ⭐ Сканер тайлов (find_map_start, scan_tiles, IsObject диспетчер для 31 типа)
+│   ├── post_tile_scanner.py           ⭐ Offset-walker post-tile секций (scan_* skip-only функции + walk_post_tile_sections)
+│   ├── post_tile_parser.py            ⭐⭐⭐ Контент-парсеры (1,779 строк, все 23 алгоритма ProspectorRT)
 │   ├── gm1_diff.py                    CLI компаратор сейвов
 │   └── gm1_diff_gui.py                GUI версия компаратора
 │
@@ -29,7 +32,11 @@ H3save_reader/
 │   ├── GM1_format_compendium.md       Человекочитаемая справка по формату
 │   ├── gm1_mapping.json               ⚠️ Конфиг смещений (требует чистки: удалить blocks и alternative_offsets)
 │   ├── header_pointer_search.md       Стратегия универсального поиска секций
-│   └── diff_interpretation.json       Сводка 32 дифф-анализов (историческая)
+│   ├── diff_interpretation.json       Сводка 32 дифф-анализов (историческая)
+│   ├── PRT_offset_findings.md         ⭐ Точные смещения в ProspectorRT.exe (643 строки)
+│   ├── PRT_reverse_analysis.md       Анализ ProspectorRT и HeroesInfo
+│   ├── asm_prt_correlation.md         Корреляция asm ↔ ProspectorRT (константы подтверждены)
+│   └── unimplemented_algorithms_audit.md  ⭐ Аудит 23 алгоритмов ProspectorRT (все ✅ реализованы)
 │
 ├── 03_object_mapping/                 Универсальные словари типов объектов
 │   ├── README.md                      Описание
@@ -298,6 +305,87 @@ json.dump(data, open("/tmp/parsed.json", "w"), ensure_ascii=False, indent=2)
   - Герой переместился: (5,3,0) → (5,1,0)
 
 **Статус:** ✅ Готов. Проверен на обеих картах (day-0 + post-action сейвы).
+
+**Интеграция с post_tile_parser (v3.8):**
+Начиная с v3.8, `parse_save` также вызывает `parse_all_post_tile_sections` из `post_tile_parser.py` и сохраняет результат в `parsed._post_tile_content`. Это добавляет:
+- `event_boxes: List[EventBoxContent]` — все Pandorabox на карте
+- `art_res: List[ArtResContent]` — сокровища с гардом
+- `monstr_records: List[MonstrContent]` — монстры с сокровищами
+- `seer_huts: List[SeerHutContent]` — Seer Huts (10 mission types + 10 reward types)
+- `pass_guards: List[PassGuardContent]` — Border Guards
+- `banks: List[BankContent]` — Creature Banks (post-tile)
+- `garrisons: List[GarrisonContent]` — post-tile гарнизоны
+- `map_timed_events: List[TimedEvent]`
+- `town_timed_events: List[TimedEvent]`
+- `monoliths: MonolithInfo` — OneWay + TwoWay + Whirlpools
+- `sub_ter_gates: {gates, pair_ids}` — пары подземных врат
+
+`parsed_save_to_dict` автоматически конвертирует dataclasses в JSON-serializable dicts.
+
+---
+
+### 4b. `01_tools/post_tile_parser.py` — Контент-парсеры post-tile секций ⭐⭐⭐ (v3.8)
+
+**Размер:** 1,779 строк
+**Назначение:** Реализует **все 23 алгоритма ProspectorRT**, идентифицированные в
+`02_format_docs/unimplemented_algorithms_audit.md` как отсутствующие. Каждый парсер —
+это content-extracting аналог `scan_*` skip-only функции из `post_tile_scanner.py`.
+
+**Категории парсеров:**
+
+| Категория | Парсеры | Эквивалент ProspectorRT (MainForm.cs) |
+|---|---|---|
+| **A. Post-tile content** | `parse_event_box_content`, `parse_art_res_content`, `parse_monstr_content`, `parse_seer_hut_content`, `parse_pass_guard_content`, `parse_bank_content`, `parse_garrison_content`, `parse_univer_content`, `parse_market_content` | EventBoxContent (8172), ArtResContent (8394), MonstrContent (8455), SeerHutContent (8505), PassGuardContent (8740), BankContent (8902), GarrisonContent (8136), UniverContent (8031), MarketContent (8055) |
+| **B. Alliance + ArtMerchants + EXP** | `parse_alliance`, `parse_art_merchants`, `parse_experience_sources` | GetAlliance (6273), GetArtMerchants (7684), GetExperience (6381) |
+| **C. Timed events** | `parse_map_timed_events`, `parse_town_timed_events`, `_parse_timer_res`, `_parse_timer_content` | MapTimedEvents (6905), TownsTimedEvents (6877), GetTimerRes (6956), GetTimerContent (6931) |
+| **D. Town spells** | `parse_town_spell` | GetTownSpell (7542) |
+| **E. ArtDollPlace** | `parse_art_doll` | ArtDollPlace1/2 (7883/7935), GetDollPlace (7948) |
+| **F. Prison heroes** | `parse_prison_hero` | GetPrisonHero (7983) |
+| **G. Topology** | `parse_pair_subterranean_gate`, `parse_monolith_whirlpool` | GetPairSubterraneanGate (9335), ScanMonolithWhirlpool (9392) |
+| **H. Header offsets** | `find_header_offsets` | GetMapStart (9411), GetStart (9443) |
+| **I. Aggregators** | `aggregate_all_spells`, `aggregate_all_skills`, `aggregate_monstr_content` | GetAllSpell (7263), GetAllSkill (7160), AnalysisMonstrContent (6801) |
+
+**Главная функция:**
+```python
+parse_all_post_tile_sections(raw, after_tiles_offset, object_number,
+                              hero_count=156, map_size=..., has_underground=...,
+                              chrn=0) -> Dict[str, Any]
+```
+Возвращает dict со всеми секциями: `{'offsets': {...}, 'event_boxes': [...], 'seer_huts': [...], ...}`.
+
+**Тестирование на Myth and Legend (114.GM1):**
+- 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (полная русская миссия + 1000 EXP награда)
+- 12 Banks, 0 PassGuards, 0 Garrisons
+- 8 Map Timed Events, 167 Town Timed Events
+- 8+8 групп монолитов (OneWay + TwoWay), 12 Whirlpools
+- 4 Subterranean Gates с 4 pair_ids
+
+**Статус:** ✅ Готов. Все 23 алгоритма реализованы.
+
+---
+
+### 4c. `01_tools/post_tile_scanner.py` — Offset-walker post-tile секций ⭐⭐
+
+**Размер:** 356 строк
+**Назначение:** Реализует offset-walking алгоритм ProspectorRT `GetSenseRegion` — проходит
+вперед от конца tile loop, вычисляя смещения всех post-tile секций (EventBox, ArtRes,
+Monstr, SeerHut, PassGuard, MapTimed, TownsTimed, BottleSign, Mine, Dwelling, Garrison,
+UnknownVarReg, UnknownFixedReg, Color, Town, Hero, HeroState, CurrentState, BitField,
+OneWayMonolith, TwoWayMonolith, Whirlpool, SubTerGate, SubTerGatePair, Univer, Bank, Motions).
+
+**Ключевая функция:**
+```python
+walk_post_tile_sections(raw, after_tiles_offset, object_number,
+                        hero_count=156, map_size=0, has_underground=False,
+                        chrn=0) -> Dict[str, int]
+```
+
+**Bugfix в v3.8:** `TOWN_HERO_GAP` исправлен с 26 на 0 (по ProspectorRT source — без gap).
+
+**Graceful fallback:** Day-0 сейвы могут иметь укороченный файл (BitField выходит за пределы) —
+обрабатывается через try/except, базовые offsets возвращаются.
+
+**Статус:** ✅ Готов. Проверен на обеих картах.
 
 ---
 

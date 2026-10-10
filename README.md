@@ -1,7 +1,7 @@
 # HoMM3 GM1 Toolkit
 
 > Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA).
-> **Версия архива:** 3.0-dev (work in progress — universal parsing without hardcoded offsets).
+> **Версия архива:** 3.8 (10 Октября 2026)
 
 ## Что внутри
 
@@ -9,8 +9,8 @@
 
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
-| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (сканер тайлов), `gm1_diff.py`, `gm1_diff_gui.py` |
-| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `header_pointer_search.md`, `diff_interpretation.json` |
+| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (сканер тайлов), **`post_tile_scanner.py`** (offset-walker), **`post_tile_parser.py`** (23 content-парсера ProspectorRT), `gm1_diff.py`, `gm1_diff_gui.py` |
+| **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md`, `gm1_mapping.json`, `header_pointer_search.md`, `diff_interpretation.json`, `unimplemented_algorithms_audit.md` (статус 23 парсеров) |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
 | **`04_diff_analysis/`** | Скрипты дифференциального анализа сейвов (исторические, разовые) | `build_object_type_dictionary.py` (универсальный), `Myth and Legend/` (подпапка для карты) |
 | **`05_disasm/`** | Дизассемблированный `heroes3.exe` (нативный код) | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
@@ -25,7 +25,7 @@
 
 1. **Фаза 1 — Map JSON** (`map_json_loader.py`): загружает JSON-парсинг карты `.h3m` (или `.zip` с ним), строит `MapData` (`objects_by_coord`, `coord_int_lookup`, `type_index`, `category_index`) для ЛЮБОЙ карты.
 2. **Фаза 2 — Day-0 anchor** (`map_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
-3. **Фаза 3 — Any save** (`save_parser.py` + `gm1_parser.py`): открывает любой сейв той же карты, **адаптирует** смещения из config (hero/town блоки и кластеры объектов могут сдвигаться между сейвами из-за роста path-block/replay log) и распарсивает все поля героя/города/объекта через `field_offsets` (формат-константы из `save_layout.py`). В v3.0 (Шаг 3) GUI `gm1_parser.parse_save()` автоматически использует `save_parser.parse_save()` через MapConfig — без хардкода смещений. `gm1_mapping.json` очищен от абсолютных offsets (оставлены только `constants`, `path_block`, `field_offsets`, `known_unknowns`).
+3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py`): открывает любой сейв той же карты, **адаптирует** смещения из config (hero/town блоки и кластеры объектов могут сдвигаться между сейвами из-за роста path-block/replay log), парсит все поля героя/города/объекта через `field_offsets` (формат-константы из `save_layout.py`), и декодирует содержимое **всех post-tile секций** ProspectorRT (EventBox, ArtRes, Monstr, SeerHut, PassGuard, Bank, Garrison, Univer, Market, Alliance, ArtMerchants, Timed Events, TownSpell, ArtDollPlace, PrisonHero, SubTerGate, MonolithWhirlpool) через `post_tile_parser.py` — без хардкода смещений.
 
 ## С чего начать
 
@@ -65,11 +65,29 @@ coord_int = x | (y << 8) | (z << 16)
 
 **Важно:** SAVE координаты могут отличаться от MAP координат на +2 (towns занимают 2×2 тайла, сейв использует top-left corner). См. `02_format_docs/GM1_format_compendium.md` для деталей.
 
+## Текущая реализация post-tile парсеров (v3.8)
+
+`01_tools/post_tile_parser.py` (1,779 строк) реализует **все 23 алгоритма ProspectorRT**:
+- **A2-A10** Content-парсеры: EventBox, ArtRes, Monstr, SeerHut (10 mission + 10 reward types), PassGuard, Bank, Garrison, Univer, Market
+- **B1-B3** Alliance, ArtMerchants, Experience aggregator
+- **C1-C8** Map + Town Timed Events с signed-resource encoding
+- **D1** GetTownSpell (Magic Guild spells)
+- **E1-E3** ArtDollPlace (раскладка артефактов по слотам)
+- **F1** GetPrisonHero (связка prison → hero record)
+- **G1-G2** GetPairSubterraneanGate + ScanMonolithWhirlpool
+- **H1-H5** Header offsets (BlackMarket, SR, Teams, MapName, Start)
+- **I1-I5** Aggregators (GetAllSpell, GetAllSkill, AnalysisMonstrContent, SeerHutContent2, PassGuardContent2)
+
+Тестирование на Myth and Legend (114.GM1): 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (с русской миссией), 12 Banks, 8 Map Timed Events, 167 Town Timed Events, 8+8 групп монолитов, 12 водоворотов, 4 пары подземных врат.
+
 ## Известные ограничения текущей версии
 
 - `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 (Шаг 3b) — они вычисляются динамически через `map_config_builder.py`.
 - `04_diff_analysis/Myth and Legend/` — исторические разовые скрипты, использовавшиеся для ручного локализования полей. Не используются в runtime. Пути к сейвам в них захардкожены (сейвы не в репозитории).
+- Write-back (редактирование сейва) — НЕ реализовано. Чтение полностью готово, запись в планах (Шаг 4).
+- Day-0 сейвы: расширенная цепочка после CurrentState (BitField, Monolith, SubTerGate, Bank) может отсутствовать/обрываться (файл укорочен). Обрабатывается gracefully через try/except.
 
 ## Подробная документация
 
 См. **`FILES_DESCRIPTION.md`** — полное описание всех файлов.
+См. **`02_format_docs/unimplemented_algorithms_audit.md`** — аудит 23 алгоритмов ProspectorRT (все ✅ реализованы).

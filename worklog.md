@@ -469,3 +469,46 @@ Stage Summary:
 - Интегрировано в `save_parser.py` — теперь `parse_save` возвращает полный контент post-tile секций
 - JSON-сериализация работает (1.97 МБ JSON для Myth and Legend 114.GM1 с полным содержимым)
 - Day-0 сейвы обрабатываются gracefully — расширенная цепочка (BitField+) может отсутствовать
+
+---
+Task ID: docs-update-2026-10-10-v3.8
+Agent: main (Super Z)
+Task: Обновить все .md файлы проекта H3save_reader и добавить worklog.md в архив
+
+Work Log:
+- Найдены все .md файлы в проекте (15 файлов в 7 папках)
+- Обновлён `H3save_reader/README.md`:
+  - Версия обновлена с 3.0-dev до 3.8 (10 Октября 2026)
+  - В таблицу "Что внутри" добавлены `post_tile_scanner.py` и `post_tile_parser.py` в 01_tools/
+  - В 02_format_docs/ добавлены `unimplemented_algorithms_audit.md`, `PRT_offset_findings.md`, `PRT_reverse_analysis.md`, `asm_prt_correlation.md`
+  - Фаза 3 описана с интеграцией `post_tile_parser.py` (декодирует все post-tile секции ProspectorRT)
+  - Добавлен новый раздел "Текущая реализация post-tile парсеров (v3.8)" — все 9 категорий (A-I) парсеров
+  - Добавлены тестовые результаты на Myth and Legend (114.GM1): 99 EventBox, 10 ArtRes, 34 Monstr, 1 SeerHut (русская миссия), 12 Banks, 8+167 timed events, 8+8+12 монолитов/водоворотов, 4 sub_ter_gates
+  - В раздел "Известные ограничения" добавлено: write-back не реализован (Шаг 4), day-0 сейвы gracefully degraded
+  - В "Подробная документация" добавлена ссылка на `02_format_docs/unimplemented_algorithms_audit.md`
+- Обновлён `H3save_reader/FILES_DESCRIPTION.md`:
+  - Версия документа обновлена до 3.8
+  - В структуру добавлены `worklog.md`, `tile_scanner.py`, `post_tile_scanner.py`, `post_tile_parser.py`, PRT_offset_findings, PRT_reverse_analysis, asm_prt_correlation, unimplemented_algorithms_audit
+  - Добавлен новый раздел "4b. `01_tools/post_tile_parser.py`" — детальное описание всех 23 парсеров с таблицей категорий A-I
+  - Добавлен новый раздел "4c. `01_tools/post_tile_scanner.py`" — описание offset-walker с bugfix'ом TOWN_HERO_GAP=0
+  - В раздел save_parser.py добавлено описание интеграции с post_tile_parser
+- Обновлён `H3save_reader/07_prt_decompiled/README.md`:
+  - Версия обновлена до 1.1
+  - Добавлен "Статус реализации: ✅ Все 23 алгоритма ProspectorRT реализованы"
+  - Добавлен блокнот о реализации в `01_tools/post_tile_parser.py` (1,779 строк) со ссылкой на unimplemented_algorithms_audit
+- Обновлён `H3save_reader/02_format_docs/unimplemented_algorithms_audit.md`:
+  - Заголовок изменён с "...которые мы ещё не реализовали" на "...статус реализации"
+  - Добавлен новый TL;DR блок: ✅ Все 23 алгоритма реализованы в `01_tools/post_tile_parser.py`
+  - Добавлена новая сводная таблица "Статус реализации по категориям (v3.8)" с 11 категориями (A-K), все ✅ кроме J (write-back, ❌)
+  - Обновлена таблица "Что уже реализовано ✅" с уточнениями после v3.8 (например, `GetTownContent()` теперь + `parse_town_spell()`)
+  - Добавлен раздел "⭐⭐⭐ Категории A-I (теперь все ✅ реализованы)" — описания сохранены как историческая справка
+  - A1 (AnalysisContent) помечен "✅ Реализовано в `post_tile_parser.parse_analysis_content()`"
+- Скопирован `worklog.md` в `H3save_reader/worklog.md` для включения в архив
+- Архив `download/H3save_reader.tar.gz` пересобран
+
+Stage Summary:
+- 5 .md файлов обновлены в соответствии с v3.8: README.md, FILES_DESCRIPTION.md, 07_prt_decompiled/README.md, 02_format_docs/unimplemented_algorithms_audit.md
+- worklog.md теперь включён в архив проекта (471 строк)
+- Все ссылки на `post_tile_parser.py` и `unimplemented_algorithms_audit.md` добавлены
+- Исторические документы (04_diff_analysis/Myth and Legend/README.md, 03_object_mapping/README.md) проверены — не требуют обновления
+- Аудит-документ из todo-списка превращён в историческую справку "всё реализовано"
