@@ -1321,3 +1321,33 @@ Stage Summary:
 - ⭐ verified = True если байты в бинарнике совпадают с ожидаемыми координатами
 - ⭐ Пользователь может вручную найти координаты: hex editor → 0x127504 → 3a 00 00 → поменять на новые координаты
 - Архив пересобран
+
+---
+Task ID: auto-save-and-rename-2026-10-10
+Agent: main (Super Z)
+Task: Автосохранение map config + переименование файлов
+
+Work Log:
+1. Map config — автосохранение (без диалога):
+   - Сохраняется рядом с загруженным сейвом нулевого дня (в той же папке)
+   - Имя: `save_map_config_<safe_map_name>.json`
+   - Убран QFileDialog.getSaveFileName — сохраняется автоматически
+
+2. JSON export — переименование:
+   - Было: `parsed_save.json`
+   - Стало: `parsed_save_<safe_map_name>.json`
+   - Путь по умолчанию: рядом с загруженным сейвом
+
+3. XLSX export — переименование:
+   - Было: `homm3_map_objects.xlsx`
+   - Стало: `save_map_objects_<safe_map_name>.xlsx`
+   - Путь по умолчанию: рядом с загруженным сейвом
+
+safe_map_name — имя карты с заменой не-alnum символов на "_"
+
+Stage Summary:
+- ⭐ Map config автоматически сохраняется рядом с day-0 сейвом — без диалога
+- ⭐ JSON export: parsed_save_<map_name>.json
+- ⭐ XLSX export: save_map_objects_<map_name>.xlsx
+- ⭐ Все пути по умолчанию — рядом с загруженным сейвом
+- Архив пересобран

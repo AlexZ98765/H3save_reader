@@ -3333,7 +3333,19 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         if not self.parsed_data:
             QMessageBox.warning(self, "Warning", "No file loaded")
             return
-        path, _ = QFileDialog.getSaveFileName(self, "Export JSON", "parsed_save.json", "JSON files (*.json)")
+        # v3.16: Default filename = parsed_save_<map_name>.json
+        map_name = self.parsed_data.get("file_info", {}).get("map_name", "unknown")
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
+        if not safe_name:
+            safe_name = "unknown"
+        default_name = f"parsed_save_{safe_name}.json"
+        # Default path: next to the loaded save file
+        if self.current_file:
+            save_dir = os.path.dirname(self.current_file)
+            default_path = os.path.join(save_dir, default_name)
+        else:
+            default_path = default_name
+        path, _ = QFileDialog.getSaveFileName(self, "Export JSON", default_path, "JSON files (*.json)")
         if not path:
             return
         try:
@@ -3363,9 +3375,24 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             )
             if reply != QMessageBox.Yes:
                 return
+        # v3.16: Default filename = save_map_objects_<map_name>.xlsx
+        map_name = "unknown"
+        if self.parsed_data:
+            map_name = self.parsed_data.get("file_info", {}).get("map_name", "unknown")
+        elif self.map_data:
+            map_name = getattr(self.map_data, "map_name", "unknown")
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
+        if not safe_name:
+            safe_name = "unknown"
+        default_xlsx_name = f"save_map_objects_{safe_name}.xlsx"
+        if self.current_file:
+            save_dir = os.path.dirname(self.current_file)
+            default_xlsx_path = os.path.join(save_dir, default_xlsx_name)
+        else:
+            default_xlsx_path = default_xlsx_name
         path, _ = QFileDialog.getSaveFileName(
             self, "Export Objects to Excel",
-            "homm3_map_objects.xlsx",
+            default_xlsx_path,
             "Excel files (*.xlsx)"
         )
         if not path:
@@ -3588,30 +3615,16 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             QMessageBox.critical(self, "Error", f"Failed to build config:\n{e}")
             return
 
-        # Suggest saving config to file (with file dialog)
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        toolkit_dir = os.path.normpath(os.path.join(script_dir, ".."))
+        # v3.16: Auto-save config NEXT TO the day-zero save file (no dialog)
         map_name = config.meta.get("map_name", "unknown_map")
         safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
         if not safe_name:
             safe_name = "unknown_map"
-        default_filename = f"map_config_{safe_name}.json"
-        default_path = os.path.join(toolkit_dir, default_filename)
-
-        # Ask user where to save the config
-        config_path, _ = QFileDialog.getSaveFileName(
-            self, "Save Map Config",
-            default_path,
-            "Map Config files (*.json);;All files (*)"
-        )
-        if not config_path:
-            # User cancelled — keep config in memory only
-            config_path = "(not saved — kept in memory only)"
-        else:
-            # Ensure .json extension
-            if not config_path.lower().endswith(".json"):
-                config_path += ".json"
-            config.save(config_path)
+        config_filename = f"save_map_config_{safe_name}.json"
+        # Save next to the day-zero save file
+        save_dir = os.path.dirname(path)
+        config_path = os.path.join(save_dir, config_filename)
+        config.save(config_path)
 
         # Store config and day-zero raw data
         self.map_config = config
