@@ -1108,3 +1108,61 @@ Stage Summary:
 - ⭐ Все родители выбранного элемента автоматически разворачиваются
 - ⭐ Автоскролл к выбранному элементу (PositionAtCenter)
 - Архив пересобран
+
+---
+Task ID: add-address-hex-details-v3.12-2026-10-10
+Agent: main (Super Z)
+Task: Добавить адреса и hex-представления всех полей (как в .h3m.json формате)
+
+Work Log:
+- Пользователь сообщил: "в результирующем JSON не хватает адресов, где расположены все параметры и координаты"
+- Пользователь указал пример: парсинг карты .h3m.json — там каждый параметр имеет first_addr, first_addr_hex, length, value_type, value, value_int, value_dec, value_hex, value_bin
+
+Реализация:
+1. Создан новый модуль `01_tools/field_formatter.py` (~200 строк):
+   - `make_field(name, addr, length, value_type, value, raw_bytes, value_int, value_dec)` — основной builder
+   - `make_u8_field`, `make_u16_field`, `make_u32_field` — типизированные wrappers
+   - `make_bool_field`, `make_cp1251_field`, `make_ascii_field` — специальные типы
+   - `make_bytes_field`, `make_list_field`, `make_coords_field` — комплексные типы
+   - `make_string_field` — variable-length строка с u16 prefix
+   - `enrich_field(name, value, addr, length, value_type, raw)` — обёртка для уже-распарсенных значений
+   - `_bytes_to_hex`, `_bytes_to_bin`, `_bytes_to_int_le` — helpers
+
+2. Обновлён `parse_hero_block` в save_parser.py:
+   - Каждое поле теперь имеет 2 записи: простое значение + `_detail_` sub-dict
+   - Например: `fields["location_x"] = 46` + `fields["_detail_location_x"] = {first_addr, first_addr_hex, length, value_type, value, value_int, value_dec, value_hex, value_bin}`
+   - 19 _detail полей: location_x/y/z, player, movement_total/left, experience, mana_left, level, num_skills, name, army_types/counts, skill_levels/slots, attributes, spells_book/available, equipment
+   - Также добавлено `_detail_block_offset` — адрес hero блока
+
+3. Обновлён `parse_town_block` в save_parser.py:
+   - 10 _detail полей: block_offset, id, faction, type, x/y/z, army_types/counts, name
+   - Каждое поле имеет полный адрес + hex
+
+Формат каждого _detail поля (пример):
+```json
+{
+  "first_addr": 1319461,
+  "first_addr_hex": "0x142225",
+  "length": 2,
+  "value_type": "i16",
+  "value": 46,
+  "value_int": 46,
+  "value_dec": 46,
+  "value_hex": "2e 00",
+  "value_bin": "00101110 00000000"
+}
+```
+
+Тестирование на Myth and Legend (0000.GM1):
+- Hero 0 (Одиссей): 19 _detail полей ✅
+- Town 0 (Кавала): 10 _detail полей ✅
+- JSON size: 3.8 МБ → 6.4 МБ (увеличение за счёт адресов и hex)
+- JSON serialization: SUCCESS
+- Синтаксис: OK
+
+Stage Summary:
+- ⭐ Создан модуль `field_formatter.py` с полным набором builders для .h3m.json-стиля
+- ⭐ `parse_hero_block` теперь возвращает 19 _detail полей с адресами + hex
+- ⭐ `parse_town_block` теперь возвращает 10 _detail полей с адресами + hex
+- ⭐ Формат полностью соответствует .h3m.json (first_addr, first_addr_hex, length, value_type, value, value_int, value_dec, value_hex, value_bin)
+- Архив пересобран

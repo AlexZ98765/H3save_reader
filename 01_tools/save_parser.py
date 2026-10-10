@@ -112,93 +112,166 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
 
     All offsets are RELATIVE TO NAME POSITION (h3sed convention). To get the
     actual save offset of a field, add (block_offset + 169) to the relative offset.
+
+    v3.12: Each field now includes full address + hex info (like .h3m.json format).
+    The "fields" dict contains BOTH the simple value AND a "_detail" sub-dict
+    with first_addr, first_addr_hex, length, value_type, value_hex, value_bin.
     """
+    from field_formatter import (
+        make_u8_field, make_u16_field, make_u32_field, make_cp1251_field,
+        make_list_field, make_bytes_field, enrich_field,
+    )
+
     name_offset = block_offset + HERO_NAME_OFFSET_FROM_BLOCK_START
     o = HERO_FIELD_OFFSETS
 
     fields: Dict[str, Any] = {}
 
-    # Coordinates (u16 LE each)
+    # Coordinates (i16 LE each)
     try:
-        fields["location_x"] = struct.unpack("<h", raw[name_offset + o["CoordinatesX"]:
-                                                   name_offset + o["CoordinatesX"] + 2])[0]
-        fields["location_y"] = struct.unpack("<h", raw[name_offset + o["CoordinatesY"]:
-                                                   name_offset + o["CoordinatesY"] + 2])[0]
-        fields["location_z"] = struct.unpack("<h", raw[name_offset + o["CoordinatesZ"]:
-                                                   name_offset + o["CoordinatesZ"] + 2])[0]
+        x_addr = name_offset + o["CoordinatesX"]
+        x_b = raw[x_addr:x_addr + 2]
+        x_val = struct.unpack("<h", x_b)[0]
+        fields["location_x"] = x_val
+        fields["_detail_location_x"] = enrich_field(
+            "location_x", x_val, x_addr, 2, "i16", x_b)
+
+        y_addr = name_offset + o["CoordinatesY"]
+        y_b = raw[y_addr:y_addr + 2]
+        y_val = struct.unpack("<h", y_b)[0]
+        fields["location_y"] = y_val
+        fields["_detail_location_y"] = enrich_field(
+            "location_y", y_val, y_addr, 2, "i16", y_b)
+
+        z_addr = name_offset + o["CoordinatesZ"]
+        z_b = raw[z_addr:z_addr + 2]
+        z_val = struct.unpack("<h", z_b)[0]
+        fields["location_z"] = z_val
+        fields["_detail_location_z"] = enrich_field(
+            "location_z", z_val, z_addr, 2, "i16", z_b)
     except struct.error:
         fields["location_x"] = fields["location_y"] = fields["location_z"] = 0
 
     # Player faction (u8)
-    fields["player"] = raw[name_offset + o["Player"]]
+    p_addr = name_offset + o["Player"]
+    fields["player"] = raw[p_addr]
     fields["player_name"] = PLAYER_COLOR_NAMES.get(fields["player"], f"?{fields['player']}")
+    fields["_detail_player"] = make_u8_field("player", raw, p_addr)
+    fields["_detail_player"]["value"] = fields["player_name"]  # override with human-readable
 
     # Movement (u32 LE)
-    fields["movement_total"] = struct.unpack("<I", raw[name_offset + o["MaxMovementPoints"]:
-                                                    name_offset + o["MaxMovementPoints"] + 4])[0]
-    fields["movement_left"] = struct.unpack("<I", raw[name_offset + o["CurrentMovementPoints"]:
-                                                    name_offset + o["CurrentMovementPoints"] + 4])[0]
+    mt_addr = name_offset + o["MaxMovementPoints"]
+    mt_b = raw[mt_addr:mt_addr + 4]
+    fields["movement_total"] = struct.unpack("<I", mt_b)[0]
+    fields["_detail_movement_total"] = enrich_field(
+        "movement_total", fields["movement_total"], mt_addr, 4, "u32", mt_b)
+
+    ml_addr = name_offset + o["CurrentMovementPoints"]
+    ml_b = raw[ml_addr:ml_addr + 4]
+    fields["movement_left"] = struct.unpack("<I", ml_b)[0]
+    fields["_detail_movement_left"] = enrich_field(
+        "movement_left", fields["movement_left"], ml_addr, 4, "u32", ml_b)
 
     # Experience (u32 LE)
-    fields["experience"] = struct.unpack("<I", raw[name_offset + o["Experience"]:
-                                                    name_offset + o["Experience"] + 4])[0]
+    exp_addr = name_offset + o["Experience"]
+    exp_b = raw[exp_addr:exp_addr + 4]
+    fields["experience"] = struct.unpack("<I", exp_b)[0]
+    fields["_detail_experience"] = enrich_field(
+        "experience", fields["experience"], exp_addr, 4, "u32", exp_b)
 
     # Mana (u16 LE)
-    fields["mana_left"] = struct.unpack("<H", raw[name_offset + o["ManaPoints"]:
-                                                   name_offset + o["ManaPoints"] + 2])[0]
+    mana_addr = name_offset + o["ManaPoints"]
+    mana_b = raw[mana_addr:mana_addr + 2]
+    fields["mana_left"] = struct.unpack("<H", mana_b)[0]
+    fields["_detail_mana_left"] = enrich_field(
+        "mana_left", fields["mana_left"], mana_addr, 2, "u16", mana_b)
 
     # Level (u8)
-    fields["level"] = raw[name_offset + o["HeroLevel"]]
+    lvl_addr = name_offset + o["HeroLevel"]
+    lvl_b = raw[lvl_addr:lvl_addr + 1]
+    fields["level"] = lvl_b[0] if lvl_b else 0
+    fields["_detail_level"] = make_u8_field("level", raw, lvl_addr)
 
     # Num skills (u32 LE)
-    fields["num_skills"] = struct.unpack("<I", raw[name_offset + o["NumOfSkills"]:
-                                                     name_offset + o["NumOfSkills"] + 4])[0]
+    ns_addr = name_offset + o["NumOfSkills"]
+    ns_b = raw[ns_addr:ns_addr + 4]
+    fields["num_skills"] = struct.unpack("<I", ns_b)[0]
+    fields["_detail_num_skills"] = enrich_field(
+        "num_skills", fields["num_skills"], ns_addr, 4, "u32", ns_b)
 
     # Name (13 bytes, cp1251)
-    fields["name"] = _decode_name(raw[name_offset:name_offset + 13])
+    name_b = raw[name_offset:name_offset + 13]
+    fields["name"] = _decode_name(name_b)
+    fields["_detail_name"] = make_cp1251_field("name", raw, name_offset, 13)
 
     # Army — 7 × u32 creature IDs + 7 × u32 counts
+    army_types_addr = name_offset + o["Creatures"]
+    army_types_b = raw[army_types_addr:army_types_addr + 28]
     army_types = []
     for i in range(7):
-        v = struct.unpack("<I", raw[name_offset + o["Creatures"] + i * 4:
-                                     name_offset + o["Creatures"] + i * 4 + 4])[0]
+        v = struct.unpack("<I", army_types_b[i * 4:(i + 1) * 4])[0]
         army_types.append(v if v != 0xFFFFFFFF else -1)
     fields["army_types"] = army_types
+    fields["_detail_army_types"] = make_list_field(
+        "army_types", raw, army_types_addr, 4, 7, "u32")
 
+    army_counts_addr = name_offset + o["CreatureAmounts"]
+    army_counts_b = raw[army_counts_addr:army_counts_addr + 28]
     army_counts = []
     for i in range(7):
-        v = struct.unpack("<I", raw[name_offset + o["CreatureAmounts"] + i * 4:
-                                     name_offset + o["CreatureAmounts"] + i * 4 + 4])[0]
+        v = struct.unpack("<I", army_counts_b[i * 4:(i + 1) * 4])[0]
         army_counts.append(v if v else 0)
     fields["army_counts"] = army_counts
+    fields["_detail_army_counts"] = make_list_field(
+        "army_counts", raw, army_counts_addr, 4, 7, "u32")
 
     # Skills (28 bytes: skill levels + skill IDs)
-    fields["skill_levels"] = list(raw[name_offset + o["Skills"]:
-                                       name_offset + o["Skills"] + 28])
-    fields["skill_slots"] = list(raw[name_offset + o["SkillSlots"]:
-                                       name_offset + o["SkillSlots"] + 28])
+    skills_addr = name_offset + o["Skills"]
+    skills_b = raw[skills_addr:skills_addr + 28]
+    fields["skill_levels"] = list(skills_b)
+    fields["_detail_skill_levels"] = make_list_field(
+        "skill_levels", raw, skills_addr, 1, 28, "u8")
+
+    skill_slots_addr = name_offset + o["SkillSlots"]
+    skill_slots_b = raw[skill_slots_addr:skill_slots_addr + 28]
+    fields["skill_slots"] = list(skill_slots_b)
+    fields["_detail_skill_slots"] = make_list_field(
+        "skill_slots", raw, skill_slots_addr, 1, 28, "u8")
 
     # Attributes (4 bytes: attack/defense/power/knowledge)
-    fields["attack"]    = raw[name_offset + o["Attributes"]]
-    fields["defense"]   = raw[name_offset + o["Attributes"] + 1]
-    fields["power"]     = raw[name_offset + o["Attributes"] + 2]
-    fields["knowledge"] = raw[name_offset + o["Attributes"] + 3]
+    attrs_addr = name_offset + o["Attributes"]
+    attrs_b = raw[attrs_addr:attrs_addr + 4]
+    fields["attack"]    = attrs_b[0]
+    fields["defense"]   = attrs_b[1]
+    fields["power"]     = attrs_b[2]
+    fields["knowledge"] = attrs_b[3]
+    fields["_detail_attributes"] = make_bytes_field(
+        "attributes", raw, attrs_addr, 4, "bytes_u8x4")
 
     # Spells (70 bytes: spells_book + spells_available)
-    fields["spells_book"]      = list(raw[name_offset + o["Spells"]:
-                                            name_offset + o["Spells"] + 70])
-    fields["spells_available"] = list(raw[name_offset + o["SpellBook"]:
-                                            name_offset + o["SpellBook"] + 70])
+    spells_addr = name_offset + o["Spells"]
+    spells_b = raw[spells_addr:spells_addr + 70]
+    fields["spells_book"] = list(spells_b)
+    fields["_detail_spells_book"] = make_list_field(
+        "spells_book", raw, spells_addr, 1, 70, "u8")
+
+    spellbook_addr = name_offset + o["SpellBook"]
+    spellbook_b = raw[spellbook_addr:spellbook_addr + 70]
+    fields["spells_available"] = list(spellbook_b)
+    fields["_detail_spells_available"] = make_list_field(
+        "spells_available", raw, spellbook_addr, 1, 70, "u8")
 
     # Equipment (19 × 8-byte slots, 152 bytes total)
+    equip_addr = name_offset + o["Inventory"]
     equipment = []
     for i in range(19):
-        slot = raw[name_offset + o["Inventory"] + i * 8:
-                    name_offset + o["Inventory"] + i * 8 + 8]
+        slot = raw[equip_addr + i * 8:equip_addr + i * 8 + 8]
         artifact_id = struct.unpack("<I", slot[:4])[0]
         data = struct.unpack("<I", slot[4:])[0]
         equipment.append((artifact_id, data))
     fields["equipment"] = equipment
+    fields["_detail_equipment"] = make_bytes_field(
+        "equipment", raw, equip_addr, 152, "bytes_equipment_19x8")
 
     # ----- v3.10: War machines + Spell Book (PRT columns "Машина" and "Книга заклинаний") -----
     # PRT reads 83 doll slots × 8 bytes from offset +561 onwards (see MainForm.cs:7723).
@@ -253,6 +326,15 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     # Not directly applicable here, but stored for reference
     fields["spell_pool_depth_hint"] = TOWN_SPELL_POOL_DEPTH
 
+    # v3.12: Add block_offset detail at top level
+    fields["_detail_block_offset"] = {
+        "first_addr": block_offset,
+        "first_addr_hex": f"0x{block_offset:x}",
+        "length": 0,  # variable
+        "value_type": "hero_block",
+        "value": f"Hero block at 0x{block_offset:x}",
+    }
+
     return fields
 
 
@@ -264,49 +346,99 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     """
     Parse a town block at the given block_offset (faction byte = offset 0).
     Returns a dict of all known fields, using TOWN_FIELD_OFFSETS.
+
+    v3.12: Each field now includes full address + hex info (like .h3m.json format).
+    The "fields" dict contains BOTH the simple value AND a "_detail" sub-dict
+    with first_addr, first_addr_hex, length, value_type, value_hex, value_bin.
     """
+    from field_formatter import (
+        make_u8_field, make_list_field, make_bytes_field,
+        make_cp1251_field, enrich_field, _bytes_to_hex,
+    )
+
     o = TOWN_FIELD_OFFSETS
     fields: Dict[str, Any] = {}
 
-    fields["faction"] = raw[block_offset + o["faction"]]
-    fields["faction_name"] = PLAYER_COLOR_NAMES.get(fields["faction"], f"?{fields['faction']}")
+    # v3.12: Add block_offset detail at top level
+    fields["_detail_block_offset"] = {
+        "first_addr": block_offset,
+        "first_addr_hex": f"0x{block_offset:x}",
+        "length": 0,  # variable
+        "value_type": "town_block",
+        "value": f"Town block at 0x{block_offset:x}",
+    }
 
-    fields["type"] = raw[block_offset + o["type"]]
-    fields["type_name"] = TOWN_TYPE_NAMES.get(fields["type"], f"?{fields['type']}")
-
-    fields["x"] = raw[block_offset + o["x"]]
-    fields["y"] = raw[block_offset + o["y"]]
-    fields["z"] = raw[block_offset + o["z"]]
-
-    # v3.10: Town ID (used to link with town timed events from parse_timer_town)
-    # ProspectorRT GetTownContent reads `decmp[town]` (first byte = town ID)
-    # at block_offset (before the type/x/y/z fields).
-    # The ID is at block_offset + 0 (the first byte of the town record).
+    # Town ID
     fields["id"] = raw[block_offset] if block_offset < len(raw) else 0
+    fields["_detail_id"] = make_u8_field("id", raw, block_offset)
+
+    # Faction
+    f_addr = block_offset + o["faction"]
+    fields["faction"] = raw[f_addr]
+    fields["faction_name"] = PLAYER_COLOR_NAMES.get(fields["faction"], f"?{fields['faction']}")
+    fields["_detail_faction"] = make_u8_field("faction", raw, f_addr)
+    fields["_detail_faction"]["value"] = fields["faction_name"]
+
+    # Type
+    t_addr = block_offset + o["type"]
+    fields["type"] = raw[t_addr]
+    fields["type_name"] = TOWN_TYPE_NAMES.get(fields["type"], f"?{fields['type']}")
+    fields["_detail_type"] = make_u8_field("type", raw, t_addr)
+    fields["_detail_type"]["value"] = fields["type_name"]
+
+    # Coords
+    x_addr = block_offset + o["x"]
+    y_addr = block_offset + o["y"]
+    z_addr = block_offset + o["z"]
+    fields["x"] = raw[x_addr]
+    fields["y"] = raw[y_addr]
+    fields["z"] = raw[z_addr]
+    fields["_detail_x"] = make_u8_field("x", raw, x_addr)
+    fields["_detail_y"] = make_u8_field("y", raw, y_addr)
+    fields["_detail_z"] = make_u8_field("z", raw, z_addr)
 
     # Army — 7 × u32 creature IDs + 7 × u32 counts
+    army_types_addr = block_offset + o["army_types"]
     army_types = []
     for i in range(7):
-        v = struct.unpack("<I", raw[block_offset + o["army_types"] + i * 4:
-                                     block_offset + o["army_types"] + i * 4 + 4])[0]
+        v = struct.unpack("<I", raw[army_types_addr + i * 4:
+                                     army_types_addr + i * 4 + 4])[0]
         army_types.append(v if v != 0xFFFFFFFF else -1)
     fields["army_types"] = army_types
+    fields["_detail_army_types"] = make_list_field(
+        "army_types", raw, army_types_addr, 4, 7, "u32")
 
+    army_counts_addr = block_offset + o["army_counts"]
     army_counts = []
     for i in range(7):
-        v = struct.unpack("<I", raw[block_offset + o["army_counts"] + i * 4:
-                                     block_offset + o["army_counts"] + i * 4 + 4])[0]
+        v = struct.unpack("<I", raw[army_counts_addr + i * 4:
+                                     army_counts_addr + i * 4 + 4])[0]
         army_counts.append(v if v else 0)
     fields["army_counts"] = army_counts
+    fields["_detail_army_counts"] = make_list_field(
+        "army_counts", raw, army_counts_addr, 4, 7, "u32")
 
     # Name (variable length, cp1251)
-    name_len = struct.unpack("<H", raw[block_offset + o["name_len"]:
-                                        block_offset + o["name_len"] + 2])[0]
+    name_len_addr = block_offset + o["name_len"]
+    name_len = struct.unpack("<H", raw[name_len_addr:name_len_addr + 2])[0]
     if 0 < name_len <= 14:
         name_start = block_offset + o["name"]
         fields["name"] = _decode_cp1251(raw[name_start:name_start + name_len])
+        fields["_detail_name"] = make_cp1251_field(
+            "name", raw, name_start, name_len)
     else:
         fields["name"] = "?"
+        fields["_detail_name"] = {
+            "first_addr": name_len_addr,
+            "first_addr_hex": f"0x{name_len_addr:x}",
+            "length": 2,
+            "value_type": "cp1251",
+            "value": "?",
+            "value_int": name_len,
+            "value_dec": name_len,
+            "value_hex": _bytes_to_hex(raw[name_len_addr:name_len_addr + 2]),
+            "value_bin": "",
+        }
 
     # ----- v3.10: Spell Pool (Magic Guild spells) -----
     # ProspectorRT GetTownContent (line 7458) reads spell_pool after each town.
