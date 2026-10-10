@@ -277,11 +277,13 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         "equipment", raw, equip_addr, 152, "bytes_equipment_19x8")
 
     # ----- v3.10: War machines + Spell Book (PRT columns "Машина" and "Книга заклинаний") -----
-    # PRT reads 83 doll slots × 8 bytes from offset +561 onwards (see MainForm.cs:7723).
+    # ProspectorRT GetHeroesContent reads 83 doll slots at block_offset + 408.
+    # This is a UNIVERSAL constant — same for all SoD/HotA saves.
+    # See MainForm.cs:7723 — after alt block (26+extra) + 113 + army(56) + name(13) + skills(56) + attrs(4) + spells(140) = 408
+    # Note: 408 is from BLOCK START, not from name_offset.
     # Slot index = 0 → Spell Book (artifact_id == 0)
     # Slot index 4/5/6 → War machines (Ballista=4, Ammo Cart=5, First Aid Tent=6)
-    # We extract these as separate fields for clarity.
-    doll_start = name_offset + 561  # 83 × 8 = 686 bytes
+    doll_start = block_offset + 408  # UNIVERSAL: 26 + 113 + 56 + 13 + 56 + 4 + 140 = 408
     war_machines = []  # list of (slot_index, artifact_id, data)
     spell_book = False
     for i in range(83):
