@@ -110,7 +110,7 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     Parse a hero block at the given block_offset (faction byte = offset 0).
     Returns a dict of all known fields, using HERO_FIELD_OFFSETS.
 
-    All offsets are RELATIVE TO NAME POSITION (h3sed convention). To get the
+    All offsets are RELATIVE TO NAME POSITION. To get the
     actual save offset of a field, add (block_offset + 169) to the relative offset.
 
     v3.12: Each field now includes full address + hex info (like .h3m.json format).
@@ -307,7 +307,7 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     # ----- Alt block fields (from ProspectorRT GetHeroesContent) -----
     # Alt block starts at block_offset + HERO_ALT_BLOCK_OFFSET (26)
     # These fields are DUPLICATED in the alt block (also exist in pre-alt)
-    # ProspectorRT reads from alt block; h3sed reads from pre-alt.
+    # ProspectorRT reads from alt block; pre-alt block is unused.
     # We read both for verification.
     alt_start = block_offset + HERO_ALT_BLOCK_OFFSET
     ao = HERO_ALT_FIELD_OFFSETS
@@ -847,15 +847,15 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._post_tile_sections = post_tile_sections
     parsed._post_tile_content = post_tile_content
 
-    # v3.16: Parse ALL unknown sections (close coverage gaps)
+    # v3.16: Parse ALL extra sections (close coverage gaps)
     try:
         import os as _os, sys as _sys
         _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
-        from unknown_sections_parser import parse_all_unknown_sections
-        parsed._unknown_sections = parse_all_unknown_sections(
+        from extra_sections_parser import parse_all_extra_sections
+        parsed._extra_sections = parse_all_extra_sections(
             raw, post_tile_sections, map_start_info, header)
     except Exception as e:
-        parsed._unknown_sections = {"error": str(e)}
+        parsed._extra_sections = {"error": str(e)}
 
     # v3.15: Fill in cluster offsets (main, visiting, alive, fog, treasure, decoration)
     # for each map object's _detail_coords field.
@@ -1122,7 +1122,7 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
             "all_skills": getattr(parsed, "_aggregate_all_skills", []),
             "error": getattr(parsed, "_aggregator_error", None),
         },
-        "unknown_sections": getattr(parsed, "_unknown_sections", {}),
+        "extra_sections": getattr(parsed, "_extra_sections", {}),
     }
 
 

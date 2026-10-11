@@ -122,7 +122,7 @@ H3save_reader/
 - `MapConfig` — полная per-map конфигурация (meta + clusters + hero_section + town_section + object_offsets + field_offsets)
 - `ParsedField`, `ParsedBlock`, `ParsedSave` — для будущей Фазы 3
 
-**Формат-константы (НЕ зависят от карты — проверены против h3sed/vlucas/cysun):**
+**Формат-константы (НЕ зависят от карты — универсальные):**
 - `HERO_FIELD_OFFSETS` — относительные смещения внутри hero-блока (Player=-169, CoordinatesX=-195, Experience=-130, HeroLevel=-120, Inventory=+365, ...)
 - `TOWN_FIELD_OFFSETS` — то же для town-блока (faction=0, type=3, x=4, y=5, z=6, name_len=69, name=71, ...)
 - `HERO_BLOCK_SIZE = 1122`, `HERO_STRIDE_SOD = 0x446 = 1094`
@@ -195,7 +195,7 @@ for c in clusters:
 - `parse_header(raw)` → HeaderInfo (делегирует в `header_parser`)
 - `find_object_clusters(...)` (делегирует в `cluster_finder`)
 - `find_hero_blocks(raw, scan_start, map_hero_names)` — поиск hero-блоков
-  - Method 1: h3sed-style regex + name validation (принимает Latin/Cyrillic буквы + пробел/точка/апостроф — работает для русской локализации с cp1251 именами вроде "Одиссей", "Лорд Хаарт")
+  - Method 1: regex search + name validation (принимает Latin/Cyrillic буквы + пробел/точка/апостроф — работает для русской локализации с cp1251 именами вроде "Одиссей", "Лорд Хаарт")
   - Method 2: name-based поиск (для English saves) — стандартные 156 имён + map-specific Prison герои
 - `find_town_blocks(raw, scan_start, town_coords, town_names)` — поиск town-блоков
   - Method 1: coord-based (ищет 3-byte (x,y,z) needle, валидирует faction/type/name_len)

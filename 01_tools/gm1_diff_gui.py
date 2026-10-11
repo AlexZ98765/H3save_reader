@@ -38,7 +38,6 @@ MAGIC_SCENARIO = b"H3SVG"   # одиночный сценарий
 MAGIC_CAMPAIGN = b"H3SVC"   # кампания
 
 # Карта значений version_major (uint32 LE по смещению 8) -> человекочитаемое имя.
-# Источники: h3sed metadata.py, документация сообщества.
 VERSION_NAMES = {
     0x0E: "RoE 1.0",       # Restoration of Erathia
     0x0F: "RoE",
@@ -71,7 +70,7 @@ def load_save(path: str) -> Tuple[bytes, Dict[str, Any]]:
         # HoMM3 сейвы часто имеют "битый" gzip CRC (игра пишет trailer
         # неправильно). Стандартный gzip.decompress падает с
         # "CRC check failed". Патчим _GzipReader._read_eof, чтобы
-        # потреблять trailing-байты без проверки (как делает h3sed).
+        # потреблять trailing-байты без проверки.
         import contextlib
 
         @contextlib.contextmanager

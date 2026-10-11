@@ -3,7 +3,7 @@
 """
 gm1_parser.py — PySide6 GUI парсер .GM1 сейвов Heroes of Might and Magic III.
 
-Версия 2.0 — обновлена с полной структурой hero block и town record из h3sed.
+Версия 2.0 — полная структура hero block и town record.
 
 Возможности:
   - Открытие .GM1 файлов (с обходом битного gzip CRC)
@@ -11,7 +11,7 @@ gm1_parser.py — PySide6 GUI парсер .GM1 сейвов Heroes of Might and
   - Tree view блоков и полей
   - Hex дамп выделенного поля/блока
   - Экспорт в JSON с полной раскладкой
-  - Поиск hero blocks через h3sed-style regex
+  - Поиск hero blocks через regex-эвристику
   - Декодирование path-records (7 типов)
 
 Запуск:
@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
 
 DEFAULT_MAPPING_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "02_format_docs", "gm1_mapping.json")
 
-# h3sed HERO_BYTE_POSITIONS (SoD base + HotA overrides)
+# HERO_BYTE_POSITIONS (SoD base + HotA overrides)
 # NOTE: location_x/y/z are 2-byte LE (u16), stored as pairs:
 #   x at offset -26 (2 bytes: -26, -25)
 #   y at offset -24 (2 bytes: -24, -23)
@@ -99,7 +99,7 @@ HERO_BYTE_POSITIONS = {
     "skills_slot":    1092,  # HotA
 }
 
-# h3sed TOWN_BYTE_POSITIONS
+# TOWN_BYTE_POSITIONS
 TOWN_BYTE_POSITIONS = {
     "faction":      0,
     "location_x":   4,
@@ -109,7 +109,7 @@ TOWN_BYTE_POSITIONS = {
     "army_counts": 37,
 }
 
-# h3sed HERO_REGEX (HotA version)
+# HERO_REGEX (HotA version)
 HERO_REGEX = re.compile(b"""
     .                        #   1 byte:  player faction 0-7 or 255            000-000
     .{30}                    #  30 bytes: unknown                              001-031
@@ -139,7 +139,7 @@ HERO_REGEX = re.compile(b"""
     [\\x00-\\x1C]{29,30}       #  30 bytes: skill slots (HotA)                  1092-1121
 """, re.VERBOSE | re.DOTALL)
 
-# h3sed TOWN_REGEX (HotA version)
+# TOWN_REGEX (HotA version)
 TOWN_REGEX = re.compile(b"""
     (?P<faction>[\\x00-\\x07,\\xFF])  #   1 byte:  town faction 0-7 or 255              000-000
     .{2}                           #   3 bytes: unknown                              001-002
@@ -257,12 +257,12 @@ def format_town_type(val):
 
 
 # ============================================================================
-# HERO BLOCK PARSER (h3sed-style)
+# HERO BLOCK PARSER
 # ============================================================================
 
 def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
     """
-    Ищет hero blocks используя эвристический поиск (h3sed-style, но с cp1251 name support).
+    Ищет hero blocks через эвристический regex-поиск с поддержкой cp1251 имён.
     Проверяет валидность полей: faction, movement, level, attack/defense/power/knowledge,
     equipment pattern, spell bitmaps, skill levels.
 
@@ -302,11 +302,11 @@ def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
         if level > 74:
             continue
 
-        # skills_count (offset 43) + 3 zero bytes after (vlucas check)
+        # skills_count (offset 43) + 3 zero bytes after
         sc = int.from_bytes(raw[i+43:i+47], 'little')
         if sc > 28:
             continue
-        # vlucas: bytes after numSkills must be 0x00 0x00 0x00
+        # bytes after numSkills must be 0x00 0x00 0x00
         if raw[i+44] != 0 or raw[i+45] != 0 or raw[i+46] != 0:
             continue
 
@@ -364,7 +364,7 @@ def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
             break
         if not equip_valid:
             continue
-        # Reject all-blank equipment (h3sed EQUIPMENT_REGEX negative lookahead)
+        # Reject all-blank equipment (negative lookahead)
         if not has_non_blank:
             continue
 
@@ -478,13 +478,13 @@ def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
 
 
 # ============================================================================
-# TOWN BLOCK PARSER (h3sed-style)
+# TOWN BLOCK PARSER
 # ============================================================================
 
 def find_town_blocks(raw: bytes, max_pos: int = None,
                       scan_start: int = None) -> List[Dict]:
     """
-    Ищет town blocks через h3sed TOWN_REGEX.
+    Ищет town blocks через TOWN_REGEX.
 
     Args:
         raw:        decompressed save bytes
@@ -1662,7 +1662,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws4, max_widths={"I": 80})
 
     # ----- Save -----
-    # v3.17: Add PRT-like sheets from merged_objects + post_tile_content + unknown_sections
+    # v3.17: Add PRT-like sheets from merged_objects + post_tile_content + extra_sections
     mo = parsed.get("merged_objects", {})
     ptc = parsed.get("post_tile_content", {})
     if isinstance(mo, dict) and mo and "error" not in mo:
@@ -2004,7 +2004,7 @@ def hex_dump(raw: bytes, start: int, length: int, prefix: str = "    ") -> str:
 class GM1ParserWindow(QMainWindow):
     def __init__(self, mapping_path: str = None):
         super().__init__()
-        self.setWindowTitle("HoMM3 .GM1 Parser v2.0 (h3sed-verified)")
+        self.setWindowTitle("HoMM3 .GM1 Parser v2.0")
         self.resize(1400, 900)
 
         self.mapping_path = mapping_path or DEFAULT_MAPPING_PATH
@@ -3044,7 +3044,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                 block_item.addChild(field_item)
             self.tree.addTopLevelItem(block_item)
 
-        # Heroes found (h3sed regex)
+        # Heroes found via regex
         if self.parsed_data["heroes_found"]:
             hero_parent = QTreeWidgetItem([f"Heroes Found ({len(self.parsed_data['heroes_found'])})", "", "summary", "", ""])
             for h in self.parsed_data["heroes_found"]:
@@ -3062,7 +3062,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                 hero_parent.addChild(h_item)
             self.tree.addTopLevelItem(hero_parent)
 
-        # Towns found (h3sed regex)
+        # Towns found via regex
         if self.parsed_data["towns_found"]:
             town_parent = QTreeWidgetItem([f"Towns Found ({len(self.parsed_data['towns_found'])})", "", "summary", "", ""])
             for t in self.parsed_data["towns_found"]:

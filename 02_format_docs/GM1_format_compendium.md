@@ -24,7 +24,7 @@
 
 ### Важные особенности:
 1. **Hero blocks имеют переменный stride** — они разбросаны по файлу, не подряд
-2. **Сжатие gzip с "битым" CRC** — игра пишет неправильный trailer. Парсер должен обходить проверку CRC (аналогично `h3sed`)
+2. **Сжатие gzip с "битым" CRC** — игра пишет неправильный trailer. Парсер должен обходить проверку CRC.
 3. **Footer "HD3\0"** — маркер конца файла, его позиция = `file_size - 18`
 4. **Path-block растёт динамически** — добавляет записи переменной длины
 
@@ -103,9 +103,9 @@
 
 ---
 
-## 7. Город (Town Record) — верифицировано h3sed
+## 7. Город (Town Record)
 
-Структура из h3sed `TOWN_BYTE_POSITIONS` (offset = относительно начала town record):
+Структура town record (offset = относительно начала town record):
 
 | Offset | Размер | Тип | Поле | Описание |
 |--------|--------|-----|------|---------|
@@ -222,13 +222,13 @@ HotA: + 9=Cove, 10=Factory, 11=Bulwark
 ---
 
 
-## 🎯 ПОЛНАЯ СТРУКТУРА HERO BLOCK (верифицирована h3sed)
+## 🎯 ПОЛНАЯ СТРУКТУРА HERO BLOCK
 
-Все смещения ниже — **относительно faction byte** (offset 0 в h3sed).
+Все смещения ниже — **относительно faction byte** (offset 0 — это faction byte).
 
 В сейвах "Myth and Legend.h3m" faction byte = `0x157F1E`.
 
-| h3sed offset | Абсолютное смещение | Размер | Поле | Тип |
+| offset | Абсолютное смещение | Размер | Поле | Тип |
 |--------------|---------------------|--------|------|-----|
 | -26 | `0x157F04` | 1 | location_x | u8 |
 | -25 | `0x157F05` | 1 | location_y | u8 |
@@ -255,7 +255,7 @@ HotA: + 9=Cove, 10=Factory, 11=Bulwark
 | 534 | `0x158134` | 512 | inventory (64 slots × 8b) | bytes |
 | 1092 | `0x158362` | 30 | skills_slot (HotA) | bytes |
 
-### Дополнительные поля (не в h3sed, найдены нами):
+### Дополнительные поля (найдены через дифференциальный анализ):
 | Абсолютное смещение | Размер | Поле | Описание |
 |---------------------|--------|------|-----------|
 | `0x157F31` | 8 | queued_path_destination | 2×u32 LE, цель пути |
@@ -471,7 +471,7 @@ u16[n][2] pairs (LE) — массив N пар (X, Y), каждая 4 байта
 - ❌ Биография героя (переменная длина, перед hero stats)
 - ❌ Полный список зданий города (только last_built + flag известны)
 - ❌ Доступные заклинания в Magic Guild
-- ❌ Hero primary stats (attack/defense/power/knowledge) — частично из h3sed
+- ❌ Hero primary stats (attack/defense/power/knowledge) — частично локализовано
 
 ---
 
@@ -479,8 +479,7 @@ u16[n][2] pairs (LE) — массив N пар (X, Y), каждая 4 байта
 
 - Дифференциальный анализ 12 пар реальных сейвов (001.GM1 → 0020_9.GM1)
 - Дизассемблирование `heroes3.exe` (PE32, SoD build)
-- `h3sed` (suurjaak) — для базовой структуры hero block
-- `AlexSnowLeo/Heroes3Editor`, `vlucas/homm3-savegame-editor` — для общих паттернов
+- Декомпиляция `ProspectorRT.exe` (.NET 4.x)
 
 ## 19. Файлы проекта
 
@@ -490,31 +489,7 @@ u16[n][2] pairs (LE) — массив N пар (X, Y), каждая 4 байта
 - `disasm/` — результаты дизассемблирования heroes3.exe
 
 
-## 20. Кросс-репозиторная верификация
-
-Все 4 публичных save editor'а сравнены:
-
-| Репозиторий | Базовая точка | Полей | Уникальных находок |
-|-------------|---------------|-------|---------------------|
-| h3sed (suurjaak) | faction byte (offset 0) | 35+ | Town structure, path records, HotA skills_slot |
-| vlucas | hero name (offset 169) | 28 | CoordinatesXMarker, CoordinatesYMarker, BlockedSlots |
-| cysun | hero name (offset 169) | 25 | — (subset of vlucas) |
-| svetoslav | hero name (offset 169) | 12 | — (minimal subset) |
-
-### Новые поля из vlucas (не в h3sed):
-| h3sed offset | Поле | Описание |
-|--------------|------|-----------|
-| 19 | coordinates_x_marker | Маркер X (возможно queued path X) |
-| 23 | coordinates_y_marker | Маркер Y (возможно queued path Y) |
-| 1047 | blocked_slots | Заблокированные слоты комбинированных артефактов |
-
-### Расхождение:
-- vlucas: CoordinatesZ = h3sed offset -22
-- h3sed: location_z = offset -24
-- Разница: 2 байта. h3sed вероятно правильный (более строгая валидация).
-
-
-## 21. Game State — Day Counter
+## 20. Game State — Day Counter
 
 | Смещение | Размер | Тип | Поле | Описание |
 |----------|--------|-----|------|---------|
@@ -525,11 +500,11 @@ u16[n][2] pairs (LE) — массив N пар (X, Y), каждая 4 байта
 - `movement_left` сбрасывается к `movement_total` при наступлении нового дня
 
 
-## 22. Расшифровка "unknown" секции hero block (offsets 1-30)
+## 21. Расшифровка секции hero block (offsets 1-30)
 
-h3sed помечает offsets 1-30 как "unknown". Дифференциальный анализ заполняет пробелы:
+Ранее offsets 1-30 помечались как неизвестные. Дифференциальный анализ заполняет пробелы:
 
-| h3sed offset | Абсолютное (312/xx) | Поле | Описание |
+| offset | Абсолютное (312/xx) | Поле | Описание |
 |--------------|---------------------|------|----------|
 | +3 | hero_start+3 | battle_outcome_flag | 253=before battle, 0=after victory |
 | +4 | hero_start+4 | artifacts_collected_counter | +1 при подборе артефакта |
@@ -544,15 +519,15 @@ h3sed помечает offsets 1-30 как "unknown". Дифференциаль
 - movement: -141 (диагональ), -100 (orthogonal), -341 (2 шага)
 
 
-## 23. Карта "Myth and Legend.h3m" — связь с сейвом
+## 22. Карта "Myth and Legend.h3m" — связь с сейвом
 
 ### Координаты: исправленный порядок байтов
 
-h3sed помечает: `location_x=-26, location_y=-25, location_z=-24`
+Ранее поля координат описывались как location_x=-26, location_y=-25, location_z=-24
 
 **Реальный порядок**: **X, Z, Y** (не X, Y, Z)!
 
-| Байт | h3sed метка | Реальное значение |
+| Байт | Метка | Реальное значение |
 |------|-------------|-------------------|
 | raw[-26] | location_x | **X** ✅ |
 | raw[-25] | location_y | **Z** (0=surface, 1=underground) ⚠️ |

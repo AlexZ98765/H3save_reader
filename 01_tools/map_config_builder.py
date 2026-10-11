@@ -18,7 +18,7 @@ Algorithm (Phase 2):
   2. Find all 3-byte coord_int matches in the save → cluster them
      into per-object data sections (main, visiting, fog, alive, ...).
   3. Find hero blocks by scanning from header_size using:
-       a. Regex-based search (h3sed-style)
+       a. Regex-based search
        b. Name-based search (using standard hero names + map-specific
           Prison hero names from MapData)
   4. Find town blocks by scanning from header_size using:
@@ -81,7 +81,7 @@ def decompress_save(path: str) -> bytes:
 # Hero finding (regex + name-based)
 # ============================================================================
 
-# Hero regex (h3sed-style) — simplified
+# Hero regex — simplified
 HERO_REGEX = re.compile(b"""
     [\\x00-\\x07\\xFF]            # Player faction (0-7 or 255)
     .{30}                        # 30 bytes unknown
@@ -103,7 +103,7 @@ HERO_REGEX = re.compile(b"""
 """, re.VERBOSE | re.DOTALL)
 
 
-# Standard 156 SoD heroes (from cysun / h3sed)
+# Standard 156 SoD heroes
 STANDARD_HERO_NAMES = [
     "Christian", "Edric", "Orrin", "Sylvia", "Valeska", "Sorsha", "Tyris", "Lord Haart", "Catherine",
     "Roland", "Sir Mullich", "Adela", "Adelaide", "Caitlin", "Cuthbert", "Ingham", "Loynis", "Rion",
@@ -184,7 +184,7 @@ def find_hero_blocks(raw: bytes,
                     map_hero_names: Optional[List[str]] = None) -> HeroSection:
     """
     Find hero blocks in the decompressed save using:
-      1. h3sed-style regex (with name validation — accept names that
+      1. Regex search (with name validation — accept names that
          consist of Latin or Cyrillic letters, spaces, dots, apostrophes.
          This works for English, Russian, and custom HotA hero names.)
       2. Name-based search (using standard English hero names + map-specific
@@ -210,7 +210,7 @@ def find_hero_blocks(raw: bytes,
     hero_offsets: List[Tuple[int, str]] = []  # (name_offset, name)
     seen_positions: Set[int] = set()
 
-    # ----- Method 1: h3sed-style regex (with permissive name validation) -----
+    # ----- Method 1: regex search (with permissive name validation) -----
     pos = scan_start
     while pos < len(raw) - HERO_BLOCK_SIZE:
         m = HERO_REGEX.search(raw, pos)
@@ -334,7 +334,7 @@ def find_town_blocks(raw: bytes,
     """
     Find town blocks in the decompressed save.
 
-    Town record structure (from h3sed):
+    Town record structure:
       offset +0: faction (1 byte)
       offset +3: type (1 byte)
       offset +4: x (1 byte)

@@ -1365,3 +1365,51 @@ Work Log:
 Stage Summary:
 - ⭐ Export Binary: путь по умолчанию = папка загруженного сейва
 - Архив пересобран
+
+---
+Task ID: cleanup-heritage-2026-10-11
+Agent: main (Super Z)
+Task: Обновить репозиторий + убрать "мусорное наследие" в описаниях и названиях
+
+Work Log:
+- git fetch + reset --hard origin/master: локальный sync до v0.49 (4889a46)
+- Создан backup локального состояния: h3save_reader_repo_backup_20261011_161509
+- Переименование модуля:
+  - 01_tools/unknown_sections_parser.py → 01_tools/extra_sections_parser.py
+  - Функция parse_all_unknown_sections → parse_all_extra_sections
+  - Атрибут parsed._unknown_sections → parsed._extra_sections
+  - Ключ dict "unknown_sections" → "extra_sections" в save_parser.py
+  - Импорты обновлены в save_parser.py и export_coverage_report.py
+  - Имена секций dwelling/unknown_var_reg/unknown_fixed_reg сохранены (внешние PRT-имена)
+- Очистка ссылок на сторонние разработки (h3sed, vlucas, cysun, svetoslav, suurjaak, AlexSnowLeo/Heroes3Editor):
+  - 02_format_docs/GM1_format_compendium.md: удалён весь раздел "20. Кросс-репозиторная верификация" + правки заголовков и таблиц
+  - 02_format_docs/gm1_mapping.json: удалены пометки "(h3sed convention)" и "partially known from h3sed"
+  - 01_tools/gm1_parser.py: заголовок docstring, комментарии HERO_BYTE_POSITIONS/TOWN_BYTE_POSITIONS/HERO_REGEX/TOWN_REGEX, заголовки секций "HERO BLOCK PARSER (h3sed-style)" → "HERO BLOCK PARSER", window title "HoMM3 .GM1 Parser v2.0 (h3sed-verified)" → "HoMM3 .GM1 Parser v2.0"
+  - 01_tools/save_parser.py: "(h3sed convention)" убрано, "h3sed reads from pre-alt" → "pre-alt block is unused"
+  - 01_tools/save_layout.py: "verified against h3sed / vlucas / cysun / svetoslav" → "universal across all maps", убраны пометки "(h3sed)", "(vlucas)" и т.п.
+  - 01_tools/gm1_diff.py и gm1_diff_gui.py: убраны строки "Источники: h3sed metadata.py" и "Аналогично h3sed.patch_gzip_for_partial()"
+  - 01_tools/map_config_builder.py: "h3sed-style regex" → "regex search", "Standard 156 SoD heroes (from cysun / h3sed)" → "Standard 156 SoD heroes"
+  - FILES_DESCRIPTION.md: "проверены против h3sed/vlucas/cysun" → "универсальные", "h3sed-style regex" → "regex search"
+- worklog.md оставлен без изменений (исторические записи сохранены)
+- Тестирование:
+  - Все 14 модулей 01_tools/ загружаются без ошибок
+  - Pipeline на save_parse_test_01: 150 heroes, 1 town, extra_sections keys = [game_setup, sr_section, variable_structures, sprite_records]
+  - Pipeline на Myth and Legend: 156 heroes, 21 towns, extra_sections keys = [game_setup, sr_section, variable_structures, sprite_records, dwelling, unknown_var_reg, unknown_fixed_reg]
+  - Post-tile content не нарушен: 99 EventBox, 1 SeerHut на Myth and Legend
+  - Coverage report работает: 92% PARSED, 2% PARTIAL, 0% UNKNOWN на Myth and Legend
+- Архив: /home/z/my-project/download/H3save_reader.tar.gz (1.4 MB, 103 записи)
+  - Содержит: README.md, FILES_DESCRIPTION.md, worklog.md, 01_tools/, 02_format_docs/, 03_object_mapping/, 04_diff_analysis/, 05_disasm/, 07_prt_decompiled/
+  - Исключено: examples/, .git/, *.pyc, __pycache__/
+  - Внутри архива — папка H3save_reader/
+
+Stage Summary:
+- ⭐ Репозиторий обновлён до v0.49 (10 новых коммитов с v0.40 по v0.49)
+- ⭐ unknown_sections_parser.py → extra_sections_parser.py (имя модуля отражает реальное содержание — 9 известных секций)
+- ⭐ Все ссылки на h3sed/vlucas/cysun/svetoslav/suurjaak/AlexSnowLeo удалены из:
+  - .md документов (GM1_format_compendium.md, FILES_DESCRIPTION.md, README.md)
+  - .json (gm1_mapping.json)
+  - .py кода и комментариев (gm1_parser.py, save_parser.py, save_layout.py, gm1_diff.py, gm1_diff_gui.py, map_config_builder.py)
+- ⭐ Window title: "HoMM3 .GM1 Parser v2.0 (h3sed-verified)" → "HoMM3 .GM1 Parser v2.0"
+- ⭐ worklog.md сохранён без изменений (для прогресс-трекинга)
+- ⭐ Все модули загружаются и pipeline работает на обеих тест-картах
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

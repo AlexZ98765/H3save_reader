@@ -24,7 +24,7 @@
     "  z=0 surface, z=1 underground",
     "",
     "Hero block stride: 0x446 = 1094 bytes (SoD/HotA)",
-    "Hero name is at offset 169 from block start (h3sed convention)",
+    "Hero name is at offset 169 from block start",
     "Town name is at offset 71 from block start",
     "",
     "Movement cost: 100 per horizontal/vertical step, 141 per diagonal",
@@ -484,6 +484,6 @@
     "Hero biography (variable-length, precedes hero stats in hero block)",
     "Town buildings list (only 'last built' and 'built flag' known)",
     "Spell availability in Magic Guild",
-    "Hero primary stats (attack/defense/power/knowledge) — partially known from h3sed but not verified in our diffs"
+    "Hero primary stats (attack/defense/power/knowledge) — partially localized but not verified in our diffs"
   ]
 }

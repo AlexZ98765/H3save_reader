@@ -338,10 +338,10 @@ def generate_coverage_report(save_path, config_path, output_path=None):
         elif s['status'] == 'UNKNOWN': t_unknown += s['size']
         elif s['status'] == 'NOT_PARSED': t_not_parsed += s['size']
 
-    # Parse unknown sections for detail
-    from unknown_sections_parser import parse_all_unknown_sections
+    # Parse extra sections for detail
+    from extra_sections_parser import parse_all_extra_sections
     try:
-        us = parse_all_unknown_sections(raw, pts, msi, header)
+        us = parse_all_extra_sections(raw, pts, msi, header)
     except Exception:
         us = {}
 

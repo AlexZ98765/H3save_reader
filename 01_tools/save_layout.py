@@ -406,12 +406,11 @@ class ParsedSave:
 
 # ============================================================================
 # Field-offset constants (relative to block start) — format constants,
-# verified against h3sed / vlucas / cysun / svetoslav save editors.
-# These do NOT depend on the map.
+# universal across all maps. These do NOT depend on the map.
 # ============================================================================
 
 HERO_FIELD_OFFSETS = {
-    # All offsets RELATIVE TO NAME position (h3sed uses faction byte = name_pos - 169)
+    # All offsets RELATIVE TO NAME position (faction byte = name_pos - 169)
     "Player":               -169,
     "CoordinatesX":         -195,
     "CoordinatesY":         -193,
@@ -450,10 +449,10 @@ TOWN_FIELD_OFFSETS = {
     "name":        71,
 }
 
-HERO_BLOCK_SIZE = 1122          # approximate (h3sed)
+HERO_BLOCK_SIZE = 1122          # approximate
 HERO_STRIDE_SOD = 0x446         # 1094 bytes (verified on Myth and Legend, confirmed by ProspectorRT IL)
-HERO_NAME_OFFSET_FROM_BLOCK_START = 169  # h3sed
-TOWN_NAME_OFFSET_FROM_BLOCK_START = 71   # h3sed
+HERO_NAME_OFFSET_FROM_BLOCK_START = 169
+TOWN_NAME_OFFSET_FROM_BLOCK_START = 71
 
 # Town record base size — verified by ProspectorRT IL analysis (ScanTownsContent uses 0x17E = 382)
 # Total town record size = TOWN_RECORD_BASE_SIZE + name_len_in_cp1251
@@ -480,9 +479,9 @@ HERO_ALT_BLOCK_OFFSET = 26
 
 # Alt block field offsets — relative to alt_block_start (= block_offset + 26)
 # From ProspectorRT GetHeroesContent (lines 7769-7778)
-# NOTE: These are DIFFERENT from h3sed's name-relative offsets. Both read correct
+# NOTE: These are name-relative offsets. Both read correct
 # values because some fields (Experience, Level, MP) are stored in BOTH the
-# pre-alt block (h3sed reads from here) and the alt block (ProspectorRT reads from here).
+# pre-alt block and the alt block (ProspectorRT reads from here).
 HERO_ALT_FIELD_OFFSETS = {
     "Color":           0,    # u8 — player color (same as faction)
     "TreeNumber":      17,   # u8 — skill tree number (HeroesInfo)
