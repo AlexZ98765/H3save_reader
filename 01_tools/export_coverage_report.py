@@ -9,6 +9,7 @@ Output: save_coverage_report_<map_name>.txt
 import os
 import sys
 import struct
+import json
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from map_config_builder import decompress_save, load_config
@@ -337,6 +338,31 @@ def generate_coverage_report(save_path, config_path, output_path=None):
         elif s['status'] == 'UNKNOWN': t_unknown += s['size']
         elif s['status'] == 'NOT_PARSED': t_not_parsed += s['size']
 
+    # Parse unknown sections for detail
+    from unknown_sections_parser import parse_all_unknown_sections
+    try:
+        us = parse_all_unknown_sections(raw, pts, msi, header)
+    except Exception:
+        us = {}
+
+    # Helper to convert dataclass to dict
+    def to_dict(obj):
+        if obj is None:
+            return None
+        if hasattr(obj, '__dict__'):
+            try:
+                from dataclasses import asdict
+                return asdict(obj)
+            except Exception:
+                return {k: getattr(obj, k) for k in dir(obj) if not k.startswith('_') and not callable(getattr(obj, k))}
+        if isinstance(obj, dict):
+            return {k: to_dict(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [to_dict(v) for v in obj]
+        if isinstance(obj, tuple):
+            return list(obj)
+        return obj
+
     for s in sections:
         icon = "[PARSED]" if s['status'] == 'PARSED' else \
                "[PARTIAL]" if s['status'] == 'PARTIAL' else \
@@ -353,7 +379,208 @@ def generate_coverage_report(save_path, config_path, output_path=None):
         lines.append(f"  Status: {s['status']}")
         lines.append(f"  Content: {s['description']}")
         lines.append(f"  Algorithms: {s['algorithms']}")
-        lines.append("")
+
+        # --- v3.18: Per-section record detail (first + last) ---
+        records = []
+        record_source = None
+
+        # Map section names to data sources
+        section_name = s['name']
+        if section_name.startswith("EventBox"):
+            records = ptc.get('event_boxes', [])
+        elif section_name.startswith("ArtRes"):
+            records = ptc.get('art_res', [])
+        elif section_name.startswith("Monstr"):
+            records = ptc.get('monstr_records', [])
+        elif section_name.startswith("SeerHut"):
+            records = ptc.get('seer_huts', [])
+        elif section_name.startswith("PassGuard"):
+            records = ptc.get('pass_guards', [])
+        elif section_name.startswith("Map Timed"):
+            records = ptc.get('map_timed_events', [])
+        elif section_name.startswith("Towns Timed"):
+            records = ptc.get('town_timed_events', [])
+        elif section_name.startswith("Dwelling"):
+            records = us.get('dwelling', {}).get('records', [])
+        elif section_name.startswith("UnknownVarReg"):
+            records = us.get('unknown_var_reg', {}).get('records', [])
+        elif section_name.startswith("num5") or section_name.startswith("Sprite"):
+            records = us.get('sprite_records', {}).get('records', [])
+        elif section_name.startswith("Color"):
+            records = getattr(parsed, '_player_states', []) or parsed.objects_on_map if hasattr(parsed, 'objects_on_map') else []
+            # Use player_states from parsed
+            from save_parser import PLAYER_COLOR_NAMES
+            ps = getattr(parsed, '_player_states', [])
+            if ps:
+                lines.append(f"  Records: {len(ps)} player states")
+                lines.append(f"  --- Player 0 (first) ---")
+                lines.append(f"    {json.dumps(ps[0], indent=4, default=str)[:500]}")
+                lines.append(f"  --- Player 7 (last) ---")
+                lines.append(f"    {json.dumps(ps[-1], indent=4, default=str)[:500]}")
+                lines.append("")
+                continue
+        elif section_name.startswith("Town section"):
+            towns = parsed.towns if hasattr(parsed, 'towns') else []
+            if towns:
+                lines.append(f"  Records: {len(towns)} towns")
+                t0 = towns[0]
+                f0 = t0.get('fields', {}) if isinstance(t0, dict) else {}
+                lines.append(f"  --- Town 0 (first): {f0.get('name','?')} ---")
+                # Show key fields with addresses
+                for fk in ['name', 'type_name', 'faction_name', 'x', 'y', 'z']:
+                    val = f0.get(fk, '?')
+                    det = f0.get(f'_detail_{fk}', {})
+                    addr = det.get('first_addr_hex', '?') if isinstance(det, dict) else '?'
+                    hexv = det.get('value_hex', '') if isinstance(det, dict) else ''
+                    lines.append(f"    {fk:15s} = {val}  addr={addr}  hex={hexv}")
+                lines.append(f"  --- Town {len(towns)-1} (last) ---")
+                tN = towns[-1]
+                fN = tN.get('fields', {}) if isinstance(tN, dict) else {}
+                for fk in ['name', 'type_name', 'faction_name', 'x', 'y', 'z']:
+                    val = fN.get(fk, '?')
+                    det = fN.get(f'_detail_{fk}', {})
+                    addr = det.get('first_addr_hex', '?') if isinstance(det, dict) else '?'
+                    hexv = det.get('value_hex', '') if isinstance(det, dict) else ''
+                    lines.append(f"    {fk:15s} = {val}  addr={addr}  hex={hexv}")
+                lines.append("")
+                continue
+        elif section_name.startswith("Hero section"):
+            heroes = parsed.heroes if hasattr(parsed, 'heroes') else []
+            if heroes:
+                lines.append(f"  Records: {len(heroes)} heroes")
+                for idx in [0, len(heroes)-1]:
+                    h = heroes[idx]
+                    f = h.get('fields', {}) if isinstance(h, dict) else {}
+                    lines.append(f"  --- Hero {idx} ({'first' if idx==0 else 'last'}): {f.get('name','?')} ---")
+                    for fk in ['name', 'level', 'experience', 'location_x', 'location_y', 'location_z',
+                               'player_name', 'movement_total', 'mana_left', 'attack', 'defense',
+                               'power', 'knowledge', 'spell_book', 'war_machines']:
+                        val = f.get(fk, '?')
+                        det = f.get(f'_detail_{fk}', {})
+                        if isinstance(det, dict) and det.get('first_addr_hex'):
+                            addr = det['first_addr_hex']
+                            hexv = det.get('value_hex', '')
+                            lines.append(f"    {fk:15s} = {str(val)[:40]:40s}  addr={addr}  hex={hexv}")
+                        else:
+                            lines.append(f"    {fk:15s} = {str(val)[:40]}")
+                lines.append("")
+                continue
+        elif section_name.startswith("Tile loop"):
+            map_objs = getattr(parsed, '_map_objects', [])
+            if map_objs:
+                from collections import Counter
+                type_counts = Counter(o.get('type_name', '?') for o in map_objs)
+                lines.append(f"  Records: {len(map_objs)} objects found by tile scanner")
+                lines.append(f"  Object types ({len(type_counts)}):")
+                for tname, cnt in type_counts.most_common():
+                    lines.append(f"    {tname:30s} x{cnt}")
+                # First + last object detail
+                lines.append(f"  --- Object 0 (first) ---")
+                o0 = map_objs[0]
+                for k in ['type_id', 'type_name', 'x', 'y', 'z', 'offset', 'loc']:
+                    v = o0.get(k, '?')
+                    det = o0.get(f'_detail_{k}', {})
+                    addr = det.get('first_addr_hex', '?') if isinstance(det, dict) else '?'
+                    hexv = det.get('value_hex', '') if isinstance(det, dict) else ''
+                    lines.append(f"    {k:15s} = {str(v)[:30]:30s}  addr={addr}  hex={hexv}")
+                lines.append(f"  --- Object {len(map_objs)-1} (last) ---")
+                oN = map_objs[-1]
+                for k in ['type_id', 'type_name', 'x', 'y', 'z', 'offset', 'loc']:
+                    v = oN.get(k, '?')
+                    det = oN.get(f'_detail_{k}', {})
+                    addr = det.get('first_addr_hex', '?') if isinstance(det, dict) else '?'
+                    hexv = det.get('value_hex', '') if isinstance(det, dict) else ''
+                    lines.append(f"    {k:15s} = {str(v)[:30]:30s}  addr={addr}  hex={hexv}")
+                lines.append("")
+                continue
+        elif section_name.startswith("BitField"):
+            bf = us.get('bitfield', {})
+            if bf:
+                lines.append(f"  BitField details:")
+                lines.append(f"    Map size: {bf.get('map_size')}x{bf.get('map_size')}")
+                lines.append(f"    Layers: {bf.get('layers')}")
+                lines.append(f"    Bytes per tile: {bf.get('bytes_per_tile')}")
+                lines.append(f"    Non-zero bytes: {bf.get('non_zero_bytes')} / {bf.get('size')} ({bf.get('non_zero_percent')}%)")
+                samples = bf.get('sample_tiles', [])
+                if samples:
+                    lines.append(f"    Sample tiles (first 5):")
+                    for st in samples[:5]:
+                        lines.append(f"      ({st['x']},{st['y']}) offset={st['offset_hex']} visibility={st['visibility']}")
+                lines.append("")
+                continue
+        elif section_name.startswith("SR"):
+            sr = us.get('sr_section', {})
+            if sr:
+                lines.append(f"  SR section details:")
+                lines.append(f"    All zeros: {sr.get('all_zeros')}")
+                u32s = sr.get('u32_values', [])
+                for u in u32s:
+                    lines.append(f"    [{u['offset_hex']}] value=0x{u['value']:08X}")
+                lines.append("")
+                continue
+        elif section_name.startswith("UnknownFixedReg"):
+            ufr = us.get('unknown_fixed_reg', {})
+            if ufr:
+                lines.append(f"  UnknownFixedReg details:")
+                lines.append(f"    First byte: {ufr.get('first_byte')} (possibly active player count)")
+                lines.append(f"    Raw hex: {ufr.get('raw_hex', '')[:60]}")
+                lines.append("")
+                continue
+        elif section_name.startswith("Motions"):
+            mot = us.get('motions', {})
+            if mot:
+                lines.append(f"  Motions details:")
+                lines.append(f"    Size: {mot.get('size')} bytes")
+                lines.append(f"    Non-zero bytes: {mot.get('non_zero_bytes')}")
+                lines.append(f"    Raw hex (first 200): {mot.get('raw_hex', '')[:200]}")
+                lines.append("")
+                continue
+        elif section_name.startswith("Save filename"):
+            gs = us.get('game_setup', {})
+            if gs:
+                lines.append(f"  Game setup details:")
+                lines.append(f"    Non-zero regions: {gs.get('non_zero_count')}")
+                lines.append(f"    Non-zero bytes: {gs.get('non_zero_bytes')} / {gs.get('size')}")
+                for nz in (gs.get('non_zero_regions', []))[:3]:
+                    lines.append(f"    Region at {nz['offset_hex']}: {nz['length']} bytes, values={nz['values'][:10]}")
+                if len(gs.get('non_zero_regions', [])) > 3:
+                    lines.append(f"    ... ({len(gs.get('non_zero_regions', []))} regions total)")
+                lines.append("")
+                continue
+        elif section_name.startswith("Variable structures"):
+            vs = us.get('variable_structures', {})
+            if vs:
+                lines.append(f"  Variable structures details:")
+                for b in vs.get('blocks', []):
+                    lines.append(f"    Block {b.get('block_index')}: type={b.get('type')}, offset={b.get('offset_hex','?')}")
+                    if 'length' in b:
+                        lines.append(f"      length={b['length']}, data={str(b.get('data_hex',''))[:60]}")
+                    if 'count' in b:
+                        lines.append(f"      count={b['count']}, entries={len(b.get('entries',[]))}")
+                lines.append("")
+                continue
+
+        # Generic: show first + last record if we have records
+        if records and len(records) > 0:
+            lines.append(f"  Records: {len(records)}")
+            # First record
+            r0 = to_dict(records[0])
+            lines.append(f"  --- Record 0 (first) ---")
+            for k, v in r0.items():
+                if k.startswith('_'):
+                    continue
+                v_str = str(v)[:60]
+                lines.append(f"    {k:20s} = {v_str}")
+            # Last record (if different from first)
+            if len(records) > 1:
+                rN = to_dict(records[-1])
+                lines.append(f"  --- Record {len(records)-1} (last) ---")
+                for k, v in rN.items():
+                    if k.startswith('_'):
+                        continue
+                    v_str = str(v)[:60]
+                    lines.append(f"    {k:20s} = {v_str}")
+            lines.append("")
 
     # Summary
     lines.append("=" * 80)
