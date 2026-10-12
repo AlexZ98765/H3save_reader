@@ -17,8 +17,8 @@ extra_sections_parser.py — Парсер всех дополнительных 
   9. Motions (переменная длина) — path-записи / движения AI
 
 Имена секций UnknownVarReg / UnknownFixedReg сохраняются как внутренние
-идентификаторы ProspectorRT — это внешние имена из исходного .exe, которые
-мы используем для согласованности с декомпилированным кодом.
+идентификаторы из исходного .exe (внешние имена, которые мы используем
+для согласованности с исходным кодом).
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def _bytes_hex(raw, s, length):
 def parse_game_setup(raw: bytes, start: int, end: int) -> Dict[str, Any]:
     """Parse game setup block — player config, victory/loss, hero availability.
 
-    This block is 688 bytes from sf_null to SR (ProspectorRT: s += 688).
+    This block is 688 bytes from sf_null to SR (s += 688).
     After save_filename + null, there are ~680 bytes of game setup.
     Structure mirrors .h3m sections: players, conditions, available_heroes,
     disabled artifacts/spells/skills, rumors, heroes_settings.
@@ -144,7 +144,7 @@ def parse_sr_section(raw: bytes, start: int, end: int) -> Dict[str, Any]:
     result["u8_values"] = u8_values
 
     result["description"] = (
-        "SR (Script/Random) section: 28 bytes read by ProspectorRT Get_SR(). "
+        "SR (Script/Random) section: 28 bytes read by Get_SR(). "
         "Likely contains RNG seed, handicap settings, and/or victory/loss condition flags. "
         "All zeros on this save — may be populated on other saves."
     )

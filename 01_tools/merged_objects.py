@@ -3,7 +3,7 @@
 """
 merged_objects.py — Merge tile-scan results with post-tile content.
 
-This module produces PRT-like "raw" tables (Артефакты, Монстры, Банки, etc.)
+This module produces standardized "raw" tables (Артефакты, Монстры, Банки, etc.)
 by combining:
   - tile_scanner.scan_tiles() — gives coords + type for each object
   - post_tile_parser.parse_all_post_tile_sections() — gives content (guard, resources, artifacts)
@@ -61,17 +61,17 @@ def _find_tile_at(tile_map: Dict[int, List[Dict[str, Any]]],
 
 
 # ============================================================================
-# Merge functions — one per PRT sheet
+# Merge functions — one per sheet
 # ============================================================================
 
-# Resource name lookup (PRT aResource[])
+# Resource name lookup (aResource[])
 A_RESOURCE = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
 
 
 def _serialize_guard(guard) -> List[Dict[str, Any]]:
     """Convert ArmySlot list (dataclasses OR dicts) to plain dicts.
 
-    PRT post_tile_content stores guard as List[ArmySlot] (dataclass).
+    post_tile_content stores guard as List[ArmySlot] (dataclass).
     However, by the time merge_*() runs in our pipeline, _post_tile_content
     has already been serialized to dicts via _serialize_post_tile_content.
     So guard may be either:
@@ -106,13 +106,13 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
                     post_tile_content: Dict[str, Any],
                     obj_dict: Optional[Dict] = None
                     ) -> List[Dict[str, Any]]:
-    """Merge artifacts tile objects with ArtRes content (PRT sheet "Артефакты").
+    """Merge artifacts tile objects with ArtRes content (sheet "Артефакты").
 
     Returns a list of records with fields:
       x, y, z, locality, object, slot, artifact_id, artifact_name, class, relic,
       gold, resource, guard, hp
 
-    PRT row example (139 rows):
+    Row example (139 rows):
       (56, 8, 0, 'суша', 'Артефакт', None, 'Кольцо драгоценных камней', 'Большой',
        'Рог изобилия', None, None, None, None)
     """
@@ -152,7 +152,7 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
                    post_tile_content: Dict[str, Any],
                    obj_dict: Optional[Dict] = None
                    ) -> List[Dict[str, Any]]:
-    """Merge monster tile objects with Monstr content (PRT sheet "Монстры").
+    """Merge monster tile objects with Monstr content (sheet "Монстры").
 
     Returns records with:
       x, y, z, locality, monster_id, count, mood, level, hp, grows,
@@ -196,7 +196,7 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
 def merge_chests(tile_objects: List[Dict[str, Any]],
                  obj_dict: Optional[Dict] = None
                  ) -> List[Dict[str, Any]]:
-    """Merge chest tile objects (PRT sheet "Сундуки").
+    """Merge chest tile objects (sheet "Сундуки").
 
     Returns records with:
       x, y, z, locality, object, gold, experience, artifact_id, has_artifact
@@ -220,7 +220,7 @@ def merge_chests(tile_objects: List[Dict[str, Any]],
 
 
 def merge_resources(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge resource tile objects (PRT sheet "Ресурсы").
+    """Merge resource tile objects (sheet "Ресурсы").
 
     Returns records with:
       x, y, z, locality, object, resource_type, amount
@@ -246,7 +246,7 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
                       post_tile_content: Dict[str, Any]
                       ) -> List[Dict[str, Any]]:
     """Merge event tile objects + Pandora boxes with EventBox content
-    (PRT sheet "События и Ящики Пандоры").
+    (sheet "События и Ящики Пандоры").
 
     Returns records with ALL fields from EventBoxContent:
       x, y, z, locality, object, guard, experience, mana, morale, luck,
@@ -284,7 +284,7 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
 def merge_banks(tile_objects: List[Dict[str, Any]],
                 post_tile_content: Dict[str, Any]
                 ) -> List[Dict[str, Any]]:
-    """Merge bank tile objects + post-tile Bank content (PRT sheet "Банки").
+    """Merge bank tile objects + post-tile Bank content (sheet "Банки").
 
     Returns records with:
       x, y, z, locality, object, guard, monster_reward, gold, resources, artifact_ids
@@ -321,7 +321,7 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
 def merge_garrisons(tile_objects: List[Dict[str, Any]],
                     post_tile_content: Dict[str, Any]
                     ) -> List[Dict[str, Any]]:
-    """Merge garrison tile objects + post-tile Garrison content (PRT sheet "Garrisons").
+    """Merge garrison tile objects + post-tile Garrison content (sheet "Garrisons").
 
     Returns records with: x, y, z, locality, object, guard, color, can_take
     """
@@ -349,7 +349,7 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
 def merge_seer_huts(tile_objects: List[Dict[str, Any]],
                     post_tile_content: Dict[str, Any]
                     ) -> List[Dict[str, Any]]:
-    """Merge seer hut tile objects + post-tile SeerHut content (PRT sheet "Провидцы").
+    """Merge seer hut tile objects + post-tile SeerHut content (sheet "Провидцы").
 
     Returns records with:
       x, y, z, locality, object, num (quest ID), mission_type, mission,
@@ -408,7 +408,7 @@ def merge_pass_guards(tile_objects: List[Dict[str, Any]],
 def merge_universities(tile_objects: List[Dict[str, Any]],
                        post_tile_content: Dict[str, Any]
                        ) -> List[Dict[str, Any]]:
-    """Merge university tile objects + post-tile Univer content (PRT sheet "Навыки")."""
+    """Merge university tile objects + post-tile Univer content (sheet "Навыки")."""
     unis = []
     tile_uni = [obj for obj in tile_objects if obj.get('type_id') == 104]
     post_uni = post_tile_content.get("universers", [])
@@ -429,7 +429,7 @@ def merge_universities(tile_objects: List[Dict[str, Any]],
 
 
 def merge_scholars(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge scholar tile objects (PRT sheet "Ученые")."""
+    """Merge scholar tile objects (sheet "Ученые")."""
     return [
         {
             "x": obj.get('x'),
@@ -446,7 +446,7 @@ def merge_scholars(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge shrine tile objects (PRT sheet "Заклинания" — shrines only)."""
+    """Merge shrine tile objects (sheet "Заклинания" — shrines only)."""
     return [
         {
             "x": obj.get('x'),
@@ -462,7 +462,7 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def merge_witch_huts(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge witch hut tile objects (PRT sheet "Навыки" — witch huts)."""
+    """Merge witch hut tile objects (sheet "Навыки" — witch huts)."""
     return [
         {
             "x": obj.get('x'),
@@ -477,7 +477,7 @@ def merge_witch_huts(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]
 
 
 def merge_refugee_camps(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge refugee camp tile objects (PRT sheet "Лагеря Беженцев")."""
+    """Merge refugee camp tile objects (sheet "Лагеря Беженцев")."""
     return [
         {
             "x": obj.get('x'),
@@ -493,7 +493,7 @@ def merge_refugee_camps(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, An
 
 
 def merge_learning_stones(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge learning stone tile objects (PRT sheet "Опыт")."""
+    """Merge learning stone tile objects (sheet "Опыт")."""
     return [
         {
             "x": obj.get('x'),
@@ -510,7 +510,7 @@ def merge_learning_stones(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
 def merge_prisons(tile_objects: List[Dict[str, Any]],
                   heroes_parsed: List[Dict[str, Any]] = None
                   ) -> List[Dict[str, Any]]:
-    """Merge prison tile objects (PRT sheet "Тюрьмы").
+    """Merge prison tile objects (sheet "Тюрьмы").
 
     If heroes_parsed is given, look up the hero by ID and include full stats.
     """
@@ -558,7 +558,7 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
 
 
 def merge_keymaster_tents(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge keymaster tent tile objects (PRT sheet "Топология")."""
+    """Merge keymaster tent tile objects (sheet "Топология")."""
     return [
         {
             "x": obj.get('x'),
@@ -575,7 +575,7 @@ def merge_keymaster_tents(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
 
 def merge_monoliths(tile_objects: List[Dict[str, Any]],
                     post_tile_content: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Merge monolith tile objects + post-tile MonolithInfo (PRT sheet "Топология")."""
+    """Merge monolith tile objects + post-tile MonolithInfo (sheet "Топология")."""
     out = []
     # Tile scan monoliths: types 43, 44, 45
     for obj in tile_objects:
@@ -631,7 +631,7 @@ def merge_monoliths(tile_objects: List[Dict[str, Any]],
 def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
                              post_tile_content: Dict[str, Any]
                              ) -> List[Dict[str, Any]]:
-    """Merge subterranean gate tile objects + post-tile pairing (PRT sheet "Топология")."""
+    """Merge subterranean gate tile objects + post-tile pairing (sheet "Топология")."""
     out = []
     # Tile scan: type 103 (topology_object)
     for obj in tile_objects:
@@ -664,7 +664,7 @@ def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
 def merge_market(tile_objects: List[Dict[str, Any]],
                  post_tile_content: Dict[str, Any]
                  ) -> List[Dict[str, Any]]:
-    """Merge black market tile objects + post-tile Market content (PRT sheet "Рынки")."""
+    """Merge black market tile objects + post-tile Market content (sheet "Рынки")."""
     markets = []
     tile_markets = [obj for obj in tile_objects if obj.get('type_id') == 7]
     # Post-tile content might have market data (we have parse_market_content,
@@ -682,7 +682,7 @@ def merge_market(tile_objects: List[Dict[str, Any]],
 
 
 def merge_generic_objects(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge generic object tile objects (PRT sheet "Объекты" — Hill Fort etc.)."""
+    """Merge generic object tile objects (sheet "Объекты" — Hill Fort etc.)."""
     return [
         {
             "x": obj.get('x'),
@@ -701,7 +701,7 @@ def merge_generic_objects(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
 def merge_heroes_on_map(tile_objects: List[Dict[str, Any]],
                         heroes_parsed: List[Dict[str, Any]] = None
                         ) -> List[Dict[str, Any]]:
-    """Merge hero-on-map tile objects (PRT sheet "Герои" — heroes on map)."""
+    """Merge hero-on-map tile objects (sheet "Герои" — heroes on map)."""
     out = []
     heroes_by_id = {i: h for i, h in enumerate(heroes_parsed or [])}
     for obj in tile_objects:
@@ -728,7 +728,7 @@ def merge_heroes_on_map(tile_objects: List[Dict[str, Any]],
 
 
 # ============================================================================
-# Master: merge_all_objects — produce all PRT-like tables
+# Master: merge_all_objects — produce all standardized tables
 # ============================================================================
 
 def merge_all(tile_objects: List[Dict[str, Any]],
@@ -736,15 +736,15 @@ def merge_all(tile_objects: List[Dict[str, Any]],
               heroes_parsed: List[Dict[str, Any]] = None,
               obj_dict: Optional[Dict] = None
               ) -> Dict[str, List[Dict[str, Any]]]:
-    """Produce all PRT-like merged tables in one call.
+    """Produce all standardized merged tables in one call.
 
-    Returns a dict with keys matching PRT sheet names (in Russian for clarity):
+    Returns a dict with keys matching sheet names (in Russian for clarity):
       Артефакты, Монстры, Банки, События_Ящики, Ученые, Ресурсы, Сундуки,
       Заклинания, Навыки (witch huts), Лагеря_Беженцев, Рынки, Провидцы,
       Тюрьмы, Объекты, Топология, Герои_на_карте, Гарнизоны, Университеты,
       Learning_Stones
 
-    Each value is a list of dicts (one per row in PRT xlsx).
+    Each value is a list of dicts (one per row in the output xlsx).
     """
     return {
         "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict),

@@ -1,7 +1,7 @@
 # HoMM3 GM1 Toolkit
 
 > Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA).
-> **Версия архива:** 3.10 (10 Октября 2026) — **полное соответствие ProspectorRT по алгоритмам чтения + 4 приоритета экспорта**
+> **Версия архива:** 3.10 (10 Октября 2026) — **полное покрытие алгоритмов чтения + 4 приоритета экспорта**
 
 ## Что внутри
 
@@ -9,12 +9,12 @@
 
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
-| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 PRT-подобных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
+| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 стандартизированных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
 | **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md` (справка по формату), `gm1_mapping.json` (формат-константы) |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
 | **`04_diff_analysis/`** | Универсальный скрипт дифф-анализа (только `build_object_type_dictionary.py`) | `build_object_type_dictionary.py` (парсит LazyLlama wiki) |
 | **`05_disasm/`** | Дизассемблированный `heroes3.exe` (нативный код) | `func_*.asm`, `save_functions_disasm.txt`, `all_strings.txt` |
-| **`07_prt_decompiled/`** | ⭐ Полный реверс-код ProspectorRT.exe (ILSpy C# + raw IL + metadata) | `ProspectorRT_source/ProspectorRT/MainForm.cs` (16K строк scanner), `ProspectorRT_IL/full_il_dump.txt` (4.6 МБ, 2 775 методов), `ProspectorRT_metadata/*` |
+| **`07_prt_decompiled/`** | ⭐ Полный реверс-код оригинального редактора сейвов (ILSpy C# + raw IL + metadata) | `ProspectorRT_source/ProspectorRT/MainForm.cs` (16K строк scanner), `ProspectorRT_IL/full_il_dump.txt` (4.6 МБ, 2 775 методов), `ProspectorRT_metadata/*` |
 | **`_obsolete/`** | 📦 Архив временных и промежуточных файлов | `02_format_docs/` (6 исторических .md + diff_interpretation.json), `04_diff_analysis/Myth and Legend/` (25 analyze_*.py + отчёты), `06_disasm_scripts/` (12 скриптов дизассемблера), `scripts/` (25 audit/compare скриптов) |
 
 ## Цель проекта
@@ -25,7 +25,7 @@
 
 1. **Фаза 1 — Map JSON** (`map_json_loader.py`): загружает JSON-парсинг карты `.h3m` (или `.zip` с ним), строит `MapData` (`objects_by_coord`, `coord_int_lookup`, `type_index`, `category_index`) для ЛЮБОЙ карты.
 2. **Фаза 2 — Day-0 anchor** (`map_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
-3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py` + `merged_objects.py`): открывает любой сейв той же карты, **адаптирует** смещения из config, парсит все поля героя/города/объекта, декодирует содержимое **всех post-tile секций** ProspectorRT, и генерирует **22 PRT-подобных таблицы** + **3 агрегатора** через `merged_objects.merge_all()`.
+3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py` + `merged_objects.py`): открывает любой сейв той же карты, **адаптирует** смещения из config, парсит все поля героя/города/объекта, декодирует содержимое **всех post-tile секций**, и генерирует **22 стандартизированных таблицы** + **3 агрегатора** через `merged_objects.merge_all()`.
 
 ## С чего начать
 
@@ -65,7 +65,7 @@ coord_int = x | (y << 8) | (z << 16)
 
 **Важно:** SAVE координаты могут отличаться от MAP координат на +2 (towns занимают 2×2 тайла, сейв использует top-left corner). См. `02_format_docs/GM1_format_compendium.md` для деталей.
 
-## Текущая реализация (v3.10) — 4 приоритета соответствия PRT
+## Текущая реализация (v3.10) — 4 приоритета экспорта
 
 ### Алгоритмы чтения (v3.9): 93/93 ✅
 - **37 tile-level парсеров** (Save* методы в `IsObject` диспетчере)
@@ -77,12 +77,12 @@ coord_int = x | (y << 8) | (z << 16)
 |---|---|---|
 | **1** | Экспонирование `post_tile_content` + `player_states` + `current_state` в JSON | ~30 |
 | **2** | Hero `war_machines` + `spell_book` поля; Town `spell_pool` + `buildings_built` | ~100 |
-| **3** | Tile-scan + post-tile merge → 22 PRT-подобных таблицы (через `merged_objects.merge_all`) | ~540 |
+| **3** | Tile-scan + post-tile merge → 22 стандартизированных таблицы (через `merged_objects.merge_all`) | ~540 |
 | **4** | Агрегаторы: `all_artifacts` + `all_spells` + `all_skills` | ~150 |
 
 **Результат тестирования на Myth and Legend (0000.GM1):**
 
-| Лист PRT | PRT rows | Наш merge |
+| Лист | rows | Наш merge |
 |---|---|---|
 | Артефакты | 139 | 124 ✅ |
 | Монстры | 237 | 272 ✅ |
@@ -98,7 +98,7 @@ coord_int = x | (y << 8) | (z << 16)
 | Все Арты (агрегатор) | 181 | 123 ✅ |
 
 См. `02_format_docs/GM1_format_compendium.md` для справки по формату.
-Исторические сравнения с ProspectorRT (HONEST_AUDIT, PRT_xlsx_vs_results02) перенесены в `_obsolete/02_format_docs/`.
+Исторические сравнения с оригинальным редактором (HONEST_AUDIT, xlsx_vs_results02) перенесены в `_obsolete/02_format_docs/`.
 
 ## Известные ограничения текущей версии
 
@@ -110,4 +110,4 @@ coord_int = x | (y << 8) | (z << 16)
 ## Подробная документация
 
 См. **`FILES_DESCRIPTION.md`** — полное описание всех файлов.
-См. **`_obsolete/README.md`** — описание перенесённых в архив временных файлов (включая исторические сравнения с ProspectorRT).
+См. **`_obsolete/README.md`** — описание перенесённых в архив временных файлов (включая исторические сравнения с оригинальным редактором).

@@ -1413,3 +1413,50 @@ Stage Summary:
 - ⭐ worklog.md сохранён без изменений (для прогресс-трекинга)
 - ⭐ Все модули загружаются и pipeline работает на обеих тест-картах
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: cleanup-prt-heritage-2026-10-12
+Agent: main (Super Z)
+Task: Убрать упоминания ProspectorRT / PRT из описаний и комментариев (папку 07_prt_decompiled не трогать)
+
+Work Log:
+- Пользователь: «так же нужно убрать и упоминания Prospector RT» + «однако папку 07_prt_decompiled и её содержимое не исправляй!»
+- Сначала применил git mv 07_prt_decompiled → 07_reference_code, но откатил (т.к. пользователь явно сказал не трогать папку)
+- Очистка 01_tools/*.py (все упоминания ProspectorRT/PRT):
+  - post_tile_parser.py: 47 замен (header docstring, все комментарии "ProspectorRT X" → "X", "PRT sheet X" → "sheet X")
+  - post_tile_scanner.py: 8 замен (docstring, scan_* comments, TOWN_HERO_GAP comment)
+  - tile_scanner.py: 53 замены (docstring, all SaveXxx comments, IsObject dispatcher, aTent[])
+  - save_layout.py: 15 замен (HERO_STRIDE_SOD comment, ALT_BLOCK_OFFSET, PLAYER_STATE, CURRENT_STATE, OBJECT_TYPE_IDS — все "From ProspectorRT X" → "Source: X")
+  - save_parser.py: 12 замен (war_machines comment, alt block, town spell, player state, current state, merged_objects call)
+  - merged_objects.py: 30 замен (все docstring "PRT sheet X" → "sheet X", "PRT-like" → "standardized")
+  - export_coverage_report.py: 5 замен (game_setup, sr_section, variable_structures, sprite_records descriptions)
+  - extra_sections_parser.py: 3 замены (docstring, parse_game_setup, parse_sr_section)
+  - map_config_builder.py: 3 замены (town stride comments)
+  - gm1_parser.py: 3 замены (comment, tooltip, ОГРАНИЧЕНИЕ ProspectorRT → ОГРАНИЧЕНИЕ старого подхода)
+  - save_parser.py: 1 дополнительная замена ("MainForm.cs:7723" → "Layout:")
+- Очистка .md/.json:
+  - 02_format_docs/GM1_format_compendium.md: 1 замена (ProspectorRT.exe → оригинальный редактор сейвов)
+  - FILES_DESCRIPTION.md: 8 замен (версия, описание 07_prt_decompiled, "22 PRT-подобных таблицы" → "22 стандартизированных таблицы", "Эквивалент ProspectorRT" → "Эквивалент в MainForm.cs", "по ProspectorRT source" → "по исходному коду")
+  - README.md: 7 замен (версия, 01_tools описание, 07_prt_decompiled описание, Фаза 3, "PRT-подобных" → "стандартизированных", "Лист PRT" → "Лист", "сравнения с ProspectorRT" → "сравнения с оригинальным редактором")
+- НЕ ТРОГАЛИ (по требованию пользователя):
+  - 07_prt_decompiled/ и всё её содержимое (ProspectorRT_source/, ProspectorRT_IL/, ProspectorRT_metadata/, README.md, Readme.txt, Data/)
+  - worklog.md (исторические записи сохранены для прогресс-трекинга)
+- Оставшиеся упоминания (физические пути, не редактируются):
+  - 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs — путь к файлу внутри папки, которую не трогаем
+  - _obsolete/ PRT_*.md файлы — исторические имена файлов, которые были созданы в v3.8 и перенесены в архив
+- Проверка:
+  - Все 15 модулей 01_tools/ загружаются без ошибок
+  - Pipeline на save_parse_test_01: 150 heroes, 1 town, extra_sections keys = [game_setup, sr_section, variable_structures, sprite_records]
+  - Pipeline на Myth and Legend: 156 heroes, 21 towns, extra_sections keys = [game_setup, sr_section, variable_structures, sprite_records, dwelling, unknown_var_reg, unknown_fixed_reg]
+  - Post-tile content не нарушен: 99 EventBox, 1 SeerHut на Myth and Legend
+- Архив: /home/z/my-project/download/H3save_reader.tar.gz (1.4 MB)
+  - Содержит: README.md, FILES_DESCRIPTION.md, worklog.md, 01_tools/, 02_format_docs/, 03_object_mapping/, 04_diff_analysis/, 05_disasm/, 07_prt_decompiled/
+  - Внутри архива — папка H3save_reader/
+
+Stage Summary:
+- ⭐ Все упоминания ProspectorRT / PRT удалены из .py кода (post_tile_parser, post_tile_scanner, tile_scanner, save_layout, save_parser, merged_objects, export_coverage_report, extra_sections_parser, map_config_builder, gm1_parser)
+- ⭐ Все упоминания удалены из .md (GM1_format_compendium, FILES_DESCRIPTION, README)
+- ⭐ Папка 07_prt_decompiled/ сохранена как есть (включая все подпапки и файлы внутри — ProspectorRT_source/, ProspectorRT_IL/, ProspectorRT_metadata/)
+- ⭐ worklog.md сохранён без изменений (исторические записи)
+- ⭐ Все модули загружаются и pipeline работает на обеих тест-картах
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

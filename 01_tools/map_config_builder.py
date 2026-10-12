@@ -462,7 +462,7 @@ def _parse_town_at(raw: bytes, block_start: int) -> Optional[TownBlockInfo]:
 
 
 # ============================================================================
-# Town stride verification (ProspectorRT-style: stride = 382 + name_len)
+# Town stride verification (stride = 382 + name_len)
 # ============================================================================
 
 def _verify_town_strides(town_section: TownSection) -> dict:
@@ -511,7 +511,7 @@ def _recover_missing_towns(raw: bytes, town_section: TownSection,
                             town_names: List[str],
                             scan_start: int) -> TownSection:
     """
-    Try to recover missing towns using the ProspectorRT stride formula.
+    Try to recover missing towns using the stride formula (382 + name_len).
 
     For each pair of consecutive found towns where the stride doesn't match
     `TOWN_RECORD_BASE_SIZE + name_len`, attempt to insert intermediate town(s)
@@ -672,7 +672,7 @@ def build_map_config(map_data, day_zero_raw: bytes,
     town_section = find_town_blocks(day_zero_raw, header.header_size,
                                      town_coords, town_names)
 
-    # ----- Verify town strides (ProspectorRT-style: 382 + name_len) -----
+    # ----- Verify town strides (382 + name_len) -----
     # Each town record has total size = TOWN_RECORD_BASE_SIZE (382) + name_len_in_cp1251
     # If our found town offsets don't satisfy this stride law, we missed some towns
     # or found false positives.

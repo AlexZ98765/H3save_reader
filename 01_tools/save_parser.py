@@ -276,10 +276,10 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["_detail_equipment"] = make_bytes_field(
         "equipment", raw, equip_addr, 152, "bytes_equipment_19x8")
 
-    # ----- v3.10: War machines + Spell Book (PRT columns "Машина" and "Книга заклинаний") -----
-    # ProspectorRT GetHeroesContent reads 83 doll slots at block_offset + 408.
+    # ----- v3.10: War machines + Spell Book (columns "Машина" and "Книга заклинаний") -----
+    # GetHeroesContent reads 83 doll slots at block_offset + 408.
     # This is a UNIVERSAL constant — same for all SoD/HotA saves.
-    # See MainForm.cs:7723 — after alt block (26+extra) + 113 + army(56) + name(13) + skills(56) + attrs(4) + spells(140) = 408
+    # Layout: after alt block (26+extra) + 113 + army(56) + name(13) + skills(56) + attrs(4) + spells(140) = 408
     # Note: 408 is from BLOCK START, not from name_offset.
     # Slot index = 0 → Spell Book (artifact_id == 0)
     # Slot index 4/5/6 → War machines (Ballista=4, Ammo Cart=5, First Aid Tent=6)
@@ -304,10 +304,10 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     fields["war_machines"] = war_machines
     fields["spell_book"] = spell_book
 
-    # ----- Alt block fields (from ProspectorRT GetHeroesContent) -----
+    # ----- Alt block fields (from GetHeroesContent) -----
     # Alt block starts at block_offset + HERO_ALT_BLOCK_OFFSET (26)
     # These fields are DUPLICATED in the alt block (also exist in pre-alt)
-    # ProspectorRT reads from alt block; pre-alt block is unused.
+    # The alt block is the canonical read location; pre-alt block is unused.
     # We read both for verification.
     alt_start = block_offset + HERO_ALT_BLOCK_OFFSET
     ao = HERO_ALT_FIELD_OFFSETS
@@ -450,7 +450,7 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         }
 
     # ----- v3.10: Spell Pool (Magic Guild spells) -----
-    # ProspectorRT GetTownContent (line 7458) reads spell_pool after each town.
+    # GetTownContent (line 7458) reads spell_pool after each town.
     # The spell pool starts at block_offset + 72 + name_len + 113 (after town name
     # and a 113-byte gap before spell slots).
     # Town spell pool depth depends on town type (TOWN_SPELL_POOL_DEPTH).
@@ -464,7 +464,7 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
 
         # Spell section starts after town record + 113 bytes gap
         # block_offset + 72 (name_len_offset) + name_len + 113
-        # but ProspectorRT calls GetTownSpell AFTER skipping town record
+        # but GetTownSpell is called AFTER skipping town record
         # (town stride = 72 + name_len + 113 + spell_section + 197)
         # Let's compute: end of "town main body" = block_offset + 72 + name_len + 113
         spell_section_offset = block_offset + 72 + name_len + 113
@@ -649,7 +649,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     for tb in town_section.blocks:
         try:
             fields = parse_town_block(raw, tb.block_offset)
-            # Add spell pool depth for this town type (from ProspectorRT)
+            # Add spell pool depth for this town type
             ttype = fields.get("type", -1)
             fields["spell_pool_depth"] = TOWN_SPELL_POOL_DEPTH.get(ttype, 5)
         except Exception as e:
@@ -664,7 +664,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             "fields": fields,
         })
 
-    # ----- 6b. Player state (from ProspectorRT GetColorContent) -----
+    # ----- 6b. Player state (from GetColorContent) -----
     # Player state section starts 1160 bytes before town section
     # (map.Town = map.Color + 1160 → map.Color = first_town_offset - 1160)
     player_states: List[Dict[str, Any]] = []
@@ -678,7 +678,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
                 start=color_section_start,
                 end=color_section_start + PLAYER_STATE_COUNT * PLAYER_STATE_SIZE,
                 description=f"Player state section — {PLAYER_STATE_COUNT} players × "
-                            f"{PLAYER_STATE_SIZE} bytes (from ProspectorRT GetColorContent)",
+                            f"{PLAYER_STATE_SIZE} bytes (from GetColorContent)",
             )
             for pidx in range(PLAYER_STATE_COUNT):
                 base = color_section_start + pidx * PLAYER_STATE_SIZE
@@ -706,7 +706,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             ) for pidx, ps in enumerate(player_states)]
             blocks.append(ps_block)
 
-    # ----- 6c. Current state (from ProspectorRT GetCurrentState) -----
+    # ----- 6c. Current state (from GetCurrentState) -----
     # CurrentState = HeroState + HeroCount * 2
     # HeroState is right after hero blocks (= after last hero block + stride)
     current_state_parsed: Dict[str, Any] = {}
@@ -714,7 +714,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
         # HeroState = after last hero block (approx: last block + stride)
         # More accurately: HeroState = first_hero_block + HeroCount * stride
         # But HeroCount may differ from actual found blocks (some may be inactive)
-        # We use the ProspectorRT formula: HeroState = first_hero_block + 156 * 1094
+        # We use the formula: HeroState = first_hero_block + 156 * 1094
         first_hero_off = hero_section.blocks[0].block_offset
         hero_count = hero_section.count
         hero_state_off = first_hero_off + hero_count * HERO_STRIDE_SOD
@@ -744,7 +744,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
                 start=current_state_off,
                 end=current_state_off + 50,
                 description="Current game state — day/week/month, Grail location "
-                            "(from ProspectorRT GetCurrentState)",
+                            "(from GetCurrentState)",
             )
             cs_block.fields = [ParsedField(
                 name=fname, offset=current_state_off + foff, size=1, type="u8",
@@ -957,7 +957,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
         parsed._town_timer_links = {"error": str(e)}
 
     # v3.10: Merge tile-scan results with post-tile content (Priority 3)
-    # Produce PRT-like "raw" tables: Артефакты, Монстры, Банки, etc.
+    # Produce standardized "raw" tables: Артефакты, Монстры, Банки, etc.
     try:
         import os, sys
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

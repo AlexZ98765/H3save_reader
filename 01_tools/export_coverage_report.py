@@ -95,20 +95,20 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     sf_end = save_filename_start + len(sf_name) + 1  # +1 for null terminator
     add("Save filename + game setup (688 bytes from sf_null to SR)",
         sf_null, sr_offset,
-        f"null byte + save_filename '{sf_name}' ({len(sf_name)} bytes) + null + {688 - 8 - len(sf_name)} bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). ProspectorRT skips ALL of this with 's += 688'.",
-        "PARSED", "parse_game_setup() — player config, conditions, hero availability. ProspectorRT GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.")
+        f"null byte + save_filename '{sf_name}' ({len(sf_name)} bytes) + null + {688 - 8 - len(sf_name)} bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). Skipped with 's += 688'.",
+        "PARSED", "parse_game_setup() — player config, conditions, hero availability. GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.")
 
     # ── SR section ──
     add("SR (Script/Random) section — 28 bytes",
         sr_offset, after_sr,
-        "28-byte section read by ProspectorRT Get_SR(). Possibly RNG seed, handicap settings, victory/loss conditions.",
+        "28-byte section read by Get_SR(). Possibly RNG seed, handicap settings, victory/loss conditions.",
         "PARSED", "parse_sr_section() — 7×u32 dump. Get_SR() reads 28 bytes; we store sr_bytes (hex) but don't interpret them.")
 
     # ── Variable structures ──
     add("Variable structures (after SR)",
         after_sr, after_variable,
         "u16 length + data (258 bytes?), then u16 count + count × (u16 + 3). Unknown — possibly victory/loss condition data, custom hero settings.",
-        "PARSED", "parse_variable_structures() — u16 chain parsing. ProspectorRT GetMapStart() skips these.")
+        "PARSED", "parse_variable_structures() — u16 chain parsing. GetMapStart() skips these.")
 
     # ── Black Market ──
     if black_market_count > 0:
@@ -132,7 +132,7 @@ def generate_coverage_report(save_path, config_path, output_path=None):
     add("num5 records (after tiles)",
         after_tiles, after_num5,
         f"u16 count ({num5}) + 4 + count × (u16 message_length + 35 bytes). Unknown content — possibly message/event text strings or sign messages.",
-        "PARSED", "parse_sprite_records() — .def filenames + 35 bytes metadata. ProspectorRT GetSenseRegion() skips these.")
+        "PARSED", "parse_sprite_records() — .def filenames + 35 bytes metadata. GetSenseRegion() skips these.")
 
     # ── ObjectNumber + index ──
     obj_num = pts.get('object_number', 0)

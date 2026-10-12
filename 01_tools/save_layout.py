@@ -450,19 +450,18 @@ TOWN_FIELD_OFFSETS = {
 }
 
 HERO_BLOCK_SIZE = 1122          # approximate
-HERO_STRIDE_SOD = 0x446         # 1094 bytes (verified on Myth and Legend, confirmed by ProspectorRT IL)
+HERO_STRIDE_SOD = 0x446         # 1094 bytes (verified on Myth and Legend)
 HERO_NAME_OFFSET_FROM_BLOCK_START = 169
 TOWN_NAME_OFFSET_FROM_BLOCK_START = 71
 
-# Town record base size — verified by ProspectorRT IL analysis (ScanTownsContent uses 0x17E = 382)
+# Town record base size (ScanTownsContent uses 0x17E = 382)
 # Total town record size = TOWN_RECORD_BASE_SIZE + name_len_in_cp1251
 # (the 382 bytes include the 2-byte name_len prefix at offset 69)
 # On Myth and Legend: 21 towns with strides 386-390 (382 + name_len 4-8 bytes)
 TOWN_RECORD_BASE_SIZE = 382
 
 # ============================================================================
-# Constants from ProspectorRT decompilation (ILSpy 8.2)
-# Source: PRT_reverse/decompiled/ProspectorRT/MainForm.cs
+# Format constants (universal — independent of map)
 # ============================================================================
 
 # Hero "alt block" — starts 26 bytes after block_offset (GetHeroesContent line 7768)
@@ -478,10 +477,10 @@ TOWN_RECORD_BASE_SIZE = 382
 HERO_ALT_BLOCK_OFFSET = 26
 
 # Alt block field offsets — relative to alt_block_start (= block_offset + 26)
-# From ProspectorRT GetHeroesContent (lines 7769-7778)
+# Source: GetHeroesContent (lines 7769-7778)
 # NOTE: These are name-relative offsets. Both read correct
 # values because some fields (Experience, Level, MP) are stored in BOTH the
-# pre-alt block and the alt block (ProspectorRT reads from here).
+# pre-alt block and the alt block.
 HERO_ALT_FIELD_OFFSETS = {
     "Color":           0,    # u8 — player color (same as faction)
     "TreeNumber":      17,   # u8 — skill tree number (HeroesInfo)
@@ -493,7 +492,7 @@ HERO_ALT_FIELD_OFFSETS = {
 }
 
 # Player state section — 8 players × 145 bytes each
-# From ProspectorRT GetColorContent (line 7653) and Scanner (line 6158-6159)
+# Source: GetColorContent (line 7653) and Scanner (line 6158-6159)
 # map.Color = start of player state section
 # map.Town = map.Color + 1160 (= 8 × 145)
 PLAYER_STATE_COUNT = 8
@@ -510,7 +509,7 @@ PLAYER_STATE_OFFSETS = {
 }
 
 # Current state section — after hero state
-# From ProspectorRT GetCurrentState (line 7668)
+# Source: GetCurrentState (line 7668)
 # map.CurrentState = map.HeroState + HeroCount * 2
 # Offsets relative to map.CurrentState
 CURRENT_STATE_OFFSETS = {
@@ -523,68 +522,68 @@ CURRENT_STATE_OFFSETS = {
     "art_merchants":   49,   # start of art merchants data (7 × 4 bytes)
 }
 
-# Object type IDs — from ProspectorRT IsObject (line 9484)
+# Object type IDs — from IsObject dispatcher (line 9484)
 # decmp[s] == type_id → object type
 # Used by Scanner to dispatch object parsing
-# Complete OBJECT_TYPE_IDS — from ProspectorRT MainForm.cs::CreateTblObject (line 10709)
+# Complete OBJECT_TYPE_IDS — from CreateTblObject (line 10709)
 # Includes ALL object codes used in tile scan dispatcher (IsObject, line 9484)
 # Note: code 16 has 7 subtypes (bank types); others have only one name.
 # We use the bank name "Bank" + subtype name for clarity.
 OBJECT_TYPE_IDS = {
-    # ── From ProspectorRT TblObject (CreateTblObject, MainForm.cs:10709) ──
-    2:   "Altar of Sacrifice",            # "Жертвенный алтарь" (PRT)
-    4:   "Monster_Generator",             # not in PRT TblObject — observed in tile scan
+    # ── From CreateTblObject (TblObject, line 10709) ──
+    2:   "Altar of Sacrifice",            # "Жертвенный алтарь"
+    4:   "Monster_Generator",             # not in TblObject — observed in tile scan
     5:   "Artifact",                      # "Артефакт"
     6:   "Pandora's Box",                 # "Ящик Пандоры"
     7:   "Black Market",                  # "Черный рынок"
-    9:   "Random_Town",                   # not in PRT TblObject — observed in tile scan
+    9:   "Random_Town",                   # not in TblObject — observed in tile scan
     10:  "Keymaster's Tent",              # "Палатка ключника"
     12:  "Campfire",                      # "Кострище покинутого лагеря"
-    13:  "Mine_Type2",                    # not in PRT TblObject — observed in tile scan (mine variant)
-    14:  "Random_Mine",                   # not in PRT TblObject — observed in tile scan
+    13:  "Mine_Type2",                    # not in TblObject — observed in tile scan (mine variant)
+    14:  "Random_Mine",                   # not in TblObject — observed in tile scan
     16:  "Bank",                          # bank variants: subtype 0..6
     17:  "Mine_Wood",                     # "Заброшенная шахта" (subtype wood)
     20:  "Mine_Gold",                     # subtype gold
     22:  "Skeleton",                      # "Труп"
-    23:  "Random_Dwelling",               # not in PRT TblObject — observed in tile scan
+    23:  "Random_Dwelling",               # not in TblObject — observed in tile scan
     24:  "Bank_Derelict",                 # "Ветхий корабль" (bank variant)
     25:  "Bank_DragonUtopia",             # "Утопия драконов"
     26:  "Event",                         # "Событие"
-    27:  "Random_Resource_Pile",          # not in PRT TblObject — observed in tile scan
-    28:  "Random_Artifact",               # not in PRT TblObject — observed in tile scan
+    27:  "Random_Resource_Pile",          # not in TblObject — observed in tile scan
+    28:  "Random_Artifact",               # not in TblObject — observed in tile scan
     29:  "Floatsam",                      # "Обломки"
-    30:  "Random_Town2",                  # not in PRT TblObject — observed in tile scan
-    31:  "Random_Monster",                # not in PRT TblObject — observed in tile scan
-    32:  "Random_Monster2",               # not in PRT TblObject — observed in tile scan
+    30:  "Random_Town2",                  # not in TblObject — observed in tile scan
+    31:  "Random_Monster",                # not in TblObject — observed in tile scan
+    32:  "Random_Monster2",               # not in TblObject — observed in tile scan
     33:  "Garrison",                      # "Гарнизон"
     34:  "Hero",                          # "Герой"
     35:  "Hill Fort",                     # "Форт на холме"
-    37:  "Random_Dwelling6",              # not in PRT TblObject — observed in tile scan
-    38:  "Random_Resource_Pile2",         # not in PRT TblObject — observed in tile scan
+    37:  "Random_Dwelling6",              # not in TblObject — observed in tile scan
+    38:  "Random_Resource_Pile2",         # not in TblObject — observed in tile scan
     39:  "Refugee Camp",                  # "Чей-то погреб"
-    41:  "Random_Dwelling2",              # not in PRT TblObject — observed in tile scan
-    42:  "Random_Dwelling4",              # not in PRT TblObject — observed in tile scan
+    41:  "Random_Dwelling2",              # not in TblObject — observed in tile scan
+    42:  "Random_Dwelling4",              # not in TblObject — observed in tile scan
     43:  "Monolith One Way Entrance",    # "Монолит входа"
     44:  "Monolith One Way Exit",         # "Монолит выхода"
     45:  "Monolith Two Way",              # "Двухсторонний монолит"
-    47:  "Random_Artifact2",              # not in PRT TblObject — observed in tile scan
-    49:  "Random_Resource_Pile3",        # not in PRT TblObject — observed in tile scan
-    51:  "Random_Town3",                  # not in PRT TblObject — observed in tile scan
+    47:  "Random_Artifact2",              # not in TblObject — observed in tile scan
+    49:  "Random_Resource_Pile3",        # not in TblObject — observed in tile scan
+    51:  "Random_Town3",                  # not in TblObject — observed in tile scan
     53:  "Mine_Generic",                 # "Заброшенная шахта"
     54:  "Monster",                       # "Монстр"
     55:  "Mystical Garden",               # "Мистический сад"
-    56:  "Random_Dwelling5",              # not in PRT TblObject — observed in tile scan
-    57:  "Random_Monster3",               # not in PRT TblObject — observed in tile scan
-    58:  "Random_Resource_Pile4",         # not in PRT TblObject — observed in tile scan
-    61:  "Random_Dwelling3",              # not in PRT TblObject — observed in tile scan
+    56:  "Random_Dwelling5",              # not in TblObject — observed in tile scan
+    57:  "Random_Monster3",               # not in TblObject — observed in tile scan
+    58:  "Random_Resource_Pile4",         # not in TblObject — observed in tile scan
+    61:  "Random_Dwelling3",              # not in TblObject — observed in tile scan
     62:  "Prison",                        # "Тюрьма"
     63:  "Pyramid",                       # "Пирамида"
-    64:  "Random_Monster4",               # not in PRT TblObject — observed in tile scan
-    78:  "Mercenary Camp",                # "Лагерь беженцев" (note: PRT uses 78 for both
+    64:  "Random_Monster4",               # not in TblObject — observed in tile scan
+    78:  "Mercenary Camp",                # "Лагерь беженцев" (note: TblObject uses 78 for both
                                             #  refugee camp AND mercenary camp; tile scan uses 39
                                             #  for refugee camp and 78 for mercenary camp)
     79:  "Resource",                      # "Ресурс"
-    80:  "Random_Resource_Pile6",         # not in PRT TblObject — observed in tile scan
+    80:  "Random_Resource_Pile6",         # not in TblObject — observed in tile scan
     81:  "Scholar",                       # "Ученый"
     82:  "Sea Chest",                     # "Морской сундук"
     83:  "Seer's Hut",                    # "Хижина провидца"
@@ -594,24 +593,24 @@ OBJECT_TYPE_IDS = {
     88:  "Shrine of Magic Incantation",   # "Святыня магического воплощения"
     89:  "Shrine of Magic Gesture",        # "Святыня магического жеста"
     90:  "Shrine of Magic Thought",       # "Святыня магической мысли"
-    91:  "Random_Monster8",               # not in PRT TblObject — observed in tile scan
-    92:  "Random_Monster9",               # not in PRT TblObject — observed in tile scan
+    91:  "Random_Monster8",               # not in TblObject — observed in tile scan
+    92:  "Random_Monster9",               # not in TblObject — observed in tile scan
     93:  "Spell Scroll",                  # "Свиток с заклинанием"
-    94:  "Random_Monster5",               # not in PRT TblObject — observed in tile scan
-    95:  "Tavern",                        # "Таверна" (not in PRT TblObject — observed)
-    96:  "Random_Resource_Pile5",         # not in PRT TblObject — observed in tile scan
-    97:  "Random_Monster6",               # not in PRT TblObject — observed in tile scan
+    94:  "Random_Monster5",               # not in TblObject — observed in tile scan
+    95:  "Tavern",                        # "Таверна" (not in TblObject — observed)
+    96:  "Random_Resource_Pile5",         # not in TblObject — observed in tile scan
+    97:  "Random_Monster6",               # not in TblObject — observed in tile scan
     98:  "Town",                          # "Городок" (Town — observed in tile scan)
-    99:  "Random_Artifact3",              # not in PRT TblObject — observed in tile scan
+    99:  "Random_Artifact3",              # not in TblObject — observed in tile scan
     100: "Learning Stone",                # "Камень знаний"
     101: "Treasure Chest",                # "Сундук с сокровищами"
     102: "Tree of Knowledge",             # "Древо знаний"
     103: "Subterranean Gate",             # "Врата подземного мира"
     104: "University",                    # "Университет"
     105: "Wagon",                         # "Телега"
-    107: "Random_Monster7",               # not in PRT TblObject — observed in tile scan
+    107: "Random_Monster7",               # not in TblObject — observed in tile scan
     108: "Warrior's Tomb",                # "Могила воина"
-    109: "Random_Artifact4",              # not in PRT TblObject — observed in tile scan
+    109: "Random_Artifact4",              # not in TblObject — observed in tile scan
     111: "Whirlpool",                     # "Водоворот"
     112: "Windmill",                      # "Ветряная мельница"
     113: "Witch Hut",                     # "Хижина ведьмы"
@@ -621,7 +620,7 @@ OBJECT_TYPE_IDS = {
 }
 
 # Town spell pool depth — number of spell guild levels by town type
-# From ProspectorRT GetTownContent (lines 7505-7523)
+# Source: GetTownContent (lines 7505-7523)
 # GetTownSpell(town, depth, ...) — depth determines how many spell levels to read
 TOWN_SPELL_POOL_DEPTH = {
     0: 4,   # Castle
@@ -637,7 +636,7 @@ TOWN_SPELL_POOL_DEPTH = {
 
 # Structure-walking chain — order of sections in the save (from Scanner line 6153-6162)
 # Each section's start is computed from the previous section's start + its size
-# This is how ProspectorRT navigates the save without hardcoded offsets
+# This is how the parser navigates the save without hardcoded offsets
 SAVE_SECTION_ORDER = [
     "BottleSign",      # map.BottleSign — bottle sign section
     "Mine",            # map.Mine = ScanBottleSignContent(map.BottleSign)

@@ -3,14 +3,14 @@
 """
 post_tile_parser.py — Parse post-tile sections of .GM1 saves (content extraction).
 
-This module implements ALL 23 ProspectorRT content-parsing algorithms that
+This module implements all 23 content-parsing algorithms for post-tile sections.
 were identified as missing in `02_format_docs/unimplemented_algorithms_audit.md`.
 
 Each `parse_*` function here is a content-extracting counterpart of the
 `scan_*` skip-only function in `post_tile_scanner.py`. They decode the actual
 fields and return Python dicts/dataclasses instead of just walking past.
 
-Reference: `07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs`
+Reference: see 07_prt_decompiled/ for the original reverse-engineered source code.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ from post_tile_scanner import (
 
 
 # ============================================================================
-# Reference tables (transcribed from ProspectorRT CreateTbl* + a* arrays)
+# Reference tables (transcribed from CreateTbl* + a* arrays)
 # ============================================================================
 
 A_RESOURCE = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
@@ -84,7 +84,7 @@ A_SPELL = [f"Spell{i}" for i in range(70)]
 
 
 # ============================================================================
-# Helpers — signed decode (ProspectorRT trick)
+# Helpers — signed decode
 # ============================================================================
 
 def _u8(raw: bytes, s: int) -> int:
@@ -92,7 +92,7 @@ def _u8(raw: bytes, s: int) -> int:
 
 
 def _i8(raw: bytes, s: int) -> int:
-    """Signed 8-bit (ProspectorRT: `> 240 ? ((~b + 1) * -1) : b`)."""
+    """Signed 8-bit (decode: `> 240 ? ((~b + 1) * -1) : b`)."""
     v = raw[s]
     return v - 256 if v > 240 else v
 
@@ -102,7 +102,7 @@ def _u32(raw: bytes, s: int) -> int:
 
 
 def _i32(raw: bytes, s: int) -> int:
-    """Signed 32-bit (ProspectorRT: `if byte[3] != 0xFF positive else negative trick`)."""
+    """Signed 32-bit (`if byte[3] != 0xFF positive else negative trick`)."""
     if raw[s+3] != 0xFF:
         return _u32(raw, s)
     # negative: ~(b3 b2 b1 b0) + 1, then negate
@@ -122,7 +122,7 @@ def _i32_3(raw: bytes, s: int) -> int:
 
 
 def _i16(raw: bytes, s: int) -> int:
-    """Signed 16-bit (ProspectorRT mana encoding)."""
+    """Signed 16-bit (mana encoding)."""
     if raw[s+3] != 0xFF:
         return (raw[s+1] << 8) | raw[s]
     neg = ((~raw[s+1] & 0xFF) << 8) | (~raw[s] & 0xFF)
@@ -246,7 +246,7 @@ def parse_event_box_content(raw: bytes, s: int) -> Tuple[EventBoxContent, int]:
     rec.luck = _i8(raw, s + 0); s += 1
 
     # 6 resources — 3-byte value + 1-byte sign flag (NOT 4-byte value!)
-    # ProspectorRT EventBoxContent: `if decmp[s+j*4+3] == 0xFF: negative`
+    # EventBoxContent: `if decmp[s+j*4+3] == 0xFF: negative`
     for i in range(6):
         v = _i32_3(raw, s)
         if v != 0:
@@ -307,10 +307,10 @@ def parse_event_box_content(raw: bytes, s: int) -> Tuple[EventBoxContent, int]:
         s += 1
 
     # Apply (3 bytes after the record)
-    # Note: ProspectorRT applies via `r_EventBoxRow.Apply` from
+    # Note: row is applied via `r_EventBoxRow.Apply` from
     # the saved Apply fields; we expose them as last 3 bytes of the record
     # (the caller knows the row and decodes based on object type).
-    return rec, s - 1  # ProspectorRT returns --s
+    return rec, s - 1  # returns --s
 
 
 # ============================================================================
@@ -369,7 +369,7 @@ def parse_monstr_content(raw: bytes, s: int) -> Tuple[MonstrContent, int]:
     rec = MonstrContent(address=s)
     s = s + _u16(raw, s) + 2
 
-    # 6 resources × 4 bytes (positive only — ProspectorRT just takes u24 << 16 + u8)
+    # 6 resources × 4 bytes (positive only — u24 << 16 + u8)
     for i in range(6):
         v = (raw[s + i * 4 + 2] << 16) | (raw[s + i * 4 + 1] << 8) | raw[s + i * 4]
         if v != 0:
@@ -403,7 +403,7 @@ class SeerHutContent:
 
 
 def _decode_deadline(b0: int) -> Optional[Tuple[int, int, int]]:
-    """ProspectorRT: `num2 = b0/28; num3 = (b0 - num2*28)/7; num4 = b0 - num2*28 - num3*7;`.
+    """Layout: `num2 = b0/28; num3 = (b0 - num2*28)/7; num4 = b0 - num2*28 - num3*7;`.
     Returns (month+1, week+1, day+1) or None if b0 == 0xFF."""
     if b0 == 0xFF:
         return None
@@ -742,7 +742,7 @@ def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
     - 7-slot guard (56 bytes) — counts at offset +29..+30
     - 1 byte color (0xFF = none)
     - 1 byte "CanTake"
-    - 2 bytes x,y,z at +57, +58, +59 ( ProspectorRT uses them to match row)
+    - 2 bytes x,y,z at +57, +58, +59 (used to match row)
     """
     rec = GarrisonContent(address=s)
     rec.guard, s = _parse_guard(raw, s)
@@ -757,7 +757,7 @@ def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
 # ============================================================================
 
 def parse_bank_resource(raw: bytes, s: int) -> Tuple[Dict[str, int], int]:
-    """Read bank resources + gold (ProspectorRT GetBankResource, MainForm.cs:9018).
+    """Read bank resources + gold (GetBankResource, MainForm.cs:9018).
 
     Layout (28 bytes):
     - 6 × 4 bytes resources (only byte 0 of each 4-byte slot is used)
@@ -775,7 +775,7 @@ def parse_bank_resource(raw: bytes, s: int) -> Tuple[Dict[str, int], int]:
 
 
 def parse_bank_monster(raw: bytes, s: int) -> Tuple[int, int]:
-    """Read bank monster reward (ProspectorRT GetBankMonster, MainForm.cs:9013).
+    """Read bank monster reward (GetBankMonster, MainForm.cs:9013).
 
     Layout:
     - decmp[s] = monster_id
@@ -792,11 +792,11 @@ def parse_bank_monster(raw: bytes, s: int) -> Tuple[int, int]:
 # C5b. parse_timer_town — links town timed events to towns + decodes buildings
 # ============================================================================
 
-# Town building bitmask table (from ProspectorRT CreateTblBuilding, MainForm.cs:11200).
+# Town building bitmask table (from CreateTblBuilding, MainForm.cs:11200).
 # 6 bytes per town type × 8 bits = 48 building slots per town type.
 # Below is a simplified version of the most common buildings for town types 0-8.
 # (Castle, Rampart, Tower, Inferno, Necropolis, Dungeon, Stronghold, Fortress, Conflux)
-# Source: PRT MainForm.cs CreateTblBuilding (lines 11200-11579).
+# Source: MainForm.cs CreateTblBuilding (lines 11200-11579).
 TOWN_BUILDINGS = {
     0: {  # Castle
         (1, 0): "Mage Guild lvl 1", (1, 1): "Mage Guild lvl 2", (1, 2): "Mage Guild lvl 3",
@@ -830,7 +830,7 @@ def _decode_building_bitmask(building_bytes: List[int], town_type: int
                               ) -> List[str]:
     """Decode 6-byte building bitmask into list of building names.
 
-    ProspectorRT GetTimerTown (MainForm.cs:6984) iterates over 5 bytes × 8 bits
+    GetTimerTown (MainForm.cs:6984) iterates over 5 bytes × 8 bits
     + 1 extra byte (byte 5, bit 0 = Grail). For each set bit, looks up
     TblBuilding by (Type=town_type, Byte=k+1, Bit=l).
     """
@@ -885,7 +885,7 @@ def parse_timer_town(towns: List[Dict[str, Any]],
                      ) -> List[TownTimerLink]:
     """Link town timed events to their towns + decode buildings bitmask.
 
-    ProspectorRT GetTimerTown (MainForm.cs:6984):
+    GetTimerTown (MainForm.cs:6984):
     - For each town, finds all timed events with `event.id == town.id`.
     - For each such event, decodes 6-byte building bitmask → list of building names.
     - Also computes MageTimer / LibTimer flags.
@@ -933,7 +933,7 @@ def parse_timer_town(towns: List[Dict[str, Any]],
 # ============================================================================
 
 def is_hero_tavern(hero_id: int, tavern_guests: List[Tuple[int, int]]) -> int:
-    """Check if hero is currently in some player's tavern (ProspectorRT IsHeroTavern,
+    """Check if hero is currently in some player's tavern (IsHeroTavern,
     MainForm.cs:7971).
 
     Args:
@@ -952,7 +952,7 @@ def is_hero_tavern(hero_id: int, tavern_guests: List[Tuple[int, int]]) -> int:
 
 
 # ============================================================================
-# F3. hero_on_object — handle hero-on-object tile case (ProspectorRT HeroOnObject)
+# F3. hero_on_object — handle hero-on-object tile case
 # ============================================================================
 
 @dataclass
@@ -968,13 +968,13 @@ def hero_on_object(raw: bytearray, s: int, hero_id_at_s6: int,
                    hero_blocks: Dict[int, int],
                    dispatch_func: callable = None
                    ) -> Optional[HeroOnObjectInfo]:
-    """Handle hero-on-object tile case (ProspectorRT HeroOnObject, MainForm.cs:9643).
+    """Handle hero-on-object tile case (HeroOnObject, MainForm.cs:9643).
 
     When a hero stands on a tile with another object (e.g. mine, artifact),
     the tile scan sees the hero's data, but the underlying object's data is
     in the hero record (at hero_blocks[hero_id] + 11..19).
 
-    ProspectorRT temporarily swaps 5 bytes (s, s+6, s+7, s+8, s+9) with
+    The parser temporarily swaps 5 bytes (s, s+6, s+7, s+8, s+9) with
     the hero record bytes (s+11, s+16, s+17, s+18, s+19), re-dispatches
     IsObject(s) to record the underlying object, then restores the 5 bytes.
 
@@ -1004,7 +1004,7 @@ def hero_on_object(raw: bytearray, s: int, hero_id_at_s6: int,
     hero_block = hero_blocks[hero_id_at_s6]
 
     # The underlying object's data is at hero_block + 11..19 (5 bytes)
-    # ProspectorRT:
+    # Algorithm:
     #   decmp[s]      = decmp[num + 11]   ← underlying type_id
     #   decmp[s + 6]  = decmp[num + 16]
     #   decmp[s + 7]  = decmp[num + 17]
@@ -1130,14 +1130,14 @@ def parse_alliance(raw: bytes, map_data_offset: int, human_player: int
     Reference: MainForm.cs:6273 `GetAlliance()`.
     Layout (after finding [0..7,0..7] sequence):
     - 8 bytes player team assignments (after sequence)
-    - ProspectorRT reads `decmp[num + human + 1]` for human's team
+    - Reads `decmp[num + human + 1]` for human's team
     - Then iterates: `decmp[num + i + 1] == hTeam` → ally
     """
     info = AllianceInfo()
     info.team_of_human = human_player
 
     # Search for the 16-byte sentinel [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7]
-    # ProspectorRT searches starting at `map.Data + 66`
+    # Search starts at `map.Data + 66`
     search_start = map_data_offset + 66
     search_end = min(len(raw), search_start + 0x10000)
     teams_off = _find_teams_sequence(raw, search_start, search_end)
@@ -1145,7 +1145,7 @@ def parse_alliance(raw: bytes, map_data_offset: int, human_player: int
         return info
     info.teams_offset = teams_off
 
-    # Find the alliance block by ProspectorRT's reverse search
+    # Find the alliance block by reverse search
     # `for (int num3 = map.Teams - 9; num3 > num2; num3--)` — they walk backward
     # looking for bytes < 8 and > 1 that pass FindAlly heuristic.
     map_data_end = map_data_offset + 65
@@ -1200,7 +1200,7 @@ def parse_experience_sources(parsed_save) -> List[ExperienceSource]:
     anything that gives experience.
 
     In our implementation, we just iterate over the already-parsed sections
-    and produce a list. (Simplification of ProspectorRT's 400-line function.)
+    and produce a list. (Simplification of the original 400-line function.)
     """
     sources: List[ExperienceSource] = []
     # EventBox with experience reward
@@ -1245,7 +1245,7 @@ def _parse_timer_res(raw: bytes, s: int) -> Tuple[Dict[str, int], int]:
 
     Reference: MainForm.cs:6956 `GetTimerRes(int s, DataRow row)`.
     Layout (28 bytes):
-    - 2 bytes padding (ProspectorRT skips: `s += 2`)
+    - 2 bytes padding (skip: `s += 2`)
     - 6 × 4 bytes resources (3-byte value + 1-byte sign flag, NOT 4-byte value!)
     - 4 bytes gold (3-byte value + 1-byte sign flag)
     """
@@ -1283,7 +1283,7 @@ def parse_map_timed_events(raw: bytes, s: int) -> Tuple[List[TimedEvent], int]:
     Layout: u16 count + 4 + count × (u16 msg_len + 37).
     Each record: msg_len bytes (u16 + message) + 30 bytes (resources + gold)
                 + 7 bytes (apply + day + repeat).
-    ProspectorRT reads Apply/Day/Repeat at mapTimedEvent + 30..35
+    Reads Apply/Day/Repeat at mapTimedEvent + 30..35
     (where mapTimedEvent = after msg_len skip, BEFORE GetTimerRes).
     """
     events: List[TimedEvent] = []
@@ -1294,7 +1294,7 @@ def parse_map_timed_events(raw: bytes, s: int) -> Tuple[List[TimedEvent], int]:
     for i in range(num):
         msg_len = _u16(raw, s)
         s = s + msg_len  # skip u16 + message body (msg_len includes u16 header)
-        body_start = s  # this is the "mapTimedEvent" reference in ProspectorRT
+        body_start = s  # this is the "mapTimedEvent" reference
         ev = TimedEvent(address=body_start, is_town=False)
         ev.resources, _ = _parse_timer_res(raw, body_start)  # don't advance s here
         # Apply + Day + Repeat are at body_start + 30..35
@@ -1316,7 +1316,7 @@ def parse_town_timed_events(raw: bytes, s: int) -> Tuple[List[TimedEvent], int]:
                 + 8 bytes GetTimerContent (6 building bytes + 2 padding + ... )
                 + 14 bytes monsters (7 × u16)
                 + 7 bytes (apply + day + repeat + id + padding).
-    ProspectorRT reads fields at body_start + 30..37 (apply, day, repeat, id)
+    Reads fields at body_start + 30..37 (apply, day, repeat, id)
     and GetTimerContent at body_start + 38 (6 building bytes + 14 monster bytes).
     """
     events: List[TimedEvent] = []
@@ -1369,7 +1369,7 @@ def parse_town_spell(raw: bytes, s: int, lvl: int,
     - Each spell slot: u8 spell_id (0xFF = none) for slots beyond level 1
                       (level 1 spells are always available — different encoding)
 
-    Notes from ProspectorRT:
+    Notes:
     - Library check: `(decmp[num - 14] & 0x40) == 64` → library adds 1 spell per level
     - Mage Guild lvl 5: `(decmp[num - 6] & 0x40) == 64`
     """
@@ -1379,7 +1379,7 @@ def parse_town_spell(raw: bytes, s: int, lvl: int,
     actual_lvl = 5 if lvl == 6 else lvl
 
     for level_idx in range(actual_lvl):
-        # ProspectorRT layout: 5 spells per level × 4 bytes each, but only byte 0 matters
+        # Layout: 5 spells per level × 4 bytes each, but only byte 0 matters
         # The exact offset depends on the town record stride.
         # Simplified: read 5 spell slots (u8 each at offsets 0, 4, 8, 12, 16)
         spells = []
@@ -1412,7 +1412,7 @@ DOLL_SLOTS = {
     5: "Feet", 6: "Misc1", 7: "Misc2", 8: "Misc3", 9: "Misc4",
     10: "Misc5", 11: "Feet2", 12: "Cloak",
     # 4-6 are machine slots (Catapult, Ammo Cart, First Aid Tent, Ballista)
-    # ProspectorRT: case 4/5/6 → Machine
+    # Case 4/5/6 → Machine
 }
 
 
@@ -1437,10 +1437,10 @@ def parse_art_doll(raw_hero_block: bytes, hero_block_offset: int
     - byte 0: artifact_id (0 = spellbook, 3/255 = empty, 4/5/6 = machines)
     - bytes 1-7: artifact-specific data
 
-    ProspectorRT reads 83 slots, treating 4/5/6 as "machine" (war machines)
+    Reads 83 slots, treating 4/5/6 as "machine" (war machines)
     and 0 as "spell book".
     """
-    # We use the hero block from `parse_hero_block` output, but ProspectorRT
+    # We use the hero block from `parse_hero_block` output, but the original
     # reads from the raw save. For simplicity, we accept the hero_block offset
     # and read directly from raw bytes. Caller passes `raw_hero_block` = raw[hero_block_offset:hero_block_offset+1094].
     # The artifact block in hero is at offset +561 (within hero block).
@@ -1492,7 +1492,7 @@ def parse_prison_hero(prison_row: Dict[str, Any],
     """Link a prison record to its hero record.
 
     Reference: MainForm.cs:7983 `GetPrisonHero(DataSet2.R_PrisonRow row)`.
-    ProspectorRT just copies fields from R_HeroesRow to R_PrisonRow.
+    The original code just copies fields from R_HeroesRow to R_PrisonRow.
     We do the same: find hero by ID, return a PrisonHero.
     """
     hero_id = prison_row.get("hero_id")
@@ -1599,7 +1599,7 @@ def parse_monolith_whirlpool(raw: bytes, s: int) -> Tuple[MonolithInfo, int]:
                           raw[s + j * 4 + 2], raw[s + j * 4 + 3]))
         info.one_way_groups.append(group)
         s += n * 4
-    info.one_way_offset = s  # ProspectorRT sets map.OneWayMonolith = s here
+    info.one_way_offset = s  # map.OneWayMonolith = s here
 
     # 8 two-way groups
     for i in range(8):
@@ -1611,7 +1611,7 @@ def parse_monolith_whirlpool(raw: bytes, s: int) -> Tuple[MonolithInfo, int]:
                           raw[s + j * 4 + 2], raw[s + j * 4 + 3]))
         info.two_way_groups.append(group)
         s += n * 4
-    info.whirlpool_offset = s  # ProspectorRT sets map.Whirlpool = s here
+    info.whirlpool_offset = s  # map.Whirlpool = s here
 
     # Whirlpools (1 group)
     n = _u16(raw, s)
@@ -1641,7 +1641,7 @@ class HeaderOffsets:
 
 def find_header_offsets(raw: bytes, scan_start: int = 0,
                          scan_end: Optional[int] = None) -> HeaderOffsets:
-    """Find all ProspectorRT header offsets (BlackMarket, SR, Teams, MapName, Start).
+    """Find all header offsets (BlackMarket, SR, Teams, MapName, Start).
 
     Reference: MainForm.cs:9411 `GetMapStart` + MainForm.cs:9443 `GetStart`.
 
@@ -1769,7 +1769,7 @@ def aggregate_monstr_content(parsed_save) -> List[MonstrContent]:
 
 # ============================================================================
 # aggregate_all_artifacts — collect artifacts from ALL sources on the map
-# (Reference: PRT R_AllArts DataTable, populated throughout Scanner())
+# (Reference: R_AllArts DataTable, populated throughout Scanner())
 # ============================================================================
 
 @dataclass
@@ -1798,9 +1798,9 @@ class AllArtifactRow:
 
 
 def aggregate_all_artifacts(parsed_save) -> List[Dict[str, Any]]:
-    """Aggregate all artifacts from EVERY source on the map (PRT "Все Арты" sheet).
+    """Aggregate all artifacts from EVERY source on the map ("Все Арты" sheet).
 
-    Sources (in ProspectorRT order):
+    Sources (in original order):
     1. Heroes (R_AllArts populated by GetHeroesContent for each hero)
     2. Prison heroes (GetPrisonHero)
     3. Black Market (GetMarketContent + SaveMarket)
@@ -1848,7 +1848,7 @@ def aggregate_all_artifacts(parsed_save) -> List[Dict[str, Any]]:
                     })
         # War machines (artifact_id 4/5/6 in doll) — skip in artifact aggregation
         # Spell book (artifact_id 0) — skip in artifact aggregation
-        # (PRT doesn't include machines/book in "Все Арты" sheet)
+        # (machines/book are not included in "Все Арты" sheet)
 
     # 2. Prison heroes — get from merge_prisons output
     # (Their equipment is the same as the linked hero's equipment, so if we
@@ -1976,7 +1976,7 @@ def parse_analysis_content(raw: bytes, s: int,
     for i in range(n):
         rec, s = parse_one(raw, s)
         records.append(rec)
-        s += 1  # ProspectorRT: `s = ObjContent(s) + 1`
+        s += 1  # `s = ObjContent(s) + 1`
     return records, s
 
 
@@ -2205,7 +2205,7 @@ if __name__ == "__main__":
         else:
             break
     # Now s points to after the tile loop
-    # ProspectorRT GetSenseRegion: u16 num5 + 4 skip + num5 × (u16 + 35)
+    # GetSenseRegion: u16 num5 + 4 skip + num5 × (u16 + 35)
     num5 = struct.unpack("<H", raw[s:s + 2])[0]
     s += 4  # skip u16 + 2 padding
     print(f"num5 (after-tile records) = {num5}")

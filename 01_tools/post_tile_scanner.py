@@ -4,9 +4,9 @@
 post_tile_scanner.py — Parse post-tile sections of .GM1 saves.
 
 Implements the forward structure-walking chain from tile end to hero section,
-using the EXACT ProspectorRT scan functions (translated to Python).
+using the scan functions translated to Python from the original source code.
 
-The chain (from ProspectorRT GetSenseRegion + Scanner):
+The chain (from GetSenseRegion + Scanner):
   After tiles: u16 num5, then num5 × (u16 + 35) records
   ObjectNumber = u16 at after_num5
   EventBox = after_num5 + ObjectNumber × 5 + 4
@@ -42,7 +42,7 @@ def _u16(raw: bytes, s: int) -> int:
 
 
 # ============================================================================
-# Scan functions (exact ProspectorRT translation)
+# Scan functions (exact translation from the original source)
 # ============================================================================
 
 def scan_event_box_content(raw, s):
@@ -161,7 +161,7 @@ def scan_bottle_sign_content(raw, s):
 def scan_towns_content(raw, s):
     """ScanTownsContent — u8 count + count × (name_len + 382).
     
-    Uses PRT offset +70 for name_len (s = block_offset - 1 after u8 skip,
+    Uses offset +70 for name_len (s = block_offset - 1 after u8 skip,
     so +70 = block_offset + 69 in 0-based indexing).
     """
     num = raw[s]; s += 1
@@ -181,10 +181,10 @@ def scan_heroes_content(raw, s, hero_count=156):
 # Main: walk_post_tile_sections
 # ============================================================================
 
-# ProspectorRT GetSenseRegion (MainForm.cs:6172):
+# GetSenseRegion (MainForm.cs:6172):
 #   map.Hero = ScanTownsContent(map.Town);   ← NO gap between towns and heroes
 # Hero records start immediately after the last town record.
-TOWN_HERO_GAP = 0  # was incorrectly 26 — corrected after ProspectorRT source review
+TOWN_HERO_GAP = 0  # was incorrectly 26 — corrected after source review
 
 
 def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
@@ -302,13 +302,13 @@ def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
             bit_field_size = map_size * map_size * (2 + 2 * (1 if has_underground else 0))
             two_way_monolith = bit_field + bit_field_size
             # SubTerGate = ScanMonolithWhirlpool(TwoWayMonolith)
-            # ProspectorRT: 8 groups × (u16 + count × 4) for OneWay
+            # 8 groups × (u16 + count × 4) for OneWay
             #               8 groups × (u16 + count × 4) for TwoWay
             #               1 group  × (u16 + count × 4) for Whirlpools
             s = two_way_monolith
             for _ in range(8):  # 8 One Way groups
                 n = _u16(raw, s); s += n * 4 + 2
-            one_way_monolith = two_way_monolith  # ProspectorRT sets map.OneWayMonolith here
+            one_way_monolith = two_way_monolith  # map.OneWayMonolith = s here
             for _ in range(8):  # 8 Two Way groups
                 n = _u16(raw, s); s += n * 4 + 2
             whirlpool = s

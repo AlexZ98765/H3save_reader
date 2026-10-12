@@ -3,11 +3,11 @@
 """
 tile_scanner.py — Universal tile scanner for .GM1 saves.
 
-Implements ProspectorRT's Scanner loop: iterates through map tiles, finds objects
+Implements the Scanner loop: iterates through map tiles, finds objects
 via IsObject dispatcher, and parses object content for each type.
 
 FIXED: Uses .h3m (always present) instead of .GM1 (may lack extension) for navigation.
-Works on ANY save (not just day-0), unlike ProspectorRT.
+Works on ANY save (not just day-0).
 
 Three main functions:
   1. find_map_start(raw) — locate where tile data begins (GetStart + GetMapStart, fixed)
@@ -24,7 +24,7 @@ from save_layout import OBJECT_TYPE_IDS
 
 
 # ============================================================================
-# Constants from ProspectorRT decompilation
+# Constants extracted from the reverse-engineered source code
 # ============================================================================
 
 # Teams signature: 00 01 02 03 04 05 06 07 00 01 02 03 04 05 06 07
@@ -39,7 +39,7 @@ def find_map_start(raw: bytes) -> Tuple[int, Dict[str, int]]:
     """
     Find where tile data begins (map.Start) in the decompressed save.
 
-    Algorithm (adapted from ProspectorRT GetStart + GetMapStart):
+    Algorithm (adapted from GetStart + GetMapStart):
       1. Find teams signature (16 bytes: 0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7)
       2. MapName = teams + 57
       3. Find .h3m (map filename — ALWAYS present, unlike .GM1)
@@ -70,7 +70,7 @@ def find_map_start(raw: bytes) -> Tuple[int, Dict[str, int]]:
             if h3m_idx >= 0:
                 break
     if h3m_idx < 0:
-        # Fallback: try .GM1 (ProspectorRT's original approach — works for day-0 saves)
+        # Fallback: try .GM1 (works for day-0 saves)
         h3m_idx = raw.find(b".GM1", info['map_name'], info['map_name'] + 500)
     if h3m_idx < 0:
         raise ValueError("Map filename extension (.h3m/.GM1/.CGM) not found")
@@ -96,7 +96,7 @@ def find_map_start(raw: bytes) -> Tuple[int, Dict[str, int]]:
     info['save_filename'] = raw[save_filename_start:sf_end].decode('ascii', errors='replace')
 
     # Step 5: GetMapStart — from save filename, navigate to map.Start
-    # ProspectorRT: do { s--; } while (decmp[s] != 0);  → s = null byte BEFORE filename
+    # Algorithm: do { s--; } while (decmp[s] != 0);  → s = null byte BEFORE filename
     #               SaveName = s + 1
     #               s += 688;  → SR = null_byte + 688 (NOT SaveName + 688!)
     # We need the null byte BEFORE the save filename for +688
@@ -202,7 +202,7 @@ def _find_save_filename(raw: bytes, start_search: int, max_search: int = 500) ->
 
 
 # ============================================================================
-# 2. scan_tiles — Scanner loop (ProspectorRT Scanner, line 6172)
+# 2. scan_tiles — Scanner loop (Scanner, line 6172)
 # ============================================================================
 
 def scan_tiles(raw: bytes, map_start: int, map_size: int,
@@ -210,7 +210,7 @@ def scan_tiles(raw: bytes, map_start: int, map_size: int,
     """
     Iterate through map tiles and find all objects.
 
-    Algorithm (from ProspectorRT Scanner, line 6184-6208):
+    Algorithm (from Scanner, line 6184-6208):
       For each tile (0..total_tiles-1):
         1. Read 7 bytes (loc = first byte)
         2. Check if object present (byte at offset 7)
@@ -254,7 +254,7 @@ def scan_tiles(raw: bytes, map_start: int, map_size: int,
             check_byte = raw[s]
             check_next = raw[s + 1] if s + 1 < len(raw) else 0
 
-            # Object conditions (from ProspectorRT Scanner)
+            # Object conditions (from Scanner)
             if check_byte == 16 or check_byte == 18 or \
                (check_byte == 17 and raw[s - 7] == 9):
                 obj_offset = s + 1
@@ -319,7 +319,7 @@ def _enrich_map_object_fields(raw: bytes, obj: dict):
     """Add _detail_ for base map object fields: type_id, x, y, z, offset, loc.
 
     The object record in the save starts at `obj['offset']`.
-    Layout (from ProspectorRT Scanner):
+    Layout (from Scanner):
       [offset+0]     type_id   (u8)
       [offset+1]     ???       (u8)
       [offset+2]     subtype   (u8) — used for artifact_id, resource_type, etc.
@@ -418,7 +418,7 @@ def _enrich_typed_field(raw: bytes, obj: dict, field_name: str,
 def parse_object_content(raw: bytes, s: int, type_id: int,
                           x: int, y: int, z: int, loc: int) -> Optional[Dict[str, Any]]:
     """
-    Parse object content based on type_id (from ProspectorRT IsObject dispatcher).
+    Parse object content based on type_id (from IsObject dispatcher).
 
     Args:
         raw:     decompressed save bytes
@@ -442,7 +442,7 @@ def parse_object_content(raw: bytes, s: int, type_id: int,
     # v3.14: Add _detail_ for the base fields (type_id, x, y, z, offset, loc)
     _enrich_map_object_fields(raw, obj)
 
-    # Dispatch based on type_id (from ProspectorRT IsObject, line 9484)
+    # Dispatch based on type_id (from IsObject, line 9484)
     if type_id == 5:
         _parse_artifact(raw, s, obj)
     elif type_id == 79:
@@ -525,7 +525,7 @@ def parse_object_content(raw: bytes, s: int, type_id: int,
 
 
 # ============================================================================
-# Individual object parsers (from ProspectorRT Save* methods)
+# Individual object parsers (from Save* methods)
 # ============================================================================
 
 def _safe_read(raw, off, size=1):
@@ -536,7 +536,7 @@ def _safe_read(raw, off, size=1):
 
 
 def _parse_artifact(raw, s, obj):
-    """Artifact on ground (ProspectorRT SaveArt, line 10115)"""
+    """Artifact on ground (SaveArt, line 10115)"""
     obj['artifact_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'artifact_id', s + 2, 1, "u8")
     # Check if guarded (from ArtResContent)
@@ -545,7 +545,7 @@ def _parse_artifact(raw, s, obj):
 
 
 def _parse_resource(raw, s, obj):
-    """Resource pile (ProspectorRT SaveRes, line 10392)"""
+    """Resource pile (SaveRes, line 10392)"""
     obj['resource_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'resource_type', s + 2, 1, "u8")
     # Resource amount is encoded in the tile data
@@ -554,7 +554,7 @@ def _parse_resource(raw, s, obj):
 
 
 def _parse_chest(raw, s, obj):
-    """Treasure chest (ProspectorRT SaveChest, line 10215)"""
+    """Treasure chest (SaveChest, line 10215)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
@@ -569,7 +569,7 @@ def _parse_chest(raw, s, obj):
 
 
 def _parse_sea_chest(raw, s, obj):
-    """Sea chest (ProspectorRT SaveSeaChest, line 10262)"""
+    """Sea chest (SaveSeaChest, line 10262)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
@@ -577,7 +577,7 @@ def _parse_sea_chest(raw, s, obj):
 
 
 def _parse_monster(raw, s, obj):
-    """Monster stack (ProspectorRT SaveMonster, line 10498)"""
+    """Monster stack (SaveMonster, line 10498)"""
     obj['monster_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'monster_type', s + 2, 1, "u8")
     # Count: u16 LE = (decmp[s+7] & 0x0F << 8) + decmp[s+6]
@@ -600,7 +600,7 @@ def _parse_monster(raw, s, obj):
 
 
 def _parse_mine(raw, s, obj):
-    """Mine (ProspectorRT SaveMine, line 9665)"""
+    """Mine (SaveMine, line 9665)"""
     obj['owner'] = raw[s + 4] if s + 5 <= len(raw) else 0xFF
     _enrich_typed_field(raw, obj, 'owner', s + 4, 1, "u8")
     obj['owner_name'] = {0: 'Red', 1: 'Blue', 2: 'Tan', 3: 'Green',
@@ -609,7 +609,7 @@ def _parse_mine(raw, s, obj):
 
 
 def _parse_campfire(raw, s, obj):
-    """Campfire (ProspectorRT SaveCampfire, line 9817)"""
+    """Campfire (SaveCampfire, line 9817)"""
     obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
     obj['resource_amount'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
@@ -617,31 +617,31 @@ def _parse_campfire(raw, s, obj):
 
 
 def _parse_windmill(raw, s, obj):
-    """Windmill (ProspectorRT SaveWindmill, line 9834)"""
+    """Windmill (SaveWindmill, line 9834)"""
     obj['resource_amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'resource_amount', s + 6, 2, "u16")
 
 
 def _parse_mystical_garden(raw, s, obj):
-    """Mystical Garden (ProspectorRT SaveMysticalGarden, line 9850)"""
+    """Mystical Garden (SaveMysticalGarden, line 9850)"""
     obj['resource_amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'resource_amount', s + 6, 2, "u16")
 
 
 def _parse_tomb(raw, s, obj):
-    """Tomb (ProspectorRT SaveTomb, line 10535)"""
+    """Tomb (SaveTomb, line 10535)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_pandora_box(raw, s, obj):
-    """Pandora's Box (ProspectorRT SaveBox, line 10091)"""
+    """Pandora's Box (SaveBox, line 10091)"""
     obj['event_num'] = ((raw[s + 7] & 1) << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'event_num', s + 6, 2, "u16")
 
 
 def _parse_event(raw, s, obj):
-    """Event (ProspectorRT SaveEvent, line 10065)"""
+    """Event (SaveEvent, line 10065)"""
     obj['object_code'] = raw[s] if s + 1 <= len(raw) else 0
     obj['event_num'] = ((raw[s + 7] & 1) << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     if s + 9 <= len(raw):
@@ -650,13 +650,13 @@ def _parse_event(raw, s, obj):
 
 
 def _parse_survivor(raw, s, obj):
-    """Shipwreck Survivor (ProspectorRT SaveSurvivor, line 10033)"""
+    """Shipwreck Survivor (SaveSurvivor, line 10033)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_bank(raw, s, obj):
-    """Bank (ProspectorRT SaveBanks, line 9910)"""
+    """Bank (SaveBanks, line 9910)"""
     obj['bank_type'] = raw[s] if s + 1 <= len(raw) else 0
     obj['bank_subtype'] = raw[s + 2] if s + 3 <= len(raw) else 0
     if s + 9 <= len(raw):
@@ -667,7 +667,7 @@ def _parse_bank(raw, s, obj):
 
 
 def _parse_scholar(raw, s, obj):
-    """Scholar (ProspectorRT SaveScholar, line 9873)"""
+    """Scholar (SaveScholar, line 9873)"""
     if s + 9 <= len(raw):
         if raw[s + 8] != 0xFF:
             # Spell
@@ -690,13 +690,13 @@ def _parse_scholar(raw, s, obj):
 
 
 def _parse_scroll(raw, s, obj):
-    """Spell Scroll (ProspectorRT SaveScroll, line 10421)"""
+    """Spell Scroll (SaveScroll, line 10421)"""
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
 
 
 def _parse_refugee_camp(raw, s, obj):
-    """Refugee Camp (ProspectorRT SaveHovel, line 9801)"""
+    """Refugee Camp (SaveHovel, line 9801)"""
     obj['monster_type'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'monster_type', s + 6, 1, "u8")
     obj['count'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
@@ -704,13 +704,13 @@ def _parse_refugee_camp(raw, s, obj):
 
 
 def _parse_floatsam(raw, s, obj):
-    """Floatsam (ProspectorRT SaveFloatsam, line 9711)"""
+    """Floatsam (SaveFloatsam, line 9711)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_shrine(raw, s, obj, type_id):
-    """Shrine (ProspectorRT SaveShrine, line 10484)"""
+    """Shrine (SaveShrine, line 10484)"""
     obj['shrine_type'] = type_id  # 88=gesture, 89=thought, 90=incantation
     _enrich_typed_field(raw, obj, 'shrine_type', s, 1, "u8")
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
@@ -718,36 +718,36 @@ def _parse_shrine(raw, s, obj, type_id):
 
 
 def _parse_pyramid(raw, s, obj):
-    """Pyramid (ProspectorRT SavePyramid, line 10445)"""
+    """Pyramid (SavePyramid, line 10445)"""
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
 
 
 def _parse_skeleton(raw, s, obj):
-    """Skeleton (ProspectorRT SaveSkeleton, line 10302)"""
+    """Skeleton (SaveSkeleton, line 10302)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_wagon(raw, s, obj):
-    """Wagon (ProspectorRT SaveWagon, line 10337)"""
+    """Wagon (SaveWagon, line 10337)"""
     obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
 
 
 def _parse_witch_hut(raw, s, obj):
-    """Witch Hut (ProspectorRT SaveWitchHut, line 10376)"""
+    """Witch Hut (SaveWitchHut, line 10376)"""
     obj['skill_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'skill_id', s + 6, 1, "u8")
 
 
 # ============================================================================
 # 13 new tile-level parsers (from honest audit, v3.9)
-# All extracted from ProspectorRT MainForm.cs Save* methods
+# All extracted from MainForm.cs Save* methods
 # ============================================================================
 
 def _parse_univer(raw, s, obj):
-    """University (ProspectorRT SaveUniver, line 9978)
+    """University (SaveUniver, line 9978)
     Records x,y,z + Object; content (4 secondary skills) parsed
     separately by post_tile_parser.parse_univer_content."""
     obj['object_kind'] = 'university'
@@ -755,7 +755,7 @@ def _parse_univer(raw, s, obj):
 
 
 def _parse_camp(raw, s, obj):
-    """Mercenary Camp (ProspectorRT SaveCamp, line 10465)
+    """Mercenary Camp (SaveCamp, line 10465)
     decmp[s+2] = monster_id, decmp[s+6] = number available"""
     obj['object_kind'] = 'mercenary_camp'
     obj['monster_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
@@ -765,14 +765,14 @@ def _parse_camp(raw, s, obj):
 
 
 def _parse_market(raw, s, obj):
-    """Black Market (ProspectorRT SaveMarket, line 9994)
+    """Black Market (SaveMarket, line 9994)
     Records x,y,z only; content (7 artifacts for sale) parsed separately
     by post_tile_parser.parse_market_content."""
     obj['object_kind'] = 'black_market'
 
 
 def _parse_garrison(raw, s, obj):
-    """Garrison (ProspectorRT SaveGarrison, line 10017)
+    """Garrison (SaveGarrison, line 10017)
     decmp[s+2] = AntiMagic flag (0/1)"""
     obj['object_kind'] = 'garrison'
     obj['anti_magic'] = bool(raw[s + 2]) if s + 3 <= len(raw) else False
@@ -780,7 +780,7 @@ def _parse_garrison(raw, s, obj):
 
 
 def _parse_seer_hut(raw, s, obj):
-    """Seer Hut (ProspectorRT SaveSeerHut, line 10157)
+    """Seer Hut (SaveSeerHut, line 10157)
     decmp[s+6] = Num (quest identifier)"""
     obj['object_kind'] = 'seer_hut'
     obj['num'] = raw[s + 6] if s + 7 <= len(raw) else 0
@@ -788,7 +788,7 @@ def _parse_seer_hut(raw, s, obj):
 
 
 def _parse_pass_guard(raw, s, obj):
-    """Border Guard / Border Gate (ProspectorRT SavePassDuard, line 10199)
+    """Border Guard / Border Gate (SavePassDuard, line 10199)
     Num = (decmp[s+7] << 8) + decmp[s+6] — quest/key identifier"""
     obj['object_kind'] = 'border_guard'
     obj['num'] = ((raw[s + 7] << 8) + raw[s + 6]) if s + 8 <= len(raw) else 0
@@ -796,7 +796,7 @@ def _parse_pass_guard(raw, s, obj):
 
 
 def _parse_prison(raw, s, obj):
-    """Hero Prison (ProspectorRT SavePrison, line 10180)
+    """Hero Prison (SavePrison, line 10180)
     decmp[s+6] = hero_id"""
     obj['object_kind'] = 'prison'
     obj['hero_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
@@ -804,14 +804,14 @@ def _parse_prison(raw, s, obj):
 
 
 def _parse_learning_stone(raw, s, obj):
-    """Learning Stone (ProspectorRT SaveLearningStone, line 9699)
+    """Learning Stone (SaveLearningStone, line 9699)
     Always gives fixed 1000 XP to visiting hero."""
     obj['object_kind'] = 'learning_stone'
-    obj['experience'] = 1000  # fixed amount per PRT source
+    obj['experience'] = 1000  # fixed amount per source
 
 
 def _parse_hero_on_map(raw, s, obj):
-    """Hero on map (ProspectorRT SaveHero + HeroOnObject, line 9675 + 9643)
+    """Hero on map (SaveHero + HeroOnObject, line 9675 + 9643)
 
     SaveHero: just records x,y,z as artifact-bearing object.
     HeroOnObject: if hero is on top of another object (e.g. standing on mine),
@@ -821,7 +821,7 @@ def _parse_hero_on_map(raw, s, obj):
     For parsing (read-only) we just record the hero_id at s+6 — the
     underlying object would have been already parsed by the regular
     tile loop on a different tile (or we don't need HeroOnObject because
-    PRT does it to FILL DataTables that we don't use)."""
+    The original code does it to FILL DataTables that we don't use)."""
     obj['object_kind'] = 'hero_on_map'
     obj['hero_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
     obj['hero_id_2'] = raw[s + 7] if s + 8 <= len(raw) else 0
@@ -831,7 +831,7 @@ def _parse_hero_on_map(raw, s, obj):
 
 
 def _parse_generic_object(raw, s, obj):
-    """Generic object (ProspectorRT SaveObject, line 9740)
+    """Generic object (SaveObject, line 9740)
     For type 102 (Hill Fort): decmp[s+7] = upgrade cost encoding
       32 = 2000 gold, 64 = 10 gems.
     Other types (2=altar?, 35=mine_entrance?, 95=?, 213=?): just records coords."""
@@ -848,18 +848,18 @@ def _parse_generic_object(raw, s, obj):
 
 
 def _parse_monolith(raw, s, obj):
-    """Monolith — one-way or two-way (ProspectorRT SaveMonolith, line 9766)
+    """Monolith — one-way or two-way (SaveMonolith, line 9766)
     decmp[s+2] = monolith subtype."""
     obj['object_kind'] = 'monolith'
     obj['monolith_subtype'] = raw[s + 2] if s + 3 <= len(raw) else 0
 
 
 def _parse_tent(raw, s, obj):
-    """Keymaster Tent (ProspectorRT SaveTent, line 9778)
+    """Keymaster Tent (SaveTent, line 9778)
     decmp[s+2] = color of tent (aTent[] lookup)"""
     obj['object_kind'] = 'keymaster_tent'
     color_id = raw[s + 2] if s + 3 <= len(raw) else 0
-    # ProspectorRT aTent[]: 0=Blue, 1=Green, 2=Red, 3=Yellow, 4=Orange,
+    # aTent[]: 0=Blue, 1=Green, 2=Red, 3=Yellow, 4=Orange,
     # 5=Purple, 6=Teal, 7=Pink (matches aColor[])
     TENT_COLORS = {0: 'Blue', 1: 'Green', 2: 'Red', 3: 'Yellow',
                    4: 'Orange', 5: 'Purple', 6: 'Teal', 7: 'Pink'}
@@ -869,7 +869,7 @@ def _parse_tent(raw, s, obj):
 
 def _parse_topology_obj(raw, s, obj):
     """Subterranean Gate or Whirlpool entry on tile level
-    (ProspectorRT SaveTopologyObj, line 9790)
+    (SaveTopologyObj, line 9790)
     Records x,y,z only; pairing done in post_tile_parser."""
     obj['object_kind'] = 'topology_object'
     # Type 103 is used for subterranean gates in tile scan; the actual

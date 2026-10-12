@@ -1662,7 +1662,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws4, max_widths={"I": 80})
 
     # ----- Save -----
-    # v3.17: Add PRT-like sheets from merged_objects + post_tile_content + extra_sections
+    # v3.17: Add standardized sheets from merged_objects + post_tile_content + extra_sections
     mo = parsed.get("merged_objects", {})
     ptc = parsed.get("post_tile_content", {})
     if isinstance(mo, dict) and mo and "error" not in mo:
@@ -2829,7 +2829,7 @@ class GM1ParserWindow(QMainWindow):
 ВСЕ ВХОДЫ ОПЦИОНАЛЬНЫ — парсер работает на любом уровне.
 Map JSON и Day-0 сейв — enrichment, не requirement.
 
-ОГРАНИЧЕНИЕ ProspectorRT: работает только со стартовыми сейвами,
+ОГРАНИЧЕНИЕ старого подхода: работал только со стартовыми сейвами,
 потому что ищет ".GM1" в имени файла (которое есть только у
 автосейвов с числовым именем, но не у ручных сохранений).
 Наш парсер НЕ имеет этого ограничения — работает с любыми сейвами."""
@@ -3087,7 +3087,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                 f"Tile Objects ({len(map_objs)} found by tile scanner)",
                 "", "tile_objects_root", "", ""
             ])
-            tile_root.setToolTip(0, "Objects found by scan_tiles + IsObject dispatcher (ProspectorRT-style)")
+            tile_root.setToolTip(0, "Objects found by scan_tiles + IsObject dispatcher")
             type_counts = Counter(o["type_name"] for o in map_objs)
             for type_name, count in type_counts.most_common():
                 type_item = QTreeWidgetItem([f"{type_name} ({count})", "", "tile_object_type", "", ""])

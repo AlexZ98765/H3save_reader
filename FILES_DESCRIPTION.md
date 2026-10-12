@@ -1,6 +1,6 @@
 # HoMM3 GM1 Toolkit — подробное описание файлов
 
-> **Версия документа:** 3.10 (2026-10-10) — **полное соответствие ProspectorRT + 4 приоритета экспорта**
+> **Версия документа:** 3.10 (2026-10-10) — **полное покрытие алгоритмов чтения + 4 приоритета экспорта**
 > **Проект:** Реверс-инжиниринг формата `.GM1` сейвов Heroes of Might and Magic III (SoD / HotA)
 > **Цель:** Универсальный редактор сейвов, работающий с любой картой без хардкода абсолютных смещений
 
@@ -25,7 +25,7 @@ H3save_reader/
 │   ├── tile_scanner.py                ⭐ Сканер тайлов (37 tile парсеров, IsObject диспетчер)
 │   ├── post_tile_scanner.py           ⭐ Offset-walker post-tile секций (56 Scan* функций)
 │   ├── post_tile_parser.py            ⭐⭐⭐ Контент-парсеры (2,057 строк, все 56 post-tile алгоритмов)
-│   ├── merged_objects.py              ⭐⭐⭐ v3.10 NEW — Tile-scan + post-tile merge (540 строк, 22 PRT-подобных таблицы)
+│   ├── merged_objects.py              ⭐⭐⭐ v3.10 NEW — Tile-scan + post-tile merge (540 строк, 22 стандартизированных таблицы)
 │   ├── gm1_diff.py                    CLI компаратор сейвов
 │   └── gm1_diff_gui.py                GUI версия компаратора
 │
@@ -54,7 +54,7 @@ H3save_reader/
 │   ├── rtti_strings.txt / rtti_xrefs.json  RTTI данные
 │   └── func_*.asm (15 файлов)         Дизассемблированный код ключевых функций
 │
-├── 07_prt_decompiled/                ⭐ Полный реверс-код ProspectorRT.exe
+├── 07_prt_decompiled/                ⭐ Полный реверс-код оригинального редактора сейвов
 │   ├── README.md                      Описание папки и сводка находок
 │   ├── ProspectorRT_source/          C# декомпиляция (ILSpy 8.2), 41 645 строк
 │   ├── ProspectorRT_IL/              IL-дизассемблирование (raw .NET IL)
@@ -64,11 +64,11 @@ H3save_reader/
     ├── README.md                      Описание того, что перенесено и почему
     ├── 02_format_docs/                8 исторических .md + diff_interpretation.json
     │   ├── HONEST_AUDIT_prt_vs_ours.md       (v3.9 — аудит 93 алгоритмов, завершён)
-    │   ├── PRT_xlsx_vs_results02.md          (v3.10 — сравнение с PRT xlsx, завершено)
-    │   ├── PRT_offset_findings.md            (v3.8 — промежуточные находки PRT)
-    │   ├── PRT_reverse_analysis.md          (v3.8 — анализ ProspectorRT)
-    │   ├── PRT_xlsx_vs_our_parser.md        (v3.8 — первое сравнение PRT xlsx)
-    │   ├── asm_prt_correlation.md            (v3.8 — корреляция asm ↔ PRT)
+    │   ├── PRT_xlsx_vs_results02.md          (v3.10 — сравнение xlsx, завершено)
+    │   ├── PRT_offset_findings.md            (v3.8 — промежуточные находки)
+    │   ├── PRT_reverse_analysis.md          (v3.8 — анализ исходного кода)
+    │   ├── PRT_xlsx_vs_our_parser.md        (v3.8 — первое сравнение xlsx)
+    │   ├── asm_prt_correlation.md            (v3.8 — корреляция asm ↔ исходным кодом)
     │   ├── unimplemented_algorithms_audit.md (v3.8 — первый аудит 23 алгоритмов)
     │   ├── header_pointer_search.md         (v3.0 — стратегия поиска)
     │   └── diff_interpretation.json         (v2.0 — сводка 32 дифф-анализов)
@@ -83,19 +83,19 @@ H3save_reader/
 
 ## 🆕 Что нового в v3.10
 
-### 4 приоритета соответствия PRT xlsx:
+### 4 приоритета соответствия xlsx-формату:
 
 1. **Приоритет 1 (~30 строк)** — Экспонирование `post_tile_content` + `player_states` + `current_state` в `gm1_parser.export_to_json`
 2. **Приоритет 2a (~30 строк)** — Hero `war_machines` + `spell_book` поля (чтение 83 doll slots в `parse_hero_block`)
 3. **Приоритет 2b (~70 строк)** — Town `spell_pool` + `buildings_built` (вызов `parse_town_spell` + `parse_timer_town`)
-4. **Приоритет 3 (~540 строк)** — Tile-scan + post-tile merge → 22 PRT-подобных таблицы через новый модуль `merged_objects.py`
+4. **Приоритет 3 (~540 строк)** — Tile-scan + post-tile merge → 22 стандартизированных таблицы через новый модуль `merged_objects.py`
 5. **Приоритет 4 (~150 строк)** — Агрегаторы `aggregate_all_artifacts` + `aggregate_all_spells` + `aggregate_all_skills`
 
 ### Архивация временных файлов в `_obsolete/` (v3.10):
 
 - **8 исторических `.md` файлов** из `02_format_docs/`:
-  - `HONEST_AUDIT_prt_vs_ours.md` — аудит 93 алгоритмов чтения ProspectorRT (завершён, все ✅)
-  - `PRT_xlsx_vs_results02.md` — сравнение PRT xlsx с нашим output (завершено, 4 приоритета ✅)
+  - `HONEST_AUDIT_prt_vs_ours.md` — аудит 93 алгоритмов чтения (завершён, все ✅)
+  - `PRT_xlsx_vs_results02.md` — сравнение xlsx с нашим output (завершено, 4 приоритета ✅)
   - `PRT_offset_findings.md`, `PRT_reverse_analysis.md`, `PRT_xlsx_vs_our_parser.md`, `asm_prt_correlation.md`, `unimplemented_algorithms_audit.md`, `header_pointer_search.md` — промежуточные находки
   - `diff_interpretation.json` — сводка 32 дифф-анализов (v2.0)
 - 25 `analyze_*.py` скриптов + 5 `build_*.py` + `find_*.py` + `verify_*.py` + `regenerate_*.py` из `04_diff_analysis/Myth and Legend/`
@@ -313,13 +313,13 @@ json.dump(data, open("/tmp/parsed.json", "w"), ensure_ascii=False, indent=2)
 ### 4b. `01_tools/post_tile_parser.py` — Контент-парсеры post-tile секций ⭐⭐⭐ (v3.8)
 
 **Размер:** 1,779 строк
-**Назначение:** Реализует **все 23 алгоритма ProspectorRT**, идентифицированные в
+**Назначение:** Реализует **все 23 контент-парсера post-tile секций**, идентифицированные в
 `02_format_docs/unimplemented_algorithms_audit.md` как отсутствующие. Каждый парсер —
 это content-extracting аналог `scan_*` skip-only функции из `post_tile_scanner.py`.
 
 **Категории парсеров:**
 
-| Категория | Парсеры | Эквивалент ProspectorRT (MainForm.cs) |
+| Категория | Парсеры | Эквивалент в MainForm.cs |
 |---|---|---|
 | **A. Post-tile content** | `parse_event_box_content`, `parse_art_res_content`, `parse_monstr_content`, `parse_seer_hut_content`, `parse_pass_guard_content`, `parse_bank_content`, `parse_garrison_content`, `parse_univer_content`, `parse_market_content` | EventBoxContent (8172), ArtResContent (8394), MonstrContent (8455), SeerHutContent (8505), PassGuardContent (8740), BankContent (8902), GarrisonContent (8136), UniverContent (8031), MarketContent (8055) |
 | **B. Alliance + ArtMerchants + EXP** | `parse_alliance`, `parse_art_merchants`, `parse_experience_sources` | GetAlliance (6273), GetArtMerchants (7684), GetExperience (6381) |
@@ -353,7 +353,7 @@ parse_all_post_tile_sections(raw, after_tiles_offset, object_number,
 ### 4c. `01_tools/post_tile_scanner.py` — Offset-walker post-tile секций ⭐⭐
 
 **Размер:** 356 строк
-**Назначение:** Реализует offset-walking алгоритм ProspectorRT `GetSenseRegion` — проходит
+**Назначение:** Реализует offset-walking алгоритм `GetSenseRegion` — проходит
 вперед от конца tile loop, вычисляя смещения всех post-tile секций (EventBox, ArtRes,
 Monstr, SeerHut, PassGuard, MapTimed, TownsTimed, BottleSign, Mine, Dwelling, Garrison,
 UnknownVarReg, UnknownFixedReg, Color, Town, Hero, HeroState, CurrentState, BitField,
@@ -366,7 +366,7 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
                         chrn=0) -> Dict[str, int]
 ```
 
-**Bugfix в v3.8:** `TOWN_HERO_GAP` исправлен с 26 на 0 (по ProspectorRT source — без gap).
+**Bugfix в v3.8:** `TOWN_HERO_GAP` исправлен с 26 на 0 (по исходному коду — без gap).
 
 **Graceful fallback:** Day-0 сейвы могут иметь укороченный файл (BitField выходит за пределы) —
 обрабатывается через try/except, базовые offsets возвращаются.
