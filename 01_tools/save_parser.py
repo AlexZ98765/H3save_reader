@@ -1105,6 +1105,32 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
         ],
         "heroes": parsed.heroes,
         "towns":  parsed.towns,
+        # towns_found is the GUI-compatible alias of parsed.towns
+        "towns_found": [
+            {
+                "name":         t.get("name") or t.get("fields", {}).get("name", "?"),
+                "offset":       t.get("block_offset", 0),
+                "faction":      t.get("fields", {}).get("faction", 255),
+                "faction_name": t.get("fields", {}).get("faction_name", "?"),
+                "type":         t.get("fields", {}).get("type", 0),
+                "type_name":    t.get("fields", {}).get("type_name", "?"),
+                "location":     (t.get("fields", {}).get("x", 0),
+                                 t.get("fields", {}).get("y", 0),
+                                 t.get("fields", {}).get("z", 0)),
+                "army_types":   t.get("fields", {}).get("army_types", [-1]*7),
+                "army_counts":  t.get("fields", {}).get("army_counts", [0]*7),
+                "fields":       t.get("fields", {}),
+            }
+            for t in parsed.towns
+        ],
+        "heroes_found": [
+            {
+                "name":   h.get("name") or h.get("fields", {}).get("name", "?"),
+                "offset": h.get("block_offset", 0),
+                "fields": h.get("fields", {}),
+            }
+            for h in parsed.heroes
+        ],
         "objects_on_map": parsed.objects_on_map,
         "player_states": getattr(parsed, "_player_states", []),
         "current_state": getattr(parsed, "_current_state", {}),

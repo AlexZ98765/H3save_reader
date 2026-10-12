@@ -1460,3 +1460,100 @@ Stage Summary:
 - ⭐ worklog.md сохранён без изменений (исторические записи)
 - ⭐ Все модули загружаются и pipeline работает на обеих тест-картах
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: localization-2026-10-12
+Agent: main (Super Z)
+Task: Дополнить словари из 07_prt_decompiled/Data + структурировать для разных языков + добавить выбор языка при экспорте Excel
+
+Work Log:
+- Проанализированы 4 файла данных (cp1251-encoded INI):
+  - SoD_En.txt → English (SoD)
+  - SoD_Ru.txt → Русский (SoD)
+  - WoG_Ru.txt → Русский (WoG)
+  - Complete.txt → Русский (Complete)
+- Каждый файл содержит 22 секции по ~700 записей: Art, Monstr, Spell, Skill, Dwelling, Object,
+  ArtClass, Mine, Locality, LevelSkill, FullLevelSkill, Color, Reply, Town, Doll, Place, Tent,
+  Status, Quest, Reward, HeroClass, Ideology.
+- Создан скрипт /home/z/my-project/scripts/build_localization_dict.py — парсит все 4 файла и
+  строит структурированный multilingual JSON.
+- Создан /home/z/my-project/h3save_reader_repo/02_format_docs/localization_dictionary.json —
+  итоговый словарь (~125 KB) с 22 секциями × 4 языка.
+- Создан новый модуль 01_tools/localizer.py:
+  - Класс Localizer(language) — принимает 'en' | 'ru_sod' (default) | 'ru_wog' | 'ru_complete'
+  - Методы: art(idx), monstr(idx), spell(idx), skill(idx), dwelling(idx), object(idx),
+    art_class(idx), mine(idx), locality(idx), level_skill(idx), full_level_skill(idx),
+    color(idx), reply(idx), town(idx), doll(idx), place(idx), tent(idx), status(idx),
+    quest(idx), reward(idx), hero_class(idx), ideology(idx).
+  - Fallback: ru_sod если в активном языке нет записи.
+  - Special: Color[255] → "Нейтральный" / "Neutral" (нет в исходных данных).
+  - Special: Mine[6] → "Золото" / "Gold" (Gold не входит в 6 ресурсов из данных).
+  - Self-test работает для всех 4 языков.
+- Создан новый модуль 01_tools/excel_export.py (вынесен из gm1_parser.py):
+  - Содержит export_objects_to_excel() без зависимости от PySide6 (только openpyxl).
+  - Параметр language передаётся из GUI.
+  - Все 22 стандартизированных листа переписаны для использования локализатора:
+    - Артефакты: столбец "Артефакт" теперь показывает "Кольцо Драгоценных Камней" вместо числа.
+    - Монстры: "Монстр" показывает "Людоед Маг" вместо ID.
+    - Банки: Охрана форматируется как "Пикмен x5, Гоблин x20".
+    - События и Ящики: список артефактов/заклинаний/навыков/монстров — локализованные имена.
+    - Ученые: навык + заклинание по имени.
+    - Ресурсы: тип ресурса по имени (Древесина, Ртуть, ...).
+    - Сундуки: артефакт по имени + класс.
+    - Заклинания (Святыни): заклинание по имени.
+    - Навыки (Хижины ведьм): навык по имени.
+    - Лагеря Беженцев: тип монстра по имени.
+    - Провидцы: задание и награда — текстовое описание (Принести артефакты [Сапоги Мертвеца]).
+      Mapping: mission_type (our 1..9) → Quest[] dict index (0..8).
+      Mapping: reward_type (our 1..10) → Reward[] dict index (0..8).
+    - Тюрьмы: спелбук → список названий заклинаний, армия → "Пикмен x10".
+    - Топология: цвет палатки → "Светло-голубая" (используем Tent[] а не Color[]).
+    - События-Таймеры: ресурсы и монстры по именам.
+    - Герои: армия, спелбук, экипировка, машины — локализованные имена.
+    - Города: тип города и фракция — "Башня" / "Нейтральный" вместо английских значений.
+    - Все Арты: слот куклы (Голова, Плечи, ...), артефакт по имени.
+    - Все Заклы: заклинание по имени.
+    - Все Навыки: навык + уровень по имени.
+- gm1_parser.py:
+  - Добавлены imports QDialog, QDialogButtonBox (для диалога выбора языка).
+  - _on_export_objects_excel: добавлен диалог выбора языка (QComboBox с 4 языками),
+    дефолт = "Русский (SoD)". После выбора → передаётся в export_objects_to_excel.
+  - export_objects_to_excel вынесен в excel_export.py — в gm1_parser.py оставлен thin wrapper
+    для обратной совместимости.
+- save_parser.py: parsed_save_to_dict() теперь также заполняет towns_found и heroes_found
+  (раньше только towns/heroes). Это позволяет GUI-independent коду получать towns_found
+  без отдельного шага.
+- Тестирование на Myth and Legend (0000.GM1):
+  - 4 Excel файла созданы (ru_sod, en, ru_wog, ru_complete) — все 26 листов заполнены.
+  - Проверка конкретных ячеек:
+    - Монстры (ru_sod): "Людоед Маг", "Королева Нага", "Дурной Глаз", "Энергетический Элементаль"
+    - Монстры (en):     "Ogre Mage", "Naga Queen", "Evil Eye", "Energy Elemental"
+    - Монстры (ru_complete): "Огр-маг", "Королева наг", "Злобоглаз", "Ракшас"
+    - Артефакты (ru_sod): "Кольцо Драгоценных Камней", "Туловище Легиона", "Плащ из Драконьих Крыльев"
+    - Ученые (en): "Archery", "Ballistics"
+    - Города (ru_sod): "Кавала" / "Башня" / "Нейтральный", "Волос" / "Оплот" / "Нейтральный"
+    - Города (en): "Tower" / "Neutral" (после priority fix — localized name имеет приоритет)
+    - Провидцы (ru_sod): "Принести артефакты [Сапоги Мертвеца]" / "Опыт 1000"
+    - Топология (ru_sod): "Светло-голубая" (для Tent[0])
+- Все 9 модулей 01_tools/ загружаются без ошибок.
+- Архив: /home/z/my-project/download/H3save_reader.tar.gz (1.4 MB) пересобран.
+
+Stage Summary:
+- ⭐ Создан multilingual словарь localization_dictionary.json (22 секции × 4 языка) из Data/*.txt
+- ⭐ Создан модуль localizer.py с API art(), monstr(), spell(), skill(), town(), color() и др.
+- ⭐ Создан модуль excel_export.py (без PySide6 зависимости) с language параметром
+- ⭐ Все 22 стандартизированных листа Excel теперь содержат локализованные имена:
+  - Артефакты, Монстры, Заклинания, Навыки, Города — по именам, не по числовым ID
+  - Охраны — формат "Пикмен x5, Гоблин x20"
+  - Задания и Награды Провидцев — читаемые текстовые описания
+  - Спеллбуки героев — список названий заклинаний
+  - Экипировка героев — список названий артефактов
+  - Армия — "Монстр xN"
+  - Ресурсы — Древесина/Ртуть/Руда/Серебро/Кристаллы/Самоцветы/Золото
+- ⭐ Диалог выбора языка в GUI (QComboBox с 4 вариантами)
+- ⭐ Поддержка 4 языков: English (SoD), Русский (SoD), Русский (WoG), Русский (Complete)
+- ⭐ Fallback на русский (ru_sod) если в выбранном языке нет записи
+- ⭐ Special handling: Color[255] = Нейтральный, Mine[6] = Золото
+- ⭐ Mapping для Quest[] и Reward[] между нашим mission_type/reward_type и dict index
+- ⭐ parsed_save_to_dict теперь также возвращает towns_found и heroes_found
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

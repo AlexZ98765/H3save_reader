@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
     QTextEdit, QStatusBar, QMenuBar,
     QTableWidget, QTableWidgetItem, QHeaderView,
     QProgressBar, QFrame, QGraphicsOpacityEffect, QSizePolicy,
+    QDialog, QDialogButtonBox,
 )
 
 
@@ -1393,592 +1394,19 @@ def export_to_json(parsed: Dict, raw: bytes,
 
 def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                             objects_by_coord: Dict = None,
-                            computed_offsets: Dict = None) -> str:
+                            computed_offsets: Dict = None,
+                            language: str = None) -> str:
+    """Thin wrapper around excel_export.export_objects_to_excel.
+
+    Kept here for backward compatibility — the actual implementation
+    is in 01_tools/excel_export.py (no PySide6 dependency there).
     """
-    Export all 7009 map objects to an Excel workbook with multiple sheets:
-      - All Objects       (flat list of 7009)
-      - By Category       (grouped by 21 categories)
-      - Summary           (counts per type/category)
-      - Wiki Dictionary   (2037 wiki types from object_types_dictionary.json)
+    from excel_export import export_objects_to_excel as _impl
+    return _impl(parsed, raw, output_path,
+                 objects_by_coord=objects_by_coord,
+                 computed_offsets=computed_offsets,
+                 language=language)
 
-    Returns the path written.
-    """
-    try:
-        from openpyxl import Workbook
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-        from openpyxl.utils import get_column_letter
-    except ImportError:
-        raise RuntimeError(
-            "openpyxl is required for Excel export. Install with: pip install openpyxl"
-        )
-
-    # ----- Use data from caller (no static file loading) -----
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    obj_map_dir = os.path.normpath(os.path.join(script_dir, "..", "03_object_mapping"))
-    oc = objects_by_coord or {}
-
-    if not oc:
-        raise RuntimeError(
-            "No map objects loaded. Load a Map JSON first (Ctrl+M)."
-        )
-
-    # Build flat list on-the-fly from objects_by_coord
-    flat_objects = []
-    for ck, rec in oc.items():
-        flat_objects.append({
-            "coord_key":    rec["coord_key"],
-            "coord_int":    rec["coord_int"],
-            "x":            rec["x"], "y": rec["y"], "z": rec["z"],
-            "object_index": rec.get("object_index"),
-            "sprite_ref_id": rec.get("sprite_ref_id"),
-            "sprite_def":   rec.get("sprite_def", ""),
-            "type":         rec.get("type", ""),
-            "category":     rec.get("category", ""),
-            "details":      rec.get("details", {}),
-            "is_primary":   True,
-        })
-        for ovl in rec.get("overlays", []):
-            flat_objects.append({
-                "coord_key":    ck,
-                "coord_int":    rec["coord_int"],
-                "x":            rec["x"], "y": rec["y"], "z": rec["z"],
-                "object_index": ovl.get("object_index"),
-                "sprite_ref_id": ovl.get("sprite_ref_id"),
-                "sprite_def":   ovl.get("sprite_def", ""),
-                "type":         ovl.get("type", ""),
-                "category":     ovl.get("category", ""),
-                "details":      ovl.get("details", {}),
-                "is_primary":   False,
-            })
-    flat_objects.sort(key=lambda o: (o["coord_int"], 0 if o["is_primary"] else 1))
-
-    # ----- Load wiki dictionary (universal, not map-specific) + use passed offsets -----
-    wiki_dict = None
-    obj_dict_path = os.path.join(obj_map_dir, "object_types_dictionary.json")
-    if os.path.exists(obj_dict_path):
-        try:
-            with open(obj_dict_path, "r", encoding="utf-8") as f:
-                wiki_dict = json.load(f)
-        except Exception:
-            pass
-
-    # Use offsets passed by caller (dynamically computed, not from file)
-    objects_with_offsets = computed_offsets or {}
-
-    # ----- Build workbook -----
-    wb = Workbook()
-
-    # Styling helpers
-    header_font  = Font(bold=True, color="FFFFFF", size=11)
-    header_fill  = PatternFill(start_color="305496", end_color="305496", fill_type="solid")
-    header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    thin_border  = Border(
-        left=Side(style="thin", color="BBBBBB"),
-        right=Side(style="thin", color="BBBBBB"),
-        top=Side(style="thin", color="BBBBBB"),
-        bottom=Side(style="thin", color="BBBBBB"),
-    )
-
-    def style_header(ws, row=1):
-        for cell in ws[row]:
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.alignment = header_align
-            cell.border = thin_border
-
-    def autosize_columns(ws, max_widths=None):
-        for col_cells in ws.columns:
-            try:
-                col_letter = get_column_letter(col_cells[0].column)
-            except Exception:
-                continue
-            max_len = 0
-            for cell in col_cells:
-                if cell.value is None:
-                    continue
-                s = str(cell.value)
-                if len(s) > max_len:
-                    max_len = len(s)
-            width = min(max(max_len + 2, 8), (max_widths or {}).get(col_letter, 60))
-            ws.column_dimensions[col_letter].width = width
-
-    # ----- Sheet 1: All Objects (flat 7009) -----
-    ws1 = wb.active
-    ws1.title = "All Objects"
-    headers1 = [
-        "#", "X", "Y", "Z", "coord_int", "coord_key", "is_primary",
-        "object_index", "sprite_ref_id", "sprite_def",
-        "type", "category",
-        "details (JSON)",
-        # Save-file offsets (per-object addresses in decompressed .GM1)
-        "main_offset", "visiting_offset", "fog_offset",
-        "alive_offset", "treasure_offset", "decoration_offset",
-        "all_save_offsets", "verified",
-        # Wiki info
-        "wiki_name", "wiki_category", "wiki_object_id", "wiki_sub_id",
-        "wiki_description",
-    ]
-    ws1.append(headers1)
-    style_header(ws1)
-
-    # Pre-build wiki lookup
-    wiki_by_def = {}
-    if wiki_dict:
-        for fn, entry in wiki_dict.get("objects", {}).items():
-            wiki_by_def[fn.lower()] = entry
-
-    for i, o in enumerate(flat_objects, start=1):
-        sd = (o.get("sprite_def") or "").lower()
-        wiki = wiki_by_def.get(sd, {})
-        # Get offsets from objects_with_offsets (by coord_int string)
-        ci_str = str(o.get("coord_int", ""))
-        offs = (objects_with_offsets or {}).get(ci_str, {})
-        row = [
-            i,
-            o["x"], o["y"], o["z"],
-            o["coord_int"], o["coord_key"],
-            "YES" if o["is_primary"] else "no",
-            o.get("object_index"),
-            o.get("sprite_ref_id"),
-            o.get("sprite_def", ""),
-            o.get("type", ""),
-            o.get("category", ""),
-            json.dumps(o.get("details", {}), ensure_ascii=False)[:500],  # truncate long details
-            # Save-file offsets
-            offs.get("main_offset", "")       or "",
-            offs.get("visiting_offset", "")   or "",
-            offs.get("fog_offset", "")        or "",
-            offs.get("alive_offset", "")      or "",
-            offs.get("treasure_offset", "")   or "",
-            offs.get("decoration_offset", "") or "",
-            ", ".join(offs.get("save_offsets", []))[:300],
-            "YES" if offs.get("verified") else "no",
-            # Wiki info
-            wiki.get("wiki_name", ""),
-            wiki.get("category", ""),
-            wiki.get("object_id", ""),
-            wiki.get("sub_id", ""),
-            (wiki.get("description", "") or "").replace("\n", " ")[:300],
-        ]
-        ws1.append(row)
-
-    # Freeze top row + filter
-    ws1.freeze_panes = "A2"
-    ws1.auto_filter.ref = ws1.dimensions
-    autosize_columns(ws1, max_widths={"M": 60, "T": 50, "Y": 80})
-
-    # ----- Sheet 2: By Category (one row per object, grouped by category) -----
-    ws2 = wb.create_sheet("By Category")
-    headers2 = ["category", "#", "X", "Y", "Z", "type", "sprite_def",
-                "is_primary", "object_index", "main_offset", "all_save_offsets", "details"]
-    ws2.append(headers2)
-    style_header(ws2)
-    # Sort by category then coord_int
-    sorted_by_cat = sorted(flat_objects, key=lambda o: (o["category"], o["coord_int"]))
-    for o in sorted_by_cat:
-        ci_str = str(o.get("coord_int", ""))
-        offs = (objects_with_offsets or {}).get(ci_str, {})
-        ws2.append([
-            o["category"], "", o["x"], o["y"], o["z"],
-            o["type"], o.get("sprite_def", ""),
-            "YES" if o["is_primary"] else "no",
-            o.get("object_index"),
-            offs.get("main_offset", "") or "",
-            ", ".join(offs.get("save_offsets", []))[:300],
-            json.dumps(o.get("details", {}), ensure_ascii=False)[:300],
-        ])
-    ws2.freeze_panes = "A2"
-    ws2.auto_filter.ref = ws2.dimensions
-    autosize_columns(ws2, max_widths={"L": 60})
-
-    # ----- Sheet 3: Summary (counts per type and category) -----
-    ws3 = wb.create_sheet("Summary")
-    from collections import Counter
-    type_counter  = Counter(o["type"]   for o in flat_objects)
-    cat_counter   = Counter(o["category"] for o in flat_objects)
-    primary_count = sum(1 for o in flat_objects if o["is_primary"])
-    overlay_count = sum(1 for o in flat_objects if not o["is_primary"])
-
-    # Top section: meta info
-    ws3.append(["Metric", "Value"])
-    style_header(ws3)
-    ws3.append(["Map name", parsed["file_info"].get("map_name", "(unknown)")])
-    ws3.append(["Total objects (flat)", len(flat_objects)])
-    ws3.append(["Primary objects", primary_count])
-    ws3.append(["Overlay objects (stacked)", overlay_count])
-    ws3.append(["Unique coordinates", len({o["coord_key"] for o in flat_objects})])
-    ws3.append(["Distinct types", len(type_counter)])
-    ws3.append(["Distinct categories", len(cat_counter)])
-    ws3.append([])
-    ws3.append([])
-
-    # Categories breakdown
-    ws3.append(["Category", "Count"])
-    style_header(ws3, row=ws3.max_row)
-    for cat, n in cat_counter.most_common():
-        ws3.append([cat, n])
-    ws3.append([])
-    ws3.append([])
-
-    # Types breakdown
-    ws3.append(["Type", "Category", "Count"])
-    style_header(ws3, row=ws3.max_row)
-    type_to_cat = {o["type"]: o["category"] for o in flat_objects}
-    for t, n in type_counter.most_common():
-        ws3.append([t, type_to_cat.get(t, ""), n])
-
-    autosize_columns(ws3, max_widths={"A": 50, "B": 30, "C": 12})
-
-    # ----- Sheet 4: Wiki Dictionary (2037 types) -----
-    if wiki_dict:
-        ws4 = wb.create_sheet("Wiki Dictionary")
-        headers4 = ["file_name", "wiki_name", "category", "object_id", "sub_id",
-                    "generates_on", "restrictions", "layering", "description",
-                    "user_notes", "user_category", "user_alias"]
-        ws4.append(headers4)
-        style_header(ws4)
-        # Sort by category, then wiki_name
-        sorted_wiki = sorted(wiki_dict.get("objects", {}).items(),
-                             key=lambda kv: (kv[1].get("category", "").lower(),
-                                             kv[1].get("wiki_name", "").lower()))
-        for fn, entry in sorted_wiki:
-            ue = entry.get("user_edits", {}) or {}
-            ws4.append([
-                entry.get("file_name", ""),
-                entry.get("wiki_name", ""),
-                entry.get("category", ""),
-                entry.get("object_id", ""),
-                entry.get("sub_id", ""),
-                entry.get("generates_on", ""),
-                entry.get("restrictions", ""),
-                entry.get("layering", ""),
-                (entry.get("description", "") or "").replace("\n", " ")[:500],
-                ue.get("user_notes", ""),
-                ue.get("user_category", ""),
-                ue.get("user_alias", ""),
-            ])
-        ws4.freeze_panes = "A2"
-        ws4.auto_filter.ref = ws4.dimensions
-        autosize_columns(ws4, max_widths={"I": 80})
-
-    # ----- Save -----
-    # v3.17: Add standardized sheets from merged_objects + post_tile_content + extra_sections
-    mo = parsed.get("merged_objects", {})
-    ptc = parsed.get("post_tile_content", {})
-    if isinstance(mo, dict) and mo and "error" not in mo:
-
-        # ── Артефакты ──
-        ws = wb.create_sheet("Артефакты")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Золото", "Ресурс", "Охрана", "∑ HP"])
-        for rec in mo.get("Артефакты", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Артефакт"), None,
-                       rec.get("artifact_id"), None, None, None, None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Монстры ──
-        ws = wb.create_sheet("Монстры")
-        ws.append(["X", "Y", "Z", "Район", "Монстр", "Количество", "Настроение", "Уровень", "∑ HP", "Артефакт", "Золото", "Ресурс", "Прирост"])
-        for rec in mo.get("Монстры", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("monster_type"), rec.get("count"),
-                       rec.get("mood"), None, None,
-                       rec.get("has_artifact"), None, None, rec.get("grows")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Банки ──
-        ws = wb.create_sheet("Банки")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Монстр", "Золото", "Ресурс"])
-        for rec in mo.get("Банки", []):
-            guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
-            res_str = str(rec.get("resources", {})) if rec.get("resources") else None
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Bank"), guard_str, None,
-                       rec.get("monster_reward_id") if rec.get("monster_reward_id", -1) >= 0 else None,
-                       rec.get("gold"), res_str])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── События и Ящики Пандоры ──
-        ws = wb.create_sheet("События и Ящики Пандоры")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Опыт", "Мана", "Мораль", "Удача", "Золото", "Ресурс", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно"])
-        for rec in ptc.get("event_boxes", []):
-            if isinstance(rec, dict):
-                guard_str = ", ".join(f"{g.get('monster_id','?')} {g.get('count',0)}" for g in rec.get("guard", []))
-                res_str = str(rec.get("resources", {})) if rec.get("resources") else None
-                ps_str = str(rec.get("primary_skills", {})) if rec.get("primary_skills") else None
-                ss_str = str(rec.get("secondary_skills", [])) if rec.get("secondary_skills") else None
-                art_str = str(rec.get("artifacts", [])) if rec.get("artifacts") else None
-                spl_str = str(rec.get("spells", [])) if rec.get("spells") else None
-                mon_str = str(rec.get("monsters", [])) if rec.get("monsters") else None
-                apply_str = str(rec.get("apply", ())) if rec.get("apply") else None
-                ws.append([None, None, None, None, "Событие", guard_str, None,
-                           rec.get("experience"), rec.get("mana"), rec.get("morale"), rec.get("luck"),
-                           rec.get("resources", {}).get("Gold"), res_str,
-                           ps_str, ss_str, art_str, spl_str, mon_str, apply_str])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Ученые ──
-        ws = wb.create_sheet("Ученые")
-        ws.append(["X", "Y", "Z", "Район", "Первичный навык", "Вторичный навык", "Заклинание"])
-        for rec in mo.get("Ученые", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       None, rec.get("skill_id"), rec.get("spell_id")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Ресурсы ──
-        ws = wb.create_sheet("Ресурсы")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Ресурс", "Золото", "Охрана", "∑ HP"])
-        for rec in mo.get("Ресурсы", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Ресурс", rec.get("resource_name"), None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Сундуки ──
-        ws = wb.create_sheet("Сундуки")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Золото", "Опыт", "Артефакт", "Класс", "Реликт-С"])
-        for rec in mo.get("Сундуки", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Сундук"), rec.get("gold"), rec.get("experience"),
-                       rec.get("artifact_id") if rec.get("has_artifact") else None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Заклинания ──
-        ws = wb.create_sheet("Заклинания")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Заклинание", "Уровень", "Охрана", "∑ HP"])
-        for rec in mo.get("Заклинания_Святилища", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Святыня", rec.get("spell_id"), None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Навыки ──
-        ws = wb.create_sheet("Навыки")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Навык"])
-        for rec in mo.get("Ведьмины_Хижины", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Хижина ведьмы", rec.get("skill_id")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Лагеря Беженцев ──
-        ws = wb.create_sheet("Лагеря Беженцев")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Монстр", "Количество", "Уровень"])
-        for rec in mo.get("Лагеря_Беженцев", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Лагерь беженцев", rec.get("monster_type"), rec.get("count"), None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Рынки ──
-        ws = wb.create_sheet("Рынки")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Цена на Черном Рынке"])
-        for rec in mo.get("Рынки", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Black Market"), None, None, None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Провидцы ──
-        ws = wb.create_sheet("Провидцы")
-        ws.append(["X", "Y", "Z", "Район", "Задание", "Награда", "Срок"])
-        for rec in mo.get("Провидцы", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       str(rec.get("mission", {})), str(rec.get("reward", {})), rec.get("deadline")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Тюрьмы ──
-        ws = wb.create_sheet("Тюрьмы")
-        ws.append(["X", "Y", "Z", "Район", "Герой", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
-        for rec in mo.get("Тюрьмы", []):
-            ps_str = str(rec.get("hero_primary_skills")) if rec.get("hero_primary_skills") else None
-            sb_str = str(rec.get("hero_spells_book")) if rec.get("hero_spells_book") else None
-            at_str = str(rec.get("hero_army_types")) if rec.get("hero_army_types") else None
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("hero_name"), rec.get("hero_level"), rec.get("hero_experience"),
-                       ps_str, None, None,
-                       sb_str, at_str,
-                       None, None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Объекты ──
-        ws = wb.create_sheet("Объекты")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Плата"])
-        for rec in mo.get("Объекты", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object_subtype", "Объект"), rec.get("upgrade_cost")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Топология ──
-        ws = wb.create_sheet("Топология")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Тип", "Цвет", "Пара"])
-        for rec in mo.get("Топология_Палатки", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Палатка ключника", None, rec.get("color_name"), None])
-        for rec in mo.get("Топология_Монолиты", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Монолит"), None, None, None])
-        for rec in mo.get("Топология_Подземные_Врата", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       rec.get("object", "Врата"), None, None, rec.get("pair_id")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── События-Таймеры ──
-        ws = wb.create_sheet("События-Таймеры")
-        ws.append(["Объект", "День", "Повтор", "Город", "Тип", "Местоположение", "Флаг", "Доступно", "Золото", "Ресурс", "Постройки", "Монстр"])
-        for ev in ptc.get("map_timed_events", []):
-            if isinstance(ev, dict):
-                res_str = str(ev.get("resources", {})) if ev.get("resources") else None
-                ws.append(["Карта", ev.get("day"), ev.get("repeat"), None, None, None, None, None,
-                           ev.get("resources", {}).get("Gold"), res_str, None, None])
-        for ev in ptc.get("town_timed_events", []):
-            if isinstance(ev, dict):
-                res_str = str(ev.get("resources", {})) if ev.get("resources") else None
-                bld_str = str(ev.get("buildings", [])) if ev.get("buildings") else None
-                mon_str = str(ev.get("monsters", [])) if ev.get("monsters") else None
-                ws.append(["Город", ev.get("day"), ev.get("repeat"), ev.get("id"), None, None, None, None,
-                           ev.get("resources", {}).get("Gold"), res_str,
-                           bld_str, mon_str])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Герои ──
-        ws = wb.create_sheet("Герои")
-        ws.append(["№", "Герой", "Местоположение", "Флаг", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
-        for i, h in enumerate(parsed.get("heroes_found", [])):
-            f = h.get("fields", {})
-            wm = f.get("war_machines", [])
-            machines_str = ", ".join(m.get("machine_name", "") for m in wm) if wm else None
-            army_str = ", ".join(f"{t} {c}" for t, c in zip(f.get("army_types", []), f.get("army_counts", [])) if t != -1)
-            loc_x = f.get("location_x", -1)
-            loc_y = f.get("location_y", -1)
-            loc_z = f.get("location_z", -1)
-            loc_str = f"{loc_x}.{loc_y}.{loc_z}" if loc_x >= 0 else None
-            player = f.get("player_name", "")
-            ws.append([i, f.get("name", "?"), loc_str, player,
-                       f.get("level"), f.get("experience"),
-                       f"{f.get('attack',0)}-{f.get('defense',0)}-{f.get('power',0)}-{f.get('knowledge',0)}",
-                       None, None, None, army_str, None, machines_str,
-                       "Да" if f.get("spell_book") else None, f.get("movement_total")])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Города ──
-        ws = wb.create_sheet("Города")
-        ws.append(["X", "Y", "Z", "Город", "Тип", "Флаг", "Уровень", "Заклинание", "Построен", "Доступен", "Таймер", "Библиотека", "Гарнизон", "∑ HP"])
-        for t in parsed.get("towns_found", []):
-            f = t.get("fields", {})
-            sp = f.get("spell_pool", {})
-            levels = sp.get("levels", []) if isinstance(sp, dict) else []
-            spells_str = ", ".join(str(s) for lvl in levels for s in lvl if s)
-            army_str = ", ".join(f"{t2} {c}" for t2, c in zip(f.get("army_types", []), f.get("army_counts", [])) if t2 != -1)
-            ws.append([f.get("x"), f.get("y"), f.get("z"),
-                       f.get("name", "?"), f.get("type_name", "?"),
-                       f.get("faction_name", ""), None, spells_str,
-                       None, None, None, None, army_str, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Все Арты (aggregator) ──
-        ws = wb.create_sheet("Все Арты")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Герой", "Кукла", "Флаг", "Местоположение", "Монстр", "Задание", "Охрана"])
-        aggr = parsed.get("aggregators", {})
-        for rec in aggr.get("all_artifacts", []):
-            if isinstance(rec, dict):
-                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("z", 0) == 0 else "подземелье",
-                           rec.get("object"), rec.get("slot"),
-                           rec.get("artifact_id"), None, None,
-                           rec.get("hero"), None, rec.get("flag"),
-                           rec.get("place"), None, rec.get("mission"), None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Все Заклы (aggregator) ──
-        ws = wb.create_sheet("Все Заклы")
-        ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана"])
-        for rec in aggr.get("all_spells", []):
-            if isinstance(rec, dict):
-                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           rec.get("object"), rec.get("spell_id"), None, None,
-                           None, None, None, None, None, None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Все Навыки (aggregator) ──
-        ws = wb.create_sheet("Все Навыки")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Уровень", "Навык", "Задание", "Охрана"])
-        for rec in aggr.get("all_skills", []):
-            if isinstance(rec, dict):
-                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("z", 0) == 0 else "подземелье",
-                           rec.get("object"), None, rec.get("skill_id"), None, None])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-        # ── Опыт (aggregator) ──
-        ws = wb.create_sheet("Опыт")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP"])
-        # Experience aggregator is optional — populate from Learning Stones
-        for rec in mo.get("Learning_Stones", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Камень знаний", None, None, None, None, None, None, None, None,
-                       rec.get("experience", 1000), rec.get("experience", 1000)])
-        ws.freeze_panes = "A2"
-        ws.auto_filter.ref = ws.dimensions
-        autosize_columns(ws)
-
-    # ----- Save -----
-    wb.save(output_path)
-    return output_path
 
 
 def hex_dump(raw: bytes, start: int, length: int, prefix: str = "    ") -> str:
@@ -3710,6 +3138,33 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             default_xlsx_path = os.path.join(save_dir, default_xlsx_name)
         else:
             default_xlsx_path = default_xlsx_name
+
+        # ----- Language selection dialog -----
+        selected_language = 'ru_sod'  # default
+        try:
+            from localizer import Localizer, available_languages, language_display_name
+            lang_dialog = QDialog(self)
+            lang_dialog.setWindowTitle("Выберите язык / Select language")
+            lang_dialog.setModal(True)
+            lang_layout = QVBoxLayout(lang_dialog)
+            lang_layout.addWidget(QLabel("Язык экспорта имен объектов:"))
+            lang_combo = QComboBox()
+            for lang_key in available_languages():
+                lang_combo.addItem(language_display_name(lang_key), lang_key)
+            # Default = ru_sod
+            idx = lang_combo.findData('ru_sod')
+            if idx >= 0:
+                lang_combo.setCurrentIndex(idx)
+            lang_layout.addWidget(lang_combo)
+            btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            btn_box.accepted.connect(lang_dialog.accept)
+            btn_box.rejected.connect(lang_dialog.reject)
+            lang_layout.addWidget(btn_box)
+            if lang_dialog.exec() == QDialog.Accepted:
+                selected_language = lang_combo.currentData() or 'ru_sod'
+        except Exception:
+            pass  # graceful degradation — use default ru_sod
+
         path, _ = QFileDialog.getSaveFileName(
             self, "Export Objects to Excel",
             default_xlsx_path,
@@ -3721,7 +3176,8 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             self._set_loading("Создание Excel…")
             export_objects_to_excel(self.parsed_data or {}, self.raw_data or b"", path,
                                     objects_by_coord=self._load_objects_by_coord(),
-                                    computed_offsets=self._load_objects_with_offsets())
+                                    computed_offsets=self._load_objects_with_offsets(),
+                                    language=selected_language)
             self._set_idle()
             self.status.showMessage(f"Exported {path}")
             QMessageBox.information(
@@ -3731,7 +3187,8 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                 "  • All Objects     — 7009 objects with coords, types, wiki info\n"
                 "  • By Category     — same objects grouped by 21 categories\n"
                 "  • Summary         — counts per type/category + meta\n"
-                "  • Wiki Dictionary — 2037 types from LazyLlama wiki"
+                "  • Wiki Dictionary — 2037 types from LazyLlama wiki\n"
+                "  • Standardized    — 26 sheets with localized names"
             )
         except Exception as e:
             self._set_idle()
