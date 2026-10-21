@@ -740,20 +740,40 @@ def merge_market(tile_objects: List[Dict[str, Any]],
 
 
 def merge_generic_objects(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge generic object tile objects (sheet "Объекты" — Hill Fort etc.)."""
-    return [
-        {
+    """Merge generic object tile objects (sheet "Объекты").
+
+    Dispatched for codes: 2 (Altar of Sacrifice), 35 (Hill Fort),
+    95 (Tavern), 102 (Tree of Knowledge), 213 (Freelancer's Guild).
+
+    Object name comes from localizer.object(type_id) — same as PRT
+    TblObject.Select("Code='" + decmp[s] + "'")[0][1].
+
+    Payment is set only for code 102 (Tree of Knowledge):
+        "2000" (2000 gold) or "G10" (10 gems) or None.
+    """
+    try:
+        from localizer import get_localizer
+        loc = get_localizer()
+    except Exception:
+        loc = None
+
+    out = []
+    for obj in tile_objects:
+        type_id = obj.get('type_id')
+        if type_id not in (2, 35, 95, 102, 213):
+            continue
+        # Localized object name from localizer (matches PRT TblObject lookup by code)
+        object_name = loc.object(type_id) if loc else f"Object {type_id}"
+        out.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
             "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Generic Object",
-            "type_id": obj.get('type_id'),
-            "object_subtype": obj.get('object_subtype', ''),
-            "upgrade_cost": obj.get('upgrade_cost'),
-        }
-        for obj in tile_objects if obj.get('type_id') in (2, 35, 95, 102, 213)
-    ]
+            "object": object_name,
+            "type_id": type_id,
+            "payment": obj.get('payment'),  # "2000" / "G10" / None (only for code 102)
+        })
+    return out
 
 
 def merge_heroes_on_map(tile_objects: List[Dict[str, Any]],

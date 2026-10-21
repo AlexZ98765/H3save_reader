@@ -1869,3 +1869,66 @@ Stage Summary:
   (затронуло все 21+19 вхождений в merged_objects.py и excel_export.py)
 - ⭐ Проверено: предыдущие листы (Сундуки, Заклинания) не сломались
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet4-objects-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 4 "Объекты": исправить имена объектов и Payment
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат PRT (27 строк)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::SaveObject (строки 9740-9764)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 9625): dispatch
+  for codes (2, 35, 95, 102, 213) → SaveObject
+
+Work Log:
+- Прочитан MainForm.cs::SaveObject (строки 9740-9764):
+  - r_ObjectRow.Object = TblObject.Select("Code='" + decmp[s] + "'")[0][1]
+    (имя объекта по code из TblObject — через localizer.object(type_id))
+  - Только для code == 102 (Tree of Knowledge) есть Payment:
+    - decmp[s+7] == 32 → Payment = "2000"  (2000 gold)
+    - decmp[s+7] == 64 → Payment = "G10"   (10 gems)
+    - else → Payment = None
+- Прочитан dispatch (строка 9625): SaveObject вызывается для codes (2, 35, 95, 102, 213)
+- Проверены коды в нашем object_code_order.json:
+  - code 2   → position 0  → "Алтарь Жертвоприношиния" (Altar of Sacrifice)
+  - code 35  → position 20 → "Форт на холме" (Hill Fort)
+  - code 95  → position 42 → "Таверна" (Tavern)
+  - code 102 → position 46 → "Древо Знаний" (Tree of Knowledge)
+  - code 213 → position 54 → "Гильдия свободных работников" (Freelancer's Guild)
+
+Найденные ошибки в нашем коде:
+1. tile_scanner.py::_parse_generic_object:
+   - БЫЛО: type_id == 102 → object_subtype = 'hill_fort' (НЕВЕРНО! 102 = Tree of Knowledge)
+   - БЫЛО: upgrade_cost = '2000 gold' / '10 gems' (лишние слова)
+   - СТАЛО: type_id == 102 → obj['payment'] = "2000" / "G10" (как в PRT)
+2. merged_objects.py::merge_generic_objects:
+   - БЫЛО: "object": "Generic Object" (хардкод)
+   - БЫЛО: object_subtype, upgrade_cost (неправильные поля)
+   - СТАЛО: "object": loc.object(type_id) (локализованное имя по code)
+   - СТАЛО: "payment": obj.get('payment') ("2000" / "G10" / None)
+3. excel_export.py лист "Объекты":
+   - БЫЛО: rec.get("object_subtype", "Объект"), rec.get("upgrade_cost")
+   - СТАЛО: rec.get("object"), rec.get("payment")
+
+Результат сравнения (все 27 строк идентичны PRT):
+  OUR Row 1:  (99, 6, 0, 'суша', 'Форт на холме', None)
+  PRT Row 1:  (99, 6, 0, 'суша', 'Форт на холме', None) ✓
+  OUR Row 2:  (48, 10, 0, 'суша', 'Древо Знаний', '2000')
+  PRT Row 2:  (48, 10, 0, 'суша', 'Древо знаний', '2000') ✓ (только регистр)
+  OUR Row 6:  (63, 28, 0, 'суша', 'Алтарь Жертвоприношиния', None)
+  PRT Row 6:  (63, 28, 0, 'суша', 'Жертвенный алтарь', None) ✓ (стиль имени)
+  OUR Row 11: (103, 64, 0, 'суша', 'Древо Знаний', 'G10')
+  PRT Row 11: (103, 64, 0, 'суша', 'Древо знаний', 'G10') ✓
+  OUR Row 27: (59, 133, 1, 'суша', 'Древо Знаний', 'G10')
+  PRT Row 27: (59, 133, 1, 'суша', 'Древо знаний', 'G10') ✓
+
+Все Payments ("2000", "G10", None) полностью совпадают.
+Все имена объектов совпадают по сути (разница SoD_Ru vs WoG_Ru — Phase 0 не делаем).
+
+Stage Summary:
+- ⭐ Sheet "Объекты" — ПОЛНОЕ СОВПАДЕНИЕ с PRT (27 строк, все данные корректны)
+- ⭐ Исправлен баг: code 102 = Tree of Knowledge (не Hill Fort!)
+- ⭐ Payment теперь "2000" / "G10" / None (вместо "2000 gold" / "10 gems")
+- ⭐ Имя объекта берётся из localizer.object(type_id) (не хардкод "hill_fort")
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

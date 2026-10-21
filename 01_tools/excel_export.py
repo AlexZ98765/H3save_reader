@@ -770,7 +770,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Объекты", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object_subtype", "Объект"), rec.get("upgrade_cost")])
+                       rec.get("object"),
+                       rec.get("payment")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

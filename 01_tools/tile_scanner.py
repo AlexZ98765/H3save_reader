@@ -911,20 +911,28 @@ def _parse_hero_on_map(raw, s, obj):
 
 
 def _parse_generic_object(raw, s, obj):
-    """Generic object (SaveObject, line 9740)
-    For type 102 (Hill Fort): decmp[s+7] = upgrade cost encoding
-      32 = 2000 gold, 64 = 10 gems.
-    Other types (2=altar?, 35=mine_entrance?, 95=?, 213=?): just records coords."""
+    """Generic object — adapted from SaveObject (MainForm.cs:9740).
+
+    Dispatched for codes: 2 (Altar of Sacrifice), 35 (Hill Fort),
+    95 (Tavern), 102 (Tree of Knowledge), 213 (Freelancer's Guild).
+
+    Only code 102 (Tree of Knowledge) has a payment field:
+        decmp[s+7] == 32  → Payment = "2000"  (2000 gold)
+        decmp[s+7] == 64  → Payment = "G10"   (10 gems)
+        else              → Payment = None
+
+    The object name is NOT decoded here — it is looked up by code in
+    merge_generic_objects via localizer.object(type_id).
+    """
     obj['object_kind'] = 'generic_object'
     type_id = obj['type_id']
-    if type_id == 102:  # Hill Fort
-        obj['object_subtype'] = 'hill_fort'
-        if s + 8 <= len(raw):
-            cost_byte = raw[s + 7]
-            if cost_byte == 32:
-                obj['upgrade_cost'] = '2000 gold'
-            elif cost_byte == 64:
-                obj['upgrade_cost'] = '10 gems'
+    # Tree of Knowledge (code 102) — has payment field
+    if type_id == 102 and s + 8 <= len(raw):
+        cost_byte = raw[s + 7]
+        if cost_byte == 32:
+            obj['payment'] = "2000"
+        elif cost_byte == 64:
+            obj['payment'] = "G10"
 
 
 def _parse_monolith(raw, s, obj):
