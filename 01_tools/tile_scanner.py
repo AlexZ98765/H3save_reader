@@ -554,26 +554,89 @@ def _parse_resource(raw, s, obj):
 
 
 def _parse_chest(raw, s, obj):
-    """Treasure chest (SaveChest, line 10215)"""
-    obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
-    obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'experience', s + 8, 2, "u16")
-    # If decmp[s+8] != 0xFF, it's an artifact instead of XP
-    obj['has_artifact'] = raw[s + 8] != 0xFF if s + 9 <= len(raw) else False
-    _enrich_typed_field(raw, obj, 'has_artifact', s + 8, 1, "bool")
-    if obj['has_artifact']:
-        obj['artifact_id'] = raw[s + 8]
-        _enrich_typed_field(raw, obj, 'artifact_id', s + 8, 1, "u8")
+    """Treasure chest — adapted from SaveChest (MainForm.cs:10215).
+
+    Layout (1 byte object code at s, then 7 bytes of content at s+1..s+7):
+        s+6 = artifact_id (only meaningful when s+7 == 252)
+        s+7 = content code:
+            147 → Gold=1000, Experience=500
+            155 → Gold=1500, Experience=1000
+            163 → Gold=2000, Experience=1500
+            252 → Artifact (artifact_id at s+6); no gold/xp
+            other → empty chest
+
+    Note: in PRT, the 'HP' field stores experience reward (used later by
+    AllExperience aggregator). We mirror that under obj['experience'].
+    """
+    if s + 8 > len(raw):
+        obj['gold'] = 0
         obj['experience'] = 0
+        obj['has_artifact'] = False
+        return
+    code = raw[s + 7]
+    if code == 147:
+        obj['gold'] = 1000
+        obj['experience'] = 500
+        obj['has_artifact'] = False
+    elif code == 155:
+        obj['gold'] = 1500
+        obj['experience'] = 1000
+        obj['has_artifact'] = False
+    elif code == 163:
+        obj['gold'] = 2000
+        obj['experience'] = 1500
+        obj['has_artifact'] = False
+    elif code == 252:
+        # Artifact chest: artifact_id at s+6
+        obj['gold'] = 0
+        obj['experience'] = 0
+        obj['has_artifact'] = True
+        obj['artifact_id'] = raw[s + 6]
+        _enrich_typed_field(raw, obj, 'artifact_id', s + 6, 1, "u8")
+    else:
+        # Empty / unknown chest content
+        obj['gold'] = 0
+        obj['experience'] = 0
+        obj['has_artifact'] = False
+    _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
+    _enrich_typed_field(raw, obj, 'experience', s + 6, 2, "u16")
 
 
 def _parse_sea_chest(raw, s, obj):
-    """Sea chest (SaveSeaChest, line 10262)"""
-    obj['gold'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
+    """Sea chest — adapted from SaveSeaChest (MainForm.cs:10262).
+
+    Layout:
+        s+6 = artifact-related byte
+        s+7 = content code:
+            0xFF (255) → if s+6 == 249: Gold=1500, no artifact
+                         else: empty
+            other     → artifact_id = (s+6 >> 3) | ((s+7 & 0x0F) << 5)
+                        Gold=1000 (and artifact added to AllArts)
+    """
+    if s + 8 > len(raw):
+        obj['gold'] = 0
+        obj['experience'] = 0
+        obj['has_artifact'] = False
+        return
+    b6 = raw[s + 6]
+    b7 = raw[s + 7]
+    if b7 == 0xFF:
+        if b6 == 249:
+            obj['gold'] = 1500
+        else:
+            obj['gold'] = 0
+        obj['experience'] = 0
+        obj['has_artifact'] = False
+    else:
+        # Artifact + 1000 gold
+        art_id = (b6 >> 3) | ((b7 & 0x0F) << 5)
+        obj['gold'] = 1000
+        obj['experience'] = 0
+        obj['has_artifact'] = True
+        obj['artifact_id'] = art_id
+        _enrich_typed_field(raw, obj, 'artifact_id', s + 6, 2, "u16")
     _enrich_typed_field(raw, obj, 'gold', s + 6, 2, "u16")
-    obj['experience'] = (raw[s + 9] << 8) + raw[s + 8] if s + 10 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'experience', s + 8, 2, "u16")
+    _enrich_typed_field(raw, obj, 'experience', s + 6, 2, "u16")
 
 
 def _parse_monster(raw, s, obj):

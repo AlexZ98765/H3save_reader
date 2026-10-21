@@ -201,16 +201,29 @@ def merge_chests(tile_objects: List[Dict[str, Any]],
     Returns records with:
       x, y, z, locality, object, gold, experience, artifact_id, has_artifact
     """
+    # Code 101 = "Сундук с сокровищами" / "Treasure Chest"
+    # Code 82  = "Морской сундук" / "Sea Chest"
+    # Use localized names from the localizer (matches PRT TblObject[code][1]).
+    try:
+        from localizer import get_localizer
+        loc = get_localizer()
+        chest_name = loc.object(101) or "Сундук с сокровищами"
+        sea_chest_name = loc.object(82) or "Морской сундук"
+    except Exception:
+        chest_name = "Сундук с сокровищами"
+        sea_chest_name = "Морской сундук"
+
     chests = []
     for obj in tile_objects:
         if obj.get('type_id') not in (101, 82):  # Chest + Sea Chest
             continue
+        is_sea = obj.get('type_id') == 82
         chests.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
             "locality": "underground" if obj.get('loc') == 8 else "surface",
-            "object": "Sea Chest" if obj.get('type_id') == 82 else "Treasure Chest",
+            "object": sea_chest_name if is_sea else chest_name,
             "gold": obj.get('gold', 0),
             "experience": obj.get('experience', 0),
             "has_artifact": obj.get('has_artifact', False),

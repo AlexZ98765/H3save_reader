@@ -1557,3 +1557,77 @@ Stage Summary:
 - ⭐ Mapping для Quest[] и Reward[] между нашим mission_type/reward_type и dict index
 - ⭐ parsed_save_to_dict теперь также возвращает towns_found и heroes_found
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet1-chests-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 1 "Сундуки": исправить парсинг и сравнить с ProspectorRT
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат проспектора
+- examples/Myth and Legend.h3m/save_map_objects_Мифы_и_легенды.xlsx — наш парсинг того же 0000.GM1
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строки 10215, 10262) — SaveChest, SaveSeaChest
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строки 10714-10770) — CreateTblObject (хардкод имён объектов)
+
+Work Log:
+- Прочитан MainForm.cs::SaveChest (строки 10215-10259):
+  - decmp[s+7] = code:
+    - 147 → Gold=1000, HP=500 (experience)
+    - 155 → Gold=1500, HP=1000
+    - 163 → Gold=2000, HP=1500
+    - 252 → Artifact (artifact_id at s+6, добавляется в R_AllArts)
+    - other → пустой сундук
+- Прочитан MainForm.cs::SaveSeaChest (строки 10262-10300):
+  - decmp[s+7] = 0xFF:
+    - decmp[s+6] == 249 → Gold=1500
+    - else → пусто
+  - else (artifact):
+    - artifact_id = (s+6 >> 3) | ((s+7 & 0x0F) << 5)
+    - Gold=1000, артефакт добавляется в R_AllArts
+- Найдена ошибка в нашем tile_scanner.py::_parse_chest (строка 556):
+  - Читали gold как u16 LE из s+6..s+7 (давало 39935 для 1500-сундука)
+  - Читали experience как u16 LE из s+8..s+9 (давало 65535 = 0xFFFF)
+  - has_artifact = (raw[s+8] != 0xFF) — неправильное условие
+- Переписан _parse_chest:
+  - Анализирует ТОЛЬКО decmp[s+7] как code (как в PRT)
+  - Для code=252 (artifact): artifact_id = raw[s+6], has_artifact=True
+  - Для остальных: has_artifact=False
+  - experience = HP (как в PRT r_ChestRow.HP)
+- Переписан _parse_sea_chest по аналогии
+- Добавлен _DEFAULT_OBJECT_NAMES в localizer.py (57 хардкоженных имён объектов
+  из MainForm.cs::CreateTblObject, строки 10714-10770). Это закрывает проблему:
+  в .txt-файлах Object[] содержит только 57 записей (0..56), но PRT использует
+  дополнительно коды 82 (Морской сундук), 101 (Сундук с сокровищами),
+  102 (Древо знаний), 103 (Врата подземного мира), 104 (Университет),
+  105 (Телега), 108 (Могила воина), 111 (Водоворот), 112 (Ветряная мельница),
+  113 (Хижина ведьмы), 213 (Гильдия наемников), 215 (Страж прохода),
+  255 (Торговцы Артефактами) — имена для которых НЕ в .txt, а захардкожены.
+- Localizer.object(idx) теперь:
+  1. Сначала ищет в .txt-derived Object[] (0..56)
+  2. Если не находит — берёт из _DEFAULT_OBJECT_NAMES
+- merged_objects.py::merge_chests:
+  - Раньше: "object": "Sea Chest" / "Treasure Chest" (английский хардкод)
+  - Теперь: loc.object(82) / loc.object(101) (локализованное имя)
+- excel_export.py: rec["object"] уже использовался, изменения не требуются
+- Обновлены файлы:
+  - examples/Myth and Legend.h3m/save_map_objects_Мифы_и_легенды.xlsx
+  - examples/Myth and Legend.h3m/parsed_save_Мифы_и_легенды.json
+- Создан calculations_todo.txt — лог калькуляций, которые НЕ считаем (∑ HP, ∑ XP,
+  опыт за монстров/банки, построенные здания, цены Чёрного рынка, и т.д.)
+
+Результат сравнения (первые 5 строк):
+  PRT Row 1: (58, 0, 0, 'суша', 'Сундук с сокровищами', 1500, 1000, None, None, None)
+  OUR Row 1: (58, 0, 0, 'суша', 'Сундук с сокровищами', 1500, 1000, None, None, None) ✓
+  PRT Row 2: (64, 0, 0, 'суша', 'Сундук с сокровищами', 2000, 1500, None, None, None)
+  OUR Row 2: (64, 0, 0, 'суша', 'Сундук с сокровищами', 2000, 1500, None, None, None) ✓
+  ... (все 5 строк идентичны)
+
+Stage Summary:
+- ⭐ Sheet "Сундуки" — ПОЛНОЕ СОВПАДЕНИЕ с PRT (284 строк, все данные корректны)
+- ⭐ Исправлен баг с декодированием gold/experience (читали не те байты)
+- ⭐ Добавлен _DEFAULT_OBJECT_NAMES в localizer (57 хардкоженных имён объектов
+  из MainForm.cs::CreateTblObject) — будет использоваться всеми листами
+- ⭐ Имена "Сундук с сокровищами" / "Морской сундук" теперь локализованы
+- ⭐ Создан calculations_todo.txt с явным перечислением калькуляций,
+  которые НЕ считаем (∑ HP, ∑ XP, и т.д.)
+- Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

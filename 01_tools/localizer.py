@@ -67,6 +67,64 @@ LANGUAGE_DISPLAY_NAMES = {
 DEFAULT_LANGUAGE = 'ru_sod'
 FALLBACK_LANGUAGE = 'ru_sod'
 
+# Hardcoded object code → default Russian name (matches MainForm.cs::CreateTblObject).
+# These names are language-independent defaults; PRT's .txt files only override them
+# via ReplaceName() for codes that exist in [Object] section (0..56). For codes
+# outside that range (82, 101, 102, 103, etc.), the hardcoded name is always used.
+_DEFAULT_OBJECT_NAMES = {
+    2:   "Жертвенный алтарь",
+    5:   "Артефакт",
+    6:   "Ящик Пандоры",
+    7:   "Черный рынок",
+    10:  "Палатка ключника",
+    12:  "Кострище покинутого лагеря",
+    16:  "Склады циклопов",  # bank subtype 0
+    22:  "Труп",
+    24:  "Ветхий корабль",
+    25:  "Утопия драконов",
+    26:  "Событие",
+    29:  "Обломки",
+    33:  "Гарнизон",
+    34:  "Герой",
+    35:  "Форт на холме",
+    39:  "Чей-то погреб",
+    43:  "Монолит входа",
+    44:  "Монолит выхода",
+    45:  "Двухсторонний монолит",
+    53:  "Заброшенная шахта",
+    54:  "Монстр",
+    55:  "Мистический сад",
+    62:  "Тюрьма",
+    63:  "Пирамида",
+    78:  "Лагерь беженцев",
+    79:  "Ресурс",
+    81:  "Ученый",
+    82:  "Морской сундук",
+    83:  "Хижина провидца",
+    84:  "Склеп",
+    85:  "Кораблекрушение",
+    86:  "Потерпевший кораблекрушение",
+    88:  "Святыня магического воплощения",
+    89:  "Святыня магического жеста",
+    90:  "Святыня магической мысли",
+    93:  "Свиток с заклинанием",
+    95:  "Таверна",
+    98:  "Городок",
+    100: "Камень знаний",
+    101: "Сундук с сокровищами",
+    102: "Древо знаний",
+    103: "Врата подземного мира",
+    104: "Университет",
+    105: "Телега",
+    108: "Могила воина",
+    111: "Водоворот",
+    112: "Ветряная мельница",
+    113: "Хижина ведьмы",
+    213: "Гильдия наемников",
+    215: "Страж прохода",
+    255: "Торговцы Артефактами",
+}
+
 # Canonical set of section names available in the dictionary
 _ALL_SECTIONS = [
     'Art', 'Monstr', 'Spell', 'Skill', 'Dwelling', 'Object', 'ArtClass',
@@ -182,8 +240,20 @@ class Localizer:
         return self.section('Dwelling', idx)
 
     def object(self, idx: int) -> str:
-        """Map object name by ID (0..56)."""
-        return self.section('Object', idx)
+        """Map object name by ID.
+
+        Looks up first in the .txt-derived Object[] table (0..56),
+        then falls back to the hardcoded table from MainForm.cs::CreateTblObject
+        (codes 2..255 with Russian default names). The hardcoded table is
+        the same for all languages — only the names in the .txt files change
+        via ReplaceName() in PRT.
+        """
+        # First, try the language-specific Object[] from .txt
+        name = self.section('Object', idx)
+        if name:
+            return name
+        # Fallback to hardcoded default (matches PRT CreateTblObject rows)
+        return _DEFAULT_OBJECT_NAMES.get(idx, '')
 
     def art_class(self, idx: int) -> str:
         """Artifact class (Machine/Treasure/Minor/Major/Relic/Special)."""
