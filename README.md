@@ -9,7 +9,7 @@
 
 | Папка | Что содержит | Главный файл(ы) |
 |-------|--------------|------------------|
-| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `map_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 стандартизированных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
+| **`01_tools/`** | Готовые инструменты для работы с сейвами | `gm1_parser.py` (GUI), `map_json_loader.py` (Фаза 1), `save_config_builder.py` (Фаза 2), `cluster_finder.py`, `header_parser.py`, `save_layout.py`, `save_parser.py` (Фаза 3), `tile_scanner.py` (37 tile парсеров), `post_tile_scanner.py` (offset-walker), `post_tile_parser.py` (56 post-tile парсеров), **`merged_objects.py`** (22 стандартизированных таблицы), `gm1_diff.py`, `gm1_diff_gui.py` |
 | **`02_format_docs/`** | Документация по формату `.GM1` | `GM1_format_compendium.md` (справка по формату), `gm1_mapping.json` (формат-константы) |
 | **`03_object_mapping/`** | Универсальный словарь типов объектов (2037 типов из LazyLlama wiki) | `object_types_dictionary.json` (единственный файл) |
 | **`04_diff_analysis/`** | Универсальный скрипт дифф-анализа (только `build_object_type_dictionary.py`) | `build_object_type_dictionary.py` (парсит LazyLlama wiki) |
@@ -24,7 +24,7 @@
 ## Трёхфазный алгоритм (текущая архитектура v3.10)
 
 1. **Фаза 1 — Map JSON** (`map_json_loader.py`): загружает JSON-парсинг карты `.h3m` (или `.zip` с ним), строит `MapData` (`objects_by_coord`, `coord_int_lookup`, `type_index`, `category_index`) для ЛЮБОЙ карты.
-2. **Фаза 2 — Day-0 anchor** (`map_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
+2. **Фаза 2 — Day-0 anchor** (`save_config_builder.py`): сравнивает `MapData` с сейвом нулевого дня, находит динамические смещения всех секций (`main object array`, `visiting array`, `hero blocks`, `town records`, `decoration bitmask`, ...). Сохраняет результат в `map_config_<mapname>.json`.
 3. **Фаза 3 — Any save** (`save_parser.py` + `post_tile_parser.py` + `merged_objects.py`): открывает любой сейв той же карты, **адаптирует** смещения из config, парсит все поля героя/города/объекта, декодирует содержимое **всех post-tile секций**, и генерирует **22 стандартизированных таблицы** + **3 агрегатора** через `merged_objects.merge_all()`.
 
 ## С чего начать
@@ -102,7 +102,7 @@ coord_int = x | (y << 8) | (z << 16)
 
 ## Известные ограничения текущей версии
 
-- `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 — они вычисляются динамически через `map_config_builder.py`.
+- `gm1_mapping.json` теперь содержит только универсальные формат-константы (`constants`, `path_block`, `field_offsets`, `known_unknowns`). Все absolute offsets удалены в v3.0 — они вычисляются динамически через `save_config_builder.py`.
 - `04_diff_analysis/Myth and Legend/` — исторические разовые скрипты, использовавшиеся для ручного локализования полей. **Перенесены в `_obsolete/`** — не используются в runtime.
 - Write-back (редактирование сейва) — НЕ реализовано. Чтение полностью готово, запись в планах (Шаг 4).
 - Day-0 сейвы: расширенная цепочка после CurrentState (BitField, Monolith, SubTerGate, Bank) может отсутствовать/обрываться (файл укорочен). Обрабатывается gracefully через try/except.

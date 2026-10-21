@@ -4,7 +4,7 @@
 cluster_finder.py — Universal, density-based finder for the per-object
 data sections in a decompressed `.GM1` save.
 
-PROBLEM with the old algorithm (map_config_builder.find_object_clusters):
+PROBLEM with the old algorithm (save_config_builder.find_object_clusters):
   - Skipped the first 0x10000 bytes (small maps store object arrays there)
   - Used a 0x10000-byte (64 KB) gap threshold to separate clusters, which
     merged all 6 distinct per-object arrays into ONE cluster on large maps.

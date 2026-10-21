@@ -17,7 +17,7 @@ H3save_reader/
 ├── 01_tools/                          Готовые инструменты для работы с сейвами
 │   ├── gm1_parser.py                  PySide6 GUI парсер сейвов
 │   ├── map_json_loader.py             ⭐ Фаза 1: загрузчик JSON-парсинга карты (универсальный)
-│   ├── map_config_builder.py          ⭐ Фаза 2: построитель per-map config из day-0 сейва
+│   ├── save_config_builder.py          ⭐ Фаза 2: построитель per-map config из day-0 сейва
 │   ├── save_parser.py                 ⭐ Фаза 3: универсальный парсер сейва (v3.10: hero war_machines + town spell_pool + merged_objects + aggregators)
 │   ├── cluster_finder.py              ⭐ Универсальный, gap-based поиск кластеров объектов в сейве
 │   ├── header_parser.py               ⭐ Универсальный парсер заголовка .GM1
@@ -186,7 +186,7 @@ for c in clusters:
 
 ---
 
-### 4. `01_tools/map_config_builder.py` — Построитель per-map config ⭐⭐⭐ (Фаза 2)
+### 4. `01_tools/save_config_builder.py` — Построитель per-map config ⭐⭐⭐ (Фаза 2)
 
 **Размер:** 460 строк
 **Назначение:** Сравнивает `MapData` (из Фазы 1) с сейвом нулевого дня, находит динамические смещения всех секций сейва. Сохраняет результат в `map_config_<mapname>.json`.
@@ -205,7 +205,7 @@ for c in clusters:
 
 **CLI:**
 ```bash
-python3 01_tools/map_config_builder.py \
+python3 01_tools/save_config_builder.py \
   --map-json /path/to/MyMap.h3m.zip \
   --day0-save /path/to/0000.GM1 \
   --output-dir /tmp/
@@ -214,7 +214,7 @@ python3 01_tools/map_config_builder.py \
 **Программное использование:**
 ```python
 from map_json_loader import load_map_json_safely
-from map_config_builder import build_map_config, save_config, decompress_save
+from save_config_builder import build_map_config, save_config, decompress_save
 
 md, err = load_map_json_safely("/path/to/MyMap.h3m.zip")
 day0 = decompress_save("/path/to/0000.GM1")
@@ -245,14 +245,14 @@ save_config(config, "/tmp/")
   - `faction` + `faction_name`, `type` + `type_name`, `x/y/z`, `army_types[7]`, `army_counts[7]`, `name`
 - `adapt_config_to_save(raw, config)` → `(hero_section, town_section, object_offsets)` — **АДАПТАЦИЯ** между сейвами:
   - Пересоздаёт hero blocks, town blocks, object clusters для ТЕКУЩЕГО сейва (они могли сдвинуться из-за роста path-block/replay log)
-  - Использует `find_hero_blocks`, `find_town_blocks` из `map_config_builder.py`
+  - Использует `find_hero_blocks`, `find_town_blocks` из `save_config_builder.py`
   - Использует `find_all_object_clusters` из `cluster_finder.py`
 - `parsed_save_to_dict(parsed)` → JSON-serializable dict
 
 **Программное использование (Фазы 1+2+3 — полный pipeline):**
 ```python
 from map_json_loader import load_map_json_safely
-from map_config_builder import build_map_config, decompress_save
+from save_config_builder import build_map_config, decompress_save
 from save_parser import parse_save, parsed_save_to_dict
 import json
 
@@ -392,7 +392,7 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
 **Возможности:**
 - Открывает `.GM1` файлы (с обходом битого gzip CRC)
 - Загрузка JSON карты (Ctrl+M) — динамическое построение objects_by_coord для любой карты
-- Кнопка "Load Day-Zero Save…" (Ctrl+D) — строит `MapConfig` через `map_config_builder.build_map_config` и сохраняет в `map_config_<mapname>.json`
+- Кнопка "Load Day-Zero Save…" (Ctrl+D) — строит `MapConfig` через `save_config_builder.build_map_config` и сохраняет в `map_config_<mapname>.json`
 - ⭐ **Кнопка "Load Map Config…" (Ctrl+L)** — загружает готовый `map_config_<mapname>.json` (НОВОЕ в Шаге 3d). Позволяет пропустить Шаг 2 если config уже построен.
 - Вкладка "Map Objects" с фильтрами и сортировкой
 - Экспорт в JSON и Excel
@@ -420,7 +420,7 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
 ### 7. `02_format_docs/gm1_mapping.json` — Универсальные формат-константы ⭐
 
 **Размер:** ~14 KB (было 51 KB до Шага 3b)
-**Назначение:** Универсальные формат-константы `.GM1`. Все absolute offsets удалены в v3.0 (Шаг 3b) — теперь они вычисляются динамически через `map_config_builder.py`.
+**Назначение:** Универсальные формат-константы `.GM1`. Все absolute offsets удалены в v3.0 (Шаг 3b) — теперь они вычисляются динамически через `save_config_builder.py`.
 
 **Содержимое (только универсальные секции):**
 - `constants` — формат-константы (magic bytes, player colors, version codes) — ✅ универсальные
@@ -437,7 +437,7 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
 - ❌ `alternative_offsets.save_447_series` — 14 полей с absolute offsets для серии 447 (валидны только для одной карты)
 - ❌ `search_patterns` — regex-паттерны с hardcoded диапазонами
 
-**Статус:** ✅ Очищен. Содержит только универсальные формат-константы. Absolute offsets теперь берутся из `map_config_<mapname>.json` (построенного `map_config_builder.py`).
+**Статус:** ✅ Очищен. Содержит только универсальные формат-константы. Absolute offsets теперь берутся из `map_config_<mapname>.json` (построенного `save_config_builder.py`).
 
 ---
 
@@ -514,7 +514,7 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
 
 **Проблема:** Прямые смещения `0x157F1E`, `0x120C8C`, `0x118C1C`, `0x13F4C3`, `0x172129` в коде. Действительны только для сейвов "Myth and Legend.h3m".
 
-**План:** Заменить на чтение из `map_config_<mapname>.json` (построенного `map_config_builder.py`). Это следующий шаг рефакторинга.
+**План:** Заменить на чтение из `map_config_<mapname>.json` (построенного `save_config_builder.py`). Это следующий шаг рефакторинга.
 
 ### `gm1_mapping.json` — абсолютные смещения
 
@@ -545,9 +545,9 @@ walk_post_tile_sections(raw, after_tiles_offset, object_number,
 ### Сценарий 1: Распарсить сейв новой карты
 
 1. Получить `.h3m.json` (парсинг карты через твой внешний парсер)
-2. Запустить `map_config_builder.py` на сейве нулевого дня:
+2. Запустить `save_config_builder.py` на сейве нулевого дня:
    ```bash
-   python3 01_tools/map_config_builder.py \
+   python3 01_tools/save_config_builder.py \
      --map-json /path/to/MyMap.h3m.zip \
      --day0-save /path/to/0000.GM1 \
      --output-dir /tmp/
@@ -563,7 +563,7 @@ from map_json_loader import load_map_json_safely
 md, err = load_map_json_safely("/path/to/MyMap.h3m.zip")
 
 # Phase 2: build config from day-0 save
-from map_config_builder import build_map_config, decompress_save
+from save_config_builder import build_map_config, decompress_save
 day0_raw = decompress_save("/path/to/0000.GM1")
 config = build_map_config(md, day0_raw, "/path/to/0000.GM1")
 # config.save("/tmp/map_config_MyMap.json")
@@ -622,7 +622,7 @@ config = build_map_config(md, day0_raw, "/path/to/0000.GM1")
   - `save_layout.py` — dataclasses (`HeaderInfo`, `ObjectCluster`, `HeroSection`, `TownSection`, `MapConfig`) + формат-константы (`HERO_FIELD_OFFSETS`, `TOWN_FIELD_OFFSETS`)
   - `header_parser.py` — парсер заголовка `.GM1` (вычисляет `header_size`)
   - `cluster_finder.py` — универсальный gap-based кластеризатор объектов в сейве (итеративный с masking)
-  - `map_config_builder.py` — переписан полностью: использует новые модули, убран хардкод `0x100000` (теперь scan от `header_size`), добавлена поддержка русских hero-имён (cp1251)
+  - `save_config_builder.py` — переписан полностью: использует новые модули, убран хардкод `0x100000` (теперь scan от `header_size`), добавлена поддержка русских hero-имён (cp1251)
 - **Реорганизация** `04_diff_analysis/`: 39 файлов перемещены в `04_diff_analysis/Myth and Legend/` (подпапка по карте); на верхнем уровне остался только универсальный `build_object_type_dictionary.py` + новый `README.md`
 - **Очистка репозитория:**
   - Удалены `_obsolete/` (устаревшие файлы)

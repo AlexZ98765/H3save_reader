@@ -8,7 +8,7 @@ parse any save of a given map without hardcoding absolute offsets.
 Three-phase architecture (see README.md):
 
   Phase 1: Map JSON  -> MapData           (see map_json_loader.py)
-  Phase 2: Day-0 save + MapData -> MapConfig  (see map_config_builder.py)
+  Phase 2: Day-0 save + MapData -> MapConfig  (see save_config_builder.py)
   Phase 3: Any save + MapConfig -> ParsedSave  (see save_parser.py, planned)
 
 This module only defines the data shapes — no parsing logic.

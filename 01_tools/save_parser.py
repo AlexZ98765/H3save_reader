@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 save_parser.py — Phase 3: parse ANY save of a given map using a MapConfig
-(produced by Phase 2 = map_config_builder.py).
+(produced by Phase 2 = save_config_builder.py).
 
 THREE-PHASE ARCHITECTURE (see README.md):
   Phase 1: Map JSON  -> MapData            (map_json_loader.py)
-  Phase 2: Day-0 save + MapData -> MapConfig  (map_config_builder.py)
+  Phase 2: Day-0 save + MapData -> MapConfig  (save_config_builder.py)
   Phase 3: Any save + MapConfig -> ParsedSave  (THIS module)
 
 This module provides:
@@ -516,13 +516,13 @@ def adapt_config_to_save(raw: bytes, config: MapConfig) -> Tuple[
       for the current save.
 
     Algorithm:
-      - For heroes: reuse map_config_builder.find_hero_blocks (regex + names)
-      - For towns: reuse map_config_builder.find_town_blocks (coord-based +
+      - For heroes: reuse save_config_builder.find_hero_blocks (regex + names)
+      - For towns: reuse save_config_builder.find_town_blocks (coord-based +
         name-based, using town coords/names from config)
       - For object clusters: reuse cluster_finder.find_all_object_clusters
         (the per-object offsets may have shifted between saves)
     """
-    from map_config_builder import find_hero_blocks, find_town_blocks
+    from save_config_builder import find_hero_blocks, find_town_blocks
 
     header = parse_header(raw)
     scan_start = header.header_size
@@ -1382,7 +1382,7 @@ if __name__ == "__main__":
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from map_json_loader import load_map_json_safely
-    from map_config_builder import decompress_save
+    from save_config_builder import decompress_save
 
     cases = [
         ("save_parse_test_01",

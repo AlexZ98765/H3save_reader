@@ -790,7 +790,7 @@ def parse_save(raw: bytes, mapping: Dict = None,
         raw:        decompressed save bytes
         mapping:    gm1_mapping.json dict (legacy; only `path_block` and
                     `constants` are now universal — `blocks` was removed in v3.0)
-        map_config: MapConfig object (preferred — from Phase 2 = map_config_builder)
+        map_config: MapConfig object (preferred — from Phase 2 = save_config_builder)
 
     Returns a dict with the same shape as before (for _populate_tree):
       {
@@ -3401,15 +3401,15 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
             return
 
         try:
-            from map_config_builder import (
+            from save_config_builder import (
                 decompress_save, build_map_config, save_config
             )
         except ImportError:
             import importlib.util
             spec = importlib.util.spec_from_file_location(
-                "map_config_builder",
+                "save_config_builder",
                 os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "map_config_builder.py")
+                             "save_config_builder.py")
             )
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)

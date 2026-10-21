@@ -2186,7 +2186,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Decompress using the CRC-tolerant decompressor
-    from map_config_builder import decompress_save
+    from save_config_builder import decompress_save
     raw = decompress_save(test_path)
 
     print(f"Decompressed: {len(raw)} bytes")

@@ -12,7 +12,7 @@ import struct
 import json
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from map_config_builder import decompress_save, load_config
+from save_config_builder import decompress_save, load_config
 from save_parser import parse_save
 from header_parser import parse_header
 

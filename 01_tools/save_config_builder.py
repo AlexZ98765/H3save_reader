@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-map_config_builder.py — Build a per-map config (anchor table) by
+save_config_builder.py — Build a per-map config (anchor table) by
 comparing a map JSON parse with a "day-zero" save (save immediately
 after loading the map, before any player action).
 

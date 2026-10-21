@@ -72,7 +72,7 @@ JSON-файлы для карты "Myth and Legend.h3m":
 | `category_index.json` (95 KB) | `MapData.category_index` — строится динамически |
 | `object_mapping_summary.json` | Считается из `MapData` (метод `summary()`) |
 | `coord_mapping_verification.json` (556 KB) | Разовый артефакт проверки для "Myth and Legend.h3m" — не нужен в runtime |
-| `save_offset_clusters.json` / `.md` | Разовый артефакт. Кластеризация теперь делается `map_config_builder.py::find_object_clusters` |
+| `save_offset_clusters.json` / `.md` | Разовый артефакт. Кластеризация теперь делается `save_config_builder.py::find_object_clusters` |
 | `map_types_xref.json` | Кросс-референс одной карты с wiki. Строится на лету через `MapData.type_index` + `_name_index` словаря |
 
 **Причина:** Все эти файлы были **хардкодом для одной конкретной карты**. Универсальный парсер
