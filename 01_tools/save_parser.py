@@ -277,14 +277,22 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         "equipment", raw, equip_addr, 152, "bytes_equipment_19x8")
 
     # ----- v3.10: War machines + Spell Book (columns "Машина" and "Книга заклинаний") -----
-    # GetHeroesContent reads 83 doll slots at block_offset + 408.
-    # This is a UNIVERSAL constant — same for all SoD/HotA saves.
-    # Layout: after alt block (26+extra) + 113 + army(56) + name(13) + skills(56) + attrs(4) + spells(140) = 408
-    # Note: 408 is from BLOCK START, not from name_offset.
-    # Slot index = 0 → Spell Book (artifact_id == 0)
-    # Slot index 4/5/6 → War machines (Ballista=4, Ammo Cart=5, First Aid Tent=6)
-    doll_start = block_offset + 408  # UNIVERSAL: 26 + 113 + 56 + 13 + 56 + 4 + 140 = 408
-    war_machines = []  # list of (slot_index, artifact_id, data)
+    # Doll slots layout (from GetHeroesContent MainForm.cs:7842):
+    #   block_offset points to the START OF ALT BLOCK (= PRT's num + 26, where num = start of hero block)
+    #   extra_size is at PRT's num + 22 = block_offset - 4 (u16 LE)
+    #   Doll slots start at: block_offset + extra_size + 382
+    #     where 382 = 113 (alt) + 56 (army) + 13 (name) + 56 (skills) + 4 (attrs) + 140 (spells)
+    #   83 slots × 8 bytes each
+    # Slot artifact_id values:
+    #   0   → Spell Book (PRT sets Book = "Да")
+    #   3   → Catapult (PRT skips — case 3: continue)
+    #   4   → Ballista (war machine)
+    #   5   → Ammo Cart (war machine)
+    #   6   → First Aid Tent (war machine)
+    #   255 → empty (PRT skips)
+    extra_size = struct.unpack("<H", raw[block_offset - 4:block_offset - 2])[0]
+    doll_start = block_offset + extra_size + 382
+    war_machines = []  # list of dicts with slot_index, machine_id, machine_name, data
     spell_book = False
     for i in range(83):
         slot_off = doll_start + i * 8
@@ -294,11 +302,11 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         if art_id == 0:
             spell_book = True  # has spell book
         elif art_id in (4, 5, 6):
-            machine_name = {4: "Ballista", 5: "Ammo Cart", 6: "First Aid Tent"}.get(art_id, f"Unknown({art_id})")
+            # War machine: 4=Ballista, 5=Ammo Cart, 6=First Aid Tent
+            # Note: Catapult (id=3) is intentionally NOT included — PRT skips it (case 3: continue)
             war_machines.append({
                 "slot_index": i,
                 "machine_id": art_id,
-                "machine_name": machine_name,
                 "data": struct.unpack("<I", raw[slot_off + 4:slot_off + 8])[0],
             })
     fields["war_machines"] = war_machines
@@ -312,8 +320,10 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     alt_start = block_offset + HERO_ALT_BLOCK_OFFSET
     ao = HERO_ALT_FIELD_OFFSETS
     try:
-        # Extra size (u16 LE at block_offset + 22) — determines variable part
-        fields["extra_size"] = struct.unpack("<H", raw[block_offset + 22:block_offset + 24])[0]
+        # Extra size (u16 LE at block_offset - 4 = PRT's num + 22)
+        # block_offset = PRT's num + 26 (start of alt block)
+        # PRT's num + 22 = block_offset - 4
+        fields["extra_size"] = extra_size  # already read above
 
         # Alt block fields
         fields["alt_color"] = raw[alt_start + ao["Color"]]

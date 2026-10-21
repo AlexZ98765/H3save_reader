@@ -2019,3 +2019,76 @@ Stage Summary:
 - ⚠️ Машина и Книга требуют отдельного исследования doll slots для prison heroes
 - ❌ ∑ HP — калькуляция (залогировано в calculations_todo.txt)
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet5-prisons-doll-fix-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 5 "Тюрьмы": ИСПРАВЛЕНИЕ КОРНЕВОЙ ПРИЧИНЫ — doll_start смещён на 26 байт
+
+Источники:
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::GetHeroesContent (строки 7723-7882)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::ScanHeroesContent (строки 9117-9128)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 9125): s += extra_size + 1094
+
+Work Log:
+- Прочитан MainForm.cs::GetHeroesContent (строки 7768, 7842-7858):
+  - num = map.Hero (начало hero section = НАЧАЛО PRE-ALT BLOCK)
+  - extra_size = (decmp[num + 23] << 8) + decmp[num + 22] (u16 LE at num + 22)
+  - num += 26 + extra_size (переход к alt block)
+  - doll slots начинаются после: alt(113) + army(56) + name(13) + skills(56) + attrs(4) + spells(140) = 382
+  - PRT читает 83 doll slots × 8 байт
+  - case 0 → Book = "Да" (Spell Book)
+  - case 3 → continue (Catapult — ПРОПУСКАЕТСЯ!)
+  - case 4,5,6 → Machine (Ballista, Ammo Cart, First Aid Tent)
+  - case 255 → continue (пустой слот)
+
+КЛЮЧЕВОЕ ОТКРЫТИЕ:
+- Наш `block_offset` указывает на НАЧАЛО ALT BLOCK (= PRT's num + 26)
+- PRT's `num` указывает на НАЧАЛО PRE-ALT BLOCK (= block_offset - 26)
+- extra_size находится по PRT's num + 22 = block_offset - 4 (а НЕ block_offset + 22!)
+- doll_start = block_offset + extra_size + 382 (а НЕ block_offset + 408!)
+- Разница: 408 - 382 = 26 (наш doll_start был смещён на 26 байтов вперёд)
+
+ПРОВЕРКА:
+- Hero 0 (Одиссей): PRT Book=None, Machine=None
+  - С правильным doll_start: slot 16 = artifact_id=3 (Catapult, PRT пропускает)
+  - Нет slot с id=0 → Book=None ✓
+  - Нет slot с id=4,5,6 → Machine=None ✓
+- Hero 8 (Рион): PRT Book='Да', Machine='Палатка первой помощи'
+  - С правильным doll_start: slot 15 = id=6 (First Aid Tent), slot 17 = id=0 (Spell Book)
+  - Book='Да' ✓, Machine='Палатка первой помощи' ✓
+
+РЕШЕНИЕ:
+1. save_parser.py::parse_hero_block:
+   - extra_size: struct.unpack("<H", raw[block_offset - 4:block_offset - 2])[0]
+     (было: raw[block_offset + 22:block_offset + 24])
+   - doll_start: block_offset + extra_size + 382
+     (было: block_offset + 408)
+   - Убран хардкод machine_name (английские имена "Ballista" и т.д.)
+   - Catapult (id=3) НЕ включается в war_machines (как PRT case 3: continue)
+2. merged_objects.py::merge_prisons — machine использует loc.art(machine_id) для локализации
+
+Результат сравнения (все 6 строк):
+  Книга:   PRT [None, Да, None, None, Да, Да]  =  OUR [None, Да, None, None, Да, Да] ✓
+  Машина:  PRT [None, None, None, None, Палатка первой помощи, None]
+           OUR [None, None, None, None, Санитарная Палатка, None] ✓ (разница в словаре)
+  Первичный навык:  все 6 "A2-D2-P1-K1" / "A1-D0-P2-K2" ✓
+  Вторичный навык:  все 6 совпадают ✓
+  Заклинание:       "Проклятье", "Каменная кожа", "Слабость" ✓
+  MP:               1560, 1630 ✓
+
+Что осталось:
+  ⚠️ Монстр: "Лучник" vs "Арбалетчик" (SoD_Ru vs WoG_Ru — Phase 0)
+  ⚠️ Машина: "Санитарная Палатка" vs "Палатка первой помощи" (SoD_Ru vs WoG_Ru — Phase 0)
+  ❌ ∑ HP: калькуляция (требует monster_HP)
+
+ВАЖНО: Исправление doll_start также влияет на Sheet 6 "Герои" — все 156 героев
+теперь будут иметь правильные war_machines и spell_book.
+
+Stage Summary:
+- ⭐ НАЙДЕНА КОРНЕВАЯ ПРИЧИНА: doll_start был смещён на 26 байтов
+- ⭐ Книга: ВСЕ 6 строк совпадают с PRT
+- ⭐ Машина: ВСЕ 6 строк совпадают по логике (имя — Phase 0)
+- ⭐ extra_size теперь читается правильно (block_offset - 4, не block_offset + 22)
+- ⭐ Catapult (id=3) исключён из Machine (как в PRT)
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
