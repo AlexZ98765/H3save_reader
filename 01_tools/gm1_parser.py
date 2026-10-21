@@ -824,6 +824,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
             parse_town_block as sp_parse_town_block,
             adapt_config_to_save,
             parsed_save_to_dict,
+            _format_hero_for_json,
             PLAYER_COLOR_NAMES, TOWN_TYPE_NAMES,
         )
     except ImportError:
@@ -838,6 +839,7 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
         sp_parse_town_block = mod.parse_town_block
         adapt_config_to_save = mod.adapt_config_to_save
         parsed_save_to_dict = mod.parsed_save_to_dict
+        _format_hero_for_json = mod._format_hero_for_json
         PLAYER_COLOR_NAMES = mod.PLAYER_COLOR_NAMES
         TOWN_TYPE_NAMES = mod.TOWN_TYPE_NAMES
 
@@ -924,28 +926,18 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
 
     # ----- heroes_found (use _format_hero_for_json for full formatted data) -----
     heroes_found = []
-    _format_hero = getattr(mod, '_format_hero_for_json', None)
     _raw_bytes = getattr(parsed, 'raw', None) or raw
     _pts = getattr(parsed, '_post_tile_sections', {}) or {}
     _hs_off = _pts.get('hero_state', 0) if isinstance(_pts, dict) else 0
     _ps_list = getattr(parsed, '_player_states', []) or []
     for i, h in enumerate(parsed.heroes):
-        if _format_hero:
-            hero_dict = _format_hero(
-                h,
-                hero_index=i,
-                raw=_raw_bytes,
-                hero_state_offset=_hs_off,
-                player_states=_ps_list,
-            )
-        else:
-            # Fallback: plain dict without formatted fields
-            f = h.get("fields", {})
-            hero_dict = {
-                "name":   h.get("name") or f.get("name", "?"),
-                "offset": h.get("block_offset", 0),
-                "fields": f,
-            }
+        hero_dict = _format_hero_for_json(
+            h,
+            hero_index=i,
+            raw=_raw_bytes,
+            hero_state_offset=_hs_off,
+            player_states=_ps_list,
+        )
         heroes_found.append(hero_dict)
 
     # ----- towns_found (pass through ALL fields, including _detail_*) -----
