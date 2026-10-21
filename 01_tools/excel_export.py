@@ -847,47 +847,11 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for i, h in enumerate(parsed.get("heroes_found", [])):
             f = h.get("fields", {})
 
-            # Use pre-formatted fields from JSON if available, otherwise compute
+            # Use pre-formatted fields from JSON
             place_str = h.get("place")
-            if place_str is None:
-                loc_x = f.get("location_x", -1)
-                loc_y = f.get("location_y", -1)
-                loc_z = f.get("location_z", -1)
-                player = f.get("player", 255)
-                if loc_x >= 0 and loc_y >= 0:
-                    place_str = f"{loc_x}.{loc_y}.{loc_z}"
-                elif player == 255:
-                    place_str = "Запрещен"
-
             flag_str = h.get("flag")
-            if flag_str is None:
-                player = f.get("player", 255)
-                if player is not None and 0 <= player < 8:
-                    flag_str = _color_name(player)
-
             primary_str = h.get("primary_skill")
-            if primary_str is None:
-                atk = f.get('attack', 0) or 0
-                dfn = f.get('defense', 0) or 0
-                pwr = f.get('power', 0) or 0
-                knw = f.get('knowledge', 0) or 0
-                primary_str = f"A{atk}-D{dfn}-P{pwr}-K{knw}"
-
             secondary_str = h.get("secondary_skill")
-            if secondary_str is None:
-                skill_levels = f.get('skill_levels', []) or []
-                skill_slots = f.get('skill_slots', []) or []
-                LEVEL_PREFIX = ["Б.", "П.", "Э."]
-                sec_array = [None] * 8
-                for l in range(min(28, len(skill_levels), len(skill_slots))):
-                    lvl = skill_levels[l] if l < len(skill_levels) else 0
-                    slot = skill_slots[l] if l < len(skill_slots) else 0
-                    if lvl != 0 and 1 <= slot <= 8:
-                        level_prefix = LEVEL_PREFIX[lvl - 1] if 1 <= lvl <= 3 else f"L{lvl}"
-                        skill_name = _skl_name(l)
-                        sec_array[slot - 1] = level_prefix + skill_name if skill_name else level_prefix + f"Skill{l}"
-                sec_parts = [s for s in sec_array if s]
-                secondary_str = ", ".join(sec_parts) if sec_parts else None
 
             # Artifact: from equipment, filter out 0,3,4,5,6,255
             equip = f.get("equipment", []) or []
@@ -907,49 +871,21 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                             equip_parts.append(n)
             equip_str = ", ".join(equip_parts) if equip_parts else None
 
-            # Spell: from JSON if available, otherwise compute
+            # Spell: from JSON
             spells_str = h.get("spell")
-            if spells_str is None:
-                sb = f.get("spells_book", []) or []
-                spell_names = [_spl_name(idx) for idx, bit in enumerate(sb) if bit]
-                spells_str = ", ".join(s for s in spell_names if s) if spell_names else None
 
             # Monster: in JSON it's ALWAYS present (full dump).
             # In Excel (report): only show if Place != "Запрещен" (matches PRT).
             monster_str = h.get("monster")
-            if monster_str is None:
-                at = f.get("army_types", []) or []
-                ac = f.get("army_counts", []) or []
-                army_parts = []
-                for j in range(min(7, len(at))):
-                    mt = at[j] if j < len(at) else -1
-                    ct = ac[j] if j < len(ac) else 0
-                    if isinstance(mt, int) and 0 <= mt < 0xFF and ct:
-                        mname = _mon_name(mt) or str(mt)
-                        army_parts.append(f"{mname} {ct}")
-                monster_str = ", ".join(army_parts) if army_parts else None
             # Excel filter: hide monster for disabled heroes
             if place_str == "Запрещен":
                 monster_str = None
 
-            # Machine: from JSON if available
+            # Machine: from JSON
             machines_str = h.get("machine")
-            if machines_str is None:
-                wm = f.get("war_machines", []) or []
-                machine_parts = []
-                for m in wm:
-                    if isinstance(m, dict):
-                        mid = m.get("machine_id", -1)
-                        if isinstance(mid, int) and mid >= 0:
-                            mname = _art_name(mid)
-                            if mname:
-                                machine_parts.append(mname)
-                machines_str = ", ".join(machine_parts) if machine_parts else None
 
-            # Book: from JSON if available
+            # Book: from JSON
             book_str = h.get("book")
-            if book_str is None:
-                book_str = "Да" if f.get("spell_book") else None
 
             # MP: movement_total
             mp = f.get("movement_total")

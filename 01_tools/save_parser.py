@@ -856,6 +856,7 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     parsed._map_start_info = map_start_info
     parsed._post_tile_sections = post_tile_sections
     parsed._post_tile_content = post_tile_content
+    parsed.raw = raw  # store raw bytes for hero state lookup
 
     # v3.16: Parse ALL extra sections (close coverage gaps)
     try:
@@ -1089,7 +1090,12 @@ def _serialize_merged_objects(merged):
     return out
 
 
-def _format_hero_for_json(h: Dict[str, Any]) -> Dict[str, Any]:
+def _format_hero_for_json(h: Dict[str, Any],
+                          hero_index: int = -1,
+                          raw: bytes = None,
+                          hero_state_offset: int = 0,
+                          player_states: list = None
+                          ) -> Dict[str, Any]:
     """Format hero data for JSON output.
 
     Returns a dict with:
@@ -1101,6 +1107,13 @@ def _format_hero_for_json(h: Dict[str, Any]) -> Dict[str, Any]:
         spell           — "Проклятье, Слабость" (all spell names)
         machine         — "Палатка первой помощи" (war machine names)
         book            — "Да" / None
+
+    Place logic (matches PRT GetHeroesContent MainForm.cs:7741-7758):
+      1. If location_x != 0xFF → Place = "X.Y.Z" (hero on map)
+      2. elif heroState[i] == 64:
+         - If hero in some player's tavern → Place = "Таверна", flag = that player's color
+         - else → Place = "Запрещен"
+      3. else → Place = None
 
     JSON is a FULL DUMP — all raw data stays in 'fields', formatted strings
     are added as convenience fields. monster is ALWAYS present if army data
@@ -1121,14 +1134,48 @@ def _format_hero_for_json(h: Dict[str, Any]) -> Dict[str, Any]:
         loc = None
 
     # Place: "X.Y.Z" / "Запрещен" / "Таверна" / None
+    # PRT logic (MainForm.cs:7741-7758):
+    #   1. If location_x != 0xFF → Place = X.Y.Z (hero on map)
+    #   2. elif heroState[i] == 64:
+    #      - If hero in some player's tavern → Place = "Таверна", Color = that player
+    #      - else → Place = "Запрещен" (disabled)
+    #   3. else → Place = None
     loc_x = f.get("location_x", -1)
     loc_y = f.get("location_y", -1)
     loc_z = f.get("location_z", -1)
     player = f.get("player", 255)
-    if loc_x >= 0 and loc_y >= 0:
+
+    # Check heroState byte (if we have the offset and raw data)
+    hs_byte = -1
+    if raw and hero_state_offset and hero_index >= 0:
+        hs_addr = hero_state_offset + hero_index
+        if 0 <= hs_addr < len(raw):
+            hs_byte = raw[hs_addr]
+
+    # Check if hero is in any player's tavern (IsHeroTavern logic)
+    tavern_player = -1
+    if player_states:
+        for pidx in range(min(8, len(player_states))):
+            ps = player_states[pidx]
+            g1 = ps.get("tavern_guest_1", 255) if isinstance(ps, dict) else 255
+            g2 = ps.get("tavern_guest_2", 255) if isinstance(ps, dict) else 255
+            if g1 == hero_index or g2 == hero_index:
+                tavern_player = pidx
+                break
+
+    # Determine Place
+    if loc_x is not None and loc_x >= 0 and loc_y is not None and loc_y >= 0:
         out["place"] = f"{loc_x}.{loc_y}.{loc_z}"
-    elif player == 255:
-        out["place"] = "Запрещен"
+    elif hs_byte == 64:
+        if tavern_player >= 0:
+            out["place"] = "Таверна"
+            # Flag = tavern owner's color
+            if loc:
+                out["flag"] = loc.color(tavern_player)
+            else:
+                out["flag"] = str(tavern_player)
+        else:
+            out["place"] = "Запрещен"
     else:
         out["place"] = None
 
@@ -1189,10 +1236,12 @@ def _format_hero_for_json(h: Dict[str, Any]) -> Dict[str, Any]:
     out["book"] = "Да" if f.get("spell_book") else None
 
     # Flag (Color): localized player color name
-    if player is not None and 0 <= player < 8:
-        out["flag"] = loc.color(player) if loc else str(player)
-    else:
-        out["flag"] = None
+    # Only set if not already set by tavern logic above
+    if "flag" not in out:
+        if player is not None and 0 <= player < 8:
+            out["flag"] = loc.color(player) if loc else str(player)
+        else:
+            out["flag"] = None
 
     return out
 
@@ -1242,8 +1291,14 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
             for t in parsed.towns
         ],
         "heroes_found": [
-            _format_hero_for_json(h)
-            for h in parsed.heroes
+            _format_hero_for_json(
+                h,
+                hero_index=i,
+                raw=parsed.raw if hasattr(parsed, 'raw') else None,
+                hero_state_offset=getattr(parsed, '_post_tile_sections', {}).get('hero_state', 0),
+                player_states=getattr(parsed, '_player_states', [])
+            )
+            for i, h in enumerate(parsed.heroes)
         ],
         "objects_on_map": parsed.objects_on_map,
         "player_states": getattr(parsed, "_player_states", []),

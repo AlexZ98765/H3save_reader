@@ -2216,3 +2216,50 @@ Stage Summary:
 - ⭐ JSON содержит сырые данные (army_types, army_counts, skill_levels, etc.)
 - ⭐ Excel (отчёт) скрывает армию для запрещённых героев (как PRT)
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet6-heroes-place-fix-2026-10-21
+Agent: main (Super Z)
+Task: Исправление Place для героев — PRT-логика с heroState и тавернами
+
+Проблема:
+- Адель: PRT "Таверна", наш "Запрещен" ❌
+- Корониус: PRT None, наш "Запрещен" ❌
+
+Корневая причина:
+- Использовали player==255 для определения "Запрещен"
+- PRT использует heroState[i]==64 + IsHeroTavern(i) для различения:
+  "Таверна" (в таверне игрока) vs "Запрещен" (отключён) vs None (не available)
+
+Источники:
+- MainForm.cs:7741-7758 — Place logic
+- MainForm.cs:7653-7665 — GetColorContent (aTavernGuest из player_states)
+- MainForm.cs:7971-7981 — IsHeroTavern
+
+Логика PRT:
+1. location_x != 0xFF → Place = "X.Y.Z" (на карте)
+2. elif heroState[i] == 64:
+   - hero в таверне игрока → Place = "Таверна", Color = цвет игрока
+   - hero не в таверне → Place = "Запрещен" (отключён)
+3. else → Place = None
+
+Данные:
+- heroState offset: из post_tile_sections['hero_state']
+- aTavernGuest: из player_states[i].tavern_guest_1 и tavern_guest_2
+
+Решение:
+- _format_hero_for_json() теперь принимает hero_index, raw, hero_state_offset, player_states
+- Читает heroState[i] из raw[hero_state_offset + i]
+- Проверяет IsHeroTavern: ищет hero_index в tavern_guest_1/2 каждого игрока
+- Excel: убраны все fallback'и — использует JSON напрямую
+
+Результат: 0 несовпадений Place из 156 героев ✓
+
+Stage Summary:
+- ⭐ Place: 0 несовпадений из 156 (Таверна / Запрещен / X.Y.Z / None)
+- ⭐ Адель: "Таверна" с flag=Красный (цвет игрока, чья таверна)
+- ⭐ Корониус: None (heroState != 64)
+- ⭐ Лорд Хаарт: "Запрещен" (heroState=64, не в таверне)
+- ⭐ JSON: monster ВЫВОДИТСЯ для всех героев (полный дамп)
+- ⭐ Excel: monster скрыт для "Запрещен" (отчёт PRT)
+- ⭐ Архив пересобран
