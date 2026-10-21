@@ -813,12 +813,25 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
         )
 
         # ----- 6f. Post-tile content (parse_event_box, parse_seer_hut, etc.) -----
+        # Universal: collect bank type_ids from tile scan (in tile-scan order)
+        # so parse_all_post_tile_sections can determine is_artifact_bank per bank
+        # via art_metadata.is_artifact_bank(type_id). No hardcoding — works for
+        # any save of any map.
+        try:
+            from art_metadata import is_bank_type as _is_bank_type
+            bank_type_ids = [int(obj.get('type_id', 0))
+                             for obj in map_objects
+                             if _is_bank_type(int(obj.get('type_id', 0)))]
+        except Exception:
+            bank_type_ids = None  # legacy fallback (parse as non-artifact banks)
+
         try:
             post_tile_content = parse_all_post_tile_sections(
                 raw, after_num5, obj_num,
                 hero_count=hero_count_for_walk,
                 map_size=header.map_size,
                 has_underground=header.has_underground,
+                bank_type_ids=bank_type_ids,
             )
         except Exception as e:
             post_tile_content = {"error": str(e)}
@@ -969,10 +982,20 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
 
     # v3.10: Merge tile-scan results with post-tile content (Priority 3)
     # Produce standardized "raw" tables: Артефакты, Монстры, Банки, etc.
+    # Universal: pass `raw` (decompressed save bytes) and `localizer` so
+    # merge_artifacts can extract artifact_id from tile bytes via PRT Save*
+    # logic and localize names. No hardcoding — works for any save of any map.
     try:
         import os, sys
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         from merged_objects import merge_all
+        # Localizer instance (loaded lazily; default ru_sod)
+        try:
+            from localizer import get_localizer
+            loc_instance = get_localizer()
+        except Exception:
+            loc_instance = None
+
         if map_objects and isinstance(post_tile_content, dict):
             heroes_for_merge = [
                 {"fields": h.get("fields", {}), "name": h.get("name")}
@@ -982,6 +1005,8 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
                 tile_objects=map_objects,
                 post_tile_content=post_tile_content,
                 heroes_parsed=heroes_for_merge,
+                localizer=loc_instance,
+                raw=raw,  # decompressed save bytes — needed for tile-level artifact extraction
             )
         else:
             parsed._merged_objects = {}

@@ -150,33 +150,33 @@ class ArmySlot:
 def _parse_guard_7(raw: bytes, s: int) -> Tuple[List[ArmySlot], int, int]:
     """Parse 7-slot army starting at s. Returns (slots, total_hp, new_s).
 
-    Layout (28 bytes types + 28 bytes counts = 56 total):
-    - 7 × 4 bytes (monster_id + 3 padding) — slots with 0xFF = empty
-    - 7 × 4 bytes (count: u16 + 2 padding) — at offset +28
+    Layout (per PRT MainForm.cs:9033 GetBankGuard):
+    - 7 × 4 bytes (monster_id u8 at +0, padding at +1..+3) — 0xFF = empty
+    - 7 × 4 bytes (count u8 at +28+i*4, padding at +29..+31)
 
-    HP computation requires `TblMonsters[3]` (HP per unit) — we just
-    sum counts since we don't have HP table here; caller can refine.
+    Total: 56 bytes (28 bytes types + 28 bytes counts).
     """
     slots: List[ArmySlot] = []
     total_count = 0
     for i in range(7):
         mid = raw[s + i * 4]
         if mid != 0xFF:
-            count = (raw[s + i * 4 + 30 - 0 + 1] << 8) | raw[s + i * 4 + 29 - 0 + 0]
-            # offsets: i*4 + 28..30 are counts (u16 at i*4 + 29..30)
-            cnt = (raw[s + i * 4 + 30] << 8) | raw[s + i * 4 + 29]
+            # Count is a single byte at offset s + i*4 + 28 (per PRT GetBankGuard:9050)
+            cnt = raw[s + i * 4 + 28]
             slots.append(ArmySlot(monster_id=mid, count=cnt))
             total_count += cnt
     return slots, total_count, s + 56
 
 
 def _parse_guard(raw: bytes, s: int) -> Tuple[List[ArmySlot], int, int]:
-    """Alias for _parse_guard_7 — 7 monster slots × 4 bytes types + 4 bytes counts."""
+    """Alias for _parse_guard_7 — 7 monster slots × 4 bytes types + 4 bytes counts.
+    Count is single byte at offset s + i*4 + 28 (PRT GetBankGuard:9050).
+    """
     slots: List[ArmySlot] = []
     for i in range(7):
         mid = raw[s + i * 4]
         if mid != 0xFF:
-            cnt = (raw[s + i * 4 + 30] << 8) | raw[s + i * 4 + 29]
+            cnt = raw[s + i * 4 + 28]
             slots.append(ArmySlot(monster_id=mid, count=cnt))
     return slots, s + 56
 
@@ -1989,7 +1989,8 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
                                   town_spell_levels: Optional[Dict[int, int]] = None,
                                   map_size: int = 0,
                                   has_underground: bool = False,
-                                  chrn: int = 0
+                                  chrn: int = 0,
+                                  bank_type_ids: Optional[List[int]] = None
                                   ) -> Dict[str, Any]:
     """Walk all post-tile sections AND parse their content.
 
@@ -2005,6 +2006,10 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
         map_size: map width/height (for BitField / TwoWayMonolith)
         has_underground: True if map has underground
         chrn: chronobranch offset (HotA, usually 0)
+        bank_type_ids: optional list of bank type_ids in tile-scan order
+            (one per bank record). Used to determine is_artifact_bank per
+            bank via art_metadata.is_artifact_bank(type_id). If None, all
+            banks are parsed as non-artifact banks (legacy behavior).
 
     Returns dict with:
         - 'offsets': dict from walk_post_tile_sections
@@ -2076,16 +2081,30 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
         result["pass_guards"] = []
 
     # A7. Bank — special (read by bank num from TblBanks; here we just iterate)
+    # Universal: is_artifact_bank is determined per-bank from the bank's
+    # type_id via art_metadata.is_artifact_bank(type_id). The caller passes
+    # bank_type_ids (one per bank in tile-scan order); if not provided, falls
+    # back to non-artifact bank parsing (legacy behavior, no artifacts).
+    try:
+        from art_metadata import is_artifact_bank as _is_artifact_bank
+        _has_art_meta = True
+    except Exception:
+        _has_art_meta = False
+
     try:
         banks = []
         s = offsets.get("bank", 0) + 2
-        # We don't have TblBanks info — just iterate count from offset
         bank_count_off = offsets.get("bank", 0)
         if bank_count_off > 0:
             n = _u16(raw, bank_count_off)
             s = bank_count_off + 2
             for i in range(n):
-                rec, s = parse_bank_content(raw, s, is_artifact_bank=False)
+                # Look up is_artifact_bank for this bank from its type_id
+                if _has_art_meta and bank_type_ids is not None and i < len(bank_type_ids):
+                    is_ab = _is_artifact_bank(bank_type_ids[i])
+                else:
+                    is_ab = False  # legacy fallback
+                rec, s = parse_bank_content(raw, s, is_artifact_bank=is_ab)
                 banks.append(rec)
         result["banks"] = banks
     except Exception as e:

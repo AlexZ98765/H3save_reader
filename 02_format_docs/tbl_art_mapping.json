@@ -1,0 +1,866 @@
+{
+  "0": {
+    "name": "Книга заклинаний",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 500
+  },
+  "1": {
+    "name": "Свиток с заклинанием",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 0
+  },
+  "2": {
+    "name": "Грааль",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 0
+  },
+  "3": {
+    "name": "Катапульта",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 0
+  },
+  "4": {
+    "name": "Баллиста",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "5": {
+    "name": "Подвода с боеприпасами",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 1000
+  },
+  "6": {
+    "name": "Палатка первой помощи",
+    "class_id": 0,
+    "relic_c_id": null,
+    "cost": 750
+  },
+  "7": {
+    "name": "Секира Кентавра",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "8": {
+    "name": "Черный клинок мертвого рыцаря",
+    "class_id": 2,
+    "relic_c_id": 132,
+    "cost": 7500
+  },
+  "9": {
+    "name": "Великий Гноллий кистень",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 10000
+  },
+  "10": {
+    "name": "Карающая дубина Огра",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "11": {
+    "name": "Адский меч",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "12": {
+    "name": "Гладиус Титана",
+    "class_id": 4,
+    "relic_c_id": 135,
+    "cost": 25000
+  },
+  "13": {
+    "name": "Щит гномьих Героев",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "14": {
+    "name": "Щит тоскующих мертвецов",
+    "class_id": 2,
+    "relic_c_id": 132,
+    "cost": 7500
+  },
+  "15": {
+    "name": "Щит короля Гноллов",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 10000
+  },
+  "16": {
+    "name": "Щит яростного Огра",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "17": {
+    "name": "Щит проклятых",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "18": {
+    "name": "Щит стража",
+    "class_id": 4,
+    "relic_c_id": 135,
+    "cost": 25000
+  },
+  "19": {
+    "name": "Шлем белого Единорога",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "20": {
+    "name": "Шлем-череп",
+    "class_id": 1,
+    "relic_c_id": 132,
+    "cost": 7500
+  },
+  "21": {
+    "name": "Шлем хаоса",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 10000
+  },
+  "22": {
+    "name": "Корона верховного волхва",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "23": {
+    "name": "Шлем сатанинской ярости",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "24": {
+    "name": "Шлем небесного грома",
+    "class_id": 4,
+    "relic_c_id": 135,
+    "cost": 25000
+  },
+  "25": {
+    "name": "Нагрудник из окаменелого дерева",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "26": {
+    "name": "Доспехи из ребер",
+    "class_id": 2,
+    "relic_c_id": 132,
+    "cost": 7500
+  },
+  "27": {
+    "name": "Кольчуга Великого Василиска",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 10000
+  },
+  "28": {
+    "name": "Туника Короля Циклопов",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "29": {
+    "name": "Нагрудник из серного камня",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "30": {
+    "name": "Латы Титана",
+    "class_id": 4,
+    "relic_c_id": 135,
+    "cost": 25000
+  },
+  "31": {
+    "name": "Магические доспехи",
+    "class_id": 2,
+    "relic_c_id": 129,
+    "cost": 10000
+  },
+  "32": {
+    "name": "Сандалии святых",
+    "class_id": 4,
+    "relic_c_id": 129,
+    "cost": 20000
+  },
+  "33": {
+    "name": "Ожерелье божественной благодати",
+    "class_id": 4,
+    "relic_c_id": 129,
+    "cost": 30000
+  },
+  "34": {
+    "name": "Щит львиной храбрости",
+    "class_id": 4,
+    "relic_c_id": 129,
+    "cost": 40000
+  },
+  "35": {
+    "name": "Меч правосудия",
+    "class_id": 4,
+    "relic_c_id": 129,
+    "cost": 50000
+  },
+  "36": {
+    "name": "Шлем божественного просвещения",
+    "class_id": 4,
+    "relic_c_id": 129,
+    "cost": 60000
+  },
+  "37": {
+    "name": "Неподвижный глаз Дракона",
+    "class_id": 1,
+    "relic_c_id": 134,
+    "cost": 5000
+  },
+  "38": {
+    "name": "Языки пламени Красного Дракона",
+    "class_id": 2,
+    "relic_c_id": 134,
+    "cost": 10000
+  },
+  "39": {
+    "name": "Щит из чешуи Дракона",
+    "class_id": 3,
+    "relic_c_id": 134,
+    "cost": 15000
+  },
+  "40": {
+    "name": "Доспехи из чешуи Дракона",
+    "class_id": 4,
+    "relic_c_id": 134,
+    "cost": 20000
+  },
+  "41": {
+    "name": "Наколенники из Драконьей кости",
+    "class_id": 1,
+    "relic_c_id": 134,
+    "cost": 5000
+  },
+  "42": {
+    "name": "Плащ из Драконьих крыльев",
+    "class_id": 2,
+    "relic_c_id": 134,
+    "cost": 10000
+  },
+  "43": {
+    "name": "Ожерелье из зубов Дракона",
+    "class_id": 3,
+    "relic_c_id": 134,
+    "cost": 15000
+  },
+  "44": {
+    "name": "Корона из зубов Дракона",
+    "class_id": 4,
+    "relic_c_id": 134,
+    "cost": 20000
+  },
+  "45": {
+    "name": "Застывший глаз Дракона",
+    "class_id": 1,
+    "relic_c_id": 134,
+    "cost": 5000
+  },
+  "46": {
+    "name": "Клевер удачи",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "47": {
+    "name": "Карты пророчества",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "48": {
+    "name": "Голубка удачи",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "49": {
+    "name": "Значок смелости",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "50": {
+    "name": "Герб доблести",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "51": {
+    "name": "Знак отваги",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "52": {
+    "name": "Телескоп",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "53": {
+    "name": "Подзорная труба",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "54": {
+    "name": "Амулет гробовщика",
+    "class_id": 1,
+    "relic_c_id": 130,
+    "cost": 5000
+  },
+  "55": {
+    "name": "Мантия Вампира",
+    "class_id": 2,
+    "relic_c_id": 130,
+    "cost": 10000
+  },
+  "56": {
+    "name": "Сапоги Мертвеца",
+    "class_id": 3,
+    "relic_c_id": 130,
+    "cost": 15000
+  },
+  "57": {
+    "name": "Колье неприступности",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "58": {
+    "name": "Мантия равновесия",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 10000
+  },
+  "59": {
+    "name": "Сапоги противодействия",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "60": {
+    "name": "Эльфийский лук из вишневого дерева",
+    "class_id": 1,
+    "relic_c_id": 137,
+    "cost": 5000
+  },
+  "61": {
+    "name": "Тетива из волос гривы Единорога",
+    "class_id": 2,
+    "relic_c_id": 137,
+    "cost": 10000
+  },
+  "62": {
+    "name": "Стрелы из Ангельских перьев",
+    "class_id": 3,
+    "relic_c_id": 137,
+    "cost": 15000
+  },
+  "63": {
+    "name": "Птица познания",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "64": {
+    "name": "Бесстрашный хранитель",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "65": {
+    "name": "Символ знаний",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 7500
+  },
+  "66": {
+    "name": "Медаль дипломата",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "67": {
+    "name": "Кольцо дипломата",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "68": {
+    "name": "Лента посла",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "69": {
+    "name": "Кольцо странника",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "70": {
+    "name": "Перчатки всадника",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 7500
+  },
+  "71": {
+    "name": "Ожерелье морского проведения",
+    "class_id": 3,
+    "relic_c_id": 136,
+    "cost": 25000
+  },
+  "72": {
+    "name": "Крылья ангела",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "73": {
+    "name": "Амулет маны",
+    "class_id": 1,
+    "relic_c_id": 138,
+    "cost": 1250
+  },
+  "74": {
+    "name": "Талисман маны",
+    "class_id": 1,
+    "relic_c_id": 138,
+    "cost": 2500
+  },
+  "75": {
+    "name": "Магическая медаль маны",
+    "class_id": 1,
+    "relic_c_id": 138,
+    "cost": 3750
+  },
+  "76": {
+    "name": "Магическое ожерелье",
+    "class_id": 1,
+    "relic_c_id": 139,
+    "cost": 1250
+  },
+  "77": {
+    "name": "Магическое кольцо",
+    "class_id": 1,
+    "relic_c_id": 139,
+    "cost": 2500
+  },
+  "78": {
+    "name": "Магическая накидка",
+    "class_id": 1,
+    "relic_c_id": 139,
+    "cost": 3750
+  },
+  "79": {
+    "name": "Сфера небесного свода",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "80": {
+    "name": "Сфера илистого озера",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "81": {
+    "name": "Сфера бушующего огня",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "82": {
+    "name": "Сфера проливного дождя",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "83": {
+    "name": "Плащ отречения",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 20000
+  },
+  "84": {
+    "name": "Дух уныния",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "85": {
+    "name": "Песочные часы недоброго часа",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 5000
+  },
+  "86": {
+    "name": "Фолиант магии огня",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "87": {
+    "name": "Фолиант магии воздуха",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "88": {
+    "name": "Фолиант магии воды",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "89": {
+    "name": "Фолиант магии земли",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "90": {
+    "name": "Сапоги левитации",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 25000
+  },
+  "91": {
+    "name": "Золотой лук",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 20000
+  },
+  "92": {
+    "name": "Шар постоянства",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 18750
+  },
+  "93": {
+    "name": "Медаль уязвимости",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 62500
+  },
+  "94": {
+    "name": "Кольцо жизненной силы",
+    "class_id": 1,
+    "relic_c_id": 131,
+    "cost": 12500
+  },
+  "95": {
+    "name": "Кольцо жизни",
+    "class_id": 2,
+    "relic_c_id": 131,
+    "cost": 12500
+  },
+  "96": {
+    "name": "Склянка жизненой силы",
+    "class_id": 3,
+    "relic_c_id": 131,
+    "cost": 25000
+  },
+  "97": {
+    "name": "Ожерелье стремительности",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "98": {
+    "name": "Сапоги-скороходы",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 15000
+  },
+  "99": {
+    "name": "Накидка скорости",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 25000
+  },
+  "100": {
+    "name": "Брелок бесстрастия",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "101": {
+    "name": "Брелок ясновидения",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "102": {
+    "name": "Священный брелок",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "103": {
+    "name": "Брелок жизни",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 6250
+  },
+  "104": {
+    "name": "Брелок смерти",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 6250
+  },
+  "105": {
+    "name": "Брелок свободы",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 2500
+  },
+  "106": {
+    "name": "Брелок отрицательности",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "107": {
+    "name": "Брелок абсолютной памяти",
+    "class_id": 1,
+    "relic_c_id": null,
+    "cost": 7500
+  },
+  "108": {
+    "name": "Брелок смелости",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 17500
+  },
+  "109": {
+    "name": "Плащ бесконечных кристаллов",
+    "class_id": 3,
+    "relic_c_id": 140,
+    "cost": 12500
+  },
+  "110": {
+    "name": "Кольцо драгоценных камней",
+    "class_id": 3,
+    "relic_c_id": 140,
+    "cost": 12500
+  },
+  "111": {
+    "name": "Неиссякаемая склянка ртути",
+    "class_id": 3,
+    "relic_c_id": 140,
+    "cost": 12500
+  },
+  "112": {
+    "name": "Неистощимая подвода с рудой",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "113": {
+    "name": "Вечное кольцо серы",
+    "class_id": 3,
+    "relic_c_id": 140,
+    "cost": 12500
+  },
+  "114": {
+    "name": "Неистощимая подвода леса",
+    "class_id": 2,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "115": {
+    "name": "Неиссякаемый мешок золота",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 25000
+  },
+  "116": {
+    "name": "Неиссякаемая сума золота",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 18750
+  },
+  "117": {
+    "name": "Неиссякаемая мошна золота",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "118": {
+    "name": "Ноги легиона",
+    "class_id": 1,
+    "relic_c_id": 133,
+    "cost": 12500
+  },
+  "119": {
+    "name": "Поясница легиона",
+    "class_id": 2,
+    "relic_c_id": 133,
+    "cost": 12500
+  },
+  "120": {
+    "name": "Туловище легиона",
+    "class_id": 2,
+    "relic_c_id": 133,
+    "cost": 12500
+  },
+  "121": {
+    "name": "Руки легиона",
+    "class_id": 3,
+    "relic_c_id": 133,
+    "cost": 12500
+  },
+  "122": {
+    "name": "Голова легиона",
+    "class_id": 3,
+    "relic_c_id": 133,
+    "cost": 12500
+  },
+  "123": {
+    "name": "Шляпа морского капитана",
+    "class_id": 4,
+    "relic_c_id": 136,
+    "cost": 37500
+  },
+  "124": {
+    "name": "Шляпа оратора",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 75000
+  },
+  "125": {
+    "name": "Оковы войны",
+    "class_id": 3,
+    "relic_c_id": null,
+    "cost": 12500
+  },
+  "126": {
+    "name": "Сфера запрещения",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "127": {
+    "name": "Пузырек с кровью Дракона",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "128": {
+    "name": "Клинок армагеддона",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 125000
+  },
+  "129": {
+    "name": "Альянс Ангелов",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 210000
+  },
+  "130": {
+    "name": "Плащ короля нежити",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 30000
+  },
+  "131": {
+    "name": "Эликсир жизни",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "132": {
+    "name": "Доспехи проклятого",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 30000
+  },
+  "133": {
+    "name": "Статуя легиона",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 62500
+  },
+  "134": {
+    "name": "Мощь отца Драконов",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 105000
+  },
+  "135": {
+    "name": "Грохот Титана",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 100000
+  },
+  "136": {
+    "name": "Шляпа адмирала",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 62500
+  },
+  "137": {
+    "name": "Лук Снайпера",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 30000
+  },
+  "138": {
+    "name": "Колодец волшебника",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 7500
+  },
+  "139": {
+    "name": "Кольцо Мага",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 7500
+  },
+  "140": {
+    "name": "Рог изобилия",
+    "class_id": 5,
+    "relic_c_id": null,
+    "cost": 50000
+  },
+  "141": {
+    "name": "Волшебная палочка",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 0
+  },
+  "142": {
+    "name": "Золотая стрела",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 0
+  },
+  "143": {
+    "name": "Сила монстра",
+    "class_id": 4,
+    "relic_c_id": null,
+    "cost": 0
+  }
+}

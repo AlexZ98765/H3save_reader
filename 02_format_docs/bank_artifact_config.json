@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::SaveBanks (line 9910-9976)",
+    "extracted_from": "PRT SaveBanks logic: code==16 → Art=false; code in {24, 84, 85} → Art=true with 1 slot; code==25 → Art=true with 4 slots",
+    "description": "Bank artifact-bank config — which bank type_ids contain artifacts and how many slots they have by default. The actual slot count is read dynamically from the bank content's n byte; this config only tells whether to parse as artifact-bank format.",
+    "usage": "art_metadata.is_artifact_bank(type_id) -> bool; art_metadata.get_bank_default_slots(type_id) -> int"
+  },
+
+  "16": {
+    "is_artifact_bank": false,
+    "default_slots": 0,
+    "object_kind": "bank",
+    "notes": "Cyclops Warehouse (Склады циклопов). Plain bank, only gold/monster reward."
+  },
+
+  "24": {
+    "is_artifact_bank": true,
+    "default_slots": 1,
+    "object_kind": "bank",
+    "notes": "Derelict Ship (Ветхий корабль). 1 artifact slot, may be empty."
+  },
+
+  "25": {
+    "is_artifact_bank": true,
+    "default_slots": 4,
+    "object_kind": "bank",
+    "notes": "Dragon Utopia (Утопия драконов). 4 artifact slots, may be partially filled."
+  },
+
+  "84": {
+    "is_artifact_bank": true,
+    "default_slots": 1,
+    "object_kind": "bank",
+    "notes": "Crypt (Склеп). 1 artifact slot, may be empty."
+  },
+
+  "85": {
+    "is_artifact_bank": true,
+    "default_slots": 1,
+    "object_kind": "bank",
+    "notes": "Shipwreck (Кораблекрушение). 1 artifact slot, may be empty."
+  }
+}

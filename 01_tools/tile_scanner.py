@@ -536,12 +536,24 @@ def _safe_read(raw, off, size=1):
 
 
 def _parse_artifact(raw, s, obj):
-    """Artifact on ground (SaveArt, line 10115)"""
+    """Artifact on ground (SaveArt, line 10115).
+
+    Per PRT MainForm.cs:10145: has_guard is set iff (raw[s+9] & 0x80) == 0x80
+    (high bit of byte at offset s+9). When guarded, the ArtRes record's Num
+    field is computed as ((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3).
+    """
     obj['artifact_id'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'artifact_id', s + 2, 1, "u8")
-    # Check if guarded (from ArtResContent)
-    obj['has_guard'] = raw[s + 8] != 0xFF if s + 9 <= len(raw) else False
-    _enrich_typed_field(raw, obj, 'has_guard', s + 8, 1, "bool")
+    # Check if guarded — match PRT SaveArt logic (line 10145):
+    #   if ((decmp[s + 9] & 0x80) == 128) → guarded, add TblArtRes row
+    if s + 10 <= len(raw):
+        obj['has_guard'] = (raw[s + 9] & 0x80) == 0x80
+        # ArtRes Num field (used by PRT to order the ArtRes records)
+        obj['art_res_num'] = ((raw[s + 9] & 0x7F) << 8) + (raw[s + 8] >> 3)
+    else:
+        obj['has_guard'] = False
+        obj['art_res_num'] = 0
+    _enrich_typed_field(raw, obj, 'has_guard', s + 9, 1, "bool")
 
 
 def _parse_resource(raw, s, obj):

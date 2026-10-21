@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs",
+    "extracted_from": [
+      "SaveArt (line 10115)",
+      "SaveSkeleton (line 10302)",
+      "SaveSurvivor (line 10033)",
+      "SaveTomb (line 10535)",
+      "SaveBanks (line 9910)"
+    ],
+    "description": "Per-type_id tile-level artifact extraction config. Universal — works for any save of any map. Each entry says: does this type always create an R_Art row, and if so, how to extract artifact_id from tile bytes.",
+    "usage": "art_metadata.get_artifact_tile_parser(type_id) -> dict | None"
+  },
+
+  "5": {
+    "save_method": "SaveArt",
+    "always_row": true,
+    "artifact_id_encoding": "direct_u8",
+    "artifact_id_offset": 2,
+    "links_art_res": true,
+    "has_guard_check": {"offset": 9, "mask": 128},
+    "art_res_num_formula": "((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3)",
+    "notes": "Ground artifact. raw[s+2] is the artifact_id. Has guard iff (raw[s+9] & 0x80) == 0x80 (PRT SaveArt:10145). When guarded, links to ArtRes record at index = art_res_num (per PRT AnalysisContent:6819)."
+  },
+
+  "22": {
+    "save_method": "SaveSkeleton",
+    "always_row": true,
+    "has_artifact_check": {"offset": 8, "value": 255},
+    "artifact_id_encoding": "formula",
+    "artifact_id_offsets": [6, 7],
+    "artifact_id_formula": "(raw[s+7] << 2) + ((raw[s+6] & 0xC0) >> 6)",
+    "notes": "Corpse. Has artifact only when raw[s+8] == 0xFF. Then artifact_id is computed from bytes at s+6 (top 2 bits) and s+7 (bottom 6 bits). PRT source line 10322: TblArt.Rows.Find((decmp[s+7]<<2) + ((decmp[s+6]&0xC0)>>6))."
+  },
+
+  "86": {
+    "save_method": "SaveSurvivor",
+    "always_row": true,
+    "artifact_id_encoding": "direct_u8",
+    "artifact_id_offset": 6,
+    "notes": "Shipwreck Survivor. raw[s+6] is the artifact_id (always)."
+  },
+
+  "108": {
+    "save_method": "SaveTomb",
+    "always_row": true,
+    "has_artifact_check": {"offset": 6, "value": 31},
+    "artifact_id_encoding": "formula",
+    "artifact_id_offsets": [7, 8],
+    "artifact_id_formula": "((raw[s+8] & 0x7F) << 3) + (raw[s+7] >> 5)",
+    "notes": "Warrior's Tomb. Has artifact only when raw[s+6] == 31. Then artifact_id is computed from bytes at s+7 (top 5 bits) and s+8 (bottom 3 bits). PRT source line 10553."
+  }
+}

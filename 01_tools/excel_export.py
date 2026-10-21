@@ -333,7 +333,11 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         return loc.hero_class(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
 
     def _guard_str(guard_list):
-        """Format guard list as 'Pikeman x5, Goblin x20' — using monster names."""
+        """Format guard list as 'Pikeman 5, Goblin 20' — matching PRT format.
+
+        Per PRT MainForm.cs:9057 (GetBankGuard): `text = string.Concat(text, ", ", dataRow[1], " ", array[j, 1].ToString())`
+        Format: "<name> <count>, <name> <count>, ..." (no 'x' prefix).
+        """
         if not guard_list:
             return None
         parts = []
@@ -344,7 +348,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 if mid is None or mid < 0:
                     continue
                 mname = _mon_name(mid) or f"M{mid}"
-                parts.append(f"{mname} x{cnt}")
+                # PRT format: "<name> <count>" (no 'x' prefix)
+                parts.append(f"{mname} {cnt}")
             else:
                 parts.append(str(g))
         return ", ".join(parts) if parts else None
@@ -385,14 +390,35 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     if isinstance(mo, dict) and mo and "error" not in mo:
 
         # ── Артефакты ──
+        # Universal: writes all populated fields from merge_artifacts() output.
+        #   rec keys: x, y, z, locality, object, slot, artifact_id, artifact_name,
+        #             class_, relic, gold, resource, guard, hp
+        # No hardcoding — class/relic come from art_metadata lookups done in merge.
         ws = wb.create_sheet("Артефакты")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Золото", "Ресурс", "Охрана", "∑ HP"])
         for rec in mo.get("Артефакты", []):
-            aid = rec.get("artifact_id", 0) or 0
+            aid = rec.get("artifact_id", -1)
+            # Localized artifact name: prefer rec's stored name (already localized
+            # by merge_artifacts); fallback to localizer lookup
+            art_name = rec.get("artifact_name")
+            if not art_name and aid is not None and aid >= 0:
+                art_name = _art_name(aid) or aid
+            # Guard formatting (list of dicts → 'Pikeman x5, Goblin x20' string)
+            guard_val = rec.get("guard")
+            guard_str = _guard_str(guard_val) if guard_val else None
+            # Slot: PRT shows 1..N for banks; None for tile-level artifacts
+            slot_val = rec.get("slot")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Артефакт"), None,
-                       _art_name(aid) or aid, None, None, None, None, None, None])
+                       rec.get("object", "Артефакт"),
+                       slot_val,
+                       art_name,
+                       rec.get("class_"),
+                       rec.get("relic"),
+                       rec.get("gold"),
+                       rec.get("resource"),
+                       guard_str,
+                       rec.get("hp")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

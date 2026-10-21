@@ -104,46 +104,261 @@ def _to_dict(obj):
 
 def merge_artifacts(tile_objects: List[Dict[str, Any]],
                     post_tile_content: Dict[str, Any],
-                    obj_dict: Optional[Dict] = None
+                    obj_dict: Optional[Dict] = None,
+                    localizer=None,
+                    raw: Optional[bytes] = None
                     ) -> List[Dict[str, Any]]:
     """Merge artifacts tile objects with ArtRes content (sheet "Артефакты").
+
+    Universal: no hardcoding — uses:
+      - art_metadata.get_artifact_tile_parser(type_id) for tile-level extraction
+      - art_metadata.get_bank_config(type_id) for bank artifact-bank detection
+      - art_metadata.get_artifact_class_id/relic_c_id for TblArt lookups
+      - localizer.object(type_id) for localized object names
+      - localizer.art_class(class_id) for localized class names
+      - localizer.art(relic_c_id) for localized relic names
+
+    Sources (per PRT MainForm.cs SaveArt/SaveSkeleton/SaveSurvivor/SaveTomb/SaveBanks):
+      - type_id=5  (SaveArt): 1 row per ground artifact, artifact_id from raw[s+2]
+      - type_id=22 (SaveSkeleton): 1 row per corpse, artifact_id present iff raw[s+8]==0xFF
+      - type_id=86 (SaveSurvivor): 1 row per survivor, artifact_id from raw[s+6] directly
+      - type_id=108 (SaveTomb): 1 row per tomb, artifact_id present iff raw[s+6]==31
+      - type_id=16 (SaveBanks): no row in Артефакты (plain bank)
+      - type_id=24, 84, 85 (SaveBanks): 1 row per bank, slot=1, artifact_id from bank's artifact_ids[0]
+      - type_id=25 (SaveBanks / Dragon Utopia): 4 rows per bank, slots=1..4, artifact_id from bank's artifact_ids[i]
 
     Returns a list of records with fields:
       x, y, z, locality, object, slot, artifact_id, artifact_name, class, relic,
       gold, resource, guard, hp
-
-    Row example (139 rows):
-      (56, 8, 0, 'суша', 'Артефакт', None, 'Кольцо драгоценных камней', 'Большой',
-       'Рог изобилия', None, None, None, None)
     """
-    tile_map = _build_tile_object_map(tile_objects)
-    artifacts = []
+    # Lazy imports (so module loads even if art_metadata/localizer unavailable)
+    try:
+        from art_metadata import (
+            get_artifact_tile_parser,
+            extract_artifact_id_from_tile,
+            get_bank_config,
+            is_artifact_bank,
+            get_bank_default_slots,
+            is_bank_type,
+            get_artifact_class_id,
+            get_artifact_relic_c_id,
+            get_all_artifact_bearing_type_ids,
+            links_art_res,
+            get_art_res_num,
+            has_artifact_guard_check,
+        )
+        _has_art_meta = True
+    except Exception:
+        _has_art_meta = False
 
-    # From tile scan: artifacts have type_id 5 (Artifact)
-    for obj in tile_objects:
-        if obj.get('type_id') != 5:
-            continue
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    # Localized "Артефакт" string for ground artifacts (type_id=5)
+    ARTIFACT_OBJ_NAME = localizer.object(5) if localizer else "Артефакт"
+
+    artifacts: List[Dict[str, Any]] = []
+
+    def _build_rec(x, y, z, locality, object_name, slot, artifact_id,
+                   gold=None, resource=None, guard=None):
+        """Build a single artifact record with class/relic lookups."""
         rec = {
-            "x": obj.get('x'),
-            "y": obj.get('y'),
-            "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Artifact",
-            "artifact_id": obj.get('artifact_id', 0),
-            "has_guard": obj.get('has_guard', False),
+            "x": x, "y": y, "z": z,
+            "locality": locality,
+            "object": object_name,
+            "slot": slot,
+            "artifact_id": artifact_id if artifact_id is not None else -1,
+            "artifact_name": "",
+            "class_": None,
+            "relic": None,
+            "gold": gold,
+            "resource": resource,
+            "guard": guard,
+            "hp": None,  # ∑ HP — calc, not computed (in calculations_todo.txt)
         }
-        artifacts.append(rec)
+        if artifact_id is not None and artifact_id >= 0 and _has_art_meta:
+            # Localized artifact name
+            if localizer:
+                rec["artifact_name"] = localizer.art(artifact_id)
+            # Class (e.g., "Большой", "Малый", "Сокровище", "Реликвия")
+            class_id = get_artifact_class_id(artifact_id)
+            if localizer:
+                rec["class_"] = localizer.art_class(class_id)
+            # Combination relic (if part of one)
+            relic_c_id = get_artifact_relic_c_id(artifact_id)
+            if relic_c_id is not None and localizer:
+                rec["relic"] = localizer.art(relic_c_id)
+        return rec
 
-    # From post-tile content: ArtRes records have guard details
-    art_res = post_tile_content.get("art_res", [])
-    for ar in art_res:
-        ar = _to_dict(ar)  # convert dataclass to dict
-        artifacts.append({
-            "address": ar.get("address"),
-            "art_type": ar.get("art_type"),  # 0=Art, 1=Resource, 2=Spell
-            "has_guard": ar.get("has_guard"),
-            "guard": ar.get("guard", []),
-        })
+    # ----- 1. Tile-level artifacts (type 5, 22, 86, 108) -----
+    # For each tile object with a known artifact-tile parser, extract artifact_id
+    # from the raw bytes (using PRT Save* logic) and emit a row.
+    #
+    # For ground artifacts (type_id=5) with has_guard=True, also link the
+    # corresponding ArtRes record (matched by art_res_num) to attach guard info.
+    # This preserves PRT behavior where guarded ground artifacts show their
+    # guard string in the Охрана column.
+    #
+    # Matching logic (per PRT AnalysisContent, MainForm.cs:6809):
+    #   - PRT sorts TblArtRes rows by "Num" field
+    #   - Then iterates post-tile ArtRes records in that sorted order
+    #   - So ArtRes[i] corresponds to ground artifact with art_res_num == i
+    if _has_art_meta and raw is not None:
+        # Build a dict: art_res_num → ArtRes record (by index = Num)
+        art_res_records = []
+        if post_tile_content and isinstance(post_tile_content, dict):
+            for ar in post_tile_content.get("art_res", []):
+                art_res_records.append(_to_dict(ar))
+        # art_res_records[i] corresponds to art_res_num == i (sorted by Num per PRT)
+
+        # For ground artifacts (type_id=5), look up ArtRes by art_res_num field
+        # (which PRT computes from bytes: ((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3))
+        for obj in tile_objects:
+            type_id = int(obj.get('type_id', 0))
+            parser_cfg = get_artifact_tile_parser(type_id)
+            if parser_cfg is None:
+                continue  # not an artifact-bearing tile type
+
+            # Tile offset where the object data starts
+            s = obj.get('offset')
+            if s is None or not isinstance(s, int):
+                continue
+
+            # Extract artifact_id via the type-specific parser (data-driven)
+            artifact_id = extract_artifact_id_from_tile(raw, s, type_id)
+
+            # Localized object name (e.g., "Артефакт", "Труп", "Потерпевший кораблекрушение", "Могила воина")
+            if localizer:
+                object_name = localizer.object(type_id) or f"Object {type_id}"
+            else:
+                object_name = obj.get('type_name') or f"Object {type_id}"
+
+            locality = "море" if obj.get('loc') == 8 else "суша"
+
+            # For tile types that link to ArtRes (data-driven check via
+            # art_metadata.links_art_res), look up the linked ArtRes record
+            # by art_res_num field (per PRT AnalysisContent logic).
+            linked_guard = None
+            if _has_art_meta and links_art_res(type_id) and has_artifact_guard_check(raw, s, type_id):
+                arn = get_art_res_num(raw, s, type_id)
+                if 0 <= arn < len(art_res_records):
+                    ar = art_res_records[arn]
+                    linked_guard = _serialize_guard(ar.get("guard", [])) or None
+
+            # Always emit a row (per PRT SaveTomb/SaveSkeleton/SaveSurvivor/SaveArt behavior)
+            rec = _build_rec(
+                x=obj.get('x'), y=obj.get('y'), z=obj.get('z'),
+                locality=locality, object_name=object_name,
+                slot=None,  # tile-level artifacts have no slot
+                artifact_id=artifact_id,
+                guard=linked_guard,
+            )
+            artifacts.append(rec)
+
+    # ----- 2. Ground artifacts fallback (when raw bytes unavailable) -----
+    # If raw is None, fall back to using tile_object's stored artifact_id field
+    # (set by _parse_artifact in tile_scanner). This works only for tile types
+    # whose tile_scanner parser stores artifact_id directly (currently type 5,
+    # but the check is data-driven: just look at whether the obj has the field).
+    elif raw is None:
+        for obj in tile_objects:
+            type_id = int(obj.get('type_id', 0))
+            # Skip types that don't have a tile-level artifact parser
+            if not (_has_art_meta and get_artifact_tile_parser(type_id) is not None):
+                continue
+            # Use stored artifact_id if available (only set by tile_scanner for
+            # types whose parser stores it directly, e.g. type 5 SaveArt).
+            # For other types (Tomb, Corpse, Survivor), tile_scanner stores 'content'
+            # raw byte but NOT the decoded artifact_id — those need raw bytes to
+            # extract via art_metadata.extract_artifact_id_from_tile formula.
+            stored_aid = obj.get('artifact_id')
+            if stored_aid is None:
+                continue  # can't decode without raw bytes
+            # Localized object name
+            if localizer:
+                object_name = localizer.object(type_id) or f"Object {type_id}"
+            else:
+                object_name = obj.get('type_name') or f"Object {type_id}"
+            rec = _build_rec(
+                x=obj.get('x'), y=obj.get('y'), z=obj.get('z'),
+                locality="море" if obj.get('loc') == 8 else "суша",
+                object_name=object_name,
+                slot=None,
+                artifact_id=stored_aid,
+            )
+            artifacts.append(rec)
+
+    # ----- 3. Bank artifacts (type 16, 24, 25, 84, 85) -----
+    # Banks produce rows in Артефакты sheet iff is_artifact_bank(type_id) is True.
+    # For each artifact bank, emit `default_slots` rows (or actual count from
+    # bank's artifact_ids list, whichever is larger).
+    if _has_art_meta and post_tile_content and isinstance(post_tile_content, dict):
+        tile_map = _build_tile_object_map(tile_objects)
+        post_banks = post_tile_content.get("banks", [])
+
+        # Build a list of (tile_bank, post_bank) pairs by index (positional matching)
+        # The order of post_banks matches the order of tile_banks in tile scan.
+        tile_banks = [obj for obj in tile_objects
+                      if is_bank_type(int(obj.get('type_id', 0)))]
+
+        for i, pb in enumerate(post_banks):
+            pb = _to_dict(pb)
+            tb = tile_banks[i] if i < len(tile_banks) else {}
+            type_id = int(tb.get('type_id', 0))
+
+            if not is_artifact_bank(type_id):
+                continue  # plain bank (e.g., code 16) — no row in Артефакты
+
+            # Localized bank object name (e.g., "Утопия драконов", "Склеп", "Кораблекрушение", "Ветхий корабль")
+            if localizer:
+                object_name = localizer.object(type_id) or f"Bank {type_id}"
+            else:
+                object_name = f"Bank {type_id}"
+
+            x, y, z = tb.get('x'), tb.get('y'), tb.get('z')
+            locality = "море" if tb.get('loc') == 8 else "суша"
+
+            # Artifact IDs from bank content (parsed by parse_bank_content with is_artifact_bank=True)
+            artifact_ids = pb.get("artifact_ids", [])
+            default_slots = get_bank_default_slots(type_id)
+
+            # Number of rows to emit: max(default_slots, len(artifact_ids))
+            # Per PRT: Dragon Utopia (type 25) always emits 4 rows (slots 1-4),
+            # even if some are empty.
+            n_slots = max(default_slots, len(artifact_ids)) if default_slots else len(artifact_ids)
+
+            # Bank-wide fields (gold + guard) — attached to first row only
+            # (matches PRT where Dragon Utopia's gold=20000 is on slot 1)
+            bank_gold = pb.get("gold", 0) or None
+            bank_guard = _serialize_guard(pb.get("guard", [])) or None
+
+            for slot_idx in range(n_slots):
+                slot_num = slot_idx + 1
+                art_id = artifact_ids[slot_idx] if slot_idx < len(artifact_ids) else None
+
+                # Attach gold + guard to first row only (PRT behavior)
+                gold = bank_gold if slot_idx == 0 else None
+                guard = bank_guard if slot_idx == 0 else None
+
+                rec = _build_rec(
+                    x=x, y=y, z=z,
+                    locality=locality,
+                    object_name=object_name,
+                    slot=slot_num,
+                    artifact_id=art_id,
+                    gold=gold,
+                    guard=guard,
+                )
+                artifacts.append(rec)
+
+    # ----- 4. (REMOVED) ArtRes records -----
+    # Previously, raw ArtRes records (with only address + guard) were appended
+    # here, producing 10+ "Книга Заклинаний" rows with None coords. PRT does NOT
+    # include these in Артефакты sheet. Removed.
 
     return artifacts
 
@@ -895,7 +1110,9 @@ def merge_heroes_on_map(tile_objects: List[Dict[str, Any]],
 def merge_all(tile_objects: List[Dict[str, Any]],
               post_tile_content: Dict[str, Any],
               heroes_parsed: List[Dict[str, Any]] = None,
-              obj_dict: Optional[Dict] = None
+              obj_dict: Optional[Dict] = None,
+              localizer=None,
+              raw: Optional[bytes] = None
               ) -> Dict[str, List[Dict[str, Any]]]:
     """Produce all standardized merged tables in one call.
 
@@ -906,9 +1123,20 @@ def merge_all(tile_objects: List[Dict[str, Any]],
       Learning_Stones
 
     Each value is a list of dicts (one per row in the output xlsx).
+
+    Args:
+        tile_objects: list of tile-scan dicts (from scan_tiles)
+        post_tile_content: dict from parse_all_post_tile_sections
+        heroes_parsed: optional list of parsed hero dicts (for prison/hero tables)
+        obj_dict: optional object_types_dictionary lookup
+        localizer: optional Localizer instance (used by merge_artifacts for
+            localized names of "Объект", "Класс", "Реликт-С" columns)
+        raw: optional decompressed save bytes (used by merge_artifacts to
+            extract artifact_id from tile bytes via PRT Save* logic)
     """
     return {
-        "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict),
+        "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict,
+                                      localizer=localizer, raw=raw),
         "Монстры": merge_monsters(tile_objects, post_tile_content, obj_dict),
         "Банки": merge_banks(tile_objects, post_tile_content),
         "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content),
