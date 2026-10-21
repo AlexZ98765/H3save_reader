@@ -1232,6 +1232,29 @@ def _format_hero_for_json(h: Dict[str, Any],
                     machine_parts.append(mname)
     out["machine"] = ", ".join(machine_parts) if machine_parts else None
 
+    # Artifact: read from doll slots (83 slots × 8 bytes)
+    # PRT (MainForm.cs:7842-7868): for each doll slot, if artifact_id not in {0,3,4,5,6,255}:
+    #   text6 += ", " + TblArt.Rows.Find(num6)[1]
+    artifact_parts = []
+    if raw:
+        import struct as _struct
+        bo = h.get("block_offset", 0)
+        if bo > 0:
+            _es = _struct.unpack("<H", raw[bo - 4:bo - 2])[0]
+            _doll_start = bo + _es + 382
+            for num5 in range(83):
+                slot_off = _doll_start + num5 * 8
+                if slot_off + 8 > len(raw):
+                    break
+                art_id = raw[slot_off]
+                # Skip: 0 (Spell Book), 3 (Catapult), 4/5/6 (war machines), 255 (empty)
+                if art_id not in (0, 3, 4, 5, 6, 255):
+                    if loc:
+                        aname = loc.art(art_id)
+                        if aname:
+                            artifact_parts.append(aname)
+    out["artifact"] = ", ".join(artifact_parts) if artifact_parts else None
+
     # Book: "Да" if spell_book present
     out["book"] = "Да" if f.get("spell_book") else None
 

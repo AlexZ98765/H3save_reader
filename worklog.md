@@ -2282,3 +2282,34 @@ Task: Исправление GUI path — heroes_found создавался бе
 Stage Summary:
 - ⭐ GUI path теперь использует ту же _format_hero_for_json что и JSON path
 - ⭐ Excel экспорт через GUI теперь работает корректно
+
+---
+Task ID: phase1-sheet6-heroes-artifacts-fix-2026-10-21
+Agent: main (Super Z)
+Task: Исправление артефактов героев — чтение из doll slots вместо equipment
+
+Проблема:
+- Гефест (hero 94): PRT показывает "Бесстрашный хранитель", наш — None
+- Наш equipment (19 слотов × 8 байт) читает из неправильного смещения (bo+551)
+- PRT читает артефакты из doll slots (83 × 8 байт, начиная с bo+extra+382)
+
+Корневая причина:
+- equipment (19 слотов) и doll slots (83 слота) — РАЗНЫЕ структуры
+- PRT (MainForm.cs:7842-7868) читает ВСЕ 83 doll slots и собирает артефакты
+  (исключая 0=Spell Book, 3=Catapult, 4/5/6=war machines, 255=empty)
+- Наш equipment читал из name_off+382 = bo+551 (на 169 байтов дальше!)
+
+Решение:
+- _format_hero_for_json() теперь читает артефакты напрямую из doll slots
+  (bo + extra_size + 382, 83 слота × 8 байт), как PRT
+- Добавлено поле "artifact" в JSON
+- excel_export.py использует h.get("artifact") из JSON
+
+Результат (Гефест):
+  PRT: Бесстрашный хранитель
+  OUR: Бесстрашный Хранитель ✓ (разница только в регистре — Phase 0)
+
+Stage Summary:
+- ⭐ Артефакты теперь читаются из doll slots (как PRT), а не из equipment
+- ⭐ Гефест: "Бесстрашный Хранитель" ✓
+- ⭐ Архив пересобран

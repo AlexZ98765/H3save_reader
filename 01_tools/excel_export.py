@@ -853,23 +853,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             primary_str = h.get("primary_skill")
             secondary_str = h.get("secondary_skill")
 
-            # Artifact: from equipment, filter out 0,3,4,5,6,255
-            equip = f.get("equipment", []) or []
-            equip_parts = []
-            for e in equip:
-                if isinstance(e, (list, tuple)) and len(e) >= 1:
-                    aid = e[0]
-                    if isinstance(aid, int) and aid > 6:
-                        n = _art_name(aid)
-                        if n:
-                            equip_parts.append(n)
-                elif isinstance(e, dict):
-                    aid = e.get('artifact_id', -1)
-                    if isinstance(aid, int) and aid > 6:
-                        n = _art_name(aid)
-                        if n:
-                            equip_parts.append(n)
-            equip_str = ", ".join(equip_parts) if equip_parts else None
+            # Artifact: from doll slots (pre-formatted in JSON)
+            equip_str = h.get("artifact")
 
             # Spell: from JSON
             spells_str = h.get("spell")
