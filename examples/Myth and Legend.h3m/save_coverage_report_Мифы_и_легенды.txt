@@ -2,7 +2,7 @@
 SAVE COVERAGE REPORT
 ================================================================================
 Map:       Мифы и легенды
-Save:      114.GM1
+Save:      0000.GM1
 Save size: 1572864 bytes (0x180000)
 Map size:  144x144 + underground
 
@@ -33,15 +33,15 @@ Legend:
   End:    0x662 (1634)
   Size:   688 bytes (0x2B0)
   Status: PARSED
-  Content: null byte + save_filename 'BATTLE' (6 bytes) + null + 674 bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). Skipped with 's += 688'.
+  Content: null byte + save_filename '0000.GM1' (8 bytes) + null + 672 bytes of game setup data (player config, victory/loss conditions, hero availability, etc.). Skipped with 's += 688'.
   Algorithms: parse_game_setup() — player config, conditions, hero availability. GetMapStart(): s = sf_null; s += 688 → SR. The 680 bytes after save_filename contain mostly zeros with scattered 0x01 bytes — likely player configuration, victory/loss conditions, handicap settings. No algorithm parses this.
   Game setup details:
-    Non-zero regions: 36
-    Non-zero bytes: 103 / 688
-    Region at 0x3b3: 6 bytes, values=[66, 65, 84, 84, 76, 69]
+    Non-zero regions: 35
+    Non-zero bytes: 102 / 688
+    Region at 0x3b3: 8 bytes, values=[48, 48, 48, 48, 46, 71, 77, 49]
     Region at 0x512: 1 bytes, values=[1]
     Region at 0x529: 1 bytes, values=[1]
-    ... (36 regions total)
+    ... (35 regions total)
 
 [PARSED] SR (Script/Random) section — 28 bytes
   Start:  0x662 (1634)
@@ -62,42 +62,42 @@ Legend:
 
 [PARSED] Variable structures (after SR)
   Start:  0x67E (1662)
-  End:    0x7E1 (2017)
-  Size:   355 bytes (0x163)
+  End:    0x7BF (1983)
+  Size:   321 bytes (0x141)
   Status: PARSED
   Content: u16 length + data (258 bytes?), then u16 count + count × (u16 + 3). Unknown — possibly victory/loss condition data, custom hero settings.
   Algorithms: parse_variable_structures() — u16 chain parsing. GetMapStart() skips these.
   Variable structures details:
     Block 0: type=length_prefixed, offset=0x67e
-      length=93, data=c4 e0 e6 e5 20 f1 f0 e0 e6 e0 ff f1 fc 20 f1 20 ef f0 e5 e2 
+      length=59, data=c5 f1 eb e8 20 f5 ee f2 e8 f2 e5 20 e7 e0 f9 e8 f2 e8 f2 fc 
     Block 1: type=count_prefixed, offset=?
       count=0, entries=0
-    Block 2: type=remaining, offset=0x6df
+    Block 2: type=remaining, offset=0x6bd
 
 [PARTIAL] Black Market artifacts list
-  Start:  0x7E1 (2017)
-  End:    0x835 (2101)
+  Start:  0x7BF (1983)
+  End:    0x813 (2067)
   Size:   84 bytes (0x54)
   Status: PARTIAL
   Content: 3 × 28 bytes — list of artifact IDs available at Black Market.
   Algorithms: SaveMarket records coords; GetMarketContent parses 7 artifact slots per market. We store offset but don't parse contents.
 [PARSED] Tile loop array
-  Start:  0x836 (2102)
-  End:    0x113E42 (1130050)
-  Size:   1127948 bytes (0x11360C)
+  Start:  0x814 (2068)
+  End:    0x1147AC (1132460)
+  Size:   1130392 bytes (0x113F98)
   Status: PARSED
   Content: Tile loop: 41472 tiles × (7 + 11 + variable). Each tile: loc(u8) + terrain + object detection (IsObject dispatch for 37 types). Each object field has _detail_ with address + hex.
   Algorithms: tile_scanner.scan_tiles() + parse_object_content() with 37 Save* parsers + _enrich_field() for address+hex.
-  Records: 1396 objects found by tile scanner
-  Object types (74):
-    Resource                       x310
-    Monster                        x212
-    Treasure Chest                 x204
-    Mine_Generic                   x88
-    Artifact                       x75
+  Records: 1665 objects found by tile scanner
+  Object types (73):
+    Resource                       x421
+    Treasure Chest                 x284
+    Monster                        x238
+    Artifact                       x114
+    Mine_Generic                   x90
     Mine_Wood                      x33
+    Campfire                       x23
     Town                           x21
-    Campfire                       x18
     Windmill                       x18
     Shrine of Magic Gesture        x17
     Random_Monster8                x17
@@ -115,6 +115,7 @@ Legend:
     Random_Town2                   x11
     Hill Fort                      x11
     Mystical Garden                x11
+    Scholar                        x11
     Shrine of Magic Incantation    x10
     Random_Monster5                x10
     Random_Artifact2               x10
@@ -124,22 +125,20 @@ Legend:
     Floatsam                       x9
     Bank                           x8
     Random_Monster7                x8
+    Random_Resource_Pile4          x8
     Random_Monster3                x8
     Random_Mine                    x7
     Random_Dwelling                x7
-    Random_Resource_Pile4          x7
     Altar of Sacrifice             x7
+    Prison                         x6
     Monolith Two Way               x6
     Random_Resource_Pile5          x5
     Random_Monster4                x5
-    Scholar                        x5
     Random_Artifact4               x5
     Random_Resource_Pile           x4
-    Prison                         x4
     Random_Dwelling2               x4
     Subterranean Gate              x4
     Black Market                   x3
-    Hero                           x3
     Shipwreck Survivor             x3
     Mine_Gold                      x2
     Mine_Type2                     x2
@@ -165,64 +164,64 @@ Legend:
     Random_Dwelling5               x1
     Seer's Hut                     x1
   --- Object 0 (first) ---
-    type_id         = 101                             addr=0x103a  hex=65
+    type_id         = 101                             addr=0x1018  hex=65
     type_name       = Treasure Chest                  addr=?  hex=
-    x               = 58                              addr=0x126bb0  hex=3a
-    y               = 0                               addr=0x126bb1  hex=00
-    z               = 0                               addr=0x126bb2  hex=00
-    offset          = 4154                            addr=0x103a  hex=
-    loc             = 2                               addr=0x1033  hex=31
-  --- Object 1395 (last) ---
-    type_id         = 79                              addr=0x11360e  hex=4f
+    x               = 58                              addr=0x127504  hex=3a
+    y               = 0                               addr=0x127505  hex=00
+    z               = 0                               addr=0x127506  hex=00
+    offset          = 4120                            addr=0x1018  hex=
+    loc             = 2                               addr=0x1011  hex=31
+  --- Object 1664 (last) ---
+    type_id         = 79                              addr=0x113f78  hex=4f
     type_name       = Resource                        addr=?  hex=
-    x               = 56                              addr=0x12a28d  hex=38
-    y               = 143                             addr=0x12a28e  hex=8f
-    z               = 1                               addr=0x12a28f  hex=01
-    offset          = 1127950                         addr=0x11360e  hex=
-    loc             = 2                               addr=0x113607  hex=32
+    x               = 56                              addr=0x12abe1  hex=38
+    y               = 143                             addr=0x12abe2  hex=8f
+    z               = 1                               addr=0x12abe3  hex=01
+    offset          = 1130360                         addr=0x113f78  hex=
+    loc             = 2                               addr=0x113f71  hex=32
 
 [PARSED] num5 records (after tiles)
-  Start:  0x113E42 (1130050)
-  End:    0x121EC2 (1187522)
-  Size:   57472 bytes (0xE080)
+  Start:  0x1147AC (1132460)
+  End:    0x122816 (1189910)
+  Size:   57450 bytes (0xE06A)
   Status: PARSED
-  Content: u16 count (1229) + 4 + count × (u16 message_length + 35 bytes). Unknown content — possibly message/event text strings or sign messages.
+  Content: u16 count (1228) + 4 + count × (u16 message_length + 35 bytes). Unknown content — possibly message/event text strings or sign messages.
   Algorithms: parse_sprite_records() — .def filenames + 35 bytes metadata. GetSenseRegion() skips these.
   Records: 6
   --- Record 0 (first) ---
     index                = 0
-    offset               = 1130054
-    offset_hex           = 0x113e46
+    offset               = 1132464
+    offset_hex           = 0x1147b0
     filename             = AVWmrnd0.def
     msg_len              = 12
     metadata_hex         = 02 02 00 00 00 00 c0 c0 ff ff ff ff ff 7f 00 00 00 00 c0 c0 
     metadata_size        = 35
   --- Record 5 (last) ---
     index                = 5
-    offset               = 1152524
-    offset_hex           = 0x11960c
+    offset               = 1154934
+    offset_hex           = 0x119f76
     filename             = 
     msg_len              = 65472
     metadata_hex         = 
     metadata_size        = 0
 
 [PARTIAL] ObjectNumber + object index array
-  Start:  0x121EC2 (1187522)
-  End:    0x12A7AB (1222571)
+  Start:  0x122816 (1189910)
+  End:    0x12B0FF (1224959)
   Size:   35049 bytes (0x88E9)
   Status: PARTIAL
   Content: u16 ObjectNumber (7009) + 4 padding + 7009 × 5 bytes (object index entries). Each entry links object to its post-tile content.
   Algorithms: We use ObjectNumber for offset calculation. The 5-byte entries are not individually parsed.
 [PARSED] EventBox (Pandora's Box / Map Events)
-  Start:  0x12A7AB (1222571)
-  End:    0x12F9AB (1243563)
+  Start:  0x12B0FF (1224959)
+  End:    0x1302FF (1245951)
   Size:   20992 bytes (0x5200)
   Status: PARSED
   Content: Pandora's Box and map event contents. 99 records. Each: message, guard (7-slot army), experience, mana, morale, luck, resources, gold, primary/secondary skills, artifacts, spells, monsters, apply flags.
   Algorithms: parse_event_box_content() — full content extraction.
   Records: 99
   --- Record 0 (first) ---
-    address              = 1222573
+    address              = 1224961
     has_guard            = False
     guard                = []
     experience           = 0
@@ -237,7 +236,7 @@ Legend:
     monsters             = []
     apply                = (0, 0, 0)
   --- Record 98 (last) ---
-    address              = 1243263
+    address              = 1245651
     has_guard            = False
     guard                = []
     experience           = 0
@@ -253,53 +252,53 @@ Legend:
     apply                = (0, 0, 0)
 
 [PARSED] ArtRes (Artifacts/Resources/Spells with guard)
-  Start:  0x12F9AB (1243563)
-  End:    0x13007E (1245310)
+  Start:  0x1302FF (1245951)
+  End:    0x1309D2 (1247698)
   Size:   1747 bytes (0x6D3)
   Status: PARSED
   Content: Guarded artifacts, resources, and spells. 10 records. Each: u16 message_length + optional 7-slot guard (56 bytes).
   Algorithms: parse_art_res_content() — guard extraction.
   Records: 10
   --- Record 0 (first) ---
-    address              = 1243565
+    address              = 1245953
     art_type             = 0
     has_guard            = True
     guard                = []
   --- Record 9 (last) ---
-    address              = 1245168
+    address              = 1247556
     art_type             = 0
     has_guard            = True
     guard                = []
 
 [PARSED] Monstr (Monster treasures)
-  Start:  0x13007E (1245310)
-  End:    0x13133D (1250109)
+  Start:  0x1309D2 (1247698)
+  End:    0x131C91 (1252497)
   Size:   4799 bytes (0x12BF)
   Status: PARSED
   Content: Monster treasure data. 34 records. Each: u16 message_length + 6 resources × 4 bytes + gold (4 bytes) + artifact_id (1 byte).
   Algorithms: parse_monstr_content() — resources, gold, artifact.
   Records: 34
   --- Record 0 (first) ---
-    address              = 1245312
+    address              = 1247700
     resources            = {}
     gold                 = 0
     artifact_id          = -1
   --- Record 33 (last) ---
-    address              = 1502539
-    resources            = {'Gems': 256}
-    gold                 = 256
+    address              = 1504535
+    resources            = {}
+    gold                 = 0
     artifact_id          = 0
 
 [PARSED] SeerHut (Seer Hut quests + rewards)
-  Start:  0x13133D (1250109)
-  End:    0x13150A (1250570)
+  Start:  0x131C91 (1252497)
+  End:    0x131E5E (1252958)
   Size:   461 bytes (0x1CD)
   Status: PARSED
   Content: Seer Hut missions and rewards. 1 records. 10 mission types + deadline + 3 progress sections + 10 reward types.
   Algorithms: parse_seer_hut_content() — full quest + reward. Mission progress decoded as CP1251 text.
   Records: 1
   --- Record 0 (first) ---
-    address              = 1250111
+    address              = 1252499
     mission_type         = 5
     mission              = {'artifacts': [56]}
     deadline             = None
@@ -308,22 +307,22 @@ Legend:
     reward               = {'experience': 1000}
 
 [PARSED] PassGuard (Border Guard quests)
-  Start:  0x13150A (1250570)
-  End:    0x13150C (1250572)
+  Start:  0x131E5E (1252958)
+  End:    0x131E60 (1252960)
   Size:   2 bytes (0x2)
   Status: PARSED
   Content: Border Guard missions. 0 records. Same structure as SeerHut but NO reward.
   Algorithms: parse_pass_guard_content() — mission extraction without reward.
 [PARSED] Map Timed Events
-  Start:  0x13150C (1250572)
-  End:    0x131EC2 (1253058)
+  Start:  0x131E60 (1252960)
+  End:    0x132816 (1255446)
   Size:   2486 bytes (0x9B6)
   Status: PARSED
   Content: Map-level timed events. 8 events. Each: message + resources (signed) + gold (signed) + apply flags + day (u16) + repeat (u8).
   Algorithms: parse_map_timed_events() + _parse_timer_res() — signed-resource encoding, day, repeat.
   Records: 8
   --- Record 0 (first) ---
-    address              = 1250838
+    address              = 1253226
     is_town              = False
     resources            = {}
     gold                 = 0
@@ -334,7 +333,7 @@ Legend:
     buildings            = []
     monsters             = []
   --- Record 7 (last) ---
-    address              = 1253021
+    address              = 1255409
     is_town              = False
     resources            = {'Wood': 11287806, 'Mercury': 11022488, 'Ore': 15047324, 'Su
     gold                 = 0
@@ -346,15 +345,15 @@ Legend:
     monsters             = []
 
 [PARSED] Towns Timed Events
-  Start:  0x131EC2 (1253058)
-  End:    0x13CEE7 (1298151)
+  Start:  0x132816 (1255446)
+  End:    0x13D83B (1300539)
   Size:   45093 bytes (0xB025)
   Status: PARSED
   Content: Town-level timed events. 167 events. Each: message + resources + buildings bitmask (6 bytes) + monsters (7×u16) + apply flags + day + repeat + town_id.
   Algorithms: parse_town_timed_events() + _parse_timer_res() + _parse_timer_content() + parse_timer_town() links to towns.
   Records: 167
   --- Record 0 (first) ---
-    address              = 1253351
+    address              = 1255739
     is_town              = True
     resources            = {}
     gold                 = 0
@@ -365,7 +364,7 @@ Legend:
     buildings            = [0, 0, 0, 0, 0, 0]
     monsters             = [0, 0, 0, 0, 0, 0, 0]
   --- Record 166 (last) ---
-    address              = 1298091
+    address              = 1300479
     is_town              = True
     resources            = {}
     gold                 = 0
@@ -377,22 +376,22 @@ Legend:
     monsters             = [0, 0, 0, 0, 0, 0, 0]
 
 [PARTIAL] BottleSign (Bottle messages / Signs)
-  Start:  0x13CEE7 (1298151)
-  End:    0x13D24D (1299021)
+  Start:  0x13D83B (1300539)
+  End:    0x13DBA1 (1301409)
   Size:   870 bytes (0x366)
   Status: PARTIAL
   Content: Bottle messages and sign posts. u8 count + count × (u16 message_length + 3 + message).
   Algorithms: scan_bottle_sign_content() skips through. We compute offset but don't extract message text.
 [PARTIAL] Mine section
-  Start:  0x13D24D (1299021)
-  End:    0x13E858 (1304664)
+  Start:  0x13DBA1 (1301409)
+  End:    0x13F1AC (1307052)
   Size:   5643 bytes (0x160B)
   Status: PARTIAL
   Content: Mine ownership records. u8 count (91) + 1 + count × 62 bytes. Each mine: owner, resource type, coords, guard.
   Algorithms: tile_scanner._parse_mine() reads owner at tile level. Post-tile 62-byte records not fully parsed.
 [PARSED] Dwelling section
-  Start:  0x13E858 (1304664)
-  End:    0x13F29B (1307291)
+  Start:  0x13F1AC (1307052)
+  End:    0x13FBEF (1309679)
   Size:   2627 bytes (0xA43)
   Status: PARSED
   Content: Dwelling availability. u8 count (35) + 2 + count × 75 bytes. Content unknown.
@@ -400,8 +399,8 @@ Legend:
   Records: 34
   --- Record 0 (first) ---
     index                = 0
-    offset               = 1304667
-    offset_hex           = 0x13e85b
+    offset               = 1307055
+    offset_hex           = 0x13f1af
     creature_id          = 17
     x                    = 43
     y                    = 28
@@ -412,8 +411,8 @@ Legend:
     raw_hex              = 11 2b 1c ff ff ff 10 00 00 00 00 00 00 00 3b 1a 00 ff ff ff 
   --- Record 33 (last) ---
     index                = 33
-    offset               = 1307142
-    offset_hex           = 0x13f206
+    offset               = 1309530
+    offset_hex           = 0x13fb5a
     creature_id          = 17
     x                    = 5
     y                    = 10
@@ -424,15 +423,15 @@ Legend:
     raw_hex              = 11 05 0a ff ff ff 02 00 00 00 00 00 00 00 37 89 01 0a 00 00 
 
 [PARSED] Garrison section (post-tile)
-  Start:  0x13F29B (1307291)
-  End:    0x13F29C (1307292)
+  Start:  0x13FBEF (1309679)
+  End:    0x13FBF0 (1309680)
   Size:   1 bytes (0x1)
   Status: PARSED
   Content: Post-tile garrisons. u8 count (0) + 1 + count × 61 bytes. Each: 7-slot guard + color + can_take + coords.
   Algorithms: parse_garrison_content() — guard, color, can_take.
 [PARSED] UnknownVarReg section
-  Start:  0x13F29C (1307292)
-  End:    0x13F441 (1307713)
+  Start:  0x13FBF0 (1309680)
+  End:    0x13FD95 (1310101)
   Size:   421 bytes (0x1A5)
   Status: PARSED
   Content: Unknown variable-length records. u8 count + 1 + count × 28 bytes.
@@ -440,8 +439,8 @@ Legend:
   Records: 15
   --- Record 0 (first) ---
     index                = 0
-    offset               = 1307293
-    offset_hex           = 0x13f29d
+    offset               = 1309681
+    offset_hex           = 0x13fbf1
     type                 = 1
     id                   = 0
     flags                = 514
@@ -455,8 +454,8 @@ Legend:
     raw_hex              = 01 00 02 02 ff ff ff 00 1f 00 49 00 00 00 01 1f 00 49 00 00 
   --- Record 14 (last) ---
     index                = 14
-    offset               = 1307685
-    offset_hex           = 0x13f425
+    offset               = 1310073
+    offset_hex           = 0x13fd79
     type                 = 1
     id                   = 14
     flags                = 2
@@ -470,19 +469,19 @@ Legend:
     raw_hex              = 01 0e 00 02 ff ff ff 00 41 00 58 00 01 00 01 41 00 58 04 00 
 
 [PARSED] UnknownFixedReg section
-  Start:  0x13F441 (1307713)
-  End:    0x13F472 (1307762)
+  Start:  0x13FD95 (1310101)
+  End:    0x13FDC6 (1310150)
   Size:   49 bytes (0x31)
   Status: PARSED
   Content: Unknown fixed-length section. 49 bytes total.
   Algorithms: parse_unknown_fixed_reg() — 49 bytes global game state dump.
   UnknownFixedReg details:
     First byte: 8 (possibly active player count)
-    Raw hex: 08 00 02 00 01 20 00 04 00 00 00 00 00 00 00 00 00 00 00 00 
+    Raw hex: 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
 
 [PARSED] Color (Player states) — 8 × 145 bytes
-  Start:  0x13F472 (1307762)
-  End:    0x13F8FA (1308922)
+  Start:  0x13FDC6 (1310150)
+  End:    0x14024E (1311310)
   Size:   1160 bytes (0x488)
   Status: PARSED
   Content: 8 players × 145 bytes. Each: existence flag, tavern guests, player type (human/AI), other state.
@@ -491,12 +490,12 @@ Legend:
   --- Player 0 (first) ---
     {
     "player_index": 0,
-    "offset": 1307762,
+    "offset": 1310150,
     "exist_color_1": 0,
-    "exist_color_2": 3,
-    "tavern_guest_2": 67,
-    "tavern_guest_1": 90,
-    "player_type": 0,
+    "exist_color_2": 2,
+    "tavern_guest_2": 9,
+    "tavern_guest_1": 39,
+    "player_type": 1,
     "exist_color_3": 2,
     "is_human": false,
     "color_name": "Red"
@@ -504,11 +503,11 @@ Legend:
   --- Player 7 (last) ---
     {
     "player_index": 7,
-    "offset": 1308777,
+    "offset": 1311165,
     "exist_color_1": 7,
-    "exist_color_2": 3,
-    "tavern_guest_2": 16,
-    "tavern_guest_1": 110,
+    "exist_color_2": 2,
+    "tavern_guest_2": 30,
+    "tavern_guest_1": 118,
     "player_type": 1,
     "exist_color_3": 2,
     "is_human": false,
@@ -516,62 +515,62 @@ Legend:
 }
 
 [PARSED] Town section
-  Start:  0x13F8FA (1308922)
-  End:    0x1418D1 (1317073)
+  Start:  0x14024E (1311310)
+  End:    0x142225 (1319461)
   Size:   8151 bytes (0x1FD7)
   Status: PARSED
   Content: Town records. u8 count (21) + count × (72 + name_len + 113 + spell_section + 197). Each: faction, type, coords, garrison, name, spell_pool, buildings_built.
   Algorithms: parse_town_block() + parse_town_spell() + parse_timer_town(). All fields with _detail_ address+hex.
   Records: 21 towns
   --- Town 0 (first): Кавала ---
-    name            = Кавала  addr=0x13f943  hex=ca e0 e2 e0 eb e0
+    name            = Кавала  addr=0x140297  hex=ca e0 e2 e0 eb e0
     type_name       = Tower  addr=?  hex=
     faction_name    = Neutral  addr=?  hex=
-    x               = 109  addr=0x13f900  hex=6d
-    y               = 3  addr=0x13f901  hex=03
-    z               = 0  addr=0x13f902  hex=00
+    x               = 109  addr=0x140254  hex=6d
+    y               = 3  addr=0x140255  hex=03
+    z               = 0  addr=0x140256  hex=00
   --- Town 20 (last) ---
-    name            = Летний Домик  addr=0x14178f  hex=cb e5 f2 ed e8 e9 20 c4 ee ec e8 ea
+    name            = Летний Домик  addr=0x1420e3  hex=cb e5 f2 ed e8 e9 20 c4 ee ec e8 ea
     type_name       = Inferno  addr=?  hex=
     faction_name    = Tan  addr=?  hex=
-    x               = 103  addr=0x14174c  hex=67
-    y               = 45  addr=0x14174d  hex=2d
-    z               = 1  addr=0x14174e  hex=01
+    x               = 103  addr=0x1420a0  hex=67
+    y               = 45  addr=0x1420a1  hex=2d
+    z               = 1  addr=0x1420a2  hex=01
 
 [PARSED] Hero section — 156 × (1094 + extra_size) bytes
-  Start:  0x1418D1 (1317073)
-  End:    0x16B379 (1487737)
+  Start:  0x142225 (1319461)
+  End:    0x16BCCD (1490125)
   Size:   170664 bytes (0x29AA8)
   Status: PARSED
   Content: 156 heroes × (1094 + extra_size) bytes. Each: faction, coords, movement, experience, mana, level, name, army, skills, attributes, spells, equipment, war machines, spell book, doll slots. All fields with _detail_ address+hex.
   Algorithms: parse_hero_block() — 20+ fields with _detail_. war_machines, spell_book, equipment.
   Records: 156 heroes
   --- Hero 0 (first): Одиссей ---
-    name            = Одиссей                                   addr=0x141994  hex=ce e4 e8 f1 f1 e5 e9 00 00 00 00 00 00
-    level           = 2                                         addr=0x14191c  hex=02
-    experience      = 1629                                      addr=0x141912  hex=5d 06 00 00
-    location_x      = 50                                        addr=0x1418d1  hex=32 00
-    location_y      = 96                                        addr=0x1418d3  hex=60 00
-    location_z      = 0                                         addr=0x1418d5  hex=00 00
+    name            = Одиссей                                   addr=0x1422e8  hex=ce e4 e8 f1 f1 e5 e9 00 00 00 00 00 00
+    level           = 1                                         addr=0x142270  hex=01
+    experience      = 46                                        addr=0x142266  hex=2e 00 00 00
+    location_x      = 46                                        addr=0x142225  hex=2e 00
+    location_y      = 101                                       addr=0x142227  hex=65 00
+    location_z      = 0                                         addr=0x142229  hex=00 00
     player_name     = Red
-    movement_total  = 2268                                      addr=0x14190a  hex=dc 08 00 00
-    mana_left       = 11                                        addr=0x14191a  hex=0b 00
+    movement_total  = 1705                                      addr=0x14225e  hex=a9 06 00 00
+    mana_left       = 10                                        addr=0x14226e  hex=0a 00
     attack          = 2
-    defense         = 3
+    defense         = 2
     power           = 1
-    knowledge       = 6
+    knowledge       = 1
     spell_book      = True
     war_machines    = []
   --- Hero 155 (last): Ксерон ---
-    name            = Ксерон                                    addr=0x16aff6  hex=ca f1 e5 f0 ee ed 00 00 00 00 00 00 00
-    level           = 1                                         addr=0x16af7e  hex=01
-    experience      = 84                                        addr=0x16af74  hex=54 00 00 00
-    location_x      = -1                                        addr=0x16af33  hex=ff ff
-    location_y      = -1                                        addr=0x16af35  hex=ff ff
-    location_z      = -1                                        addr=0x16af37  hex=ff ff
+    name            = Ксерон                                    addr=0x16b94a  hex=ca f1 e5 f0 ee ed 00 00 00 00 00 00 00
+    level           = 1                                         addr=0x16b8d2  hex=01
+    experience      = 69                                        addr=0x16b8c8  hex=45 00 00 00
+    location_x      = -1                                        addr=0x16b887  hex=ff ff
+    location_y      = -1                                        addr=0x16b889  hex=ff ff
+    location_z      = -1                                        addr=0x16b88b  hex=ff ff
     player_name     = Neutral
-    movement_total  = 1630                                      addr=0x16af6c  hex=5e 06 00 00
-    mana_left       = 10                                        addr=0x16af7c  hex=0a 00
+    movement_total  = 1630                                      addr=0x16b8c0  hex=5e 06 00 00
+    mana_left       = 10                                        addr=0x16b8d0  hex=0a 00
     attack          = 2
     defense         = 2
     power           = 1
@@ -580,96 +579,44 @@ Legend:
     war_machines    = []
 
 [PARTIAL] HeroState (156 × 2 bytes)
-  Start:  0x16B379 (1487737)
-  End:    0x16B4B1 (1488049)
+  Start:  0x16BCCD (1490125)
+  End:    0x16BE05 (1490437)
   Size:   312 bytes (0x138)
   Status: PARTIAL
   Content: Hero state flags: 156 × 2 bytes. Placement (map/tavern/prison) + hire availability per player.
   Algorithms: Used for hero placement detection. Full bit-level hire flags partially decoded.
 [PARTIAL] CurrentState
-  Start:  0x16B4B1 (1488049)
-  End:    0x16B533 (1488179)
+  Start:  0x16BE05 (1490437)
+  End:    0x16BE87 (1490567)
   Size:   130 bytes (0x82)
   Status: PARTIAL
   Content: Grail location (x,y,z), current date (day/week/month as ASCII), Art Merchants (7 artifact slots at +49), 130 bytes total.
   Algorithms: CURRENT_STATE_OFFSETS reads grail + date. parse_art_merchants() reads 7 slots. Remaining ~100 bytes not fully decoded.
-[PARSED] BitField (fog of war bitmask)
-  Start:  0x16B533 (1488179)
-  End:    0x17F933 (1571123)
-  Size:   82944 bytes (0x14400)
-  Status: PARSED
-  Content: Fog of war: map_size² × (2 + 2 × MapSide) bytes. Each bit = one tile visible/fogged for one player.
-  Algorithms: parse_bitfield() — 2D bitmask: visibility per tile per player. Sample + statistics.
-  BitField details:
-    Map size: 144x144
-    Layers: 2
-    Bytes per tile: 4
-    Non-zero bytes: 9310 / 82944 (11%)
-    Sample tiles (first 5):
-      (0,0) offset=0x16b533 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
-      (1,0) offset=0x16b537 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
-      (2,0) offset=0x16b53b visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
-      (3,0) offset=0x16b53f visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
-      (4,0) offset=0x16b543 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
-
-[PARSED] Monoliths (One-way + Two-way + Whirlpools)
-  Start:  0x17F933 (1571123)
-  End:    0x17F9AD (1571245)
-  Size:   122 bytes (0x7A)
-  Status: PARSED
-  Content: 8 groups one-way + 8 groups two-way + 1 group whirlpools. Each entry: 4 bytes (x, y, z, bits).
-  Algorithms: parse_monolith_whirlpool() — all groups, returns MonolithInfo.
-[PARSED] Subterranean Gates + pairs
-  Start:  0x17F9AD (1571245)
-  End:    0x17F9D1 (1571281)
-  Size:   36 bytes (0x24)
-  Status: PARSED
-  Content: u16 count + count×4 (gate coords) + u16 count + count×4 (pair IDs).
-  Algorithms: parse_pair_subterranean_gate() — gates + pair_ids.
-[PARSED] University section
-  Start:  0x17F9D1 (1571281)
-  End:    0x17F9F3 (1571315)
-  Size:   34 bytes (0x22)
-  Status: PARSED
-  Content: u16 count + count × 16 bytes. Each: 4 secondary skill IDs × 4 bytes.
-  Algorithms: parse_univer_content() — 4 skill IDs per university.
-[PARSED] Bank section (post-tile)
-  Start:  0x17F9F3 (1571315)
-  End:    0x17FE55 (1572437)
-  Size:   1122 bytes (0x462)
-  Status: PARSED
-  Content: u16 count + count × (89 + variable). Each: guard (7-slot), resources (28 bytes), monster reward or artifact reward.
-  Algorithms: parse_bank_content() + parse_bank_resource() + parse_bank_monster().
-[PARSED] Motions + remaining data
-  Start:  0x17FE55 (1572437)
+[NOT_PARSED] Extended chain (BitField → Motions)
+  Start:  0x16BE87 (1490567)
   End:    0x180000 (1572864)
-  Size:   427 bytes (0x1AB)
-  Status: PARSED
-  Content: Remaining 427 bytes. Content unknown — possibly AI state, path records, replay log.
-  Algorithms: parse_motions() — path records with coordinate pairs. Full hex dump.
-  Motions details:
-    Size: 427 bytes
-    Non-zero bytes: 187
-    Raw hex (first 200): 14 02 00 00 07 00 37 00 6a 00 d2 07 00 00 04 00 00 00 01 00 00 00 01 00 09 00 00 00 02 37 00 69 00 38 00 69 00 0b 00 01 00 3a 00 6e 00 00 00 01 00 01 00 09 00 00 00 01 38 00 69 00 39 00 68 00 01 00 09
-
+  Size:   82297 bytes (0x14179)
+  Status: NOT_PARSED
+  Content: NOT parsed (error: index out of range). Possibly day-0 truncated save.
+  Algorithms: Extended chain failed.
 ================================================================================
 SUMMARY
 ================================================================================
 Total save size:      1572864 bytes
-[PARSED]              1530338 bytes (97%)
+[PARSED]              1448041 bytes (92%)
 [PARTIAL]             42526 bytes (2%)
 [UNKNOWN]             0 bytes (0%)
-[NOT_PARSED]          0 bytes (0%)
+[NOT_PARSED]          82297 bytes (5%)
 
-Coverage (PARSED + PARTIAL): 100%
+Coverage (PARSED + PARTIAL): 94%
 
 UNKNOWN sections (need more reverse engineering):
 
 PARTIAL sections (partially parsed):
   - Teams / Alliance setup (0x1FD..0x3B3, 438 bytes)
-  - Black Market artifacts list (0x7E1..0x835, 84 bytes)
-  - ObjectNumber + object index array (0x121EC2..0x12A7AB, 35049 bytes)
-  - BottleSign (Bottle messages / Signs) (0x13CEE7..0x13D24D, 870 bytes)
-  - Mine section (0x13D24D..0x13E858, 5643 bytes)
-  - HeroState (156 × 2 bytes) (0x16B379..0x16B4B1, 312 bytes)
-  - CurrentState (0x16B4B1..0x16B533, 130 bytes)
+  - Black Market artifacts list (0x7BF..0x813, 84 bytes)
+  - ObjectNumber + object index array (0x122816..0x12B0FF, 35049 bytes)
+  - BottleSign (Bottle messages / Signs) (0x13D83B..0x13DBA1, 870 bytes)
+  - Mine section (0x13DBA1..0x13F1AC, 5643 bytes)
+  - HeroState (156 × 2 bytes) (0x16BCCD..0x16BE05, 312 bytes)
+  - CurrentState (0x16BE05..0x16BE87, 130 bytes)
