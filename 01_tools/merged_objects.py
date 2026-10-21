@@ -337,7 +337,10 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
             bank_guard = _serialize_guard(pb.get("guard", [])) or None
 
             for slot_idx in range(n_slots):
-                slot_num = slot_idx + 1
+                # PRT BankContent (MainForm.cs:8994): slot is set ONLY when num > 1
+                # (i.e., multi-slot banks like Dragon Utopia get slots 1..N; single-slot
+                # banks like Crypt/Shipwreck/Derelict Ship get slot=None)
+                slot_num = (slot_idx + 1) if n_slots > 1 else None
                 art_id = artifact_ids[slot_idx] if slot_idx < len(artifact_ids) else None
 
                 # Attach gold + guard to first row only (PRT behavior)

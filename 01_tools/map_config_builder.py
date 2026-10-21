@@ -56,14 +56,56 @@ from cluster_finder import find_all_object_clusters
 # ============================================================================
 # Decompression (gzip with broken CRC — HoMM3 saves)
 # ============================================================================
+#
+# BACKGROUND: HoMM3 .GM1 saves are gzip-compressed, but the gzip trailer's
+# CRC32 is often WRONG (mismatch between trailer CRC and actual decompressed
+# data CRC). heroes3.exe uses bundled zlib 1.1.3 and calls `inflate()`
+# directly — zlib's inflate layer does NOT verify the gzip trailer CRC
+# (gzip CRC check is a gzip-wrapper concept, not a zlib-layer one).
+#
+# This means heroes3 happily loads saves with broken/invalid CRC.
+#
+# Our old implementation used Python's gzip.GzipFile which STRICTLY checks
+# CRC and ISIZE in the gzip trailer. On broken-CRC saves, Python's gzip
+# raises BadGzipFile("CRC check failed") — and our `try/except` swallowed
+# the exception but returned only PARTIAL data (whatever was read before
+# the failure), silently truncating the save.
+#
+# FIX: Decompress using raw DEFLATE via `zlib.decompress(data[10:], -15)`:
+#   - Skip first 10 bytes (gzip header: 2 magic + 1 flags + 4 mtime + 1 xfl + 1 os)
+#   - Pass -15 as wbits to indicate raw DEFLATE (no zlib/gzip wrapper)
+#   - zlib's inflate returns the full decompressed bytes without verifying CRC
+#
+# This exactly mirrors heroes3.exe's behavior: use the data, ignore the CRC.
+# Tested on 0000.GM1 (Myth and Legend): yields 1,578,945 bytes — matches
+# the gzip trailer's ISIZE field exactly.
 
 def decompress_save(path: str) -> bytes:
-    """Decompress a .GM1 save. HoMM3 saves are gzip with broken CRC
-    (and sometimes truncated). We read until the gzip stream fails,
-    then return what we got."""
+    """Decompress a .GM1 save.
+
+    HoMM3 saves are gzip-compressed, but the gzip trailer CRC is often
+    broken/incorrect. heroes3.exe uses raw zlib inflate without verifying
+    the gzip trailer — so the game loads these saves fine.
+
+    This function mirrors heroes3's behavior: decompress via raw DEFLATE
+    (zlib wbits=-15) which skips the gzip trailer verification entirely.
+    Returns the FULL decompressed bytes regardless of CRC validity.
+    """
     raw = open(path, "rb").read()
     if raw[:2] != b"\x1f\x8b":
-        return raw  # already decompressed
+        return raw  # already decompressed (or not gzip)
+    # Validate minimum gzip header (10 bytes: magic + flags + mtime + xfl + os)
+    if len(raw) < 18:  # 10 header + 8 trailer minimum
+        return raw  # too short to be a valid gzip — return as-is
+    # Method 1: Raw DEFLATE decompression (matches heroes3.exe behavior)
+    try:
+        import zlib
+        # Skip 10-byte gzip header; wbits=-15 = raw DEFLATE (no wrapper)
+        return zlib.decompress(raw[10:], -15)
+    except Exception:
+        pass
+    # Method 2: Fall back to standard gzip (will fail on broken CRC, but
+    # returns what it got before failure — for legacy compatibility)
     out = b""
     gz = gzip.GzipFile(fileobj=io.BytesIO(raw))
     try:

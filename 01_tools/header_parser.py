@@ -176,13 +176,30 @@ def parse_header(raw: bytes) -> HeaderInfo:
 
 if __name__ == "__main__":
     import sys
-    import gzip
-    import io
+    import zlib
 
     def decompress(path: str) -> bytes:
+        """Decompress .GM1 save using raw DEFLATE (matches heroes3.exe behavior).
+
+        heroes3.exe uses bundled zlib 1.1.3 and calls inflate() directly —
+        zlib's inflate layer does NOT verify the gzip trailer CRC. So saves
+        with broken/incorrect CRC load fine in the game.
+
+        We use zlib.decompress(raw[10:], -15) which skips the 10-byte gzip
+        header and uses raw DEFLATE (no wrapper) — bypassing CRC verification
+        entirely. Falls back to legacy gzip.GzipFile if raw DEFLATE fails.
+        """
         raw = open(path, "rb").read()
         if raw[:2] != b"\x1f\x8b":
             return raw
+        # Method 1: raw DEFLATE (matches heroes3.exe, no CRC check)
+        try:
+            return zlib.decompress(raw[10:], -15)
+        except Exception:
+            pass
+        # Method 2: legacy gzip with try/except (returns partial on CRC fail)
+        import gzip
+        import io
         out = b""
         gz = gzip.GzipFile(fileobj=io.BytesIO(raw))
         try:

@@ -335,23 +335,44 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     def _guard_str(guard_list):
         """Format guard list as 'Pikeman 5, Goblin 20' — matching PRT format.
 
-        Per PRT MainForm.cs:9057 (GetBankGuard): `text = string.Concat(text, ", ", dataRow[1], " ", array[j, 1].ToString())`
-        Format: "<name> <count>, <name> <count>, ..." (no 'x' prefix).
+        Per PRT MainForm.cs:9033-9065 (GetBankGuard):
+          - 7 slots can have duplicate monster_ids
+          - ItWas() deduplicates: if monster_id was already seen, sum the count
+            into the existing entry instead of adding a new one
+          - Final format: "<name> <count>, <name> <count>, ..." (no 'x' prefix)
+
+        Example: 3 slots of Скелет (count 10 each) + 2 slots of Живой мертвец
+        (count 10 each) → "Скелет 30, Живой мертвец 20"
         """
         if not guard_list:
             return None
-        parts = []
+        # Deduplicate by monster_id, summing counts (PRT ItWas logic)
+        seen: dict = {}  # monster_id → total_count
+        order: list = []  # preserve first-seen order
         for g in guard_list:
             if isinstance(g, dict):
                 mid = g.get('monster_id', -1)
                 cnt = g.get('count', 0)
                 if mid is None or mid < 0:
                     continue
+                if mid in seen:
+                    seen[mid] += cnt  # ItWas: sum count into existing entry
+                else:
+                    seen[mid] = cnt
+                    order.append(mid)
+            else:
+                # Non-dict entries (shouldn't happen, but be safe)
+                order.append(("raw", str(g)))
+                seen[("raw", str(g))] = 0
+        parts = []
+        for mid in order:
+            if isinstance(mid, tuple):
+                parts.append(mid[1])
+            else:
                 mname = _mon_name(mid) or f"M{mid}"
+                cnt = seen[mid]
                 # PRT format: "<name> <count>" (no 'x' prefix)
                 parts.append(f"{mname} {cnt}")
-            else:
-                parts.append(str(g))
         return ", ".join(parts) if parts else None
 
     def _art_list_str(art_ids):
