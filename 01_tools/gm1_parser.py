@@ -922,18 +922,30 @@ def _parse_save_via_config(raw: bytes, map_config: Any) -> Dict:
                 ],
             })
 
-    # ----- heroes_found (convert to legacy dict format) -----
+    # ----- heroes_found (use _format_hero_for_json for full formatted data) -----
     heroes_found = []
-    for h in parsed.heroes:
-        f = h.get("fields", {})
-        # v3.12: Pass through ALL fields (including _detail_* with address+hex info)
-        # instead of cherry-picking only specific named fields.
-        # The _detail_* fields contain first_addr, first_addr_hex, value_hex, etc.
-        hero_dict = {
-            "name":   h.get("name") or f.get("name", "?"),
-            "offset": h["block_offset"],
-            "fields": f,  # ALL fields — including _detail_*
-        }
+    _format_hero = getattr(mod, '_format_hero_for_json', None)
+    _raw_bytes = getattr(parsed, 'raw', None) or raw
+    _pts = getattr(parsed, '_post_tile_sections', {}) or {}
+    _hs_off = _pts.get('hero_state', 0) if isinstance(_pts, dict) else 0
+    _ps_list = getattr(parsed, '_player_states', []) or []
+    for i, h in enumerate(parsed.heroes):
+        if _format_hero:
+            hero_dict = _format_hero(
+                h,
+                hero_index=i,
+                raw=_raw_bytes,
+                hero_state_offset=_hs_off,
+                player_states=_ps_list,
+            )
+        else:
+            # Fallback: plain dict without formatted fields
+            f = h.get("fields", {})
+            hero_dict = {
+                "name":   h.get("name") or f.get("name", "?"),
+                "offset": h.get("block_offset", 0),
+                "fields": f,
+            }
         heroes_found.append(hero_dict)
 
     # ----- towns_found (pass through ALL fields, including _detail_*) -----

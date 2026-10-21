@@ -2263,3 +2263,22 @@ Stage Summary:
 - ⭐ JSON: monster ВЫВОДИТСЯ для всех героев (полный дамп)
 - ⭐ Excel: monster скрыт для "Запрещен" (отчёт PRT)
 - ⭐ Архив пересобран
+
+---
+Task ID: phase1-sheet6-heroes-gui-fix-2026-10-21
+Agent: main (Super Z)
+Task: Исправление GUI path — heroes_found создавался без форматированных полей
+
+Проблема:
+- В GUI (gm1_parser.py::_parse_save_via_config) heroes_found создавался вручную
+  БЕЗ форматированных полей (place, primary_skill, monster, etc.)
+- Excel экспорт использует parsed["heroes_found"] — поэтому все поля были None
+
+Решение:
+- _parse_save_via_config теперь использует _format_hero_for_json() из save_parser
+- Передаёт hero_index, raw, hero_state_offset, player_states
+- Fallback на старый формат если функция недоступна
+
+Stage Summary:
+- ⭐ GUI path теперь использует ту же _format_hero_for_json что и JSON path
+- ⭐ Excel экспорт через GUI теперь работает корректно
