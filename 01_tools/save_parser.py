@@ -1089,6 +1089,114 @@ def _serialize_merged_objects(merged):
     return out
 
 
+def _format_hero_for_json(h: Dict[str, Any]) -> Dict[str, Any]:
+    """Format hero data for JSON output.
+
+    Returns a dict with:
+      name, offset, fields (ALL raw data from binary), plus formatted fields:
+        place           — "X.Y.Z" / "Запрещен" / "Таверна" / None
+        primary_skill   — "A2-D2-P1-K1"
+        secondary_skill — "Б.Лидерство, Б.Стрельба"
+        monster         — "Алебардщик 20, Стрелок 10" (ALWAYS, even for disabled heroes!)
+        spell           — "Проклятье, Слабость" (all spell names)
+        machine         — "Палатка первой помощи" (war machine names)
+        book            — "Да" / None
+
+    JSON is a FULL DUMP — all raw data stays in 'fields', formatted strings
+    are added as convenience fields. monster is ALWAYS present if army data
+    exists in the binary, regardless of hero's place status.
+    """
+    f = h.get("fields", {})
+    out = {
+        "name":   h.get("name") or f.get("name", "?"),
+        "offset": h.get("block_offset", 0),
+        "fields": f,
+    }
+
+    # Lazy-load localizer
+    try:
+        from localizer import get_localizer
+        loc = get_localizer()
+    except Exception:
+        loc = None
+
+    # Place: "X.Y.Z" / "Запрещен" / "Таверна" / None
+    loc_x = f.get("location_x", -1)
+    loc_y = f.get("location_y", -1)
+    loc_z = f.get("location_z", -1)
+    player = f.get("player", 255)
+    if loc_x >= 0 and loc_y >= 0:
+        out["place"] = f"{loc_x}.{loc_y}.{loc_z}"
+    elif player == 255:
+        out["place"] = "Запрещен"
+    else:
+        out["place"] = None
+
+    # Primary skill: "A2-D2-P1-K1"
+    atk = f.get('attack', 0) or 0
+    dfn = f.get('defense', 0) or 0
+    pwr = f.get('power', 0) or 0
+    knw = f.get('knowledge', 0) or 0
+    out["primary_skill"] = f"A{atk}-D{dfn}-P{pwr}-K{knw}"
+
+    # Secondary skill: "Б.Лидерство, Б.Стрельба"
+    skill_levels = f.get('skill_levels', []) or []
+    skill_slots = f.get('skill_slots', []) or []
+    LEVEL_PREFIX = ["Б.", "П.", "Э."]
+    sec_array = [None] * 8
+    for l in range(min(28, len(skill_levels), len(skill_slots))):
+        lvl = skill_levels[l] if l < len(skill_levels) else 0
+        slot = skill_slots[l] if l < len(skill_slots) else 0
+        if lvl != 0 and 1 <= slot <= 8:
+            level_prefix = LEVEL_PREFIX[lvl - 1] if 1 <= lvl <= 3 else f"L{lvl}"
+            skill_name = loc.skill(l) if loc else f"Skill{l}"
+            sec_array[slot - 1] = level_prefix + skill_name
+    sec_parts = [s for s in sec_array if s]
+    out["secondary_skill"] = ", ".join(sec_parts) if sec_parts else None
+
+    # Monster: ALWAYS output (even for disabled heroes) — full dump
+    at = f.get("army_types", []) or []
+    ac = f.get("army_counts", []) or []
+    army_parts = []
+    for j in range(min(7, len(at))):
+        mt = at[j] if j < len(at) else -1
+        ct = ac[j] if j < len(ac) else 0
+        if isinstance(mt, int) and 0 <= mt < 0xFF and ct:
+            mname = loc.monstr(mt) if loc else str(mt)
+            army_parts.append(f"{mname} {ct}")
+    out["monster"] = ", ".join(army_parts) if army_parts else None
+
+    # Spell: all spell names from spells_book
+    sb = f.get("spells_book", []) or []
+    spell_names = []
+    if loc:
+        spell_names = [loc.spell(idx) for idx, bit in enumerate(sb) if bit]
+    out["spell"] = ", ".join(s for s in spell_names if s) if spell_names else None
+
+    # Machine: war machine names (Ballista=4, Ammo Cart=5, First Aid Tent=6)
+    wm = f.get("war_machines", []) or []
+    machine_parts = []
+    for m in wm:
+        if isinstance(m, dict):
+            mid = m.get("machine_id", -1)
+            if isinstance(mid, int) and mid >= 0 and loc:
+                mname = loc.art(mid)
+                if mname:
+                    machine_parts.append(mname)
+    out["machine"] = ", ".join(machine_parts) if machine_parts else None
+
+    # Book: "Да" if spell_book present
+    out["book"] = "Да" if f.get("spell_book") else None
+
+    # Flag (Color): localized player color name
+    if player is not None and 0 <= player < 8:
+        out["flag"] = loc.color(player) if loc else str(player)
+    else:
+        out["flag"] = None
+
+    return out
+
+
 def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
     """Convert ParsedSave to a JSON-serializable dict."""
     return {
@@ -1134,11 +1242,7 @@ def parsed_save_to_dict(parsed: ParsedSave) -> Dict[str, Any]:
             for t in parsed.towns
         ],
         "heroes_found": [
-            {
-                "name":   h.get("name") or h.get("fields", {}).get("name", "?"),
-                "offset": h.get("block_offset", 0),
-                "fields": h.get("fields", {}),
-            }
+            _format_hero_for_json(h)
             for h in parsed.heroes
         ],
         "objects_on_map": parsed.objects_on_map,

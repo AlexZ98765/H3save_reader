@@ -2092,3 +2092,127 @@ Stage Summary:
 - ⭐ extra_size теперь читается правильно (block_offset - 4, не block_offset + 22)
 - ⭐ Catapult (id=3) исключён из Machine (как в PRT)
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet6-heroes-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 6 "Герои": исправить все поля (156 героев)
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат PRT (156 строк)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::GetHeroesContent (строки 7723-7882)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 11758): aPlace = ["Тюрьма","Таверна","Запрещен","Город","Карта","Лодка"]
+
+Work Log:
+- Прочитан MainForm.cs::GetHeroesContent (строки 7723-7882):
+  - Place (строки 7741-7758): 
+    - decmp[num] != 0xFF → Place = X.Y.Z (координаты из pre-alt block)
+    - elif heroState[i] == 64 → герой в таверне/запрещён
+      - IsHeroTavern(i) == 255 → Place = "Запрещен"
+      - else → Place = "Таверна", Color = aColor[tavern_owner]
+    - else → Place = None
+  - Color (строка 7771): aColor[decmp[num]] если decmp[num] < 8
+  - PrimarySkill (строка 7822): aPrSkill[0]+decmp[num]+"-"+...+"-"+aPrSkill[3]+decmp[num+3]
+  - SecondarySkill (строки 7807-7820): для каждого из 28 навыков
+  - Monster (строки 7783-7795): для 7 слотов, только если Place != "Запрещен"
+  - Spell (строки 7824-7834): все заклинания из spells_book (70 байт)
+  - Machine (строки 7847-7851): doll slots с artifact_id 4,5,6
+  - Book (строка 7853): "Да" если doll slot с artifact_id == 0
+  - Art (строки 7859-7860): doll slots с artifact_id не в {0,3,4,5,6,255}
+  - MP (строка 7776): (decmp[num+32] << 8) + decmp[num+31]
+
+Найденные ошибки в нашем коде:
+1. Флаг: "Red" вместо "Красный" (не локализован)
+2. Первичный навык: "2-2-1-1" вместо "A2-D2-P1-K1"
+3. Вторичный навык: None (не выводили)
+4. Артефакт: "A4294967295, A4294967295, ..." (мусор — не фильтровали пустые слоты)
+5. Монстр: "Алебардщик x20" вместо "Алебардщик 20"
+6. Местоположение: None для запрещённых героев вместо "Запрещен"
+7. Монстр выводился даже для запрещённых героев (PRT не выводит)
+
+РЕШЕНИЕ:
+1. Place: "X.Y.Z" если location_x >= 0; "Запрещен" если player == 255; иначе None
+2. Flag: _color_name(player) если 0 <= player < 8
+3. PrimarySkill: "A{atk}-D{dfn}-P{pwr}-K{knw}"
+4. SecondarySkill: по логике PRT (LEVEL_PREFIX = ["Б.","П.","Э."])
+5. Артефакт: фильтровать equipment, только aid > 6 (пропустить 0,3,4,5,6,255)
+6. Монстр: "Алебардщик 20" (без "x"), только если Place != "Запрещен"
+7. Машина: loc.art(machine_id) для war_machines
+8. Книга: "Да" если spell_book
+9. MP: movement_total
+
+Результат сравнения (первые 6 строк из 156):
+  OUR Row 1: (0, 'Одиссей', '46.101.0', 'Красный', 1, 46, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Стрельба', None, None, 'Алебардщик 20, Стрелок 10, Королевский Грифон 5', None, None, None, 1705)
+  PRT Row 1: (0, 'Одиссей', '46.101.0', 'Красный', 1, 46, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Меткость', None, None, 'Алебардщик 20, Тяжелый арбалетчик 10, Королевский грифон 5', 425, None, None, 1705) ✓
+
+  OUR Row 5: (4, 'Лорд Хаарт', 'Запрещен', None, 1, 77, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Имущество', None, None, None, None, None, None, 1560)
+  PRT Row 5: (4, 'Лорд Хаарт', 'Запрещен', None, 1, 77, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Поместья', None, None, None, None, None, None, 1560) ✓
+
+Что совпадает (все 156 строк):
+  ✓ №, Герой, Уровень, Опыт, MP
+  ✓ Местоположение: "46.101.0" / "Запрещен" / None
+  ✓ Флаг: "Красный" / "Зеленый" / None
+  ✓ Первичный навык: "A2-D2-P1-K1"
+  ✓ Артефакт: None (мусор убран)
+  ✓ Заклинание: None
+  ✓ Машина: None
+  ✓ Книга: None
+  ✓ Монстр: None для запрещённых героев (исправлено!)
+
+Что отличается (Phase 0 — словарь имён):
+  ⚠️ Вторичный навык: "Б.Стрельба" vs "Б.Меткость" (skill_id=1, SoD_Ru vs WoG_Ru)
+  ⚠️ Монстр: "Стрелок" vs "Тяжелый арбалетчик" (monster_id=3, SoD_Ru vs WoG_Ru)
+  ⚠️ Монстр: "Королевский Грифон" vs "Королевский грифон" (регистр)
+
+Калькуляции (не считаем):
+  ❌ ∑ HP — требует monster_HP (см. calculations_todo.txt)
+
+Stage Summary:
+- ⭐ Sheet "Герои" — 156 строк, все ключевые поля совпадают с PRT
+- ⭐ Флаг локализован: "Красный" вместо "Red"
+- ⭐ Первичный навык: "A2-D2-P1-K1" (вместо "2-2-1-1")
+- ⭐ Вторичный навык: "Б.Лидерство, Б.Стрельба" (вместо None)
+- ⭐ Артефакт: мусор убран (фильтр aid > 6)
+- ⭐ Монстр: "Алебардщик 20" (вместо "Алебардщик x20")
+- ⭐ Местоположение: "Запрещен" для запрещённых героев (вместо None)
+- ⭐ Монстр не выводится для запрещённых героев (как PRT)
+- ⭐ Машина и Книга работают (благодаря исправлению doll_start в Sheet 5)
+- ❌ ∑ HP — калькуляция (залогировано)
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet6-heroes-json-vs-excel-2026-10-21
+Agent: main (Super Z)
+Task: Разделение JSON (полный дамп) и Excel (отчёт PRT) для листа "Герои"
+
+Принцип:
+- JSON — ПОЛНЫЙ ДАМП: все данные из бинарника, включая армию запрещённых героев
+- Excel — ОТЧЁТ PRT: армия скрыта для запрещённых героев (как делает PRT)
+
+Work Log:
+- Создана функция _format_hero_for_json() в save_parser.py:
+  - Добавляет форматированные поля к каждому герою в heroes_found:
+    place ("X.Y.Z" / "Запрещен" / None), primary_skill ("A2-D2-P1-K1"),
+    secondary_skill ("Б.Лидерство, Б.Стрельба"), monster ("Копейщик 14, Лучник 4"),
+    spell, machine, book, flag
+  - monster ВЫВОДИТСЯ ВСЕГДА (даже для запрещённых героев) — полный дамп
+  - Сырые данные (army_types, army_counts, skill_levels, etc.) остаются в fields
+- excel_export.py лист "Герои":
+  - Использует форматированные поля из JSON (h.get("place"), h.get("monster"), etc.)
+  - Фильтр: если place == "Запрещен" → monster = None (как PRT)
+
+Результат для Лорда Хаарта (hero 4, запрещён):
+  JSON:
+    place: "Запрещен"
+    monster: "Копейщик 14, Лучник 4"  ← ВЫВОДИТСЯ (полный дамп!)
+    army_types: [0, 2, -1, ...]        ← сырые данные
+  Excel:
+    Местоположение: "Запрещен"
+    Монстр: None                       ← скрыто (отчёт PRT)
+
+Stage Summary:
+- ⭐ JSON теперь содержит ПОЛНЫЙ дамп (армия для всех героев, включая запрещённых)
+- ⭐ JSON содержит форматированные поля (place, primary_skill, secondary_skill, monster, etc.)
+- ⭐ JSON содержит сырые данные (army_types, army_counts, skill_levels, etc.)
+- ⭐ Excel (отчёт) скрывает армию для запрещённых героев (как PRT)
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz

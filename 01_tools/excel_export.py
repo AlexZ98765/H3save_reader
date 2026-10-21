@@ -846,63 +846,118 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["№", "Герой", "Местоположение", "Флаг", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
         for i, h in enumerate(parsed.get("heroes_found", [])):
             f = h.get("fields", {})
-            wm = f.get("war_machines", []) or []
-            # war_machines is list of dicts {slot_id, machine_name, artifact_id}
-            machines_parts = []
-            for m in wm:
-                if isinstance(m, dict):
-                    mname = m.get("machine_name") or _art_name(m.get("artifact_id", -1)) or f"slot{m.get('slot_id', '?')}"
-                    if mname:
-                        machines_parts.append(mname)
-                else:
-                    machines_parts.append(str(m))
-            machines_str = ", ".join(machines_parts) if machines_parts else None
-            # Army: types+counts as 'Pikeman x10, Archer x5'
-            at = f.get("army_types", []) or []
-            ac = f.get("army_counts", []) or []
-            army_parts = []
-            for mt, ct in zip(at, ac):
-                if isinstance(mt, int) and mt >= 0 and ct:
-                    army_parts.append(f"{_mon_name(mt) or mt} x{ct}")
-            army_str = ", ".join(army_parts) if army_parts else None
-            loc_x = f.get("location_x", -1)
-            loc_y = f.get("location_y", -1)
-            loc_z = f.get("location_z", -1)
-            loc_str = f"{loc_x}.{loc_y}.{loc_z}" if loc_x >= 0 else None
-            player = f.get("player_name", "")
-            # Player color name lookup
-            if not player:
-                pcolor = f.get("player_color", -1)
-                if pcolor is not None and pcolor >= 0:
-                    player = _color_name(pcolor) or str(pcolor)
-            # Spells book: bit array → spell names
-            sb = f.get("spells_book", []) or []
-            spell_names = []
-            if sb:
-                spell_names = [_spl_name(i) for i, bit in enumerate(sb) if bit]
-            spells_str = ", ".join(s for s in spell_names if s) if spell_names else None
-            # Equipment: list of (artifact_id, data) → artifact names
+
+            # Use pre-formatted fields from JSON if available, otherwise compute
+            place_str = h.get("place")
+            if place_str is None:
+                loc_x = f.get("location_x", -1)
+                loc_y = f.get("location_y", -1)
+                loc_z = f.get("location_z", -1)
+                player = f.get("player", 255)
+                if loc_x >= 0 and loc_y >= 0:
+                    place_str = f"{loc_x}.{loc_y}.{loc_z}"
+                elif player == 255:
+                    place_str = "Запрещен"
+
+            flag_str = h.get("flag")
+            if flag_str is None:
+                player = f.get("player", 255)
+                if player is not None and 0 <= player < 8:
+                    flag_str = _color_name(player)
+
+            primary_str = h.get("primary_skill")
+            if primary_str is None:
+                atk = f.get('attack', 0) or 0
+                dfn = f.get('defense', 0) or 0
+                pwr = f.get('power', 0) or 0
+                knw = f.get('knowledge', 0) or 0
+                primary_str = f"A{atk}-D{dfn}-P{pwr}-K{knw}"
+
+            secondary_str = h.get("secondary_skill")
+            if secondary_str is None:
+                skill_levels = f.get('skill_levels', []) or []
+                skill_slots = f.get('skill_slots', []) or []
+                LEVEL_PREFIX = ["Б.", "П.", "Э."]
+                sec_array = [None] * 8
+                for l in range(min(28, len(skill_levels), len(skill_slots))):
+                    lvl = skill_levels[l] if l < len(skill_levels) else 0
+                    slot = skill_slots[l] if l < len(skill_slots) else 0
+                    if lvl != 0 and 1 <= slot <= 8:
+                        level_prefix = LEVEL_PREFIX[lvl - 1] if 1 <= lvl <= 3 else f"L{lvl}"
+                        skill_name = _skl_name(l)
+                        sec_array[slot - 1] = level_prefix + skill_name if skill_name else level_prefix + f"Skill{l}"
+                sec_parts = [s for s in sec_array if s]
+                secondary_str = ", ".join(sec_parts) if sec_parts else None
+
+            # Artifact: from equipment, filter out 0,3,4,5,6,255
             equip = f.get("equipment", []) or []
             equip_parts = []
             for e in equip:
                 if isinstance(e, (list, tuple)) and len(e) >= 1:
                     aid = e[0]
-                    if isinstance(aid, int) and aid >= 0:
-                        n = _art_name(aid) or f"A{aid}"
+                    if isinstance(aid, int) and aid > 6:
+                        n = _art_name(aid)
                         if n:
                             equip_parts.append(n)
                 elif isinstance(e, dict):
                     aid = e.get('artifact_id', -1)
-                    if isinstance(aid, int) and aid >= 0:
-                        n = _art_name(aid) or f"A{aid}"
+                    if isinstance(aid, int) and aid > 6:
+                        n = _art_name(aid)
                         if n:
                             equip_parts.append(n)
             equip_str = ", ".join(equip_parts) if equip_parts else None
-            ws.append([i, f.get("name", "?"), loc_str, player,
+
+            # Spell: from JSON if available, otherwise compute
+            spells_str = h.get("spell")
+            if spells_str is None:
+                sb = f.get("spells_book", []) or []
+                spell_names = [_spl_name(idx) for idx, bit in enumerate(sb) if bit]
+                spells_str = ", ".join(s for s in spell_names if s) if spell_names else None
+
+            # Monster: in JSON it's ALWAYS present (full dump).
+            # In Excel (report): only show if Place != "Запрещен" (matches PRT).
+            monster_str = h.get("monster")
+            if monster_str is None:
+                at = f.get("army_types", []) or []
+                ac = f.get("army_counts", []) or []
+                army_parts = []
+                for j in range(min(7, len(at))):
+                    mt = at[j] if j < len(at) else -1
+                    ct = ac[j] if j < len(ac) else 0
+                    if isinstance(mt, int) and 0 <= mt < 0xFF and ct:
+                        mname = _mon_name(mt) or str(mt)
+                        army_parts.append(f"{mname} {ct}")
+                monster_str = ", ".join(army_parts) if army_parts else None
+            # Excel filter: hide monster for disabled heroes
+            if place_str == "Запрещен":
+                monster_str = None
+
+            # Machine: from JSON if available
+            machines_str = h.get("machine")
+            if machines_str is None:
+                wm = f.get("war_machines", []) or []
+                machine_parts = []
+                for m in wm:
+                    if isinstance(m, dict):
+                        mid = m.get("machine_id", -1)
+                        if isinstance(mid, int) and mid >= 0:
+                            mname = _art_name(mid)
+                            if mname:
+                                machine_parts.append(mname)
+                machines_str = ", ".join(machine_parts) if machine_parts else None
+
+            # Book: from JSON if available
+            book_str = h.get("book")
+            if book_str is None:
+                book_str = "Да" if f.get("spell_book") else None
+
+            # MP: movement_total
+            mp = f.get("movement_total")
+
+            ws.append([i, f.get("name", "?"), place_str, flag_str,
                        f.get("level"), f.get("experience"),
-                       f"{f.get('attack',0)}-{f.get('defense',0)}-{f.get('power',0)}-{f.get('knowledge',0)}",
-                       None, equip_str, spells_str, army_str, None, machines_str,
-                       "Да" if f.get("spell_book") else None, f.get("movement_total")])
+                       primary_str, secondary_str, equip_str, spells_str,
+                       monster_str, None, machines_str, book_str, mp])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
