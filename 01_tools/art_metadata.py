@@ -26,6 +26,7 @@ _DOCS = os.path.normpath(os.path.join(_HERE, "..", "02_format_docs"))
 TBL_ART_PATH = os.path.join(_DOCS, "tbl_art_mapping.json")
 TILE_PARSERS_PATH = os.path.join(_DOCS, "artifact_tile_parsers.json")
 BANK_CONFIG_PATH = os.path.join(_DOCS, "bank_artifact_config.json")
+RESOURCE_PARSERS_PATH = os.path.join(_DOCS, "resource_tile_parsers.json")
 
 
 # ----------------------------------------------------------------------------
@@ -35,6 +36,12 @@ BANK_CONFIG_PATH = os.path.join(_DOCS, "bank_artifact_config.json")
 _TBL_ART: Optional[Dict[str, Dict[str, Any]]] = None
 _TILE_PARSERS: Optional[Dict[str, Dict[str, Any]]] = None
 _BANK_CONFIG: Optional[Dict[str, Dict[str, Any]]] = None
+_RESOURCE_PARSERS: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+# Resource letter mapping (matches PRT aResource[] — MainForm.cs:1055)
+# W=Wood, M=Mercury, O=Ore, S=Sulfur, C=Crystal, G=Gems
+RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
 
 
 def _load_json(path: str) -> Dict[str, Any]:
@@ -338,6 +345,189 @@ def get_all_artifact_bearing_type_ids() -> List[int]:
     tile_ids = get_artifact_tile_type_ids()
     bank_ids = get_bank_type_ids()
     return sorted(set(tile_ids) | set(bank_ids))
+
+
+# ============================================================================
+# Resource tile extraction (per type_id) — for "Ресурсы" sheet
+# ============================================================================
+
+def _load_resource_parsers() -> Dict[str, Dict[str, Any]]:
+    """Lazy loader for resource_tile_parsers.json. Cached after first call."""
+    global _RESOURCE_PARSERS
+    if _RESOURCE_PARSERS is None:
+        data = _load_json(RESOURCE_PARSERS_PATH)
+        _RESOURCE_PARSERS = {k: v for k, v in data.items() if not k.startswith("_")}
+    return _RESOURCE_PARSERS
+
+
+def get_resource_tile_parser(type_id: int) -> Optional[Dict[str, Any]]:
+    """Return the tile-level resource extraction config for the given type_id.
+
+    Returns None if this type_id does not bear resources at the tile level
+    (i.e., not 79, 12, 112, 55, 29, or 39).
+
+    Config schema (see 02_format_docs/resource_tile_parsers.json):
+      save_method: str        — name of the PRT Save* method
+      always_row: bool        — does this type always create an R_Resource row?
+      resource_type_offset: int     — (SaveRes only) byte offset for resource_type
+      resource_type_formula: str    — (other types) Python expr for resource_type
+      amount_formula: str           — Python expr for amount
+      gold_formula: str             — (optional) Python expr for gold
+      gold_type_value: int          — (SaveRes only) resource_type value that means Gold
+      gold_multiplier: int          — (SaveRes only) gold multiplier for amount
+      conditional: dict             — (MysticalGarden) if/else based on bit check
+      lookup_table: dict           — (Floatsam) cases by key byte value
+      has_guard_check: dict         — {offset, mask} for guard detection (SaveRes only)
+      art_res_link_type: int        — (SaveRes only) TblArtRes Type value for resources
+    """
+    return _load_resource_parsers().get(str(type_id))
+
+
+def get_resource_tile_type_ids() -> List[int]:
+    """Return list of type_ids that have tile-level resource extraction configs."""
+    return sorted(int(k) for k in _load_resource_parsers().keys())
+
+
+def is_resource_bearing_tile_type(type_id: int) -> bool:
+    """Return True if this type_id has a tile-level resource parser (goes to Ресурсы sheet)."""
+    return str(type_id) in _load_resource_parsers()
+
+
+def _safe_byte(raw: bytes, off: int) -> int:
+    """Safely read a byte at offset, returning 0 if out of range."""
+    return raw[off] if 0 <= off < len(raw) else 0
+
+
+def _eval_formula(formula: str, raw: bytes, s: int) -> int:
+    """Evaluate a Python formula expression of the form 'raw[s+X] ...'.
+
+    Replaces 'raw[s+X]' substrings with the actual byte values, then evals.
+    Uses a restricted globals dict (no builtins) for safety.
+    """
+    if not formula:
+        return 0
+    expr = formula
+    # Replace all 'raw[s+X]' occurrences with actual values
+    import re
+    def replace_ref(m):
+        off = int(m.group(1))
+        return str(_safe_byte(raw, s + off))
+    expr = re.sub(r'raw\[s\+(\d+)\]', replace_ref, expr)
+    try:
+        return int(eval(expr, {"__builtins__": {}}, {}))
+    except Exception:
+        return 0
+
+
+def extract_resource_from_tile(raw: bytes, s: int,
+                                type_id: int) -> Dict[str, Any]:
+    """Extract resource info from tile bytes for the given type_id.
+
+    Returns a dict with keys:
+      resource: str | None   — formatted resource string (e.g. "S4", "W5", "G5") or None
+      gold: int | None       — gold amount or None
+      has_guard: bool        — True if this resource is guarded (SaveRes only)
+      art_res_num: int       — ArtRes index for guard linking (SaveRes only, 0 if N/A)
+
+    Universal: works for any save of any map. Logic per PRT MainForm.cs:
+      - SaveRes (79): resource_type at s+2, amount at s+6..s+8 (24-bit LE)
+      - SaveCampfire (12): nibble-based extraction from s+6
+      - SaveWindmill (112): nibble-based extraction from s+6, s+7
+      - SaveMysticalGarden (55): bit-7 of s+6 → Gold=500 or Resource='G5'
+      - SaveFloatsam (29): lookup table by s+6 value
+      - SaveHovel (39): XOR formula on s+6, s+7
+    """
+    cfg = get_resource_tile_parser(type_id)
+    if cfg is None:
+        return {"resource": None, "gold": None, "has_guard": False, "art_res_num": 0}
+
+    result = {"resource": None, "gold": None, "has_guard": False, "art_res_num": 0}
+
+    # SaveRes: special handling for resource_type and gold_type
+    if "resource_type_offset" in cfg:
+        rtype_off = cfg.get("resource_type_offset", 2)
+        rtype = _safe_byte(raw, s + rtype_off)
+        amount = _eval_formula(cfg.get("amount_formula", ""), raw, s)
+        gold_type = cfg.get("gold_type_value", 6)
+        gold_mult = cfg.get("gold_multiplier", 100)
+        if rtype == gold_type:
+            # Gold special case
+            result["gold"] = amount * gold_mult if amount > 0 else None
+        elif 0 <= rtype < len(RESOURCE_LETTERS):
+            letter = RESOURCE_LETTERS[rtype]
+            result["resource"] = f"{letter}{amount}" if amount > 0 else letter
+        # Guard check (SaveRes specific)
+        gc = cfg.get("has_guard_check")
+        if gc:
+            off = gc.get("offset", 9)
+            mask = gc.get("mask", 0)
+            if _safe_byte(raw, s + off) & mask == mask:
+                result["has_guard"] = True
+                result["art_res_num"] = _eval_formula(
+                    cfg.get("art_res_num_formula", ""), raw, s)
+        return result
+
+    # Conditional (MysticalGarden)
+    if "conditional" in cfg:
+        cond = cfg["conditional"]
+        check = cond.get("check", {})
+        off = check.get("offset", 0)
+        mask = check.get("mask", 0)
+        if _safe_byte(raw, s + off) & mask == mask:
+            # Bit set: use if_set branch
+            branch = cond.get("if_set", {})
+        else:
+            # Bit clear: use if_clear branch
+            branch = cond.get("if_clear", {})
+        if "gold" in branch:
+            result["gold"] = branch["gold"]
+        if "resource_static" in branch:
+            result["resource"] = branch["resource_static"]
+        return result
+
+    # Lookup table (Floatsam)
+    if "lookup_table" in cfg:
+        lt = cfg["lookup_table"]
+        key_off = lt.get("key_offset", 6)
+        key_val = _safe_byte(raw, s + key_off)
+        cases = lt.get("cases", {})
+        case = cases.get(str(key_val), lt.get("default", {}))
+        if "gold" in case and case["gold"] is not None:
+            result["gold"] = case["gold"]
+        if "resource_static" in case:
+            result["resource"] = case["resource_static"]
+        return result
+
+    # Formula-based (Campfire, Windmill, Hovel)
+    rtype_formula = cfg.get("resource_type_formula")
+    amount_formula = cfg.get("amount_formula")
+    gold_formula = cfg.get("gold_formula")
+
+    if rtype_formula and amount_formula:
+        rtype = _eval_formula(rtype_formula, raw, s)
+        amount = _eval_formula(amount_formula, raw, s)
+        if 0 <= rtype < len(RESOURCE_LETTERS):
+            letter = RESOURCE_LETTERS[rtype]
+            result["resource"] = f"{letter}{amount}" if amount > 0 else letter
+
+    if gold_formula:
+        gold = _eval_formula(gold_formula, raw, s)
+        result["gold"] = gold if gold > 0 else None
+
+    return result
+
+
+# ----------------------------------------------------------------------------
+# Combined: all resource-bearing type_ids
+# ----------------------------------------------------------------------------
+
+def get_all_resource_bearing_type_ids() -> List[int]:
+    """Return list of all type_ids that produce rows in the Ресурсы sheet.
+
+    Includes: Resource pile (79), Campfire (12), Windmill (112),
+    Mystical Garden (55), Floatsam (29), Lean To/Hovel (39).
+    """
+    return get_resource_tile_type_ids()
 
 
 # ----------------------------------------------------------------------------

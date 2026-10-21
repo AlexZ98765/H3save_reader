@@ -450,26 +450,93 @@ def merge_chests(tile_objects: List[Dict[str, Any]],
     return chests
 
 
-def merge_resources(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def merge_resources(tile_objects: List[Dict[str, Any]],
+                    post_tile_content: Optional[Dict[str, Any]] = None,
+                    localizer=None,
+                    raw: Optional[bytes] = None
+                    ) -> List[Dict[str, Any]]:
     """Merge resource tile objects (sheet "Ресурсы").
 
+    Universal: no hardcoding — uses art_metadata.extract_resource_from_tile
+    to compute resource letter+amount and/or gold for ALL 6 resource-bearing
+    object types via data-driven JSON config (resource_tile_parsers.json).
+
+    PRT behavior (MainForm.cs SaveRes/SaveCampfire/SaveWindmill/SaveMysticalGarden/
+    SaveFloatsam/SaveHovel) — all 6 types emit a row in R_Resource sheet.
+
     Returns records with:
-      x, y, z, locality, object, resource_type, amount
+      x, y, z, locality, object (localized name), resource (e.g. "S4", "W10"), gold,
+      guard (from ArtRes, only for guarded Resource piles), hp
     """
-    resources = []
+    try:
+        from art_metadata import (
+            extract_resource_from_tile,
+            is_resource_bearing_tile_type,
+            get_resource_tile_parser,
+        )
+        _has_res_meta = True
+    except Exception:
+        _has_res_meta = False
+
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    resources: List[Dict[str, Any]] = []
+
+    # Build ArtRes records index (by Num field) for guard linking — same logic
+    # as merge_artifacts but for Resource tiles (Type=1 in TblArtRes).
+    art_res_records: List[Dict[str, Any]] = []
+    if post_tile_content and isinstance(post_tile_content, dict):
+        for ar in post_tile_content.get("art_res", []):
+            art_res_records.append(_to_dict(ar))
+
     for obj in tile_objects:
-        if obj.get('type_id') not in (79,):  # Resource pile
+        type_id = int(obj.get('type_id', 0))
+        if not (_has_res_meta and is_resource_bearing_tile_type(type_id)):
+            continue  # not a resource-bearing tile type
+
+        s = obj.get('offset')
+        if s is None or not isinstance(s, int) or raw is None:
             continue
-        resources.append({
+
+        # Extract resource info via data-driven config (per PRT Save* logic)
+        res_info = extract_resource_from_tile(raw, s, type_id)
+
+        # Localized object name (e.g., "Ресурс", "Бивачный Костер",
+        # "Ветряная мельница", "Мистический сад", "Обломки", "Прислониться к")
+        if localizer:
+            object_name = localizer.object(type_id) or f"Object {type_id}"
+        else:
+            object_name = obj.get('type_name') or f"Object {type_id}"
+
+        locality = "море" if obj.get('loc') == 8 else "суша"
+
+        # For guarded Resource piles (type 79), link to ArtRes by art_res_num
+        # to attach guard info (matches PRT AnalysisContent logic).
+        linked_guard = None
+        if res_info.get("has_guard") and res_info.get("art_res_num", 0) < len(art_res_records):
+            ar = art_res_records[res_info["art_res_num"]]
+            # Verify this ArtRes is a resource (Type=1), not artifact (Type=0)
+            if ar.get("art_type", 0) == 1:
+                linked_guard = _serialize_guard(ar.get("guard", [])) or None
+
+        rec = {
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Resource",
-            "resource_type": obj.get('resource_type', 0),
-            "resource_name": A_RESOURCE[obj.get('resource_type', 0)] if obj.get('resource_type', 0) < 6 else f"R{obj.get('resource_type', 0)}",
-            "amount": obj.get('amount', 0),
-        })
+            "locality": locality,
+            "object": object_name,
+            "resource": res_info.get("resource"),
+            "gold": res_info.get("gold"),
+            "guard": linked_guard,
+            "hp": None,  # ∑ HP — calc, not computed (in calculations_todo.txt)
+        }
+        resources.append(rec)
+
     return resources
 
 
@@ -1144,7 +1211,8 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         "Банки": merge_banks(tile_objects, post_tile_content),
         "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content),
         "Ученые": merge_scholars(tile_objects),
-        "Ресурсы": merge_resources(tile_objects),
+        "Ресурсы": merge_resources(tile_objects, post_tile_content,
+                                    localizer=localizer, raw=raw),
         "Сундуки": merge_chests(tile_objects, obj_dict),
         "Заклинания_Святилища": merge_shrines(tile_objects),
         "Ведьмины_Хижины": merge_witch_huts(tile_objects),

@@ -545,14 +545,26 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Ресурсы ──
+        # Universal: writes all populated fields from merge_resources() output.
+        #   rec keys: x, y, z, locality, object, resource (PRT format like "S4"), gold, guard, hp
+        # No hardcoding — resource letter format comes from art_metadata via merge.
         ws = wb.create_sheet("Ресурсы")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Ресурс", "Золото", "Охрана", "∑ HP"])
         for rec in mo.get("Ресурсы", []):
-            rtype = rec.get("resource_type", 0) or 0
-            rname = _mine_name(rtype) if loc else rec.get("resource_name", "")
+            # Resource: PRT format like "S4", "W10", "G5", or None for gold-only rows
+            resource_val = rec.get("resource")
+            # Gold: integer or None
+            gold_val = rec.get("gold")
+            # Guard: list of dicts → 'Pikeman 5, Goblin 20' (PRT format with ItWas dedup)
+            guard_val = rec.get("guard")
+            guard_str = _guard_str(guard_val) if guard_val else None
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       "Ресурс", rname, None, None, None])
+                       rec.get("object", "Ресурс"),
+                       resource_val,
+                       gold_val,
+                       guard_str,
+                       rec.get("hp")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

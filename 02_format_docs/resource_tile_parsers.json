@@ -1,0 +1,88 @@
+{
+  "_meta": {
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs",
+    "extracted_from": [
+      "SaveRes (line 10392) — type_id=79",
+      "SaveCampfire (line 9817) — type_id=12",
+      "SaveWindmill (line 9834) — type_id=112",
+      "SaveMysticalGarden (line 9850) — type_id=55",
+      "SaveFloatsam (line 9711) — type_id=29",
+      "SaveHovel (line 9801) — type_id=39"
+    ],
+    "description": "Per-type_id tile-level resource extraction config. Universal — works for any save of any map. Each entry says: how to compute the resource letter+amount and/or gold from tile bytes. Output format matches PRT: '<letter><amount>' (e.g. 'S4', 'M5', 'W10') or empty + Gold for gold-only rows.",
+    "resource_letters": ["W", "M", "O", "S", "C", "G"],
+    "resource_letters_meaning": "Wood, Mercury, Ore, Sulfur, Crystal, Gems",
+    "usage": "art_metadata.get_resource_tile_parser(type_id) -> dict | None"
+  },
+
+  "79": {
+    "save_method": "SaveRes",
+    "always_row": true,
+    "resource_type_offset": 2,
+    "resource_type_size": 1,
+    "amount_formula": "((raw[s+8] & 1) << 16) + (raw[s+7] << 8) + raw[s+6]",
+    "amount_offsets": [6, 7, 8],
+    "gold_type_value": 6,
+    "gold_multiplier": 100,
+    "has_guard_check": {"offset": 9, "mask": 128},
+    "art_res_link_type": 1,
+    "art_res_num_formula": "((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3)",
+    "notes": "Resource pile. raw[s+2] is the resource_type (0..5=letter, 6=Gold). Amount is 24-bit LE at s+6..s+8 with bit 0 of s+8 as MSB (17-bit total). For type 0..5: Resource = aResource[type]+amount. For type 6: Gold = amount*100. Guard check same as SaveArt."
+  },
+
+  "12": {
+    "save_method": "SaveCampfire",
+    "always_row": true,
+    "resource_type_formula": "raw[s+6] & 0xF",
+    "amount_formula": "(raw[s+6] & 0xF0) >> 4",
+    "offsets_used": [6],
+    "gold_formula": "((raw[s+6] & 0xF0) >> 4) * 100",
+    "notes": "Campfire. Resource type = low nibble of byte s+6. Amount = high nibble of byte s+6. Resource = aResource[type]+amount. Gold = amount*100 (same high nibble, ×100)."
+  },
+
+  "112": {
+    "save_method": "SaveWindmill",
+    "always_row": true,
+    "resource_type_formula": "raw[s+6] & 0xF",
+    "amount_formula": "(raw[s+7] & 0xF0) >> 5",
+    "offsets_used": [6, 7],
+    "notes": "Windmill. Resource type = low nibble of byte s+6. Amount = top 3 bits of high nibble of byte s+7 (>>5). Resource = aResource[type]+amount. No gold."
+  },
+
+  "55": {
+    "save_method": "SaveMysticalGarden",
+    "always_row": true,
+    "conditional": {
+      "check": {"offset": 6, "mask": 128},
+      "if_set": {"gold": 500},
+      "if_clear": {"resource_static": "G5"}
+    },
+    "offsets_used": [6],
+    "notes": "Mystical Garden. If bit 7 of byte s+6 is set: Gold=500. Otherwise: Resource='G5' (Gems 5, hardcoded)."
+  },
+
+  "29": {
+    "save_method": "SaveFloatsam",
+    "always_row": true,
+    "lookup_table": {
+      "key_offset": 6,
+      "cases": {
+        "1": {"resource_static": "W5"},
+        "2": {"resource_static": "W5", "gold": 200},
+        "3": {"resource_static": "W10", "gold": 500}
+      },
+      "default": {"resource_static": null, "gold": null}
+    },
+    "offsets_used": [6],
+    "notes": "Floatsam (sea debris). Reads byte at s+6. If 1: Resource='W5' (Wood 5). If 2: Resource='W5', Gold=200. If 3: Resource='W10', Gold=500. Other values: empty Resource and Gold (row still added)."
+  },
+
+  "39": {
+    "save_method": "SaveHovel",
+    "always_row": true,
+    "resource_type_formula": "(raw[s+7] ^ (raw[s+7] & 0xC1)) // 4",
+    "amount_formula": "((raw[s+7] & 1) << 2) + ((raw[s+6] >> 6) & 3)",
+    "offsets_used": [6, 7],
+    "notes": "Lean To / Hovel ('Чей-то погреб'). Resource type = (raw[s+7] XOR (raw[s+7] AND 0xC1)) / 4. Amount = ((raw[s+7] AND 1) << 2) + ((raw[s+6] >> 6) AND 3). Resource = aResource[type]+amount."
+  }
+}
