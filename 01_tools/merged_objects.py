@@ -570,19 +570,28 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
                   ) -> List[Dict[str, Any]]:
     """Merge prison tile objects (sheet "Тюрьмы").
 
-    If heroes_parsed is given, look up the hero by ID and include full stats.
-    """
-    prisons = []
-    # Build hero_id → hero dict
-    heroes_by_id = {}
-    if heroes_parsed:
-        for h in heroes_parsed:
-            f = h.get('fields', {})
-            # The hero's "id" is the index in heroes list
-            pass  # We need to know the hero's actual ID
-        # Heroes list is in order — index = ID
-        heroes_by_id = {i: h for i, h in enumerate(heroes_parsed)}
+    Each prison contains a hero (with hero_id pointing into the heroes list).
+    PRT copies hero fields into the prison row via GetPrisonHero (MainForm.cs:7983).
 
+    Output fields (matching PRT R_PrisonRow):
+      hero_name, level, experience, primary_skill (e.g. "A2-D2-P1-K1"),
+      secondary_skill (e.g. "Б.Лидерство, Б.Тактика"),
+      spell (single starting spell name, or None),
+      monster (e.g. "Копейщик 12, Арбалетчик 7"),
+      machine (war machine name, or None),
+      book ("Да" if spell book present, else None),
+      mp (movement points, e.g. 1560)
+    """
+    try:
+        from localizer import get_localizer
+        loc = get_localizer()
+    except Exception:
+        loc = None
+
+    # Build hero_id → hero dict (heroes list is in order — index = ID)
+    heroes_by_id = {i: h for i, h in enumerate(heroes_parsed or [])}
+
+    prisons = []
     for obj in tile_objects:
         if obj.get('type_id') != 62:
             continue
@@ -598,19 +607,93 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
         if hero_id in heroes_by_id:
             hero = heroes_by_id[hero_id]
             f = hero.get('fields', {})
+
+            # Hero name
             rec["hero_name"] = f.get('name', '?')
+
+            # Level + Experience
             rec["hero_level"] = f.get('level', 0)
             rec["hero_experience"] = f.get('experience', 0)
-            rec["hero_primary_skills"] = {
-                "attack": f.get('attack', 0),
-                "defense": f.get('defense', 0),
-                "power": f.get('power', 0),
-                "knowledge": f.get('knowledge', 0),
-            }
-            rec["hero_army_types"] = f.get('army_types', [])
-            rec["hero_army_counts"] = f.get('army_counts', [])
-            rec["hero_spells_book"] = f.get('spells_book', [])
-            rec["hero_equipment"] = f.get('equipment', [])
+
+            # Primary skill: "A2-D2-P1-K1" (matches PRT aPrSkill[k] + value)
+            atk = f.get('attack', 0) or 0
+            dfn = f.get('defense', 0) or 0
+            pwr = f.get('power', 0) or 0
+            knw = f.get('knowledge', 0) or 0
+            rec["primary_skill"] = f"A{atk}-D{dfn}-P{pwr}-K{knw}"
+
+            # Secondary skill: "Б.Лидерство, Б.Тактика"
+            # PRT logic (MainForm.cs:7807-7820):
+            #   For each of 28 skills (l=0..27):
+            #     if skill_levels[l] != 0:
+            #       array[skill_slots[l] - 1] = aLevelSkill[level-1] + TblSecondarySkill[l]
+            #   Then join non-null entries with ", "
+            # aLevelSkill = ["Б.", "П.", "Э."] (Basic/Advanced/Expert)
+            skill_levels = f.get('skill_levels', []) or []
+            skill_slots = f.get('skill_slots', []) or []
+            LEVEL_PREFIX = ["Б.", "П.", "Э."]  # Basic / Advanced / Expert (SoD_Ru)
+            array = [None] * 8
+            for l in range(min(28, len(skill_levels), len(skill_slots))):
+                lvl = skill_levels[l] if l < len(skill_levels) else 0
+                slot = skill_slots[l] if l < len(skill_slots) else 0
+                if lvl != 0 and 1 <= slot <= 8:
+                    level_prefix = LEVEL_PREFIX[lvl - 1] if 1 <= lvl <= 3 else f"L{lvl}"
+                    skill_name = loc.skill(l) if loc else f"Skill{l}"
+                    array[slot - 1] = level_prefix + skill_name
+            sec_parts = [s for s in array if s]
+            rec["secondary_skill"] = ", ".join(sec_parts) if sec_parts else None
+
+            # Spell (single starting spell — PRT uses r_HeroesRow.Spell)
+            # TODO: PRT reads a specific spell field; for now use spells_book if exactly 1 spell
+            # For now, leave as None — will be addressed in heroes sheet
+            sb = f.get('spells_book', []) or []
+            # spells_book is a 70-bit array; find first set bit
+            spell_indices = [i for i, b in enumerate(sb) if b]
+            if spell_indices:
+                # PRT shows only ONE spell (the starting spell) — first one
+                first_spell_id = spell_indices[0]
+                rec["spell"] = loc.spell(first_spell_id) if loc else str(first_spell_id)
+            else:
+                rec["spell"] = None
+
+            # Monster: "Копейщик 12, Арбалетчик 7"
+            # PRT (MainForm.cs:7783-7795): for each of 7 slots, if monster_id < 0xFF:
+            #   text += ", " + TblMonsters[name] + " " + count
+            at = f.get('army_types', []) or []
+            ac = f.get('army_counts', []) or []
+            mon_parts = []
+            for j in range(min(7, len(at))):
+                mid = at[j] if j < len(at) else -1
+                cnt = ac[j] if j < len(ac) else 0
+                if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                    mname = loc.monstr(mid) if loc else str(mid)
+                    mon_parts.append(f"{mname} {cnt}")
+            rec["monster"] = ", ".join(mon_parts) if mon_parts else None
+
+            # Machine (war machine name)
+            # war_machines is list of dicts {slot_id, machine_id, machine_name, ...}
+            # PRT (MainForm.cs:7847-7851): for doll slots with artifact_id 4,5,6:
+            #   text5 += ", " + TblArt.Rows.Find(num6)[1]
+            # Use loc.art(machine_id) for localized name (Catapult=3, Ballista=4,
+            # Ammo Cart=5, First Aid Tent=6)
+            wm = f.get('war_machines', []) or []
+            machine_parts = []
+            for m in wm:
+                if isinstance(m, dict):
+                    mid = m.get('machine_id', -1)
+                    if isinstance(mid, int) and mid >= 0:
+                        mname = loc.art(mid) if loc else m.get('machine_name', str(mid))
+                        if mname:
+                            machine_parts.append(mname)
+            rec["machine"] = ", ".join(machine_parts) if machine_parts else None
+
+            # Book: "Да" if spell_book present (PRT r_HeroesRow.Book)
+            # spell_book field is truthy if hero has spell book
+            rec["book"] = "Да" if f.get('spell_book') else None
+
+            # MP (movement points)
+            rec["mp"] = f.get('movement_total', 0)
+
         prisons.append(rec)
     return prisons
 

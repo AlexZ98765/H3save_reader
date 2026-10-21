@@ -735,31 +735,21 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Тюрьмы")
         ws.append(["X", "Y", "Z", "Район", "Герой", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
         for rec in mo.get("Тюрьмы", []):
-            ps_str = str(rec.get("hero_primary_skills")) if rec.get("hero_primary_skills") else None
-            # hero_spells_book is a bit array; convert to spell names if possible
-            sb = rec.get("hero_spells_book") or []
-            if sb and isinstance(sb, (list, tuple)):
-                spell_names = [_spl_name(i) for i, bit in enumerate(sb) if bit]
-                sb_str = ", ".join(s for s in spell_names if s) if spell_names else None
-            else:
-                sb_str = str(sb) if sb else None
-            # hero_army_types: list of monster IDs
-            at = rec.get("hero_army_types") or []
-            ac = rec.get("hero_army_counts") or []
-            if at:
-                army_parts = []
-                for mt, ct in zip(at, ac):
-                    if isinstance(mt, int) and mt >= 0 and ct:
-                        army_parts.append(f"{_mon_name(mt) or mt} x{ct}")
-                at_str = ", ".join(army_parts) if army_parts else None
-            else:
-                at_str = None
+            # All fields are pre-formatted in merge_prisons to match PRT
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("hero_name"), rec.get("hero_level"), rec.get("hero_experience"),
-                       ps_str, None, None,
-                       sb_str, at_str,
-                       None, None, None, None])
+                       rec.get("hero_name"),
+                       rec.get("hero_level"),
+                       rec.get("hero_experience"),
+                       rec.get("primary_skill"),      # "A2-D2-P1-K1"
+                       rec.get("secondary_skill"),    # "Б.Лидерство, Б.Тактика"
+                       None,                          # Артефакт (not in prison per PRT)
+                       rec.get("spell"),              # single starting spell name
+                       rec.get("monster"),            # "Копейщик 12, Арбалетчик 7"
+                       None,                          # ∑ HP (calculation — see calculations_todo.txt)
+                       rec.get("machine"),            # "Палатка первой помощи" or None
+                       rec.get("book"),               # "Да" or None
+                       rec.get("mp")])                # 1560
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

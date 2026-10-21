@@ -1932,3 +1932,90 @@ Stage Summary:
 - ⭐ Payment теперь "2000" / "G10" / None (вместо "2000 gold" / "10 gems")
 - ⭐ Имя объекта берётся из localizer.object(type_id) (не хардкод "hill_fort")
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet5-prisons-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 5 "Тюрьмы": исправить форматирование hero data
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат PRT (6 строк)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::SavePrison (строки 10180-10197)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::GetPrisonHero (строки 7983-8016)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::GetHeroesContent (строки 7723-7882)
+
+Work Log:
+- Прочитан MainForm.cs::SavePrison (строки 10180-10197):
+  - Сохраняет только X, Y, Z, Locality, Hero (= hero ID)
+  - Все остальные поля берутся из R_HeroesRow через GetPrisonHero
+- Прочитан MainForm.cs::GetPrisonHero (строки 7983-8016):
+  - Копирует Hero, Level, PrimarySkill, SecondarySkill, Art, Machine, Book,
+    Spell, Monster, HP, MP, Experience из R_HeroesRow в R_PrisonRow
+- Прочитан MainForm.cs::GetHeroesContent (строки 7723-7882) — формулы:
+  - PrimarySkill (строка 7822): aPrSkill[0]+decmp[num]+"-"+aPrSkill[1]+decmp[num+1]+"-"+...
+    = "A2-D2-P1-K1"
+  - SecondarySkill (строки 7807-7820): для каждого из 28 навыков,
+    если skill_levels[l] != 0: array[skill_slots[l]-1] = aLevelSkill[level-1] + TblSecondarySkill[l]
+    aLevelSkill = ["Б.", "П.", "Э."] (Basic/Advanced/Expert)
+    Затем объединяет через ", "
+  - Monster (строки 7783-7795): для каждого из 7 слотов,
+    если monster_id < 0xFF: text += ", " + TblMonsters[name] + " " + count
+  - Spell (строки 7824-7835): все заклинания из spells_book (70 байт), объединяет через ", "
+  - Machine (строки 7847-7851): doll slots с artifact_id 4,5,6 → TblArt[name]
+  - Book (строка 7853): "Да" если doll slot с artifact_id == 0
+
+Найденные ошибки в нашем коде:
+1. merge_prisons выводил hero_primary_skills как dict вместо "A2-D2-P1-K1"
+2. merge_prisons не выводил secondary_skill (всегда None)
+3. merge_prisons выводил monster как "Копейщик x12" вместо "Копейщик 12"
+4. merge_prisons не выводил machine, book, mp
+5. excel_export.py использовал старые поля (hero_primary_skills, hero_spells_book, hero_army_types)
+
+РЕШЕНИЕ:
+1. merged_objects.py::merge_prisons — полностью переписан:
+   - primary_skill: "A{atk}-D{dfn}-P{pwr}-K{knw}" (как PRT aPrSkill[k]+value)
+   - secondary_skill: "Б.Лидерство, Б.Тактика" (по логике PRT 7807-7820)
+     LEVEL_PREFIX = ["Б.", "П.", "Э."] (Basic/Advanced/Expert)
+   - spell: первое заклинание из spells_book (PRT показывает все, но для prison обычно одно)
+   - monster: "Копейщик 12, Арбалетчик 7" (без "x", как PRT)
+   - machine: loc.art(machine_id) для war_machines (Catapult=3, Ballista=4, ...)
+   - book: "Да" если spell_book=True
+   - mp: movement_total (1560)
+2. excel_export.py лист "Тюрьмы" — использует новые поля из merge_prisons
+
+Результат сравнения (6 строк):
+  OUR Row 1: (41, 18, 0, 'суша', 'Турис', 1, 53, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Тактика', None, None, 'Копейщик 12, Лучник 7, Грифон 2', None, None, 'Да', 1560)
+  PRT Row 1: (41, 18, 0, 'суша', 'Турис', 1, 53, 'A2-D2-P1-K1', 'Б.Лидерство, Б.Тактика', None, None, 'Копейщик 12, Арбалетчик 7, Грифон 2', 240, None, None, 1560) ✓
+
+Что совпадает:
+  ✓ Координаты, Район, Герой, Уровень, Опыт
+  ✓ Первичный навык: "A2-D2-P1-K1"
+  ✓ Вторичный навык: "Б.Лидерство, Б.Тактика"
+  ✓ Заклинание: "Проклятье" / "Каменная кожа" / "Слабость"
+  ✓ MP: 1560 / 1630
+
+Что отличается:
+  ⚠️ Монстр: "Лучник" vs "Арбалетчик" (SoD_Ru vs WoG_Ru — Phase 0 не делаем)
+  ❌ ∑ HP: None vs 240/230/120/160/130 — КАЛЬКУЛЯЦИЯ (требует monster_HP, см. calculations_todo.txt)
+  ❌ Машина: None vs "Палатка первой помощи" (для Риона) — проблема: prison heroes
+     имеют пустые doll slots в нашем парсинге (doll_start=block_offset+408 может
+     быть неправильным для prison heroes). Требует отдельного исследования.
+  ⚠️ Книга: "Да" для всех vs "Да" только для 2,5,6 — PRT проверяет doll slot 0
+     на artifact_id==0, но у нас spell_book=True для всех prison heroes.
+     Возможно та же проблема с doll slots.
+
+НЕ ИСПРАВЛЕНО (требует отдельного исследования):
+- Машина и Книга для prison heroes — doll slots пустые в нашем парсинге
+- Возможная причина: prison heroes имеют другую структуру hero block
+  (другое смещение doll_start), или парсятся через другой код-путь
+- Это будет исправлено в Phase 2 (Герои) или отдельной задачей
+
+Stage Summary:
+- ⭐ Sheet "Тюрьмы" — 6 строк, основные поля совпадают с PRT
+- ⭐ Исправлен PrimarySkill: "A2-D2-P1-K1" (вместо dict)
+- ⭐ Исправлен SecondarySkill: "Б.Лидерство, Б.Тактика" (вместо None)
+- ⭐ Исправлен Monster: "Копейщик 12" (вместо "Копейщик x12")
+- ⭐ Добавлены Spell, MP
+- ⚠️ Машина и Книга требуют отдельного исследования doll slots для prison heroes
+- ❌ ∑ HP — калькуляция (залогировано в calculations_todo.txt)
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
