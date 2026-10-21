@@ -390,7 +390,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Артефакты", []):
             aid = rec.get("artifact_id", 0) or 0
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Артефакт"), None,
                        _art_name(aid) or aid, None, None, None, None, None, None])
         ws.freeze_panes = "A2"
@@ -403,7 +403,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Монстры", []):
             mid = rec.get("monster_type", 0) or 0
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        _mon_name(mid) or mid, rec.get("count"),
                        rec.get("mood"), None, None,
                        _art_name(rec.get("artifact_id", -1)) if rec.get("has_artifact") else None,
@@ -420,7 +420,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             res_str = str(rec.get("resources", {})) if rec.get("resources") else None
             mid = rec.get("monster_reward_id", -1)
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Bank"), guard_str, None,
                        _mon_name(mid) if mid >= 0 else None,
                        rec.get("gold"), res_str])
@@ -485,9 +485,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Ученые")
         ws.append(["X", "Y", "Z", "Район", "Первичный навык", "Вторичный навык", "Заклинание"])
         for rec in mo.get("Ученые", []):
+            # Primary skill: 'A+1' / 'D+1' / 'P+1' / 'K+1' (matches PRT aPrSkill[k]+"+1")
+            # Computed in merge_scholars; fallback to None if not a primary-skill scholar.
+            primary_str = rec.get("primary_skill")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       None,
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
+                       primary_str,
                        _skl_name(rec.get("skill_id", -1)) if rec.get("skill_id") is not None else None,
                        _spl_name(rec.get("spell_id", -1)) if rec.get("spell_id") is not None else None])
         ws.freeze_panes = "A2"
@@ -501,7 +504,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             rtype = rec.get("resource_type", 0) or 0
             rname = _mine_name(rtype) if loc else rec.get("resource_name", "")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        "Ресурс", rname, None, None, None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -513,7 +516,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Сундуки", []):
             aid = rec.get("artifact_id", -1) if rec.get("has_artifact") else -1
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Сундук"), rec.get("gold"), rec.get("experience"),
                        _art_name(aid) if aid >= 0 else None,
                        _cls_name(aid) if aid >= 0 else None, None])
@@ -532,7 +535,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             if spell_level is None and loc:
                 spell_level = loc.spell_level(sid)
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        shrine_name, spell_name, spell_level, None, None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -544,7 +547,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Ведьмины_Хижины", []):
             skid = rec.get("skill_id", 0) or 0
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        "Хижина ведьмы", _skl_name(skid) or skid])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -556,7 +559,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         for rec in mo.get("Лагеря_Беженцев", []):
             mid = rec.get("monster_type", 0) or 0
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        "Лагерь беженцев", _mon_name(mid) or mid, rec.get("count"), None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -567,7 +570,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Цена на Черном Рынке"])
         for rec in mo.get("Рынки", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Black Market"), None, None, None, None, None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -722,7 +725,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                     if amt:
                         reward_str += f" +{amt}"
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        mission_str, reward_str, rec.get("deadline")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -752,7 +755,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             else:
                 at_str = None
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("hero_name"), rec.get("hero_level"), rec.get("hero_experience"),
                        ps_str, None, None,
                        sb_str, at_str,
@@ -766,7 +769,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Плата"])
         for rec in mo.get("Объекты", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object_subtype", "Объект"), rec.get("upgrade_cost")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -780,15 +783,15 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             # Always use localized tent name (it has the correct color order for tents)
             color_name = _tent_name(cid) or rec.get("color_name") or cid
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        "Палатка ключника", None, color_name, None])
         for rec in mo.get("Топология_Монолиты", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Монолит"), None, None, None])
         for rec in mo.get("Топология_Подземные_Врата", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Врата"), None, None, rec.get("pair_id")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
@@ -965,7 +968,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 if isinstance(slot, int) and slot >= 0:
                     slot_name = loc.doll(slot) if loc else None
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("z", 0) == 0 else "подземелье",
+                           "суша" if rec.get("locality", "суша") != "море" else "море",
                            rec.get("object"), slot_name,
                            _art_name(aid) or aid if aid >= 0 else None,
                            _cls_name(aid) if aid >= 0 else None, None,
@@ -998,7 +1001,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 lvl = rec.get("level", -1)
                 level_name = loc.full_level_skill(lvl) if loc and isinstance(lvl, int) and lvl >= 0 else None
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("z", 0) == 0 else "подземелье",
+                           "суша" if rec.get("locality", "суша") != "море" else "море",
                            rec.get("object"), level_name,
                            _skl_name(skid) or skid if skid >= 0 else None, None, None])
         ws.freeze_panes = "A2"
@@ -1011,7 +1014,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # Experience aggregator is optional — populate from Learning Stones
         for rec in mo.get("Learning_Stones", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("z", 0) == 0 else "подземелье",
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
                        "Камень знаний", None, None, None, None, None, None, None, None,
                        rec.get("experience", 1000), rec.get("experience", 1000)])
         ws.freeze_panes = "A2"

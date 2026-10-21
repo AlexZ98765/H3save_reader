@@ -127,7 +127,7 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Artifact",
             "artifact_id": obj.get('artifact_id', 0),
             "has_guard": obj.get('has_guard', False),
@@ -169,7 +169,7 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Monster",
             "monster_type": obj.get('monster_type', 0),
             "count": obj.get('count', 0),
@@ -222,7 +222,7 @@ def merge_chests(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": sea_chest_name if is_sea else chest_name,
             "gold": obj.get('gold', 0),
             "experience": obj.get('experience', 0),
@@ -246,7 +246,7 @@ def merge_resources(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Resource",
             "resource_type": obj.get('resource_type', 0),
             "resource_name": A_RESOURCE[obj.get('resource_type', 0)] if obj.get('resource_type', 0) < 6 else f"R{obj.get('resource_type', 0)}",
@@ -317,7 +317,7 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
             "x": tb.get('x'),
             "y": tb.get('y'),
             "z": tb.get('z'),
-            "locality": "underground" if tb.get('loc') == 8 else "surface",
+            "locality": "море" if tb.get('loc') == 8 else "суша",
             "object": "Bank",
             "address": pb.get("address"),
             "is_artifact_bank": pb.get("is_artifact_bank", False),
@@ -349,7 +349,7 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
             "x": tg.get('x'),
             "y": tg.get('y'),
             "z": tg.get('z'),
-            "locality": "underground" if tg.get('loc') == 8 else "surface",
+            "locality": "море" if tg.get('loc') == 8 else "суша",
             "object": "Garrison",
             "address": pg.get("address"),
             "guard": _serialize_guard(pg.get("guard", [])),
@@ -379,7 +379,7 @@ def merge_seer_huts(tile_objects: List[Dict[str, Any]],
             "x": ts.get('x'),
             "y": ts.get('y'),
             "z": ts.get('z'),
-            "locality": "underground" if ts.get('loc') == 8 else "surface",
+            "locality": "море" if ts.get('loc') == 8 else "суша",
             "object": "Seer Hut",
             "address": ps.get("address"),
             "num": ts.get("num", 0),
@@ -407,7 +407,7 @@ def merge_pass_guards(tile_objects: List[Dict[str, Any]],
             "x": tp.get('x'),
             "y": tp.get('y'),
             "z": tp.get('z'),
-            "locality": "underground" if tp.get('loc') == 8 else "surface",
+            "locality": "море" if tp.get('loc') == 8 else "суша",
             "object": "Border Guard",
             "address": pp.get("address"),
             "num": tp.get("num", 0),
@@ -433,7 +433,7 @@ def merge_universities(tile_objects: List[Dict[str, Any]],
             "x": tu.get('x'),
             "y": tu.get('y'),
             "z": tu.get('z'),
-            "locality": "underground" if tu.get('loc') == 8 else "surface",
+            "locality": "море" if tu.get('loc') == 8 else "суша",
             "object": "University",
             "address": pu.get("address"),
             "skills": pu.get("skills", []),
@@ -442,20 +442,43 @@ def merge_universities(tile_objects: List[Dict[str, Any]],
 
 
 def merge_scholars(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge scholar tile objects (sheet "Ученые")."""
-    return [
-        {
+    """Merge scholar tile objects (sheet "Ученые").
+
+    Each scholar gives ONE of:
+      - Spell (scholar_type='spell', spell_id set)
+      - Secondary skill (scholar_type='skill', skill_id set)
+      - Primary skill +1 (scholar_type='attack_plus_1'/'defense_plus_1'/
+                          'power_plus_1'/'knowledge_plus_1')
+
+    PRT stores PrimarySkill as 'A+1' / 'D+1' / 'P+1' / 'K+1' (using aPrSkill
+    array = ['A','D','P','K'] concatenated with '+1').
+    """
+    # Mapping scholar_type → primary skill short code (matches PRT aPrSkill[k]+"+1")
+    PRIMARY_SKILL_STR = {
+        'attack_plus_1':     'A+1',
+        'defense_plus_1':    'D+1',
+        'power_plus_1':      'P+1',
+        'knowledge_plus_1':  'K+1',
+    }
+
+    out = []
+    for obj in tile_objects:
+        if obj.get('type_id') != 81:
+            continue
+        scholar_type = obj.get('scholar_type', 'unknown')
+        out.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Scholar",
-            "scholar_type": obj.get('scholar_type', 'unknown'),
+            "scholar_type": scholar_type,
             "skill_id": obj.get('skill_id'),
             "spell_id": obj.get('spell_id'),
-        }
-        for obj in tile_objects if obj.get('type_id') == 81
-    ]
+            # Primary skill as PRT-style string ('A+1' / 'D+1' / 'P+1' / 'K+1' or None)
+            "primary_skill": PRIMARY_SKILL_STR.get(scholar_type),
+        })
+    return out
 
 
 def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -487,7 +510,7 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": shrine_names.get(shrine_type, "Святыня"),
             "shrine_type": shrine_type,
             "spell_id": spell_id,
@@ -503,7 +526,7 @@ def merge_witch_huts(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Witch Hut",
             "skill_id": obj.get('skill_id', 0),
         }
@@ -518,7 +541,7 @@ def merge_refugee_camps(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, An
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Refugee Camp",
             "monster_type": obj.get('monster_type', 0),
             "count": obj.get('count', 0),
@@ -534,7 +557,7 @@ def merge_learning_stones(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Learning Stone",
             "experience": obj.get('experience', 1000),
         }
@@ -568,7 +591,7 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Prison",
             "hero_id": hero_id,
         }
@@ -599,7 +622,7 @@ def merge_keymaster_tents(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Keymaster Tent",
             "color_id": obj.get('color_id', 0),
             "color_name": obj.get('color_name', '?'),
@@ -619,7 +642,7 @@ def merge_monoliths(tile_objects: List[Dict[str, Any]],
                 "x": obj.get('x'),
                 "y": obj.get('y'),
                 "z": obj.get('z'),
-                "locality": "underground" if obj.get('loc') == 8 else "surface",
+                "locality": "море" if obj.get('loc') == 8 else "суша",
                 "object": "Monolith",
                 "monolith_subtype": obj.get('monolith_subtype', 0),
             })
@@ -675,7 +698,7 @@ def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
                 "x": obj.get('x'),
                 "y": obj.get('y'),
                 "z": obj.get('z'),
-                "locality": "underground" if obj.get('loc') == 8 else "surface",
+                "locality": "море" if obj.get('loc') == 8 else "суша",
                 "object": "Subterranean Gate",
             })
     # Post-tile pairing
@@ -710,7 +733,7 @@ def merge_market(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Black Market",
         })
     return markets
@@ -723,7 +746,7 @@ def merge_generic_objects(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, 
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Generic Object",
             "type_id": obj.get('type_id'),
             "object_subtype": obj.get('object_subtype', ''),
@@ -747,7 +770,7 @@ def merge_heroes_on_map(tile_objects: List[Dict[str, Any]],
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "underground" if obj.get('loc') == 8 else "surface",
+            "locality": "море" if obj.get('loc') == 8 else "суша",
             "object": "Hero on Map",
             "hero_id": hero_id,
             "on_object": obj.get('on_object', False),

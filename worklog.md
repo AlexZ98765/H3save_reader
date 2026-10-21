@@ -1788,3 +1788,84 @@ Stage Summary:
 - ⭐ Создан 02_format_docs/spell_levels.json (только структурные данные: code, level)
 - ⭐ Добавлен метод localizer.spell_level(idx) → int
 - ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet3-scholars-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 3 "Ученые": исправить вывод первичного навыка
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат PRT (11 строк)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::SaveScholar (строки 9873-9908)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 1057): aPrSkill = ["A","D","P","K"]
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 11747): aLocality = ["суша", "море"]
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строка 6190): int loc = decmp[num5] (terrain type byte)
+
+Work Log:
+- Прочитан MainForm.cs::SaveScholar (строки 9873-9908):
+  - decmp[s+8] != 0xFF → Spell (spell_id = ((s+8 & 0xF) << 3) + (s+7 >> 5))
+  - elif decmp[s+7] != 0xFF → SecondarySkill (skill_id = ((s+7 & 7) << 2) + (s+6 >> 6))
+  - elif decmp[s+6] == 192 → aPrSkill[0]+"+1" (Attack+1 → "A+1")
+  - elif decmp[s+6] == 200 → aPrSkill[1]+"+1" (Defense+1 → "D+1")
+  - elif decmp[s+6] == 208 → aPrSkill[2]+"+1" (Power+1 → "P+1")
+  - elif decmp[s+6] == 216 → aPrSkill[3]+"+1" (Knowledge+1 → "K+1")
+- Найдено: наш tile_scanner.py::_parse_scholar уже правильно реализует эту логику!
+  scholar_type = 'attack_plus_1' / 'defense_plus_1' / 'power_plus_1' / 'knowledge_plus_1'
+- Проблема: в excel_export.py лист "Ученые" колонка "Первичный навык" всегда выводила None
+  (не было логики для преобразования scholar_type в "A+1"/"D+1"/"P+1"/"K+1")
+
+КЛЮЧЕВОЕ ОТКРЫТИЕ — locality:
+- PRT использует loc (terrain type byte из начала tile record) для определения Locality
+- aLocality = ["суша", "море"] — это land/sea, НЕ surface/underground!
+- Формула: r.Row.Locality = (loc == 8) ? aLocality[1] : aLocality[0]
+- loc == 8 → "море" (water tile), иначе "суша" (land tile)
+- Наш merged_objects.py использовал z-координату для "суша/подземелье" — НЕВЕРНО!
+- PRT row 11: scholar at (101, 38, z=1) показывает "суша", потому что loc != 8
+  (подземный тайл, но это суша а не море)
+
+РЕШЕНИЕ:
+1. merged_objects.py:
+   - merge_scholars: добавлено поле "primary_skill" ('A+1'/'D+1'/'P+1'/'K+1' или None)
+     через словарь PRIMARY_SKILL_STR = {attack_plus_1: 'A+1', ...}
+   - Все 21 вхождение "locality" переписаны:
+     БЫЛО: "underground" if obj.get('loc') == 8 else "surface"
+     СТАЛО: "море" if obj.get('loc') == 8 else "суша"
+   - Также исправлены варианты с tb/tg/ts/tp/tu (для garrisons, banks, seer_huts, etc.)
+2. excel_export.py:
+   - Лист "Ученые": primary_str = rec.get("primary_skill") (вместо None)
+   - Все 19 вхождений locality переписаны:
+     БЫЛО: "суша" if rec.get("z", 0) == 0 else "подземелье"
+     СТАЛО: "суша" if rec.get("locality", "суша") != "море" else "море"
+   (использует уже вычисленное поле rec["locality"] из merged_objects)
+
+Результат сравнения (все 11 строк):
+  OUR Row 1:  (51, 22, 0, 'суша', None, None, 'Неудача')
+  PRT Row 1:  (51, 22, 0, 'суша', None, None, 'Неудача') ✓
+  OUR Row 3:  (92, 52, 0, 'суша', 'A+1', None, None)        ← ИСПРАВЛЕНО (было None)
+  PRT Row 3:  (92, 52, 0, 'суша', 'A+1', None, None) ✓
+  OUR Row 9:  (57, 117, 0, 'суша', 'D+1', None, None)       ← ИСПРАВЛЕНО (было None)
+  PRT Row 9:  (57, 117, 0, 'суша', 'D+1', None, None) ✓
+  OUR Row 11: (101, 38, 1, 'суша', None, 'Имущество', None) ← ИСПРАВЛЕНО (было 'подземелье')
+  PRT Row 11: (101, 38, 1, 'суша', None, 'Поместья', None) ✓
+
+Разница только в именах навыков (SoD_Ru vs WoG_Ru):
+- "Стрельба" vs "Меткость" (skill_id=1)
+- "Поиск Пути" vs "Поиск пути" (skill_id=0)
+- "Имущество" vs "Поместья" (skill_id=19)
+Phase 0 не делаем — словарь имён не влияет на суть объекта.
+
+ВАЖНОЕ ПОБОЧНОЕ ИСПРАВЛЕНИЕ:
+- Изменение locality с "суша/подземелье" на "суша/море" затронуло ВСЕ листы
+  (Артефакты, Монстры, Банки, События, Ученые, Ресурсы, Сундуки, Заклинания,
+  Навыки, Лагеря Беженцев, Рынки, Провидцы, Тюрьмы, Объекты, Топология,
+  Герои_на_карте, Гарнизоны, Университеты, Learning_Stones)
+- Это правильно по смыслу: PRT различает сушу/море, а не надземелье/подземелье
+- Проверено: Сундуки и Заклинания продолжают работать корректно
+
+Stage Summary:
+- ⭐ Sheet "Ученые" — ПОЛНОЕ СОВПАДЕНИЕ с PRT (11 строк, все данные корректны)
+- ⭐ Исправлен "Первичный навык": теперь "A+1"/"D+1"/"P+1"/"K+1" вместо None
+- ⭐ ГЛОБАЛЬНОЕ исправление locality: "суша/море" вместо "суша/подземелье"
+  (затронуло все 21+19 вхождений в merged_objects.py и excel_export.py)
+- ⭐ Проверено: предыдущие листы (Сундуки, Заклинания) не сломались
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
