@@ -773,11 +773,28 @@ def _parse_floatsam(raw, s, obj):
 
 
 def _parse_shrine(raw, s, obj, type_id):
-    """Shrine (SaveShrine, line 10484)"""
-    obj['shrine_type'] = type_id  # 88=gesture, 89=thought, 90=incantation
+    """Shrine — adapted from SaveShrine (MainForm.cs:10484).
+
+    Layout:
+        s   = object code (88 = воплощение, 89 = жест, 90 = мысль)
+        s+7 = byte whose top 3 bits encode part of spell_id
+        s+8 = byte whose low 4 bits encode part of spell_id
+
+    Formula (matches PRT exactly):
+        spell_id = ((raw[s+8] & 0x0F) << 3) + (raw[s+7] >> 5)
+
+    The shrine's object name (Святыня магического жеста/воплощения/мысли)
+    comes from TblObject[code] (handled by localizer.object(type_id)).
+    """
+    obj['shrine_type'] = type_id  # 88/89/90
     _enrich_typed_field(raw, obj, 'shrine_type', s, 1, "u8")
-    obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
+    if s + 9 <= len(raw):
+        # PRT formula: ((decmp[s + 8] & 0xF) << 3) + (decmp[s + 7] >> 5)
+        spell_id = ((raw[s + 8] & 0x0F) << 3) + (raw[s + 7] >> 5)
+        obj['spell_id'] = spell_id
+        _enrich_typed_field(raw, obj, 'spell_id', s + 7, 2, "u16")
+    else:
+        obj['spell_id'] = 0
 
 
 def _parse_pyramid(raw, s, obj):

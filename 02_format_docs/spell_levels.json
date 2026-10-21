@@ -1,0 +1,290 @@
+{
+  "_meta": {
+    "description": "Spell levels from CreateTblSpell. .txt [Spell] section has 71 names that ReplaceName applies by position. Level is a structural attribute (1..5), not a name.",
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::CreateTblSpell",
+    "count": 70,
+    "note": "This file contains only structural data (code, level). Names come from .txt files."
+  },
+  "entries": [
+    {
+      "code": 0,
+      "level": 1
+    },
+    {
+      "code": 1,
+      "level": 2
+    },
+    {
+      "code": 2,
+      "level": 2
+    },
+    {
+      "code": 3,
+      "level": 1
+    },
+    {
+      "code": 4,
+      "level": 2
+    },
+    {
+      "code": 5,
+      "level": 1
+    },
+    {
+      "code": 6,
+      "level": 5
+    },
+    {
+      "code": 7,
+      "level": 4
+    },
+    {
+      "code": 8,
+      "level": 5
+    },
+    {
+      "code": 9,
+      "level": 4
+    },
+    {
+      "code": 10,
+      "level": 2
+    },
+    {
+      "code": 11,
+      "level": 3
+    },
+    {
+      "code": 12,
+      "level": 3
+    },
+    {
+      "code": 13,
+      "level": 2
+    },
+    {
+      "code": 14,
+      "level": 3
+    },
+    {
+      "code": 15,
+      "level": 1
+    },
+    {
+      "code": 16,
+      "level": 2
+    },
+    {
+      "code": 17,
+      "level": 2
+    },
+    {
+      "code": 18,
+      "level": 5
+    },
+    {
+      "code": 19,
+      "level": 4
+    },
+    {
+      "code": 20,
+      "level": 3
+    },
+    {
+      "code": 21,
+      "level": 3
+    },
+    {
+      "code": 22,
+      "level": 4
+    },
+    {
+      "code": 23,
+      "level": 4
+    },
+    {
+      "code": 24,
+      "level": 2
+    },
+    {
+      "code": 25,
+      "level": 3
+    },
+    {
+      "code": 26,
+      "level": 4
+    },
+    {
+      "code": 27,
+      "level": 1
+    },
+    {
+      "code": 28,
+      "level": 3
+    },
+    {
+      "code": 29,
+      "level": 4
+    },
+    {
+      "code": 30,
+      "level": 2
+    },
+    {
+      "code": 31,
+      "level": 1
+    },
+    {
+      "code": 32,
+      "level": 1
+    },
+    {
+      "code": 33,
+      "level": 3
+    },
+    {
+      "code": 34,
+      "level": 3
+    },
+    {
+      "code": 35,
+      "level": 1
+    },
+    {
+      "code": 36,
+      "level": 5
+    },
+    {
+      "code": 37,
+      "level": 1
+    },
+    {
+      "code": 38,
+      "level": 4
+    },
+    {
+      "code": 39,
+      "level": 3
+    },
+    {
+      "code": 40,
+      "level": 5
+    },
+    {
+      "code": 41,
+      "level": 1
+    },
+    {
+      "code": 42,
+      "level": 1
+    },
+    {
+      "code": 43,
+      "level": 1
+    },
+    {
+      "code": 44,
+      "level": 2
+    },
+    {
+      "code": 45,
+      "level": 2
+    },
+    {
+      "code": 46,
+      "level": 1
+    },
+    {
+      "code": 47,
+      "level": 2
+    },
+    {
+      "code": 48,
+      "level": 4
+    },
+    {
+      "code": 49,
+      "level": 3
+    },
+    {
+      "code": 50,
+      "level": 4
+    },
+    {
+      "code": 51,
+      "level": 2
+    },
+    {
+      "code": 52,
+      "level": 3
+    },
+    {
+      "code": 53,
+      "level": 1
+    },
+    {
+      "code": 54,
+      "level": 1
+    },
+    {
+      "code": 55,
+      "level": 4
+    },
+    {
+      "code": 56,
+      "level": 4
+    },
+    {
+      "code": 58,
+      "level": 4
+    },
+    {
+      "code": 59,
+      "level": 4
+    },
+    {
+      "code": 60,
+      "level": 3
+    },
+    {
+      "code": 61,
+      "level": 3
+    },
+    {
+      "code": 62,
+      "level": 2
+    },
+    {
+      "code": 63,
+      "level": 3
+    },
+    {
+      "code": 64,
+      "level": 2
+    },
+    {
+      "code": 65,
+      "level": 4
+    },
+    {
+      "code": 66,
+      "level": 5
+    },
+    {
+      "code": 67,
+      "level": 5
+    },
+    {
+      "code": 68,
+      "level": 5
+    },
+    {
+      "code": 69,
+      "level": 5
+    },
+    {
+      "code": 70,
+      "level": 0
+    }
+  ]
+}

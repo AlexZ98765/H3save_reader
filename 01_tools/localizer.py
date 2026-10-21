@@ -67,63 +67,59 @@ LANGUAGE_DISPLAY_NAMES = {
 DEFAULT_LANGUAGE = 'ru_sod'
 FALLBACK_LANGUAGE = 'ru_sod'
 
-# Hardcoded object code → default Russian name (matches MainForm.cs::CreateTblObject).
-# These names are language-independent defaults; PRT's .txt files only override them
-# via ReplaceName() for codes that exist in [Object] section (0..56). For codes
-# outside that range (82, 101, 102, 103, etc.), the hardcoded name is always used.
-_DEFAULT_OBJECT_NAMES = {
-    2:   "Жертвенный алтарь",
-    5:   "Артефакт",
-    6:   "Ящик Пандоры",
-    7:   "Черный рынок",
-    10:  "Палатка ключника",
-    12:  "Кострище покинутого лагеря",
-    16:  "Склады циклопов",  # bank subtype 0
-    22:  "Труп",
-    24:  "Ветхий корабль",
-    25:  "Утопия драконов",
-    26:  "Событие",
-    29:  "Обломки",
-    33:  "Гарнизон",
-    34:  "Герой",
-    35:  "Форт на холме",
-    39:  "Чей-то погреб",
-    43:  "Монолит входа",
-    44:  "Монолит выхода",
-    45:  "Двухсторонний монолит",
-    53:  "Заброшенная шахта",
-    54:  "Монстр",
-    55:  "Мистический сад",
-    62:  "Тюрьма",
-    63:  "Пирамида",
-    78:  "Лагерь беженцев",
-    79:  "Ресурс",
-    81:  "Ученый",
-    82:  "Морской сундук",
-    83:  "Хижина провидца",
-    84:  "Склеп",
-    85:  "Кораблекрушение",
-    86:  "Потерпевший кораблекрушение",
-    88:  "Святыня магического воплощения",
-    89:  "Святыня магического жеста",
-    90:  "Святыня магической мысли",
-    93:  "Свиток с заклинанием",
-    95:  "Таверна",
-    98:  "Городок",
-    100: "Камень знаний",
-    101: "Сундук с сокровищами",
-    102: "Древо знаний",
-    103: "Врата подземного мира",
-    104: "Университет",
-    105: "Телега",
-    108: "Могила воина",
-    111: "Водоворот",
-    112: "Ветряная мельница",
-    113: "Хижина ведьмы",
-    213: "Гильдия наемников",
-    215: "Страж прохода",
-    255: "Торговцы Артефактами",
-}
+# Object code → positional index in PRT's CreateTblObject table.
+# Loaded from 02_format_docs/object_code_order.json (extracted from MainForm.cs).
+# This is structural data (which code goes in which row of TblObject), NOT
+# hardcoded names. The actual names come from .txt [Object] section, which
+# PRT's ReplaceName() applies by position. For code 16 (banks), 7 subtypes
+# exist; subtype selects which of the 7 positions (6..12) is used.
+_OBJECT_CODE_ORDER_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', '02_format_docs', 'object_code_order.json'
+)
+
+
+def _load_object_code_order():
+    """Load the positional code order from JSON. Returns list of dicts:
+    [{'position': 0, 'code': 2, 'subtype': None, 'default_name': '...'}, ...]
+    """
+    try:
+        with open(_OBJECT_CODE_ORDER_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data.get('entries', [])
+    except Exception:
+        return []
+
+
+_OBJECT_CODE_ORDER_ENTRIES = _load_object_code_order()
+# Build lookup: (code, subtype) → position
+# For codes without subtype, subtype=None is the key.
+_OBJECT_POSITION_BY_CODE = {}
+for _entry in _OBJECT_CODE_ORDER_ENTRIES:
+    _key = (_entry['code'], _entry.get('subtype'))
+    _OBJECT_POSITION_BY_CODE.setdefault(_key, _entry['position'])
+
+
+# Spell levels (structural attribute, same across all languages).
+# Loaded from 02_format_docs/spell_levels.json (extracted from MainForm.cs::CreateTblSpell).
+_SPELL_LEVELS_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', '02_format_docs', 'spell_levels.json'
+)
+
+
+def _load_spell_levels():
+    """Load spell levels from JSON. Returns dict {code: level}."""
+    try:
+        with open(_SPELL_LEVELS_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return {e['code']: e['level'] for e in data.get('entries', [])}
+    except Exception:
+        return {}
+
+
+_SPELL_LEVELS = _load_spell_levels()
+
 
 # Canonical set of section names available in the dictionary
 _ALL_SECTIONS = [
@@ -231,6 +227,15 @@ class Localizer:
         """Spell name by ID (0..70)."""
         return self.section('Spell', idx)
 
+    def spell_level(self, idx: int) -> int:
+        """Spell level (1..5) by spell ID. Returns 0 for unknown spells.
+
+        Spell levels are structural attributes (not localized names), extracted
+        from CreateTblSpell in MainForm.cs. They are the same across all
+        languages — only the spell names change via .txt ReplaceName.
+        """
+        return _SPELL_LEVELS.get(idx, 0)
+
     def skill(self, idx: int) -> str:
         """Secondary skill name by ID (0..27)."""
         return self.section('Skill', idx)
@@ -239,21 +244,38 @@ class Localizer:
         """Dwelling name by ID (0..36)."""
         return self.section('Dwelling', idx)
 
-    def object(self, idx: int) -> str:
-        """Map object name by ID.
+    def object(self, code: int, subtype: Optional[int] = None) -> str:
+        """Map object code → localized name.
 
-        Looks up first in the .txt-derived Object[] table (0..56),
-        then falls back to the hardcoded table from MainForm.cs::CreateTblObject
-        (codes 2..255 with Russian default names). The hardcoded table is
-        the same for all languages — only the names in the .txt files change
-        via ReplaceName() in PRT.
+        PRT's CreateTblObject adds 57 rows to TblObject in a fixed positional
+        order (extracted into 02_format_docs/object_code_order.json). The .txt
+        [Object] section has 57 names that ReplaceName() applies by POSITION,
+        not by code. So to get the name for code X, we find X's positional
+        index in CreateTblObject and return .txt [Object][position].
+
+        For code 16 (banks), 7 subtypes exist (0..6). Pass subtype to select
+        the right position. If subtype is None for code 16, position 0
+        (Склады циклопов / Cyclops Warehouse) is returned.
+
+        Args:
+            code: object code as stored in save file (e.g. 101 for chest)
+            subtype: bank subtype (0..6) for code 16; None otherwise
+
+        Returns:
+            Localized name from .txt [Object] section, or '' if not found.
         """
-        # First, try the language-specific Object[] from .txt
-        name = self.section('Object', idx)
-        if name:
-            return name
-        # Fallback to hardcoded default (matches PRT CreateTblObject rows)
-        return _DEFAULT_OBJECT_NAMES.get(idx, '')
+        # Find positional index for this (code, subtype)
+        # First try exact match with subtype
+        position = _OBJECT_POSITION_BY_CODE.get((code, subtype))
+        if position is None and subtype is not None:
+            # Fallback: try without subtype (for code 16 with unknown subtype)
+            position = _OBJECT_POSITION_BY_CODE.get((code, None))
+        if position is None:
+            # Code not in CreateTblObject — try direct .txt lookup
+            # (works for codes 0..56 if .txt has them indexed by code)
+            return self.section('Object', code)
+        # Get name from .txt [Object] section at this position
+        return self.section('Object', position)
 
     def art_class(self, idx: int) -> str:
         """Artifact class (Machine/Treasure/Minor/Major/Relic/Special)."""

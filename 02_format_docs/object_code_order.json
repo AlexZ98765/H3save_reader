@@ -1,0 +1,295 @@
+{
+  "_meta": {
+    "description": "Positional order of object codes in CreateTblObject. .txt [Object] section has 57 names that ReplaceName applies by position. .txt position i corresponds to entries[i].code (and entries[i].subtype for code 16 banks).",
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::CreateTblObject",
+    "count": 57,
+    "note": "This file contains only structural data (position, code, subtype). Names come from .txt files."
+  },
+  "entries": [
+    {
+      "position": 0,
+      "code": 2,
+      "subtype": null
+    },
+    {
+      "position": 1,
+      "code": 5,
+      "subtype": null
+    },
+    {
+      "position": 2,
+      "code": 6,
+      "subtype": null
+    },
+    {
+      "position": 3,
+      "code": 7,
+      "subtype": null
+    },
+    {
+      "position": 4,
+      "code": 10,
+      "subtype": null
+    },
+    {
+      "position": 5,
+      "code": 12,
+      "subtype": null
+    },
+    {
+      "position": 6,
+      "code": 16,
+      "subtype": 0
+    },
+    {
+      "position": 7,
+      "code": 16,
+      "subtype": 1
+    },
+    {
+      "position": 8,
+      "code": 16,
+      "subtype": 2
+    },
+    {
+      "position": 9,
+      "code": 16,
+      "subtype": 3
+    },
+    {
+      "position": 10,
+      "code": 16,
+      "subtype": 4
+    },
+    {
+      "position": 11,
+      "code": 16,
+      "subtype": 5
+    },
+    {
+      "position": 12,
+      "code": 16,
+      "subtype": 6
+    },
+    {
+      "position": 13,
+      "code": 22,
+      "subtype": null
+    },
+    {
+      "position": 14,
+      "code": 24,
+      "subtype": null
+    },
+    {
+      "position": 15,
+      "code": 25,
+      "subtype": null
+    },
+    {
+      "position": 16,
+      "code": 26,
+      "subtype": null
+    },
+    {
+      "position": 17,
+      "code": 29,
+      "subtype": null
+    },
+    {
+      "position": 18,
+      "code": 33,
+      "subtype": null
+    },
+    {
+      "position": 19,
+      "code": 34,
+      "subtype": null
+    },
+    {
+      "position": 20,
+      "code": 35,
+      "subtype": null
+    },
+    {
+      "position": 21,
+      "code": 39,
+      "subtype": null
+    },
+    {
+      "position": 22,
+      "code": 43,
+      "subtype": null
+    },
+    {
+      "position": 23,
+      "code": 44,
+      "subtype": null
+    },
+    {
+      "position": 24,
+      "code": 45,
+      "subtype": null
+    },
+    {
+      "position": 25,
+      "code": 53,
+      "subtype": null
+    },
+    {
+      "position": 26,
+      "code": 54,
+      "subtype": null
+    },
+    {
+      "position": 27,
+      "code": 55,
+      "subtype": null
+    },
+    {
+      "position": 28,
+      "code": 62,
+      "subtype": null
+    },
+    {
+      "position": 29,
+      "code": 63,
+      "subtype": null
+    },
+    {
+      "position": 30,
+      "code": 78,
+      "subtype": null
+    },
+    {
+      "position": 31,
+      "code": 79,
+      "subtype": null
+    },
+    {
+      "position": 32,
+      "code": 81,
+      "subtype": null
+    },
+    {
+      "position": 33,
+      "code": 82,
+      "subtype": null
+    },
+    {
+      "position": 34,
+      "code": 83,
+      "subtype": null
+    },
+    {
+      "position": 35,
+      "code": 84,
+      "subtype": null
+    },
+    {
+      "position": 36,
+      "code": 85,
+      "subtype": null
+    },
+    {
+      "position": 37,
+      "code": 86,
+      "subtype": null
+    },
+    {
+      "position": 38,
+      "code": 88,
+      "subtype": null
+    },
+    {
+      "position": 39,
+      "code": 89,
+      "subtype": null
+    },
+    {
+      "position": 40,
+      "code": 90,
+      "subtype": null
+    },
+    {
+      "position": 41,
+      "code": 93,
+      "subtype": null
+    },
+    {
+      "position": 42,
+      "code": 95,
+      "subtype": null
+    },
+    {
+      "position": 43,
+      "code": 98,
+      "subtype": null
+    },
+    {
+      "position": 44,
+      "code": 100,
+      "subtype": null
+    },
+    {
+      "position": 45,
+      "code": 101,
+      "subtype": null
+    },
+    {
+      "position": 46,
+      "code": 102,
+      "subtype": null
+    },
+    {
+      "position": 47,
+      "code": 103,
+      "subtype": null
+    },
+    {
+      "position": 48,
+      "code": 104,
+      "subtype": null
+    },
+    {
+      "position": 49,
+      "code": 105,
+      "subtype": null
+    },
+    {
+      "position": 50,
+      "code": 108,
+      "subtype": null
+    },
+    {
+      "position": 51,
+      "code": 111,
+      "subtype": null
+    },
+    {
+      "position": 52,
+      "code": 112,
+      "subtype": null
+    },
+    {
+      "position": 53,
+      "code": 113,
+      "subtype": null
+    },
+    {
+      "position": 54,
+      "code": 213,
+      "subtype": null
+    },
+    {
+      "position": 55,
+      "code": 215,
+      "subtype": null
+    },
+    {
+      "position": 56,
+      "code": 255,
+      "subtype": null
+    }
+  ]
+}

@@ -526,9 +526,14 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Заклинание", "Уровень", "Охрана", "∑ HP"])
         for rec in mo.get("Заклинания_Святилища", []):
             sid = rec.get("spell_id", 0) or 0
+            shrine_name = rec.get("object") or "Святыня"
+            spell_name = _spl_name(sid) or sid
+            spell_level = rec.get("spell_level")
+            if spell_level is None and loc:
+                spell_level = loc.spell_level(sid)
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("z", 0) == 0 else "подземелье",
-                       "Святыня", _spl_name(sid) or sid, None, None, None])
+                       shrine_name, spell_name, spell_level, None, None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

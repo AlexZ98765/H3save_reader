@@ -459,19 +459,41 @@ def merge_scholars(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge shrine tile objects (sheet "Заклинания" — shrines only)."""
-    return [
-        {
+    """Merge shrine tile objects (sheet "Заклинания" — shrines only).
+
+    Returns records with:
+      x, y, z, locality, object (localized shrine name), shrine_type, spell_id, spell_level
+    """
+    # Localized shrine names: code 88/89/90 → Святыня магического воплощения/жеста/мысли
+    try:
+        from localizer import get_localizer
+        loc = get_localizer()
+        shrine_names = {88: loc.object(88), 89: loc.object(89), 90: loc.object(90)}
+    except Exception:
+        shrine_names = {88: "Святыня", 89: "Святыня", 90: "Святыня"}
+
+    out = []
+    for obj in tile_objects:
+        if obj.get('type_id') not in (88, 89, 90):
+            continue
+        shrine_type = obj.get('shrine_type', 0) or obj.get('type_id', 0)
+        spell_id = obj.get('spell_id', 0)
+        # Spell level (1..5) — structural attribute from CreateTblSpell
+        try:
+            spell_level = loc.spell_level(spell_id) if loc else 0
+        except Exception:
+            spell_level = 0
+        out.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
             "locality": "underground" if obj.get('loc') == 8 else "surface",
-            "object": "Shrine",
-            "shrine_type": obj.get('shrine_type', 0),
-            "spell_id": obj.get('spell_id', 0),
-        }
-        for obj in tile_objects if obj.get('type_id') in (88, 89, 90)
-    ]
+            "object": shrine_names.get(shrine_type, "Святыня"),
+            "shrine_type": shrine_type,
+            "spell_id": spell_id,
+            "spell_level": spell_level,
+        })
+    return out
 
 
 def merge_witch_huts(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

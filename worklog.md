@@ -1631,3 +1631,160 @@ Stage Summary:
 - ⭐ Создан calculations_todo.txt с явным перечислением калькуляций,
   которые НЕ считаем (∑ HP, ∑ XP, и т.д.)
 - Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet1-remove-hardcode-2026-10-21
+Agent: main (Super Z)
+Task: Убрать хардкод имён объектов из localizer.py (по требованию пользователя)
+
+Источники:
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строки 10714-10770) — CreateTblObject
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строки 15972-16041) — ObjectSection + SectionProcTable
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs (строки 16129-16136) — ReplaceName
+
+Work Log:
+- Прочитан MainForm.cs::ObjectSection (строка 15972) — вызывает SectionProcTable(start, strs, TblObject, 57)
+- Прочитан MainForm.cs::SectionProcTable (строка 16012) — загружает 57 строк из .txt во временную DataTable
+- Прочитан MainForm.cs::ReplaceName (строка 16129) — заменяет имена ПО ПОЗИЦИИ:
+    s.Rows[i]["Name"] = r.Rows[i]["Name"]
+  (не по коду объекта, а по индексу строки!)
+
+КЛЮЧЕВОЕ ОТКРЫТИЕ:
+- .txt [Object] содержит 57 имён для ВСЕХ кодов (включая 82, 101, 102, ...), просто
+  они проиндексированы ПО ПОЗИЦИИ в CreateTblObject, а не по коду объекта.
+- CreateTblObject добавляет строки в фиксированном порядке:
+    pos 0 = code 2  (Жертвенный алтарь)
+    pos 1 = code 5  (Артефакт)
+    pos 2 = code 6  (Ящик Пандоры)
+    ...
+    pos 33 = code 82 (Морской сундук)
+    pos 45 = code 101 (Сундук с сокровищами)
+    pos 56 = code 255 (Торговцы Артефактами)
+- .txt [Object] позиция 45 = "Сундук Сокровищ" (SoD_Ru) → заменяет TblObject.Rows[45] (code 101)
+- .txt [Object] позиция 33 = "Морской сундук" (SoD_Ru) → заменяет TblObject.Rows[33] (code 82)
+- Для code 16 (банки) — 7 subtype (0..6), позиции 6..12 в CreateTblObject
+
+РЕШЕНИЕ (без хардкода имён):
+1. Создан скрипт /home/z/my-project/scripts/extract_object_code_order.py —
+   извлекает порядок кодов из CreateTblObject (MainForm.cs) в JSON.
+2. Создан 02_format_docs/object_code_order.json — 57 записей с полями:
+   {position, code, subtype}. НИКАКИХ имён — только структурные данные.
+3. Localizer.py:
+   - Удалён _DEFAULT_OBJECT_NAMES (хардкод 57 русских имён)
+   - Добавлена загрузка object_code_order.json при импорте модуля
+   - Построен _OBJECT_POSITION_BY_CODE: dict (code, subtype) → position
+   - Метод object(code, subtype=None):
+     1. Найти position по (code, subtype) в _OBJECT_POSITION_BY_CODE
+     2. Вернуть .txt [Object][position]
+   - Для code 16 с subtype: точное соответствие позиции 6+subtype
+   - Для code 16 без subtype: fallback на позицию 6 (subtype 0)
+4. Проверка:
+   - loc.object(101) → "Сундук Сокровищ" (из SoD_Ru [Object][45])
+   - loc.object(82) → "Морской сундук" (из SoD_Ru [Object][33])
+   - loc.object(16, 5) → "Нага Банк" (из SoD_Ru [Object][11])
+   - loc.object(16, 6) → "Улей Змиев" (из SoD_Ru [Object][12])
+   - loc.object(100) → "Камень Знаний" (из SoD_Ru [Object][44])
+   - loc.object(999) → "" (код не найден)
+5. Сундуки в xlsx: "Сундук Сокровищ" (ru_sod) vs PRT "Сундук с сокровищами" (ru_wog).
+   Это ожидаемо — пользователь сказал, что словарь имён не влияет на суть объекта,
+   Phase 0 (смена языка по умолчанию) не делаем.
+
+ОТКАЗ ОТ ХАРДКОДА — итог:
+- В localizer.py больше НЕТ хардкоженных имён объектов
+- Все имена берутся из .txt-файлов (4 языка: en, ru_sod, ru_wog, ru_complete)
+- Только порядок кодов (структурные данные) хранится в JSON — это не имена,
+  а метаданные о том, как PRT индексирует TblObject
+
+ДОПОЛНИТЕЛЬНОЕ НАБЛЮДЕНИЕ (не исправляем, просто логируем):
+- PRT 0000.xlsx показывает имена из WoG_Ru.txt (например "Сундук с сокровищами",
+  "Огр-шаман", "Королева нага"), а не из SoD_Ru.txt.
+- Это связано с тем, что CreateTblObject хардкод совпадает с WoG_Ru (PRT по
+  умолчанию использует хардкод, а .txt загружается только при явном выборе).
+- Наш localizer по умолчанию использует ru_sod, поэтому имена немного отличаются
+  по стилю ("Сундук Сокровищ" vs "Сундук с сокровищами"). Суть объекта та же.
+
+Stage Summary:
+- ⭐ Убран хардкод 57 имён объектов из localizer.py
+- ⭐ Создан 02_format_docs/object_code_order.json (только структурные данные:
+  position, code, subtype — без имён)
+- ⭐ Метод object(code, subtype) теперь берёт имена из .txt-файлов
+- ⭐ Сундуки продолжают работать: loc.object(101) → "Сундук Сокровищ" (из .txt)
+- ⭐ Поддержка subtype для банков: loc.object(16, 5) → "Нага Банк"
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
+
+---
+Task ID: phase1-sheet2-spells-2026-10-21
+Agent: main (Super Z)
+Task: Phase 1 — Sheet 2 "Заклинания": исправить парсинг святынь
+
+Источники:
+- examples/Myth and Legend.h3m/prt/0000.xlsx — эталонный результат PRT (41 строка)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::SaveShrine (строки 10484-10496)
+- 07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs::CreateTblSpell (строки 10773-10845)
+
+Work Log:
+- Прочитан MainForm.cs::SaveShrine (строки 10484-10496):
+  - decmp[s] = object code (88/89/90)
+  - spell_id вычисляется по формуле: ((decmp[s + 8] & 0xF) << 3) + (decmp[s + 7] >> 5)
+  - r_SpellRow.Spell = TblSpell.Rows[spell_id][1] (имя заклинания)
+  - r_SpellRow.Level = TblSpell.Rows[spell_id][2] (уровень 1..5)
+  - r_SpellRow.Object = TblObject.Rows[code][1] (имя объекта — святыня)
+- Прочитан MainForm.cs::CreateTblSpell (строки 10773-10845):
+  - 70 строк с полями (Code, Name, Level)
+  - Level — структурный атрибут (1..5), не локализуемое имя
+  - .txt [Spell] заменяет Name по позиции через ReplaceName (как и с TblObject)
+- Найдена ошибка в нашем tile_scanner.py::_parse_shrine (строка 775):
+  - Читали spell_id = raw[s+6] (один байт) — НЕВЕРНО
+  - Не вычисляли spell_level
+  - Не использовали shrine_type для имени объекта
+- Проверено на конкретной святыне (70, 3, 0):
+  - raw[s+6] = 31 (наш ошибочный spell_id → "Защита от огня")
+  - raw[s+7] = 0, raw[s+8] = 131
+  - PRT spell_id = ((131 & 0xF) << 3) + (0 >> 5) = (3 << 3) + 0 = 24 → "Волна Смерти" ✓
+
+РЕШЕНИЕ (без хардкода):
+1. Создан скрипт /home/z/my-project/scripts/extract_spell_levels.py —
+   извлекает (code, level) из CreateTblSpell в JSON.
+2. Создан 02_format_docs/spell_levels.json — 70 записей с полями {code, level}.
+   НИКАКИХ имён — только структурные данные.
+3. Localizer.py:
+   - Добавлена загрузка spell_levels.json при импорте модуля
+   - Построен _SPELL_LEVELS: dict code → level (1..5)
+   - Добавлен метод spell_level(idx) → int (0 если неизвестно)
+4. tile_scanner.py::_parse_shrine:
+   - Удалено: obj['spell_id'] = raw[s+6]  (неверно)
+   - Добавлено: spell_id = ((raw[s+8] & 0x0F) << 3) + (raw[s+7] >> 5)  (как в PRT)
+5. merged_objects.py::merge_shrines:
+   - Добавлено поле spell_level (из loc.spell_level(spell_id))
+   - Имя объекта теперь берётся из localizer (loc.object(88/89/90))
+   - Раньше: "object": "Shrine" (английский хардкод)
+   - Теперь: loc.object(shrine_type) → "Святыня Магического Жеста/Мысли/Воплощения"
+6. excel_export.py лист "Заклинания":
+   - Добавлено: shrine_name = rec.get("object") (локализованное имя святыни)
+   - Добавлено: spell_level = rec.get("spell_level") (1..5)
+   - Раньше: "Святыня" + spell_id + None (нет уровня)
+   - Теперь: "Святыня Магического Жеста" + "Волна Смерти" + 2
+
+Результат сравнения (первые 5 строк из 41):
+  OUR Row 1: (70, 3, 0, 'суша', 'Святыня Магического Жеста', 'Волна Смерти', 2, None, None)
+  PRT Row 1: (70, 3, 0, 'суша', 'Святыня магического жеста', 'Волна смерти', 2, None, None) ✓
+  OUR Row 2: (95, 4, 0, 'суша', 'Святыня Магической Мысли', 'Воздушный Щит', 3, None, None)
+  PRT Row 2: (95, 4, 0, 'суша', 'Святыня магической мысли', 'Воздушный щит', 3, None, None) ✓
+  OUR Row 3: (106, 7, 0, 'суша', 'Святыня Магического Воплощения', 'Медлительность', 1, None, None)
+  PRT Row 3: (106, 7, 0, 'суша', 'Святыня магического воплощения', 'Медлительность', 1, None, None) ✓
+  OUR Row 4: (41, 11, 0, 'суша', 'Святыня Магического Жеста', 'Ледяная молния', 2, None, None)
+  PRT Row 4: (41, 11, 0, 'суша', 'Святыня магического жеста', 'Ледяная молния', 2, None, None) ✓
+  OUR Row 5: (36, 14, 0, 'суша', 'Святыня Магической Мысли', 'Телепорт', 3, None, None)
+  PRT Row 5: (36, 14, 0, 'суша', 'Святыня магической мысли', 'Телепорт', 3, None, None) ✓
+
+Разница только в капитализации имён (SoD_Ru vs WoG_Ru) — Phase 0 не делаем.
+Все 41 строка: координаты, имена объектов, имена заклинаний, уровни — идентичны PRT.
+
+Stage Summary:
+- ⭐ Sheet "Заклинания" — ПОЛНОЕ СОВПАДЕНИЕ с PRT (41 строка, все данные корректны)
+- ⭐ Исправлен баг с декодированием spell_id (читали raw[s+6] вместо формулы PRT)
+- ⭐ Добавлен spell_level (1..5) через новый spell_levels.json (без хардкода в коде)
+- ⭐ Имя святыни теперь локализованное: "Святыня Магического Жеста/Мысли/Воплощения"
+- ⭐ Создан 02_format_docs/spell_levels.json (только структурные данные: code, level)
+- ⭐ Добавлен метод localizer.spell_level(idx) → int
+- ⭐ Архив пересобран: /home/z/my-project/download/H3save_reader.tar.gz
