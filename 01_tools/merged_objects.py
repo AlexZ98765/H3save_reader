@@ -637,42 +637,234 @@ def merge_resources(tile_objects: List[Dict[str, Any]],
 
 
 def merge_event_boxes(tile_objects: List[Dict[str, Any]],
-                      post_tile_content: Dict[str, Any]
+                      post_tile_content: Optional[Dict[str, Any]] = None,
+                      localizer=None,
+                      raw: Optional[bytes] = None
                       ) -> List[Dict[str, Any]]:
     """Merge event tile objects + Pandora boxes with EventBox content
     (sheet "События и Ящики Пандоры").
 
-    Returns records with ALL fields from EventBoxContent:
-      x, y, z, locality, object, guard, experience, mana, morale, luck,
-      resources, primary_skills, secondary_skills, artifacts, spells,
-      monsters, apply
-    """
-    tile_map = _build_tile_object_map(tile_objects)
-    event_boxes = []
+    PRT logic:
+      - SaveEvent (line 10065): creates R_EventBox row with X/Y/Z/Num from tile scan
+      - AnalysisContent: iterates TblEventBox (sorted by Num) + calls EventBoxContent
+        to fill guard/experience/mana/morale/luck/resources/skills/artifacts/spells/monsters
 
-    # EventBox records from post_tile_content have the content but no coords
-    # We match them to tile objects by their address (offset in save)
-    ebs = post_tile_content.get("event_boxes", [])
-    for eb in ebs:
-        eb = _to_dict(eb)
-        rec = {
-            "address": eb.get("address"),
-            "has_guard": eb.get("has_guard", False),
-            "guard": _serialize_guard(eb.get("guard", [])),
-            "experience": eb.get("experience", 0),
-            "mana": eb.get("mana", 0),
-            "morale": eb.get("morale", 0),
-            "luck": eb.get("luck", 0),
-            "resources": eb.get("resources", {}),
-            "primary_skills": eb.get("primary_skills", {}),
-            "secondary_skills": eb.get("secondary_skills", []),
-            "artifacts": eb.get("artifacts", []),
-            "spells": eb.get("spells", []),
-            "monsters": eb.get("monsters", []),
-            "apply": eb.get("apply", (0, 0, 0)),
-        }
-        event_boxes.append(rec)
-    return event_boxes
+    Universal: sort tile events by event_num (matching PRT's TblEventBox.Sort = "Num"),
+    match positionally to post_tile event_boxes (same order as parse = sorted by Num).
+    """
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    # Get tile events (type 26) and Pandora boxes (type 6) — both go to this sheet
+    events = [o for o in tile_objects if o.get('type_id') in (26, 6)]
+    # Sort by event_num (PRT TblEventBox.Sort = "Num")
+    events_sorted = sorted(events, key=lambda e: e.get('event_num', 0))
+
+    # Get post_tile event_boxes (in parse order = sorted by Num order)
+    ebs = []
+    if post_tile_content and isinstance(post_tile_content, dict):
+        for eb in post_tile_content.get("event_boxes", []):
+            ebs.append(_to_dict(eb))
+
+    # Get human player color for "Доступно" column
+    # PRT line 7661: human = i where decmp[color_off + i*145 + 14] == 3
+    human_color = None
+    if raw is not None and post_tile_content and isinstance(post_tile_content, dict):
+        offsets = post_tile_content.get("offsets", {})
+        color_off = offsets.get("color", 0)
+        if color_off > 0 and localizer:
+            for i in range(8):
+                off = color_off + i * 145 + 14
+                if off < len(raw) and raw[off] == 3:
+                    human_color = localizer.color(i)
+                    break
+
+    # Resource letter mapping (matches PRT aResource[])
+    A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    A_RESOURCE_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+    name_to_letter = dict(zip(A_RESOURCE_NAMES, A_RESOURCE_LETTERS))
+
+    # Primary skill short codes (PRT aPrSkill)
+    A_PRSKILL = ["A", "D", "P", "K"]  # Attack, Defense, Power, Knowledge
+    PRSKILL_NAMES = ["Attack", "Defense", "Power", "Knowledge"]
+    name_to_prskill = dict(zip(PRSKILL_NAMES, A_PRSKILL))
+
+    # Secondary skill level prefixes (PRT aLevelSkill)
+    A_LEVELSKILL = ["Б.", "А.", "Е."]  # Basic, Advanced, Expert
+
+    records = []
+    for i, event_tile in enumerate(events_sorted):
+        # Get coordinates from tile scan
+        x = event_tile.get('x')
+        y = event_tile.get('y')
+        z = event_tile.get('z')
+        loc = event_tile.get('loc', 0)
+
+        # Localized object name
+        type_id = event_tile.get('type_id', 26)
+        object_name = localizer.object(type_id) if localizer else "Событие"
+
+        # Get content from post_tile event_box (matched positionally)
+        eb = ebs[i] if i < len(ebs) else {}
+
+        # Guard: PRT EventBoxContent (line 8198) does NOT use ItWas dedup.
+        # Each guard slot is listed separately (e.g., "Нага 3, Нага 3, Нага 3").
+        guard_list = _serialize_guard(eb.get("guard", []))
+        guard_str = None
+        sum_hp = None
+        if guard_list:
+            # Compute ∑ HP (sum of all slots, no dedup)
+            try:
+                from art_metadata import get_monster_hp
+                hp_total = 0
+                for g in guard_list:
+                    mid = g.get("monster_id", -1)
+                    cnt = g.get("count", 0)
+                    hp_total += get_monster_hp(mid) * cnt
+                sum_hp = hp_total if hp_total > 0 else None
+            except Exception:
+                pass
+            # Format guard string WITHOUT dedup (each slot shown separately)
+            parts = []
+            for g in guard_list:
+                mid = g.get("monster_id", -1)
+                cnt = g.get("count", 0)
+                mname = localizer.monstr(mid) if localizer else f"M{mid}"
+                parts.append(f"{mname} {cnt}")
+            guard_str = ", ".join(parts) if parts else None
+
+        # Experience
+        experience = eb.get("experience", 0) or None
+
+        # Mana
+        mana = eb.get("mana", 0) or None
+
+        # Morale (PRT format: "+2" for positive, "-2" for negative)
+        morale_val = eb.get("morale", 0)
+        morale_str = None
+        if morale_val and morale_val != 0:
+            morale_str = f"+{morale_val}" if morale_val > 0 else str(morale_val)
+
+        # Luck (same format as morale)
+        luck_val = eb.get("luck", 0)
+        luck_str = None
+        if luck_val and luck_val != 0:
+            luck_str = f"+{luck_val}" if luck_val > 0 else str(luck_val)
+
+        # Gold (from resources dict)
+        resources_dict = eb.get("resources", {})
+        gold = resources_dict.get("Gold", 0) if isinstance(resources_dict, dict) else 0
+        gold_str = gold if gold else None
+
+        # Resource (PRT format: "W-10, G-5" — letter + signed amount)
+        res_parts = []
+        if isinstance(resources_dict, dict):
+            for rname in A_RESOURCE_NAMES:
+                amount = resources_dict.get(rname, 0)
+                if amount and amount != 0:
+                    letter = name_to_letter.get(rname, "?")
+                    res_parts.append(f"{letter}{amount}")
+        resource_str = ", ".join(res_parts) if res_parts else None
+
+        # Primary skills (PRT format: "K1" — no "+" sign, just code+value)
+        ps_dict = eb.get("primary_skills", {})
+        ps_parts = []
+        if isinstance(ps_dict, dict):
+            for pname, pval in ps_dict.items():
+                if pval and pval != 0:
+                    code = name_to_prskill.get(pname, pname[:1].upper())
+                    ps_parts.append(f"{code}{pval}")
+        ps_str = ", ".join(ps_parts) if ps_parts else None
+
+        # Secondary skills (PRT format: "Б.Мудрость, А.Меткость")
+        ss_list = eb.get("secondary_skills", [])
+        ss_parts = []
+        if ss_list:
+            for ss in ss_list:
+                if isinstance(ss, dict):
+                    sid = ss.get("skill_id", -1)
+                    lvl = ss.get("level", 0)
+                    if sid >= 0 and lvl > 0:
+                        skill_name = localizer.skill(sid) if localizer else f"Sk{sid}"
+                        prefix = A_LEVELSKILL[lvl - 1] if lvl <= 3 else f"L{lvl}."
+                        ss_parts.append(f"{prefix}{skill_name}")
+                elif isinstance(ss, (list, tuple)) and len(ss) >= 2:
+                    sid, lvl = ss[0], ss[1]
+                    if sid >= 0 and lvl > 0:
+                        skill_name = localizer.skill(sid) if localizer else f"Sk{sid}"
+                        prefix = A_LEVELSKILL[lvl - 1] if lvl <= 3 else f"L{lvl}."
+                        ss_parts.append(f"{prefix}{skill_name}")
+        ss_str = ", ".join(ss_parts) if ss_parts else None
+
+        # Artifacts (PRT format: "Shield of Dwarven Lords, Sword of Justice")
+        art_list = eb.get("artifacts", [])
+        art_parts = []
+        if art_list:
+            for aid in art_list:
+                if isinstance(aid, int) and aid >= 0:
+                    art_parts.append(localizer.art(aid) if localizer else f"A{aid}")
+        art_str = ", ".join(art_parts) if art_parts else None
+
+        # Spells (PRT format: "Haste, Bless")
+        spl_list = eb.get("spells", [])
+        spl_parts = []
+        if spl_list:
+            for sid in spl_list:
+                if isinstance(sid, int) and sid >= 0:
+                    spl_parts.append(localizer.spell(sid) if localizer else f"S{sid}")
+        spl_str = ", ".join(spl_parts) if spl_parts else None
+
+        # Monsters (PRT format: "Pikeman 10, Archer 5" — no "x")
+        mon_list = eb.get("monsters", [])
+        mon_parts = []
+        if mon_list:
+            for m in mon_list:
+                if isinstance(m, dict):
+                    mid = m.get("monster_id", -1)
+                    cnt = m.get("count", 0)
+                elif isinstance(m, (list, tuple)) and len(m) >= 2:
+                    mid, cnt = m[0], m[1]
+                else:
+                    continue
+                if mid >= 0:
+                    mname = localizer.monstr(mid) if localizer else f"M{mid}"
+                    mon_parts.append(f"{mname} {cnt}")
+        mon_str = ", ".join(mon_parts) if mon_parts else None
+
+        # "Доступно" = human player color (PRT shows human player's color for
+        # events available to all players). The Apply bitmask (255=all players)
+        # is displayed as just the human player's color in the xlsx.
+        apply_flags = event_tile.get('apply_flags', 0)
+        available = None
+        if apply_flags and human_color:
+            if apply_flags & 0x3F:  # any player bit set
+                available = human_color
+
+        records.append({
+            "x": x, "y": y, "z": z,
+            "locality": "море" if loc == 8 else "суша",
+            "object": object_name,
+            "guard": guard_str,
+            "hp": sum_hp,
+            "experience": experience,
+            "mana": mana,
+            "morale": morale_str,
+            "luck": luck_str,
+            "gold": gold_str,
+            "resource": resource_str,
+            "primary_skill": ps_str,
+            "secondary_skill": ss_str,
+            "artifact": art_str,
+            "spell": spl_str,
+            "monster": mon_str,
+            "available": available,
+        })
+
+    return records
 
 
 def merge_banks(tile_objects: List[Dict[str, Any]],
@@ -1652,7 +1844,8 @@ def merge_all(tile_objects: List[Dict[str, Any]],
                                     localizer=localizer, raw=raw),
         "Банки": merge_banks(tile_objects, post_tile_content,
                               localizer=localizer, raw=raw),
-        "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content),
+        "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content,
+                                                        localizer=localizer, raw=raw),
         "Ученые": merge_scholars(tile_objects),
         "Ресурсы": merge_resources(tile_objects, post_tile_content,
                                     localizer=localizer, raw=raw),

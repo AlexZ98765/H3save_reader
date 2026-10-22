@@ -523,54 +523,32 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── События и Ящики Пандоры ──
+        # Universal: writes all populated fields from merge_event_boxes() output.
+        #   rec keys: x, y, z, locality, object, guard, hp, experience, mana,
+        #             morale, luck, gold, resource, primary_skill, secondary_skill,
+        #             artifact, spell, monster, available
         ws = wb.create_sheet("События и Ящики Пандоры")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Опыт", "Мана", "Мораль", "Удача", "Золото", "Ресурс", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно"])
-        for rec in ptc.get("event_boxes", []):
-            if isinstance(rec, dict):
-                guard_str = _guard_str(rec.get("guard", []))
-                res_str = str(rec.get("resources", {})) if rec.get("resources") else None
-                ps_str = str(rec.get("primary_skills", {})) if rec.get("primary_skills") else None
-                ss_str = _skl_list_str(rec.get("secondary_skills", [])) if rec.get("secondary_skills") else None
-                # If secondary_skills is a list of dicts (skill_id+level), format them
-                if rec.get("secondary_skills") and isinstance(rec.get("secondary_skills")[0], dict):
-                    parts = []
-                    for s in rec.get("secondary_skills", []):
-                        if isinstance(s, dict):
-                            sid = s.get('skill_id', -1)
-                            lvl = s.get('level', 0)
-                            if sid >= 0:
-                                parts.append(f"{_skl_name(sid) or f'Sk{sid}'} (L{lvl})")
-                    ss_str = ", ".join(parts) if parts else None
-                art_str = _art_list_str(rec.get("artifacts", [])) if rec.get("artifacts") else None
-                # If artifacts is list of dicts with artifact_id
-                if rec.get("artifacts") and isinstance(rec.get("artifacts")[0], dict):
-                    parts = []
-                    for a in rec.get("artifacts", []):
-                        if isinstance(a, dict):
-                            aid = a.get('artifact_id', -1)
-                            if aid >= 0:
-                                n = _art_name(aid) or f"A{aid}"
-                                parts.append(n)
-                    art_str = ", ".join(parts) if parts else None
-                spl_str = _spl_list_str(rec.get("spells", [])) if rec.get("spells") else None
-                mon_str_parts = []
-                if rec.get("monsters"):
-                    for m in rec.get("monsters", []):
-                        if isinstance(m, dict):
-                            mid = m.get('monster_id', -1)
-                            cnt = m.get('count', 0)
-                            if mid >= 0:
-                                mon_str_parts.append(f"{_mon_name(mid) or f'M{mid}'} x{cnt}")
-                        elif isinstance(m, (list, tuple)) and len(m) >= 2:
-                            mid, cnt = m[0], m[1]
-                            if mid >= 0:
-                                mon_str_parts.append(f"{_mon_name(mid) or f'M{mid}'} x{cnt}")
-                mon_str = ", ".join(mon_str_parts) if mon_str_parts else None
-                apply_str = str(rec.get("apply", ())) if rec.get("apply") else None
-                ws.append([None, None, None, None, "Событие", guard_str, None,
-                           rec.get("experience"), rec.get("mana"), rec.get("morale"), rec.get("luck"),
-                           rec.get("resources", {}).get("Gold"), res_str,
-                           ps_str, ss_str, art_str, spl_str, mon_str, apply_str])
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Опыт", "Мана",
+                   "Мораль", "Удача", "Золото", "Ресурс", "Первичный навык",
+                   "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно"])
+        for rec in mo.get("События_Ящики_Пандоры", []):
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "суша" if rec.get("locality", "суша") != "море" else "море",
+                       rec.get("object", "Событие"),
+                       rec.get("guard"),
+                       rec.get("hp"),
+                       rec.get("experience"),
+                       rec.get("mana"),
+                       rec.get("morale"),
+                       rec.get("luck"),
+                       rec.get("gold"),
+                       rec.get("resource"),
+                       rec.get("primary_skill"),
+                       rec.get("secondary_skill"),
+                       rec.get("artifact"),
+                       rec.get("spell"),
+                       rec.get("monster"),
+                       rec.get("available")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

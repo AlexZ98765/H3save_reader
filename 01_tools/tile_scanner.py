@@ -273,16 +273,30 @@ def scan_tiles(raw: bytes, map_start: int, map_size: int,
         if obj_found and obj_offset < len(raw):
             type_id = raw[obj_offset]
 
-            # FirstID dedup — skip if already seen this object ID
-            obj_id = (raw[obj_offset + 5] << 8) + raw[obj_offset + 4] if obj_offset + 6 <= len(raw) else 0
-            if obj_id not in seen_object_ids:
-                seen_object_ids.add(obj_id)
+            # PRT IsObject: some types are processed WITHOUT FirstID dedup.
+            # Type 26 (Event) — NO FirstID (process ALL event tiles)
+            # Type 34 (Hero) — NO FirstID
+            # All other types use FirstID(s) to skip overlay duplicates.
+            types_without_firstid = {26, 34}
 
+            if type_id in types_without_firstid:
+                # No dedup — process every tile of this type
                 obj = parse_object_content(raw, obj_offset, type_id, x, y, z, loc)
                 if obj:
                     obj['tile_num'] = tile_num
                     obj['obj_id'] = obj_id
                     objects.append(obj)
+            else:
+                # FirstID dedup — skip if already seen this object ID
+                obj_id = (raw[obj_offset + 5] << 8) + raw[obj_offset + 4] if obj_offset + 6 <= len(raw) else 0
+                if obj_id not in seen_object_ids:
+                    seen_object_ids.add(obj_id)
+
+                    obj = parse_object_content(raw, obj_offset, type_id, x, y, z, loc)
+                    if obj:
+                        obj['tile_num'] = tile_num
+                        obj['obj_id'] = obj_id
+                        objects.append(obj)
 
         # Skip 11 bytes
         s += 11
