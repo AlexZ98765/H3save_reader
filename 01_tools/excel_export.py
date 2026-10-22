@@ -1054,8 +1054,23 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 except Exception:
                     pass
 
-            # Library status (simplified: "Доступно" if has_library, else None)
-            library_str = "Доступно" if (isinstance(sp, dict) and sp.get("has_library")) else None
+            # Library: Tower (type=2) has Library by default → "Доступно"
+            # PRT GetTownSpell: num5=1 for Tower, Library defaults to "Доступно" (aStatus[0])
+            # unless bit 6 of (spell_off-14) is set → "Недоступно"
+            library_str = None
+            sp_addr = sp.get("address", 0) if isinstance(sp, dict) else 0
+            if ttype == 2:
+                if sp_addr and sp_addr - 14 >= 0 and sp_addr - 14 < len(raw):
+                    lib_byte = raw[sp_addr - 14]
+                    library_str = "Недоступно" if (lib_byte & 0x40) else "Доступно"
+                else:
+                    library_str = "Доступно"  # default for Tower
+
+            # Read "Built" flags from byte at spell_off - 16
+            # PRT: if (((decmp[num-16] >> i) & 1) > 0) row.Built = aReply[1] = "Да"
+            built_byte = 0
+            if sp_addr and sp_addr - 16 >= 0 and sp_addr - 16 < len(raw):
+                built_byte = raw[sp_addr - 16]
 
             # Create 1 row per spell level
             level_num = 0
@@ -1076,10 +1091,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 spells_str = ", ".join(spell_names) if spell_names else None
                 # First row gets Garrison + ∑ HP + Library; subsequent rows get None
                 is_first = (level_idx == 0)
+                # Built: bit i of built_byte → "Да" if set, else None
+                built_str = "Да" if (built_byte >> level_idx) & 1 else None
                 ws.append([f.get("x"), f.get("y"), f.get("z"),
                            f.get("name", "?"), ttype_name, faction_name,
                            level_num, spells_str,
-                           None,  # Построен — complex PRT logic, leave None for now
+                           built_str,
                            "Да",  # Доступен — default "Да" for existing levels
                            None,  # Таймер — complex PRT logic, leave None for now
                            library_str if is_first else None,
