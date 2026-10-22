@@ -672,11 +672,12 @@ def _parse_monster(raw, s, obj):
     # Has artifact/guard: decmp[s+9] & 0x80
     obj['has_artifact'] = bool(raw[s + 9] & 0x80) if s + 10 <= len(raw) else False
     _enrich_typed_field(raw, obj, 'has_artifact', s + 9, 1, "bool")
-    # MonstrContent Num: ((decmp[s+9] & 7) << 8) + (decmp[s+8] >> 3)
-    # Used by PRT AnalysisMonstrContent to link guarded monsters to post-tile
-    # MonstrContent records (resources, gold, artifact) by index.
+    # MonstrContent Num: per PRT C# operator precedence, + binds tighter than >>
+    # PRT: dataRow["Num"] = ((decmp[s + 9] & 7) << 8) + decmp[s + 8] >> 3
+    # C# evaluates as: (((decmp[s + 9] & 7) << 8) + decmp[s + 8]) >> 3
+    # NOT as: ((decmp[s + 9] & 7) << 8) + (decmp[s + 8] >> 3)  ← WRONG (Python default)
     if s + 10 <= len(raw):
-        obj['monstr_num'] = ((raw[s + 9] & 7) << 8) + (raw[s + 8] >> 3)
+        obj['monstr_num'] = (((raw[s + 9] & 7) << 8) + raw[s + 8]) >> 3
     else:
         obj['monstr_num'] = 0
 

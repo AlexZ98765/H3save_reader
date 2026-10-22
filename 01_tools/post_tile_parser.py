@@ -2050,7 +2050,12 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
     except Exception as e:
         result["art_res"] = []
 
-    # A4. Monstr — special (count is u16, but each record is independent)
+    # A4. Monstr — special (count is u16, each record has variable message length)
+    # PRT ScanMonstrContent (line 9167): each record size = u16_value + 31
+    # (u16_value = message_length, 31 = 2-byte u16 field + 29 bytes content:
+    #  24 resources + 4 gold + 1 artifact).
+    # parse_monstr_content already advances s past the entire record, so
+    # we do NOT add an extra skip here (was bug: s += 31 caused double-skip).
     try:
         monstrs = []
         s = offsets["monstr"]
@@ -2059,7 +2064,6 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
         for i in range(n):
             rec, s = parse_monstr_content(raw, s)
             monstrs.append(rec)
-            s += 31  # MonstrContent records are u16_length + 31
         result["monstr_records"] = monstrs
     except Exception as e:
         result["monstr_records"] = []
