@@ -460,29 +460,21 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         }
 
     # ----- v3.10: Spell Pool (Magic Guild spells) -----
-    # GetTownContent (line 7458) reads spell_pool after each town.
-    # The spell pool starts at block_offset + 72 + name_len + 113 (after town name
-    # and a 113-byte gap before spell slots).
-    # Town spell pool depth depends on town type (TOWN_SPELL_POOL_DEPTH).
-    # We call post_tile_parser.parse_town_spell to extract spells per level.
+    # PRT GetTownContent (line 7458): spell_pool starts at town+72+name_len+113
+    # But OUR's block_offset = PRT's town+1 (1 byte ahead), so OUR's offsets
+    # are PRT's-1. TOWN_FIELD_OFFSETS already compensates (name_len at 69, name at 71).
+    # So spell section = block_offset + 71 + name_len + 113 = block_offset + 184 + name_len
     try:
-        # Lazy import to avoid circular dependency
         import os, sys
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         from post_tile_parser import parse_town_spell
         from save_layout import TOWN_SPELL_POOL_DEPTH
 
-        # Spell section starts after town record + 113 bytes gap
-        # block_offset + 72 (name_len_offset) + name_len + 113
-        # but GetTownSpell is called AFTER skipping town record
-        # (town stride = 72 + name_len + 113 + spell_section + 197)
-        # Let's compute: end of "town main body" = block_offset + 72 + name_len + 113
-        spell_section_offset = block_offset + 72 + name_len + 113
-        # Library check: if Tower (type=2), library built = bit 0x40 in some byte
-        # For simplicity, assume library = False unless we can read it
+        # OUR's name_len is at offset 69 (PRT's 70 minus 1)
+        # OUR's name starts at offset 71 (PRT's 72 minus 1)
+        # Spell section = block_offset + 71 + name_len + 113
+        spell_section_offset = block_offset + 71 + name_len + 113
         lvl = TOWN_SPELL_POOL_DEPTH.get(fields["type"], 5)
-        # parse_town_spell expects (raw, s, lvl, library_built, mg5_built)
-        # We pass library_built = False (will need to fix later if needed)
         spell_pool, _ = parse_town_spell(raw, spell_section_offset, lvl)
         # spell_pool is TownSpellPool dataclass with .levels (list of lists)
         # Convert to dict for JSON

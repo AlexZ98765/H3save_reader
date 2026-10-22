@@ -1363,41 +1363,48 @@ def parse_town_spell(raw: bytes, s: int, lvl: int,
     """Parse spells available in town's Magic Guild.
 
     Reference: MainForm.cs:7542 `GetTownSpell(int s, int lvl, ...)`.
-    Layout (197 bytes — same as town "post-name 113" + spell area):
-    - For lvl <= 5: lvl levels × ~5 spells each
-    - For lvl == 6 (Tower with Library): 1 extra spell slot
-    - Each spell slot: u8 spell_id (0xFF = none) for slots beyond level 1
-                      (level 1 spells are always available — different encoding)
+    Layout per level: 5 spell slots × 4 bytes = 20 bytes + 4 bytes padding = 24 bytes.
+    PRT advances s by 24 after each level (except last).
+
+    Spells per level (for 5-level guild, num4=0):
+      Level 0: 5 spells (j=0..4)
+      Level 1: 4 spells (j=0..3)
+      Level 2: 3 spells (j=0..2)
+      Level 3: 2 spells (j=0..1)
+      Level 4: 1 spell  (j=0)
+    Total: 15 spell slots
+
+    For 6-level guild (Tower with Library, num4=1): adds 1 extra spell per level.
 
     Notes:
     - Library check: `(decmp[num - 14] & 0x40) == 64` → library adds 1 spell per level
     - Mage Guild lvl 5: `(decmp[num - 6] & 0x40) == 64`
+    - Built/Available flags at bytes (s-16) and (s-8)
     """
     rec = TownSpellPool(address=s, has_library=library_built,
                         has_mage_guild_level_5=mg5_built)
-    start = s
+    # PRT: num2 = ((lvl == 6) ? 5 : lvl) — Tower (lvl=6) still has 5 levels,
+    # but num4=1 means 1 extra spell per level (library adds 1 spell, not 1 level)
     actual_lvl = 5 if lvl == 6 else lvl
+    num4 = 1 if lvl == 6 else 0  # extra spell per level for Tower with Library
 
     for level_idx in range(actual_lvl):
-        # Layout: 5 spells per level × 4 bytes each, but only byte 0 matters
-        # The exact offset depends on the town record stride.
-        # Simplified: read 5 spell slots (u8 each at offsets 0, 4, 8, 12, 16)
+        # PRT: for (int j = 0; j < 5 + num4 - i; j++)
+        n_spells = 5 + num4 - level_idx
         spells = []
-        for slot in range(5):
+        for slot in range(n_spells):
             off = s + slot * 4
             if off < len(raw):
                 sp = raw[off]
                 if sp != 0xFF:
                     spells.append(sp)
         rec.levels.append(spells)
-        s += 5 * 4  # 20 bytes per level
+        # PRT: s += 24 after each level (except last)
+        if level_idx < actual_lvl - 1:
+            s += 24
 
-    # Tower with Library: extra level 6 (just 1 spell slot)
-    if lvl == 6:
-        sp = raw[s]
-        if sp != 0xFF:
-            rec.levels.append([sp])
-        s += 4
+    # No extra level 6 — PRT GetTownSpell for lvl=6 has num2=5 (5 levels only).
+    # The library adds +1 spell per level (handled by num4 above), not an extra level.
 
     return rec, s
 

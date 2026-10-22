@@ -1008,40 +1008,89 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Города ──
+        # PRT GetTownContent (line 7458) creates 1 row per spell level (1..N).
+        # First row: Garrison + ∑ HP + Library. Subsequent rows: Spell + Available.
+        # Empty levels are DELETED (not shown). Sorted by Z, Y, X, Slot.
         ws = wb.create_sheet("Города")
-        ws.append(["X", "Y", "Z", "Город", "Тип", "Флаг", "Уровень", "Заклинание", "Построен", "Доступен", "Таймер", "Библиотека", "Гарнизон", "∑ HP"])
+        ws.append(["X", "Y", "Z", "Город", "Тип", "Флаг", "Уровень", "Заклинание",
+                   "Построен", "Доступен", "Таймер", "Библиотека", "Гарнизон", "∑ HP"])
         for t in parsed.get("towns_found", []):
             f = t.get("fields", {})
             sp = f.get("spell_pool", {})
             levels = sp.get("levels", []) if isinstance(sp, dict) else []
-            # Spell pool levels is list of lists of spell IDs
-            spell_names_per_level = []
-            for lvl in levels:
-                if isinstance(lvl, list):
-                    lvl_names = [_spl_name(sid) or str(sid) for sid in lvl if sid is not None and sid >= 0]
-                    if lvl_names:
-                        spell_names_per_level.append(", ".join(lvl_names))
-            spells_str = " | ".join(spell_names_per_level) if spell_names_per_level else None
-            # Army: types+counts as 'Pikeman x10, Archer x5'
+
+            # Town type name
+            ttype = f.get("type", 0) or 0
+            ttype_name = _town_name(ttype) or f.get("type_name") or str(ttype)
+
+            # Faction/color
+            faction_id = f.get("faction", -1)
+            faction_name = _color_name(faction_id) if faction_id is not None and faction_id >= 0 else (f.get("faction_name") or "")
+
+            # Garrison: format as PRT "<name> <count>, ..." (with dedup, no "x" prefix)
             at = f.get("army_types", []) or []
             ac = f.get("army_counts", []) or []
-            army_parts = []
+            garrison_list = []
             for mt, ct in zip(at, ac):
                 if isinstance(mt, int) and mt >= 0 and ct:
-                    army_parts.append(f"{_mon_name(mt) or mt} x{ct}")
-            army_str = ", ".join(army_parts) if army_parts else None
-            # Town type name: prefer localized name, fall back to existing type_name
-            ttype = f.get("type", 0) or 0
-            loc_town = _town_name(ttype)
-            ttype_name = loc_town or f.get("type_name") or str(ttype)
-            # Faction name: prefer localized name, fall back to existing faction_name
-            faction_id = f.get("faction", -1)
-            loc_color = _color_name(faction_id) if faction_id is not None and faction_id >= 0 else ""
-            faction_name = loc_color or f.get("faction_name") or ""
-            ws.append([f.get("x"), f.get("y"), f.get("z"),
-                       f.get("name", "?"), ttype_name,
-                       faction_name, None, spells_str,
-                       None, None, None, None, army_str, None])
+                    garrison_list.append({"monster_id": mt, "count": ct})
+            garrison_str = _guard_str(garrison_list) if garrison_list else None
+
+            # ∑ HP = sum(monster_hp × count) for all garrison monsters
+            sum_hp = None
+            if garrison_list:
+                try:
+                    from art_metadata import get_monster_hp
+                    seen = {}
+                    for g in garrison_list:
+                        mid = g.get("monster_id", -1)
+                        cnt = g.get("count", 0)
+                        if mid in seen:
+                            seen[mid] += cnt
+                        else:
+                            seen[mid] = cnt
+                    hp_total = sum(get_monster_hp(mid) * cnt for mid, cnt in seen.items())
+                    sum_hp = hp_total if hp_total > 0 else None
+                except Exception:
+                    pass
+
+            # Library status (simplified: "Доступно" if has_library, else None)
+            library_str = "Доступно" if (isinstance(sp, dict) and sp.get("has_library")) else None
+
+            # Create 1 row per spell level
+            level_num = 0
+            for level_idx, level_spells in enumerate(levels):
+                if not isinstance(level_spells, list) or not level_spells:
+                    # Empty level — PRT deletes it, but if it's the first level,
+                    # PRT shows it with Available="Да"
+                    if level_idx == 0:
+                        ws.append([f.get("x"), f.get("y"), f.get("z"),
+                                   f.get("name", "?"), ttype_name, faction_name,
+                                   1, None, None, "Да", None, None,
+                                   garrison_str, sum_hp])
+                    continue
+                level_num = level_idx + 1
+                # Spell names for this level
+                spell_names = [_spl_name(sid) or str(sid) for sid in level_spells
+                               if sid is not None and sid >= 0]
+                spells_str = ", ".join(spell_names) if spell_names else None
+                # First row gets Garrison + ∑ HP + Library; subsequent rows get None
+                is_first = (level_idx == 0)
+                ws.append([f.get("x"), f.get("y"), f.get("z"),
+                           f.get("name", "?"), ttype_name, faction_name,
+                           level_num, spells_str,
+                           None,  # Построен — complex PRT logic, leave None for now
+                           "Да",  # Доступен — default "Да" for existing levels
+                           None,  # Таймер — complex PRT logic, leave None for now
+                           library_str if is_first else None,
+                           garrison_str if is_first else None,
+                           sum_hp if is_first else None])
+            # If no levels at all, emit one row with Available="Да"
+            if level_num == 0:
+                ws.append([f.get("x"), f.get("y"), f.get("z"),
+                           f.get("name", "?"), ttype_name, faction_name,
+                           1, None, None, "Да", None, None,
+                           garrison_str, sum_hp])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

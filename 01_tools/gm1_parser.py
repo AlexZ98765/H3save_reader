@@ -1777,7 +1777,7 @@ class GM1ParserWindow(QMainWindow):
         load_dz_action.setShortcut("Ctrl+D")
         load_dz_action.triggered.connect(self._on_load_day_zero)
         load_menu.addAction(load_dz_action)
-        load_cfg_action = QAction("2b. ‘Save’ config JSON…", self)
+        load_cfg_action = QAction("Load ‘Save’ config JSON…", self)
         load_cfg_action.setShortcut("Ctrl+L")
         load_cfg_action.triggered.connect(self._on_load_map_config)
         load_menu.addAction(load_cfg_action)
