@@ -580,37 +580,154 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
 
 
 def merge_banks(tile_objects: List[Dict[str, Any]],
-                post_tile_content: Dict[str, Any]
+                post_tile_content: Dict[str, Any],
+                localizer=None,
+                raw: Optional[bytes] = None
                 ) -> List[Dict[str, Any]]:
     """Merge bank tile objects + post-tile Bank content (sheet "Банки").
 
-    Returns records with:
-      x, y, z, locality, object, guard, monster_reward, gold, resources, artifact_ids
-    """
-    banks = []
-    # Tile scan: banks have type_id 16, 24, 25, 84, 85
-    tile_banks = [obj for obj in tile_objects
-                  if obj.get('type_id') in (16, 24, 25, 84, 85)]
-    # Post-tile content
-    post_banks = post_tile_content.get("banks", [])
+    Universal: no hardcoding — uses art_metadata.is_bank_type and
+    is_artifact_bank to determine which types produce rows. Per PRT logic
+    (MainForm.cs SaveBanks + BankContent): only PLAIN banks (code 16)
+    produce rows in Банки sheet. Artifact-banks (24, 25, 84, 85) go to
+    Артефакты sheet (handled by merge_artifacts).
 
-    # Zip them up — both should be in same order (bank_num)
+    Returns records with:
+      x, y, z, locality, object (localized bank name), guard (list),
+      monster_reward (formatted "<name> <count>"), gold (int), resources
+      (PRT-formatted "G8, S5" string), hp (∑ HP)
+    """
+    try:
+        from art_metadata import (
+            is_bank_type,
+            is_artifact_bank,
+            get_monster_info,
+            get_monster_name,
+            get_monster_hp,
+            get_monster_level,
+        )
+        _has_meta = True
+    except Exception:
+        _has_meta = False
+
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    banks = []
+    # Tile scan: banks have type_id 16, 24, 25, 84, 85 (we still match all for
+    # positional pairing with post_banks). But we only EMIT rows for plain
+    # banks (type_id 16) — artifact-banks go to Артефакты sheet.
+    tile_banks = [obj for obj in tile_objects
+                  if _has_meta and is_bank_type(int(obj.get('type_id', 0)))]
+    post_banks = post_tile_content.get("banks", []) if post_tile_content else []
+
+    # Resource letter mapping (matches PRT aResource[])
+    A_RESOURCE = ["W", "M", "O", "S", "C", "G"]  # Wood, Mercury, Ore, Sulfur, Crystal, Gems
+
     for i, pb in enumerate(post_banks):
         pb = _to_dict(pb)
         tb = tile_banks[i] if i < len(tile_banks) else {}
+        type_id = int(tb.get('type_id', 0))
+
+        # Skip artifact-banks — they go to Артефакты sheet, not Банки
+        if _has_meta and is_artifact_bank(type_id):
+            continue
+
+        # Skip non-bank types (defensive)
+        if _has_meta and not is_bank_type(type_id):
+            continue
+
+        # Localized bank name using subtype (e.g., "Склады Циклопов", "Банк Наг")
+        # PRT MainForm.cs:9924 uses TblObject.Select("Code='16' AND Type='decmp[s+2]'")
+        bank_subtype = None
+        s = tb.get('offset')
+        if s is not None and isinstance(s, int) and raw is not None and s + 3 <= len(raw):
+            bank_subtype = raw[s + 2]
+
+        if localizer and bank_subtype is not None:
+            object_name = localizer.object(type_id, bank_subtype) or f"Bank {type_id}"
+        elif localizer:
+            object_name = localizer.object(type_id) or f"Bank {type_id}"
+        else:
+            object_name = f"Bank {type_id}"
+
+        # Guard: list of {monster_id, count} (already parsed correctly with
+        # u8 count at offset s+i*4+28 in Step 7 fix to _parse_guard)
+        guard_list = pb.get("guard", [])
+
+        # Compute ∑ HP = sum(monster_hp × count) for all unique monsters
+        # (per PRT GetBankGuard:9058: hp += TblMonsters[mid][3] * count)
+        sum_hp = 0
+        seen_monsters = {}  # ItWas dedup — same logic as _guard_str
+        for g in guard_list:
+            if isinstance(g, dict):
+                mid = g.get('monster_id', -1)
+                cnt = g.get('count', 0)
+                if mid is None or mid < 0 or cnt == 0:
+                    continue
+                if mid in seen_monsters:
+                    seen_monsters[mid] += cnt
+                else:
+                    seen_monsters[mid] = cnt
+        if _has_meta:
+            for mid, cnt in seen_monsters.items():
+                hp = get_monster_hp(mid)
+                sum_hp += hp * cnt
+
+        # Format Monster reward as "<name> <count>" (PRT GetBankMonster:9015)
+        # PRT: TblMonsters[decmp[s]][1] + " " + decmp[s+4]
+        # In our parse_bank_content, monster_reward_id is at offset +0, count at +4
+        # (within the 7-byte monster reward section after the 28-byte resource/gold)
+        monster_reward_id = pb.get("monster_reward_id", -1)
+        monster_reward_count = pb.get("monster_reward_count", 0)
+        monster_str = None
+        if monster_reward_id is not None and 0 <= monster_reward_id < 255:
+            if _has_meta:
+                mname = get_monster_name(monster_reward_id) or (
+                    localizer.monstr(monster_reward_id) if localizer else f"M{monster_reward_id}"
+                )
+            else:
+                mname = localizer.monstr(monster_reward_id) if localizer else f"M{monster_reward_id}"
+            # PRT format: "<name> <count>" (e.g., "Виверн 4")
+            monster_str = f"{mname} {monster_reward_count}" if monster_reward_count > 0 else mname
+
+        # Format Resources as PRT "G8, S5" string (GetBankResource:9018)
+        # Resources stored as dict {'Gems': 8, 'Wood': 4, ...} in OUR parse
+        resources_dict = pb.get("resources", {})
+        res_parts = []
+        if isinstance(resources_dict, dict):
+            # Iterate in canonical order: W, M, O, S, C, G
+            # Map English name → letter
+            name_to_letter = {"Wood": "W", "Mercury": "M", "Ore": "O",
+                              "Sulfur": "S", "Crystal": "C", "Gems": "G"}
+            for rname in ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]:
+                amount = resources_dict.get(rname, 0)
+                if amount and amount > 0:
+                    letter = name_to_letter.get(rname, "?")
+                    res_parts.append(f"{letter}{amount}")
+        resource_str = ", ".join(res_parts) if res_parts else None
+
+        # Gold (u16 from parse_bank_content)
+        gold = pb.get("gold", 0) or None
+
         banks.append({
             "x": tb.get('x'),
             "y": tb.get('y'),
             "z": tb.get('z'),
             "locality": "море" if tb.get('loc') == 8 else "суша",
-            "object": "Bank",
-            "address": pb.get("address"),
+            "object": object_name,
+            "guard": guard_list,  # keep as list for _guard_str formatting in excel
+            "hp": sum_hp if sum_hp > 0 else None,
+            "monster_reward": monster_str,
+            "gold": gold,
+            "resources": resource_str,  # PRT-formatted string
+            # Keep raw fields for backward compat / debugging
             "is_artifact_bank": pb.get("is_artifact_bank", False),
-            "guard": _serialize_guard(pb.get("guard", [])),
-            "resources": pb.get("resources", {}),
-            "gold": pb.get("gold", 0),
-            "monster_reward_id": pb.get("monster_reward_id", -1),
-            "monster_reward_count": pb.get("monster_reward_count", 0),
+            "address": pb.get("address"),
             "artifact_ids": pb.get("artifact_ids", []),
         })
     return banks
@@ -1397,7 +1514,8 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict,
                                       localizer=localizer, raw=raw),
         "Монстры": merge_monsters(tile_objects, post_tile_content, obj_dict),
-        "Банки": merge_banks(tile_objects, post_tile_content),
+        "Банки": merge_banks(tile_objects, post_tile_content,
+                              localizer=localizer, raw=raw),
         "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content),
         "Ученые": merge_scholars(tile_objects),
         "Ресурсы": merge_resources(tile_objects, post_tile_content,

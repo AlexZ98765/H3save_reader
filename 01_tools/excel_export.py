@@ -307,8 +307,6 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     # Localizer helpers (graceful when no loc)
     def _art_name(idx):
         return loc.art(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
-    def _mon_name(idx):
-        return loc.monstr(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
     def _spl_name(idx):
         return loc.spell(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
     def _skl_name(idx):
@@ -332,6 +330,29 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     def _hero_class_name(idx):
         return loc.hero_class(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
 
+    # ----- Monster name lookup (PRT TblMonsters, then localizer fallback) -----
+    # PRT uses hardcoded TblMonsters table (e.g., "Джинн", "Скелет", "Змий-дракон").
+    # Our localizer (ru_sod) has slightly different names ("Джин", "Стрекоза").
+    # Use TblMonsters first for PRT-exact matching; fall back to localizer.
+    try:
+        from art_metadata import get_monster_name as _prt_monster_name
+        _has_prt_names = True
+    except Exception:
+        _has_prt_names = False
+
+    def _mon_name(idx):
+        """Return localized monster name. Tries PRT TblMonsters first (for
+        PRT-exact match), falls back to localizer (ru_sod) if not found.
+        Returns empty string for invalid indices.
+        """
+        if not isinstance(idx, int) or idx < 0:
+            return ""
+        if _has_prt_names:
+            name = _prt_monster_name(idx)
+            if name:
+                return name
+        return loc.monstr(idx) if loc else ""
+
     def _guard_str(guard_list):
         """Format guard list as 'Pikeman 5, Goblin 20' — matching PRT format.
 
@@ -340,6 +361,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
           - ItWas() deduplicates: if monster_id was already seen, sum the count
             into the existing entry instead of adding a new one
           - Final format: "<name> <count>, <name> <count>, ..." (no 'x' prefix)
+          - Monster names come from TblMonsters (PRT-exact, e.g. "Змий-дракон")
 
         Example: 3 slots of Скелет (count 10 each) + 2 slots of Живой мертвец
         (count 10 each) → "Скелет 30, Живой мертвец 20"
@@ -460,17 +482,34 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Банки ──
+        # Universal: writes all populated fields from merge_banks() output.
+        #   rec keys: x, y, z, locality, object (localized bank name),
+        #             guard (list), hp (∑ HP), monster_reward ("<name> <count>"),
+        #             gold (int), resources (PRT "G8, S5" string)
+        # No hardcoding — all formatted in merge_banks via PRT logic.
         ws = wb.create_sheet("Банки")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Монстр", "Золото", "Ресурс"])
         for rec in mo.get("Банки", []):
-            guard_str = _guard_str(rec.get("guard", []))
-            res_str = str(rec.get("resources", {})) if rec.get("resources") else None
-            mid = rec.get("monster_reward_id", -1)
+            # Guard: list of {monster_id, count} → formatted string (PRT format
+            # with ItWas dedup, e.g. "Нага 8, Королева нага 2")
+            guard_val = rec.get("guard")
+            guard_str = _guard_str(guard_val) if guard_val else None
+            # ∑ HP: computed in merge_banks via TblMonsters hp × count
+            hp_val = rec.get("hp")
+            # Monster reward: PRT-formatted "<name> <count>" (e.g. "Виверн 4")
+            monster_val = rec.get("monster_reward")
+            # Gold: int or None
+            gold_val = rec.get("gold")
+            # Resources: PRT-formatted "G8, S5" string
+            res_val = rec.get("resources")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Bank"), guard_str, None,
-                       _mon_name(mid) if mid >= 0 else None,
-                       rec.get("gold"), res_str])
+                       rec.get("object", "Bank"),
+                       guard_str,
+                       hp_val,
+                       monster_val,
+                       gold_val,
+                       res_val])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
