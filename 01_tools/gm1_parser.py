@@ -3496,7 +3496,7 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
             QMessageBox.critical(self, "Error", f"Failed to decompress save:\n{e}")
             return
 
-        self._set_loading("Построение конфига карты…")
+        self._set_loading("Построение конфига сейва…")
 
         try:
             config = build_map_config(self.map_data, dz_raw, path)
