@@ -671,17 +671,29 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
             ebs.append(_to_dict(eb))
 
     # Get human player color for "Доступно" column
+    # PRT line 7658: aExistColor[i] = decmp[color + i*145 + 24] + decmp[color + i*145 + 1]
     # PRT line 7661: human = i where decmp[color_off + i*145 + 14] == 3
     human_color = None
+    human_idx = -1
+    a_exist_color = [0] * 8
     if raw is not None and post_tile_content and isinstance(post_tile_content, dict):
         offsets = post_tile_content.get("offsets", {})
         color_off = offsets.get("color", 0)
         if color_off > 0 and localizer:
             for i in range(8):
-                off = color_off + i * 145 + 14
-                if off < len(raw) and raw[off] == 3:
+                off_human = color_off + i * 145 + 14
+                if off_human < len(raw) and raw[off_human] == 3:
+                    human_idx = i
                     human_color = localizer.color(i)
-                    break
+                # aExistColor: sum of two bytes within the player section
+                off24 = color_off + i * 145 + 24
+                off1 = color_off + i * 145 + 1
+                if off24 < len(raw) and off1 < len(raw):
+                    a_exist_color[i] = raw[off24] + raw[off1]
+
+    # PRT aColor[] order (Myth and Legend ru_sod localization): Red, Blue, Tan, Green,
+    # Orange, Purple, Teal, Pink. Use localizer.color(i) to match the active localization.
+    # We use localizer.color() for each existing color index to build the name list.
 
     # Resource letter mapping (matches PRT aResource[])
     A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
@@ -835,14 +847,35 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
                     mon_parts.append(f"{mname} {cnt}")
         mon_str = ", ".join(mon_parts) if mon_parts else None
 
-        # "Доступно" = human player color (PRT shows human player's color for
-        # events available to all players). The Apply bitmask (255=all players)
-        # is displayed as just the human player's color in the xlsx.
+        # "Доступно" — PRT GetEventApply (MainForm.cs:7088).
+        # For each color j (0..7):
+        #   if (apply_flags bit j set) AND (color j exists on map):
+        #     - if j == human: include color name (always)
+        #     - else if apply_for_all (num2 = decmp[s+8] & 4) > 0: include color name
+        # For Pandora's Box (type 6), apply_flags is not set (no SaveEvent tile record),
+        # so available stays None (PRT does not call GetEventApply for Pandora's boxes).
+        #
+        # PRT's aColor[] array is set by CreateDefaultArray (MainForm.cs:11750),
+        # which is the array used by ObjNameDefault — the mode PRT actually runs in
+        # for the Myth and Legend save (per 0000.xlsx output). The DEFAULT aColor
+        # uses "Пурпурный"/"Бирюзовый" for indices 5/6, NOT the SoD-RU array values
+        # ("Багровый"/"Чайный") which the localizer's ru_sod mode would return.
+        # We hardcode the DEFAULT aColor list to match PRT's actual output.
+        _A_COLOR = ["Красный", "Синий", "Коричневый", "Зеленый",
+                    "Оранжевый", "Пурпурный", "Бирюзовый", "Розовый"]
         apply_flags = event_tile.get('apply_flags', 0)
+        apply_for_all = event_tile.get('apply_for_all', False)
         available = None
-        if apply_flags and human_color:
-            if apply_flags & 0x3F:  # any player bit set
-                available = human_color
+        if apply_flags and human_idx >= 0:
+            avail_colors = []
+            for j in range(8):
+                if (apply_flags & (1 << j)) > 0 and a_exist_color[j] > 0:
+                    if j == human_idx:
+                        avail_colors.append(_A_COLOR[j])
+                    elif apply_for_all:
+                        avail_colors.append(_A_COLOR[j])
+            if avail_colors:
+                available = ", ".join(avail_colors)
 
         records.append({
             "x": x, "y": y, "z": z,
@@ -1721,23 +1754,151 @@ def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
 
 
 def merge_market(tile_objects: List[Dict[str, Any]],
-                 post_tile_content: Dict[str, Any]
+                 post_tile_content: Optional[Dict[str, Any]] = None,
+                 localizer=None,
+                 raw: Optional[bytes] = None,
+                 map_start_info: Optional[Dict[str, Any]] = None,
+                 towns_parsed: Optional[List[Dict[str, Any]]] = None,
                  ) -> List[Dict[str, Any]]:
-    """Merge black market tile objects + post-tile Market content (sheet "Рынки")."""
-    markets = []
+    """Merge Black Market tile objects + post-tile Market content (sheet "Рынки").
+
+    PRT logic:
+      - SaveMarket (MainForm.cs:9994): for each Black Market tile (code 7),
+        creates R_Market row with X/Y/Z/Locality + Object (from TblObject).
+      - GetArtMerchants (MainForm.cs:7684): if any town has Code in {2,5,8}
+        AND Slot=1, parse 7 slots from `current_state + 49`. Each non-empty
+        slot creates a row with Object="Торговцы Артефактами", no X/Y/Z.
+      - GetMarketContent (MainForm.cs:8042): for each TblMarket row, parse
+        28 bytes (7 × 4-byte slots). Each non-empty slot creates a row with
+        Slot=1..7, artifact name/class/relic-C/cost from TblArt.
+
+    Output order matches PRT 0000.xlsx: Art Merchants rows first (no X/Y/Z),
+    then Black Market rows (3 markets × 7 slots = 21).
+    """
+    # PRT DEFAULT arrays (matching PRT 0000.xlsx output via ObjNameDefault mode).
+    _BLACK_MARKET_NAME = "Черный рынок"
+    _ART_MERCHANTS_NAME = "Торговцы Артефактами"
+
+    # Lazy-load art_metadata helpers (used for class/relic/cost lookup by artifact_id).
+    try:
+        from art_metadata import (
+            get_artifact_class_id, get_artifact_relic_c_id,
+            get_artifact_cost, get_artifact_name,
+        )
+    except Exception:
+        get_artifact_class_id = get_artifact_relic_c_id = get_artifact_cost = None
+        get_artifact_name = None
+
+    # Helper to look up artifact info.
+    def _art_info(aid):
+        """Return dict {name, class, relic_c, cost} for the given artifact ID.
+
+        Uses tbl_art_mapping.json (PRT DEFAULT TblArt source) for names — NOT
+        the localizer — so capitalization matches PRT 0000.xlsx (e.g.
+        "Ожерелье стремительности", not "Ожерелье Стремительности").
+        """
+        if get_artifact_name is None:
+            return {}
+        info = {}
+        info["name"] = get_artifact_name(aid, localizer=None)  # PRT-style capitalization
+        cls_id = get_artifact_class_id(aid)
+        if localizer is not None:
+            info["class"] = localizer.art_class(cls_id)
+        relic_id = get_artifact_relic_c_id(aid)
+        if relic_id is not None:
+            info["relic_c"] = get_artifact_name(relic_id, localizer=None)
+        info["cost"] = get_artifact_cost(aid)
+        return info
+
+    records: List[Dict[str, Any]] = []
+
+    # ── A. Art Merchants (PRT GetArtMerchants, MainForm.cs:7684) ──
+    # Condition: any town with Code in {2, 5, 8} AND Slot=1.
+    # PRT's "Slot='1'" matches towns where Slot field = 1 (built on day 1).
+    # OUR's towns_parsed has fields["type"] (= PRT's Code) — we don't have a
+    # "Slot" field, so we approximate by checking any town with Code in {2,5,8}.
+    has_art_merchants_town = False
+    if towns_parsed:
+        for t in towns_parsed:
+            t_type = t.get("type") if t.get("type") is not None else \
+                     t.get("fields", {}).get("type", -1)
+            if t_type in (2, 5, 8):
+                has_art_merchants_town = True
+                break
+
+    if has_art_merchants_town and raw is not None and post_tile_content:
+        offsets = post_tile_content.get("offsets", {}) if isinstance(post_tile_content, dict) else {}
+        current_state = offsets.get("current_state", 0) if isinstance(offsets, dict) else 0
+        if current_state > 0:
+            am_start = current_state + 49  # PRT GetArtMerchants(currentState + 49)
+            # PRT iterates 7 × 4 bytes; artifact_id is the first byte of each slot.
+            for i in range(7):
+                off = am_start + i * 4
+                if off >= len(raw):
+                    break
+                aid = raw[off]
+                if aid < 0xFF:
+                    info = _art_info(aid)
+                    records.append({
+                        "x": None, "y": None, "z": None,
+                        "locality": None,
+                        "object": _ART_MERCHANTS_NAME,
+                        "slot": i + 1,
+                        "artifact_id": aid,
+                        "artifact_name": info.get("name"),
+                        "class": info.get("class"),
+                        "relic_c": info.get("relic_c"),
+                        "cost": info.get("cost"),
+                    })
+
+    # ── B. Black Markets (PRT SaveMarket + GetMarketContent, MainForm.cs:8042) ──
+    # Get Black Market section offset from map_start_info:
+    # - PRT reads byte at `after_variable_structures` (= num3 = black_market_count)
+    # - Black market data starts at `after_variable_structures + 1`
+    bm_count = 0
+    bm_data_start = 0
+    if isinstance(map_start_info, dict):
+        bm_count = map_start_info.get("black_market_count", 0)
+        avs = map_start_info.get("after_variable_structures", 0)
+        if avs > 0:
+            bm_data_start = avs + 1  # skip count byte
+
+    # Get Black Market tile objects (code 7) — in tile-scan order.
     tile_markets = [obj for obj in tile_objects if obj.get('type_id') == 7]
-    # Post-tile content might have market data (we have parse_market_content,
-    # but it's not currently in post_tile_content output unless we add it)
-    # For now, just use tile objects
-    for obj in tile_markets:
-        markets.append({
-            "x": obj.get('x'),
-            "y": obj.get('y'),
-            "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Black Market",
-        })
-    return markets
+
+    # PRT iterates TblMarket.Rows in order they were added by SaveMarket (= tile-scan order).
+    # For each market, parse 28 bytes (7 × 4-byte slots).
+    for i in range(min(bm_count, len(tile_markets))):
+        if bm_data_start <= 0 or bm_data_start + i * 28 + 28 > len(raw):
+            break
+        market_addr = bm_data_start + i * 28
+        tile = tile_markets[i]
+        x = tile.get('x')
+        y = tile.get('y')
+        z = tile.get('z')
+        loc = tile.get('loc', 0)
+        # PRT: read 7 slots (artifact_id at byte[market_addr + j*4] for j=0..6).
+        # Slot numbering: 1..7 (slot 1 = byte[0], slot 2 = byte[4], ..., slot 7 = byte[24]).
+        for slot_idx in range(7):
+            off = market_addr + slot_idx * 4
+            if off >= len(raw):
+                break
+            aid = raw[off]
+            if aid < 0xFF:
+                info = _art_info(aid)
+                records.append({
+                    "x": x, "y": y, "z": z,
+                    "locality": "море" if loc == 8 else "суша",
+                    "object": _BLACK_MARKET_NAME,
+                    "slot": slot_idx + 1,
+                    "artifact_id": aid,
+                    "artifact_name": info.get("name"),
+                    "class": info.get("class"),
+                    "relic_c": info.get("relic_c"),
+                    "cost": info.get("cost"),
+                })
+
+    return records
 
 
 def merge_generic_objects(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -1815,7 +1976,9 @@ def merge_all(tile_objects: List[Dict[str, Any]],
               heroes_parsed: List[Dict[str, Any]] = None,
               obj_dict: Optional[Dict] = None,
               localizer=None,
-              raw: Optional[bytes] = None
+              raw: Optional[bytes] = None,
+              map_start_info: Optional[Dict[str, Any]] = None,
+              towns_parsed: Optional[List[Dict[str, Any]]] = None,
               ) -> Dict[str, List[Dict[str, Any]]]:
     """Produce all standardized merged tables in one call.
 
@@ -1854,7 +2017,10 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         "Ведьмины_Хижины": merge_witch_huts(tile_objects, post_tile_content,
                                               localizer=localizer, raw=raw),
         "Лагеря_Беженцев": merge_refugee_camps(tile_objects, localizer=localizer, raw=raw),
-        "Рынки": merge_market(tile_objects, post_tile_content),
+        "Рынки": merge_market(tile_objects, post_tile_content,
+                              localizer=localizer, raw=raw,
+                              map_start_info=map_start_info,
+                              towns_parsed=towns_parsed),
         "Провидцы": merge_seer_huts(tile_objects, post_tile_content),
         "Border_Guards": merge_pass_guards(tile_objects, post_tile_content),
         "Тюрьмы": merge_prisons(tile_objects, heroes_parsed),

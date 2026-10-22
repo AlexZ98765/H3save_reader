@@ -999,6 +999,8 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
                 heroes_parsed=heroes_for_merge,
                 localizer=loc_instance,
                 raw=raw,  # decompressed save bytes — needed for tile-level artifact extraction
+                map_start_info=map_start_info,
+                towns_parsed=towns_parsed,
             )
         else:
             parsed._merged_objects = {}

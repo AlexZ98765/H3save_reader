@@ -2313,3 +2313,145 @@ Stage Summary:
 - ⭐ Артефакты теперь читаются из doll slots (как PRT), а не из equipment
 - ⭐ Гефест: "Бесстрашный Хранитель" ✓
 - ⭐ Архив пересобран
+# Work Log
+
+---
+Task ID: edge-case-available
+Agent: main
+Task: Fix the 1 Доступно diff for event with Золото=-1 — should show all 8 colors (matching PRT 0000.xlsx).
+
+Work Log:
+- Identified the diff: event at (65, 90, 1) has Золото=-1 and apply_flags=255 (all 8 player bits), but OUR only showed 1 color ("Зеленый") while PRT shows all 8 colors.
+- Traced PRT logic: `MainForm.cs:GetEventApply()` (line 7088) — for each color j, include human color always; include non-human colors only if `num2 > 0`. The `num2` is bit 2 of byte `decmp[s+8]` (saved in Apply as `"flags,num2"` in `SaveEvent` line 10082).
+- Discovered OUR's `repeat` field was reading bit 3 (`& 8`), but PRT's `num2` reads bit 2 (`& 4`). These are different bits.
+- Also discovered PRT 0000.xlsx uses the DEFAULT aColor array (`CreateDefaultArray` line 11750: `Пурпурный, Бирюзовый`), NOT the SoD-RU array (`CreateArraySoDRu` line 13370: `Багровый, Чайный`). OUR's localizer ru_sod returns the SoD-RU values — wrong for matching PRT.
+- Inspected aExistColor computation (`MainForm.cs:7658`: `decmp[color + i*145 + 24] + decmp[color + i*145 + 1]`). All 8 colors exist on this map (value 4 each), and human = index 3 (Зеленый).
+
+Fixes applied:
+1. `tile_scanner.py:_parse_event()` — added `obj['apply_for_all'] = bool(raw[s + 8] & 4)` (PRT num2 = decmp[s+8] & 4).
+2. `merged_objects.py:merge_event_boxes()` — replaced human_color detection with full PRT logic:
+   - Compute `a_exist_color[0..7]` array (per PRT line 7658).
+   - Track `human_idx` (0..7) instead of just `human_color` string.
+   - For each event, build `available` list per PRT GetEventApply:
+     - For color j: if apply_flags bit set AND color exists:
+       - if j == human_idx: include
+       - elif apply_for_all: include
+   - Used hardcoded `_A_COLOR` list matching PRT's `CreateDefaultArray` to ensure color names match PRT 0000.xlsx output (Пурпурный/Бирюзовый for indices 5/6).
+
+Verification:
+- Regenerated `/home/z/my-project/download/phase2_step7_0000_test.xlsx`.
+- Re-ran diff against PRT 0000.xlsx: total diffs reduced 10 → 9.
+- Доступно diff is fully resolved (event (65, 90, 1) now shows "Красный, Синий, Коричневый, Зеленый, Оранжевый, Пурпурный, Бирюзовый, Розовый" matching PRT exactly).
+- Remaining 9 diffs are unrelated (Вторичный навык, Артефакт, Монстр — separate capitalization/naming issues).
+
+Stage Summary:
+- Files modified:
+  - `/home/z/my-project/repo/01_tools/tile_scanner.py` (added `apply_for_all` field for events)
+  - `/home/z/my-project/repo/01_tools/merged_objects.py` (replaced human_color detection + available computation in merge_event_boxes)
+- Test artifact: `/home/z/my-project/download/phase2_step7_0000_test.xlsx` (regenerated)
+- Key decision: hardcoded `_A_COLOR` list in merge_event_boxes to match PRT's `CreateDefaultArray` output (Пурпурный/Бирюзовый), since PRT 0000.xlsx uses the DEFAULT array even for Russian SoD saves. Did NOT modify localizer or localization_dictionary.json — those still hold the canonical SoD-RU values (Багровый/Чайный).
+
+---
+Task ID: step16-timers
+Agent: main
+Task: Step 16: События-Таймеры — fix timer sheet to match PRT 0000.xlsx exactly.
+
+Work Log:
+- Identified structural diffs (175 total) across all 12 columns of События-Таймеры.
+- Root causes:
+  1. Row order: OUR listed all map events first, then all town events. PRT interleaves and sorts by (Day, Object, ID).
+  2. Missing town lookup: OUR outputted raw town ID (number); PRT looks up the town by index and shows Name/Type/Place/Color.
+  3. Resource format: OUR used "Древесина x11287806"; PRT uses "W11287806" (single letter + amount).
+  4. Buildings/Monsters: OUR outputted raw "[0,0,0,0,0,0]"; PRT outputs None when all zero.
+  5. "Доступно" column: OUR always output None; PRT computes via GetTimerApply from apply=(X,Y,Z).
+  6. Map event День column: OUR output None when day=0; PRT outputs 0 explicitly.
+
+- Decoded PRT logic (MainForm.cs):
+  - GetTimedEvents (line 6857): MapTimedEvents + TownsTimedEvents + MapTownsTimedEvents (sort by Day, Object, ID).
+  - GetTimerTown (line 6984): For each town (in block_offset order), find R_AllTimer rows where ID == town.ID, set Town/Type/Place/Color. Later towns overwrite earlier ones.
+  - GetTimerApply (line 7124): apply split as "X,Y,Z"; for each color j: if X bit j set AND aExistColor[j]>0: if j==human AND Y>0 → include; elif j!=human AND Z>0 → include.
+  - GetTimerRes (line 6956): format resources as "W1234, M5678, ..." using aResource[] = ["W","M","O","S","C","G"].
+  - GetTimerContent (line 6931): format buildings/monsters; None when all zero (line 7014-7017, 7060-7062).
+
+- Key insight: PRT's R_Town.ID = decmp[town] reads byte BEFORE OUR's block_offset (off-by-one in PRT due to single-byte `town++` after u16 count). That byte happens to be the TOWN INDEX (0..20), matching OUR's ev.id (= raw[body_start+37] = town_index). Verified by checking that:
+  - OUR ev.id=3 → 25 events → PRT shows town "Этопия" (OUR town_idx 3) ✓
+  - OUR ev.id=18 → 32 events → PRT shows town "Афина" (OUR town_idx 18, has apply X=8 = bit 3 = Green = human) ✓
+  - All 7 timer ID groups (3, 6, 15, 16, 17, 18, 19) map correctly to OUR town indices.
+
+- Implementation (in excel_export.py, replaced lines 903-954):
+  - Combined map_timed_events + town_timed_events into one list with (day, object, id, ev, is_map) tuples.
+  - Sort by (day, object, id) ascending — PRT DataView.Sort = "Day, Object, ID".
+  - For each event:
+    - Resource: format as "W1234, M5678, ..." using single-letter prefix.
+    - Buildings/Monsters: None when all zeros.
+    - Apply (X,Y,Z) → compute "Доступно" via GetTimerApply logic.
+    - For town events: look up town by INDEX in `parsed["towns"]` sorted by block_offset.
+    - Town Type: use PRT DEFAULT aTown array ["Замок","Оплот","Башня","Инферно","Некрополис","Темница","Цитадель","Крепость","Сопряжение"] (NOT localizer ru_sod which has "Подземелье").
+    - Town Color: use PRT DEFAULT aColor array (with "Пурпурный"/"Бирюзовый", matching previous fix).
+  - Compute human_idx and a_exist_color[] using PRT GetColorContent (line 7653).
+
+- Files modified:
+  - `/home/z/my-project/repo/01_tools/excel_export.py` (replaced timers section, lines 903-954 → ~165 lines)
+
+Verification:
+- Regenerated `/home/z/my-project/download/phase2_step7_0000_test.xlsx`.
+- Re-ran comparison script `/home/z/my-project/scripts/compare_timers.py`:
+  - Before: 175 rows × 12 cols, ~640+ diffs across all columns
+  - After: 175 rows × 12 cols, 0 diffs ✓
+- События и Ящики Пандоры sheet: still 9 diffs (unchanged — unrelated to timers).
+- Total reduction: ~640+ → 0 diffs for timers sheet.
+
+Stage Summary:
+- Files modified: `/home/z/my-project/repo/01_tools/excel_export.py`
+- Test artifact: `/home/z/my-project/download/phase2_step7_0000_test.xlsx` (regenerated)
+- Helper script: `/home/z/my-project/scripts/compare_timers.py` (saved for future runs)
+- Key insight: PRT's town iteration has an off-by-one bug (skips only 1 byte for u16 count), so PRT's R_Town.ID actually reads the TOWN INDEX byte (0..20), not the player_id byte. OUR's ev.id (= byte[body_start+37]) also = town index, so matching by index works.
+- Note: Buildings/Monsters formatting is currently just "None when all zero". For this save, all 167 town timer events have buildings=[0,0,0,0,0,0] and monsters=[0,0,0,0,0,0,0], so this is sufficient. If a future save has nonzero buildings/monsters, the TblBuilding table would need to be replicated to decode bitmask → building names.
+
+---
+Task ID: step17-markets
+Agent: main
+Task: Step 17: Рынки — fix markets sheet to match PRT 0000.xlsx exactly.
+
+Work Log:
+- PRT Рынки sheet had 28 data rows (7 Art Merchants + 21 Black Market). OUR had only 4 rows (header + 3 Black Market placeholders with no artifacts).
+- Decoded PRT logic (MainForm.cs):
+  - SaveMarket (line 9994): for each Black Market tile (code 7), create R_Market row with X/Y/Z/Locality + Object.
+  - GetArtMerchants (line 7684): if any town has Code in {2,5,8} AND Slot=1, parse 7 × 4-byte slots from `current_state + 49`. Each non-empty slot creates a row with Object="Торговцы Артефактами", no X/Y/Z.
+  - GetMarketContent (line 8042): for each TblMarket row, parse 28 bytes (7 × 4-byte slots). Each non-empty slot creates a row with Slot=1..7, artifact name/class/relic-C/cost from TblArt.
+
+- Implementation in merge_market (merged_objects.py):
+  - Added kwargs: localizer, raw, map_start_info, towns_parsed.
+  - Part A (Art Merchants): check if any town has Code in {2,5,8} (proxy for PRT's "Slot=1" condition). If yes, parse 7 slots from `current_state + 49`. Each non-empty slot creates row with Object="Торговцы Артефактами", no X/Y/Z, slot=1..7.
+  - Part B (Black Markets): iterate tile_objects (type_id=7) and parse 28 bytes per market from `after_variable_structures + 1`. Each non-empty slot creates row with X/Y/Z + locality, Object="Черный рынок", slot=1..7.
+
+- Localization strategy (matches PRT DEFAULT arrays — same as Steps 15/16):
+  - Object names: hardcoded "Черный рынок" + "Торговцы Артефактами" (PRT TblObject DEFAULT, not localizer ru_sod which has "Черный Рынок" Title Case).
+  - Artifact names: used `art_metadata.get_artifact_name(aid, localizer=None)` which reads from `tbl_art_mapping.json` (PRT DEFAULT TblArt) — gives "Ожерелье стремительности" (lowercase after first word), NOT localizer's "Ожерелье Стремительности".
+  - Class names: used `localizer.art_class(class_id)` → "Сокровище", "Малый", etc.
+  - Relic-C names: from `art_metadata.get_artifact_relic_c_id(aid)` + `get_artifact_name(relic_id, localizer=None)` → PRT-style capitalization.
+  - Cost: from `art_metadata.get_artifact_cost(aid)`.
+
+- Files modified:
+  - `/home/z/my-project/repo/01_tools/merged_objects.py`:
+    - `merge_market()`: full rewrite (~145 lines, was 18)
+    - `merge_all()`: added `map_start_info` and `towns_parsed` kwargs
+    - Call to `merge_market` inside `merge_all`: passes new kwargs
+  - `/home/z/my-project/repo/01_tools/save_parser.py`:
+    - `merge_all` call: passes `map_start_info=map_start_info` and `towns_parsed=towns_parsed`
+  - `/home/z/my-project/repo/01_tools/excel_export.py`:
+    - Рынки section: outputs new fields (slot, artifact_name, class, relic_c, cost)
+
+Verification:
+- Regenerated `/home/z/my-project/download/phase2_step7_0000_test.xlsx`.
+- Re-ran `/home/z/my-project/scripts/compare_markets.py`:
+  - Before: 4 OUR rows (header + 3 placeholder Black Markets), all artifact fields empty.
+  - After: 28 OUR rows (7 Art Merchants + 21 Black Markets), 0 diffs ✓
+- Verified События и Ящики Пандоры (9 diffs, unchanged) + События-Таймеры (0 diffs, unchanged) — no regression.
+
+Stage Summary:
+- Files modified: merged_objects.py, save_parser.py, excel_export.py
+- Test artifact: /home/z/my-project/download/phase2_step7_0000_test.xlsx (regenerated)
+- Helper script: /home/z/my-project/scripts/compare_markets.py (saved)
+- Key insight: PRT's "tbl_art_mapping.json" (in 02_format_docs) already contains PRT-style capitalization matching 0000.xlsx — no need to hardcode 144 artifact names. Just bypass localizer.art() for this sheet and use tbl_art_mapping.json directly via `art_metadata.get_artifact_name(aid, localizer=None)`.
+- Total reduction: 4 → 28 rows with 0 diffs (perfect match).

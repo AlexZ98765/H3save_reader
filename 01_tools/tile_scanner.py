@@ -744,6 +744,9 @@ def _parse_event(raw, s, obj):
     if s + 9 <= len(raw):
         obj['apply_flags'] = ((raw[s + 7] & 0xFC) >> 2) + ((raw[s + 8] & 3) << 6)
         obj['repeat'] = bool((raw[s + 8] & 8) >> 3)
+        # PRT SaveEvent stores Apply as "apply_flags,num2" where num2 = decmp[s+8] & 4.
+        # GetEventApply uses num2 > 0 to include non-human colors in "Доступно".
+        obj['apply_for_all'] = bool(raw[s + 8] & 4)
 
 
 def _parse_survivor(raw, s, obj):

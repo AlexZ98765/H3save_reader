@@ -668,12 +668,21 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Рынки ──
+        # PRT layout: Art Merchants rows first (no X/Y/Z), then Black Market rows
+        # (with X/Y/Z). Each row: Объект, Слот 1..7, Артефакт, Класс, Реликт-С, Цена.
         ws = wb.create_sheet("Рынки")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Цена на Черном Рынке"])
         for rec in mo.get("Рынки", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Black Market"), None, None, None, None, None])
+            ws.append([
+                rec.get("x"), rec.get("y"), rec.get("z"),
+                rec.get("locality") if rec.get("locality") else None,
+                rec.get("object", "Black Market"),
+                rec.get("slot"),
+                rec.get("artifact_name"),
+                rec.get("class"),
+                rec.get("relic_c"),
+                rec.get("cost"),
+            ])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -901,54 +910,167 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── События-Таймеры ──
+        # PRT GetTimedEvents: MapTimedEvents + TownsTimedEvents + MapTownsTimedEvents
+        # Sort: DataView.Sort = "Day, Object, ID" (ascending).
+        # Then GetTimerTown() enriches town events with Name/Type/Place/Color from
+        # the matching town (matched by town index byte).
+        # Then GetTimerApply() computes "Доступно" from apply = (X, Y, Z):
+        #   for each color j: if (X bit j set) AND aExistColor[j]>0:
+        #     - if j == human AND Y > 0: include color
+        #     - elif j != human AND Z > 0: include color
         ws = wb.create_sheet("События-Таймеры")
         ws.append(["Объект", "День", "Повтор", "Город", "Тип", "Местоположение", "Флаг", "Доступно", "Золото", "Ресурс", "Постройки", "Монстр"])
+
+        # PRT aResource / aColor / aTown (DEFAULT array, MainForm.cs:11750/11752/1055).
+        # PRT 0000.xlsx was generated in ObjNameDefault mode, so use DEFAULT arrays.
+        _A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+        _A_RESOURCE_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+        _A_COLOR = ["Красный", "Синий", "Коричневый", "Зеленый",
+                    "Оранжевый", "Пурпурный", "Бирюзовый", "Розовый"]
+        _A_TOWN = ["Замок", "Оплот", "Башня", "Инферно", "Некрополис",
+                   "Темница", "Цитадель", "Крепость", "Сопряжение"]
+
+        # Towns sorted by block_offset (matches PRT's iteration order).
+        # PRT's `town` pointer starts 1 byte before OUR's `block_offset`,
+        # so PRT's R_Town.ID = raw[block_offset - 1] = TOWN INDEX in this list.
+        _towns_sorted = sorted(parsed.get("towns", []),
+                               key=lambda t: t.get("block_offset", 0))
+
+        # Compute human_idx and aExistColor[] (PRT GetColorContent, line 7653).
+        human_idx = -1
+        a_exist_color = [0] * 8
+        offsets = ptc.get("offsets", {}) if isinstance(ptc, dict) else {}
+        color_off = offsets.get("color", 0) if isinstance(offsets, dict) else 0
+        if raw is not None and color_off > 0:
+            for i in range(8):
+                off_human = color_off + i * 145 + 14
+                off24 = color_off + i * 145 + 24
+                off1 = color_off + i * 145 + 1
+                if off_human < len(raw) and raw[off_human] == 3:
+                    human_idx = i
+                if off24 < len(raw) and off1 < len(raw):
+                    a_exist_color[i] = raw[off24] + raw[off1]
+
+        # Helper: format resources as PRT GetTimerRes does.
+        # PRT format: "W11287806, M11022488, ..." (single letter + amount, no space, no "x").
+        def _fmt_timer_res(res_dict):
+            if not isinstance(res_dict, dict):
+                return None
+            parts = []
+            for i, rname in enumerate(_A_RESOURCE_NAMES):
+                amount = res_dict.get(rname, 0)
+                if amount and amount != 0:
+                    letter = _A_RESOURCE_LETTERS[i]
+                    parts.append(f"{letter}{amount}")
+            return ", ".join(parts) if parts else None
+
+        # Helper: format buildings (None when all zero, per PRT GetTimerTown line 7014-7017).
+        def _fmt_timer_buildings(buildings):
+            if not buildings or not isinstance(buildings, (list, tuple)):
+                return None
+            if all(b == 0 for b in buildings):
+                return None
+            # PRT uses TblBuilding table to decode bitmask → building names.
+            # For now, return raw values (matches PRT format "1, 0, 0, ...") but only when nonzero.
+            parts = []
+            for b in buildings:
+                parts.append(str(b))
+            return ", ".join(parts)
+
+        # Helper: format monsters (None when all zero, per PRT GetTimerTown line 7014-7017).
+        def _fmt_timer_monsters(monsters):
+            if not monsters or not isinstance(monsters, (list, tuple)):
+                return None
+            if all(m == 0 for m in monsters):
+                return None
+            # PRT decodes via TblMonsters and town type. Return raw counts for now.
+            parts = []
+            for m in monsters:
+                parts.append(str(m))
+            return ", ".join(parts)
+
+        # Helper: compute "Доступно" per PRT GetTimerApply (line 7124).
+        def _fmt_timer_apply(apply_tuple):
+            if not apply_tuple or not isinstance(apply_tuple, (list, tuple)) or len(apply_tuple) < 3:
+                return None
+            x_flags, y_num, z_num = apply_tuple[0], apply_tuple[1], apply_tuple[2]
+            if not x_flags or human_idx < 0:
+                return None
+            avail = []
+            for j in range(8):
+                if (x_flags & (1 << j)) > 0 and a_exist_color[j] > 0:
+                    if j == human_idx:
+                        if y_num > 0:
+                            avail.append(_A_COLOR[j])
+                    else:
+                        if z_num > 0:
+                            avail.append(_A_COLOR[j])
+            return ", ".join(avail) if avail else None
+
+        # Collect all timer events with metadata for sorting.
+        # Each entry: (day, object_name, id_for_sort, raw_ev_dict, is_map_event)
+        all_events = []
         for ev in ptc.get("map_timed_events", []):
             if isinstance(ev, dict):
-                res = ev.get("resources", {}) or {}
-                res_parts = []
-                for rkey, rcount in res.items():
-                    if rcount and rkey != "Gold":
-                        # rkey may be like 'Wood', 'Mercury', etc. — try to lookup
-                        try:
-                            ridx = ['Wood', 'Mercury', 'Ore', 'Sulfur', 'Crystal', 'Gems'].index(rkey)
-                            rname = _mine_name(ridx) or rkey
-                        except ValueError:
-                            rname = rkey
-                        res_parts.append(f"{rname} x{rcount}")
-                res_str = ", ".join(res_parts) if res_parts else None
-                ws.append(["Карта", ev.get("day"), ev.get("repeat"), None, None, None, None, None,
-                           res.get("Gold"), res_str, None, None])
+                day = ev.get("day") or 0
+                # PRT MapTimedEvents does NOT set ID; default to 0 (DBNull sorts first)
+                ev_id = ev.get("id") or 0
+                all_events.append((day, "Карта", ev_id, ev, True))
         for ev in ptc.get("town_timed_events", []):
             if isinstance(ev, dict):
-                res = ev.get("resources", {}) or {}
-                res_parts = []
-                for rkey, rcount in res.items():
-                    if rcount and rkey != "Gold":
-                        try:
-                            ridx = ['Wood', 'Mercury', 'Ore', 'Sulfur', 'Crystal', 'Gems'].index(rkey)
-                            rname = _mine_name(ridx) or rkey
-                        except ValueError:
-                            rname = rkey
-                        res_parts.append(f"{rname} x{rcount}")
-                res_str = ", ".join(res_parts) if res_parts else None
-                bld_str = str(ev.get("buildings", [])) if ev.get("buildings") else None
-                # Monsters may be list of dicts with monster_id+count
-                mons = ev.get("monsters", []) or []
-                if mons and isinstance(mons[0], dict):
-                    mon_parts = []
-                    for m in mons:
-                        if isinstance(m, dict):
-                            mid = m.get('monster_id', -1)
-                            cnt = m.get('count', 0)
-                            if mid >= 0:
-                                mon_parts.append(f"{_mon_name(mid) or mid} x{cnt}")
-                    mon_str = ", ".join(mon_parts) if mon_parts else None
+                day = ev.get("day") or 0
+                # PRT R_AllTimerRow.ID = byte[body_start+37] = town_index
+                ev_id = ev.get("id") or 0
+                all_events.append((day, "Город", ev_id, ev, False))
+
+        # Sort by (Day, Object, ID) — PRT DataView.Sort.
+        # "Город" (Г=U+0413) < "Карта" (К=U+041A) alphabetically.
+        all_events.sort(key=lambda e: (e[0], e[1], e[2]))
+
+        # Emit rows in PRT-sorted order.
+        for day, obj_name, ev_id, ev, is_map_event in all_events:
+            res = ev.get("resources", {}) or {}
+            res_str = _fmt_timer_res(res)
+            gold_val = res.get("Gold") if isinstance(res, dict) else None
+            if not gold_val:
+                gold_val = None
+            apply_tuple = ev.get("apply")
+            available = _fmt_timer_apply(apply_tuple)
+            repeat_val = ev.get("repeat") or None
+
+            if is_map_event:
+                # Map event: no town info, no buildings/monsters (PRT MapTimedEvents
+                # does NOT call GetTimerContent — only GetTimerRes).
+                # PRT outputs Day explicitly (even when 0), so use `day` not `day or None`.
+                ws.append([obj_name, day, repeat_val,
+                           None, None, None, None, available,
+                           gold_val, res_str, None, None])
+            else:
+                # Town event: look up town by index, format buildings/monsters.
+                town_idx = ev_id
+                town = _towns_sorted[town_idx] if 0 <= town_idx < len(_towns_sorted) else None
+                if town:
+                    t_name = town.get("name") or town.get("fields", {}).get("name", "")
+                    t_type_idx = town.get("type") or town.get("fields", {}).get("type", 0)
+                    t_type = _A_TOWN[t_type_idx] if 0 <= t_type_idx < len(_A_TOWN) else None
+                    tx = town.get("x") or town.get("fields", {}).get("x", 0)
+                    ty = town.get("y") or town.get("fields", {}).get("y", 0)
+                    tz = town.get("z") or town.get("fields", {}).get("z", 0)
+                    t_loc = f"{tx}.{ty}.{tz}"
+                    # PRT Color = aColor[decmp[town+1]] if byte < 255.
+                    # OUR's faction = raw[block_offset] = byte[town+1] in PRT's terms.
+                    faction = town.get("fields", {}).get("faction", 255)
+                    t_flag = _A_COLOR[faction] if faction is not None and faction < 255 else None
                 else:
-                    mon_str = str(mons) if mons else None
-                ws.append(["Город", ev.get("day"), ev.get("repeat"), ev.get("id"), None, None, None, None,
-                           res.get("Gold"), res_str,
-                           bld_str, mon_str])
+                    t_name = t_type = t_loc = t_flag = None
+
+                bld_str = _fmt_timer_buildings(ev.get("buildings"))
+                mon_str = _fmt_timer_monsters(ev.get("monsters"))
+
+                ws.append([obj_name, day, repeat_val,
+                           t_name, t_type, t_loc, t_flag, available,
+                           gold_val, res_str, bld_str, mon_str])
+
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
