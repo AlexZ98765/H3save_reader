@@ -601,13 +601,20 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Навыки ──
+        # Universal: writes both Witch Huts (single skill) and Universities
+        # (4 skills joined as comma-separated string) into Навыки sheet.
+        # PRT puts BOTH types in Навыки sheet (MainForm.cs SaveWitchHut+SaveUniver).
+        # No hardcoding — uses merge_witch_huts() output which dispatches
+        # per art_metadata config.
         ws = wb.create_sheet("Навыки")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Навык"])
         for rec in mo.get("Ведьмины_Хижины", []):
-            skid = rec.get("skill_id", 0) or 0
+            # Skill: localized name (WitchHut) or comma-joined names (University)
+            skill_val = rec.get("skill")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       "Хижина ведьмы", _skl_name(skid) or skid])
+                       rec.get("object", "Хижина ведьмы"),
+                       skill_val])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

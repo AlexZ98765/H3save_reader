@@ -3,7 +3,7 @@ SAVE COVERAGE REPORT
 ================================================================================
 Map:       Мифы и легенды
 Save:      0000.GM1
-Save size: 1572864 bytes (0x180000)
+Save size: 1578945 bytes (0x1817C1)
 Map size:  144x144 + underground
 
 Legend:
@@ -559,7 +559,7 @@ Legend:
     defense         = 2
     power           = 1
     knowledge       = 1
-    spell_book      = True
+    spell_book      = False
     war_machines    = []
   --- Hero 155 (last): Ксерон ---
     name            = Ксерон                                    addr=0x16b94a  hex=ca f1 e5 f0 ee ed 00 00 00 00 00 00 00
@@ -575,7 +575,7 @@ Legend:
     defense         = 2
     power           = 1
     knowledge       = 1
-    spell_book      = True
+    spell_book      = False
     war_machines    = []
 
 [PARTIAL] HeroState (156 × 2 bytes)
@@ -592,23 +592,75 @@ Legend:
   Status: PARTIAL
   Content: Grail location (x,y,z), current date (day/week/month as ASCII), Art Merchants (7 artifact slots at +49), 130 bytes total.
   Algorithms: CURRENT_STATE_OFFSETS reads grail + date. parse_art_merchants() reads 7 slots. Remaining ~100 bytes not fully decoded.
-[NOT_PARSED] Extended chain (BitField → Motions)
+[PARSED] BitField (fog of war bitmask)
   Start:  0x16BE87 (1490567)
-  End:    0x180000 (1572864)
-  Size:   82297 bytes (0x14179)
-  Status: NOT_PARSED
-  Content: NOT parsed (error: index out of range). Possibly day-0 truncated save.
-  Algorithms: Extended chain failed.
+  End:    0x180287 (1573511)
+  Size:   82944 bytes (0x14400)
+  Status: PARSED
+  Content: Fog of war: map_size² × (2 + 2 × MapSide) bytes. Each bit = one tile visible/fogged for one player.
+  Algorithms: parse_bitfield() — 2D bitmask: visibility per tile per player. Sample + statistics.
+  BitField details:
+    Map size: 144x144
+    Layers: 2
+    Bytes per tile: 4
+    Non-zero bytes: 4274 / 82944 (5%)
+    Sample tiles (first 5):
+      (0,0) offset=0x16be87 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
+      (1,0) offset=0x16be8b visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
+      (2,0) offset=0x16be8f visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
+      (3,0) offset=0x16be93 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
+      (4,0) offset=0x16be97 visibility=[{'layer': 0, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}, {'layer': 1, 'bitmask': 0, 'bitmask_hex': '0x0000', 'players_visible': []}]
+
+[PARSED] Monoliths (One-way + Two-way + Whirlpools)
+  Start:  0x180287 (1573511)
+  End:    0x180301 (1573633)
+  Size:   122 bytes (0x7A)
+  Status: PARSED
+  Content: 8 groups one-way + 8 groups two-way + 1 group whirlpools. Each entry: 4 bytes (x, y, z, bits).
+  Algorithms: parse_monolith_whirlpool() — all groups, returns MonolithInfo.
+[PARSED] Subterranean Gates + pairs
+  Start:  0x180301 (1573633)
+  End:    0x180325 (1573669)
+  Size:   36 bytes (0x24)
+  Status: PARSED
+  Content: u16 count + count×4 (gate coords) + u16 count + count×4 (pair IDs).
+  Algorithms: parse_pair_subterranean_gate() — gates + pair_ids.
+[PARSED] University section
+  Start:  0x180325 (1573669)
+  End:    0x180347 (1573703)
+  Size:   34 bytes (0x22)
+  Status: PARSED
+  Content: u16 count + count × 16 bytes. Each: 4 secondary skill IDs × 4 bytes.
+  Algorithms: parse_univer_content() — 4 skill IDs per university.
+[PARSED] Bank section (post-tile)
+  Start:  0x180347 (1573703)
+  End:    0x1807A1 (1574817)
+  Size:   1114 bytes (0x45A)
+  Status: PARSED
+  Content: u16 count + count × (89 + variable). Each: guard (7-slot), resources (28 bytes), monster reward or artifact reward.
+  Algorithms: parse_bank_content() + parse_bank_resource() + parse_bank_monster().
+[PARSED] Motions + remaining data
+  Start:  0x1807A1 (1574817)
+  End:    0x1817C1 (1578945)
+  Size:   4128 bytes (0x1020)
+  Status: PARSED
+  Content: Remaining 4128 bytes. Content unknown — possibly AI state, path records, replay log.
+  Algorithms: parse_motions() — path records with coordinate pairs. Full hex dump.
+  Motions details:
+    Size: 4128 bytes
+    Non-zero bytes: 8
+    Raw hex (first 200): 00 00 00 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
 ================================================================================
 SUMMARY
 ================================================================================
-Total save size:      1572864 bytes
-[PARSED]              1448041 bytes (92%)
+Total save size:      1578945 bytes
+[PARSED]              1536419 bytes (97%)
 [PARTIAL]             42526 bytes (2%)
 [UNKNOWN]             0 bytes (0%)
-[NOT_PARSED]          82297 bytes (5%)
+[NOT_PARSED]          0 bytes (0%)
 
-Coverage (PARSED + PARTIAL): 94%
+Coverage (PARSED + PARTIAL): 100%
 
 UNKNOWN sections (need more reverse engineering):
 

@@ -6,7 +6,7 @@
     "save_version_major": 42,
     "save_version_minor": 2,
     "day_zero_save": "0000.GM1",
-    "day_zero_size": 1572864,
+    "day_zero_size": 1578945,
     "n_objects": 7009,
     "n_unique_coords": 6006,
     "n_towns": 21,
@@ -91,6 +91,18 @@
     },
     {
       "name": "other_1",
+      "start": 1573569,
+      "start_hex": "0x1802C1",
+      "end": 1574069,
+      "end_hex": "0x1804B5",
+      "hits": 6,
+      "distinct_coords": 5,
+      "stride_min": 4,
+      "stride_median": 88,
+      "peak_density": 6
+    },
+    {
+      "name": "other_2",
       "start": 1273815,
       "start_hex": "0x136FD7",
       "end": 1277270,
@@ -102,7 +114,7 @@
       "peak_density": 12
     },
     {
-      "name": "other_2",
+      "name": "other_3",
       "start": 1269164,
       "start_hex": "0x135DAC",
       "end": 1271141,
@@ -114,7 +126,7 @@
       "peak_density": 6
     },
     {
-      "name": "other_3",
+      "name": "other_4",
       "start": 1365675,
       "start_hex": "0x14D6AB",
       "end": 1367864,
@@ -123,18 +135,6 @@
       "distinct_coords": 4,
       "stride_min": 7,
       "stride_median": 201,
-      "peak_density": 6
-    },
-    {
-      "name": "other_4",
-      "start": 1414093,
-      "start_hex": "0x1593CD",
-      "end": 1415873,
-      "end_hex": "0x159AC1",
-      "hits": 6,
-      "distinct_coords": 4,
-      "stride_min": 4,
-      "stride_median": 74,
       "peak_density": 6
     }
   ],
@@ -6923,7 +6923,9 @@
         "0x15C0EC",
         "0x16121E",
         "0x1678AE",
-        "0x16A3B8"
+        "0x16A3B8",
+        "0x1803A8",
+        "0x1803AC"
       ]
     },
     "529": {
@@ -8411,7 +8413,8 @@
         "0x141CE4",
         "0x142177",
         "0x15454F",
-        "0x156339"
+        "0x156339",
+        "0x1804B4"
       ]
     },
     "12033": {
@@ -9462,7 +9465,8 @@
         "0x12596B",
         "0x13FC14",
         "0x14918D",
-        "0x159699"
+        "0x159699",
+        "0x180350"
       ]
     },
     "9219": {
@@ -25723,7 +25727,8 @@
       "decoration_offset": null,
       "save_offsets": [
         "0x6132E",
-        "0x124CA5"
+        "0x124CA5",
+        "0x1802F3"
       ]
     },
     "1110": {
@@ -28642,7 +28647,8 @@
       "decoration_offset": null,
       "save_offsets": [
         "0x8754E",
-        "0x12317F"
+        "0x12317F",
+        "0x1802C1"
       ]
     },
     "67704": {

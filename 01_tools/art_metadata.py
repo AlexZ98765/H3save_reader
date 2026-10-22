@@ -530,6 +530,109 @@ def get_all_resource_bearing_type_ids() -> List[int]:
     return get_resource_tile_type_ids()
 
 
+# ============================================================================
+# Skill tile extraction (per type_id) — for "Навыки" sheet
+# ============================================================================
+
+_SKILL_PARSERS: Optional[Dict[str, Dict[str, Any]]] = None
+SKILL_PARSERS_PATH = os.path.join(_DOCS, "skill_tile_parsers.json")
+
+
+def _load_skill_parsers() -> Dict[str, Dict[str, Any]]:
+    """Lazy loader for skill_tile_parsers.json. Cached after first call."""
+    global _SKILL_PARSERS
+    if _SKILL_PARSERS is None:
+        data = _load_json(SKILL_PARSERS_PATH)
+        _SKILL_PARSERS = {k: v for k, v in data.items() if not k.startswith("_")}
+    return _SKILL_PARSERS
+
+
+def get_skill_tile_parser(type_id: int) -> Optional[Dict[str, Any]]:
+    """Return the tile-level skill extraction config for the given type_id.
+
+    Returns None if this type_id does not produce rows in Навыки sheet
+    (i.e., not 113 WitchHut or 104 Univer).
+
+    Config schema (see 02_format_docs/skill_tile_parsers.json):
+      save_method: str        — name of the PRT Save* method
+      always_row: bool        — does this type always create a row?
+      skill_count: int       — number of skills per row (1 for WitchHut, 4 for Univer)
+      skill_id_formula: str  — (WitchHut only) Python expr for skill_id
+      skill_id_offsets: [int] — byte offsets used in formula
+      skill_max_valid: int    — max valid skill_id (28 for HoMM3 SoD)
+      tile_skill_extraction: bool — False for Univer (skills come from post-tile)
+      post_tile_section: str  — (Univer only) key in post_tile_content dict
+      post_tile_skill_offsets: [int] — (Univer) offsets within post-tile record
+      post_tile_record_size: int    — (Univer) size of post-tile record
+      skill_join_separator: str     — (Univer) separator between skill names
+    """
+    return _load_skill_parsers().get(str(type_id))
+
+
+def get_skill_tile_type_ids() -> List[int]:
+    """Return list of type_ids that produce rows in Навыки sheet."""
+    return sorted(int(k) for k in _load_skill_parsers().keys())
+
+
+def is_skill_bearing_tile_type(type_id: int) -> bool:
+    """Return True if this type_id produces rows in Навыки sheet."""
+    return str(type_id) in _load_skill_parsers()
+
+
+def extract_skill_id_from_tile(raw: bytes, s: int, type_id: int) -> Optional[int]:
+    """Extract a single skill_id from tile bytes (for WitchHut type 113).
+
+    Per PRT MainForm.cs:10384 SaveWitchHut:
+        skill_id = ((raw[s+8] & 0xF) << 3) + (raw[s+7] >> 5)
+
+    Returns None if type_id is not a WitchHut (Univer has no tile-level skill).
+    Returns None if the computed skill_id >= skill_max_valid (28 for SoD).
+    """
+    cfg = get_skill_tile_parser(type_id)
+    if cfg is None:
+        return None
+    # Only WitchHut (113) has tile-level skill extraction
+    if not cfg.get("skill_id_formula"):
+        return None
+    skill_id = _eval_formula(cfg["skill_id_formula"], raw, s)
+    max_valid = cfg.get("skill_max_valid", 28)
+    if skill_id >= max_valid:
+        return None
+    return skill_id
+
+
+def get_skill_post_tile_info(type_id: int) -> Optional[Dict[str, Any]]:
+    """For University (type 104), return post-tile section info.
+
+    Returns dict with:
+      post_tile_section: str           — key in post_tile_content (e.g. "univer")
+      post_tile_skill_offsets: [int]   — offsets within record (e.g. [0, 4, 8, 12])
+      post_tile_record_size: int       — size of post-tile record (e.g. 16)
+      skill_join_separator: str         — separator (e.g. ", ")
+
+    Returns None for types that don't have post-tile skills (e.g. WitchHut).
+    """
+    cfg = get_skill_tile_parser(type_id)
+    if cfg is None:
+        return None
+    if cfg.get("tile_skill_extraction", True):
+        return None  # WitchHut has tile-level extraction, no post-tile
+    return {
+        "post_tile_section": cfg.get("post_tile_section"),
+        "post_tile_skill_offsets": cfg.get("post_tile_skill_offsets", []),
+        "post_tile_record_size": cfg.get("post_tile_record_size", 16),
+        "skill_join_separator": cfg.get("skill_join_separator", ", "),
+    }
+
+
+def get_all_skill_bearing_type_ids() -> List[int]:
+    """Return list of all type_ids that produce rows in Навыки sheet.
+
+    Includes: Witch Hut (113), University (104).
+    """
+    return get_skill_tile_type_ids()
+
+
 # ----------------------------------------------------------------------------
 # Self-test
 # ----------------------------------------------------------------------------

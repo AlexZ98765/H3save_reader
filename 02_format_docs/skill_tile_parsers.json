@@ -1,0 +1,33 @@
+{
+  "_meta": {
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs",
+    "extracted_from": [
+      "SaveWitchHut (line 10376) — type_id=113",
+      "SaveUniver (line 9978) + UniverContent (line 8031) — type_id=104"
+    ],
+    "description": "Per-type_id tile-level skill extraction config for 'Навыки' sheet. Universal — works for any save of any map. Two types of objects produce rows in Навыки sheet: Witch Huts (1 skill per row, computed from tile bytes) and Universities (4 skills per row, joined as comma-separated string, read from post-tile Univer section).",
+    "usage": "art_metadata.get_skill_tile_parser(type_id) -> dict | None"
+  },
+
+  "113": {
+    "save_method": "SaveWitchHut",
+    "always_row": true,
+    "skill_count": 1,
+    "skill_id_formula": "((raw[s+8] & 0xF) << 3) + (raw[s+7] >> 5)",
+    "skill_id_offsets": [7, 8],
+    "skill_max_valid": 28,
+    "notes": "Witch Hut. Skill_id is computed from 2 bytes: top 4 bits of byte s+8 (low nibble) shifted left by 3, plus top 5 bits of byte s+7 (>>5). If skill_id < 28, look up TblSecondarySkill[skill_id]. Single skill per row."
+  },
+
+  "104": {
+    "save_method": "SaveUniver",
+    "always_row": true,
+    "skill_count": 4,
+    "tile_skill_extraction": false,
+    "post_tile_section": "univer",
+    "post_tile_skill_offsets": [0, 4, 8, 12],
+    "post_tile_record_size": 16,
+    "skill_join_separator": ", ",
+    "notes": "University (Университет / University of Magic). Tile scan creates an empty R_Skill row (no skill_id set). Post-tile UniverContent reads 4 skill_ids (one per 4-byte slot at offsets 0, 4, 8, 12 within the 16-byte record) and joins them as 'skill1, skill2, skill3, skill4'. The skill_id at each offset is a u8 lookup into TblSecondarySkill[]."
+  }
+}

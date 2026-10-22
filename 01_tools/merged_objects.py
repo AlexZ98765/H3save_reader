@@ -804,19 +804,127 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 
-def merge_witch_huts(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge witch hut tile objects (sheet "Навыки" — witch huts)."""
-    return [
-        {
-            "x": obj.get('x'),
-            "y": obj.get('y'),
-            "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Witch Hut",
-            "skill_id": obj.get('skill_id', 0),
-        }
-        for obj in tile_objects if obj.get('type_id') == 113
-    ]
+def merge_witch_huts(tile_objects: List[Dict[str, Any]],
+                     post_tile_content: Optional[Dict[str, Any]] = None,
+                     localizer=None,
+                     raw: Optional[bytes] = None
+                     ) -> List[Dict[str, Any]]:
+    """Merge Witch Huts + Universities into Навыки sheet.
+
+    Universal: no hardcoding — uses art_metadata.get_skill_tile_parser to
+    determine which types produce rows in Навыки sheet (currently WitchHut=113
+    and Univer=104).
+
+    PRT behavior:
+      - WitchHut (113): tile-level extraction via formula
+        skill_id = ((raw[s+8] & 0xF) << 3) + (raw[s+7] >> 5); 1 skill per row.
+      - Univer (104): tile scan creates an empty row (no skill), post-tile
+        UniverContent fills 4 skills (at offsets 0, 4, 8, 12 within 16-byte
+        record), joined as "skill1, skill2, skill3, skill4".
+
+    Returns records with:
+      x, y, z, locality, object (localized), skill (str), skill_id (int or None)
+    """
+    try:
+        from art_metadata import (
+            extract_skill_id_from_tile,
+            get_skill_post_tile_info,
+            is_skill_bearing_tile_type,
+            get_skill_tile_parser,
+        )
+        _has_skill_meta = True
+    except Exception:
+        _has_skill_meta = False
+
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    # Get post-tile univer records (for Universities)
+    univer_records = []
+    if post_tile_content and isinstance(post_tile_content, dict):
+        for u in post_tile_content.get("universers", []):
+            univer_records.append(_to_dict(u))
+
+    records: List[Dict[str, Any]] = []
+    univer_idx = 0  # position in univer_records (matches tile-scan order)
+
+    for obj in tile_objects:
+        type_id = int(obj.get('type_id', 0))
+        if not (_has_skill_meta and is_skill_bearing_tile_type(type_id)):
+            continue
+
+        # Localized object name (e.g., "Хижина ведьмы", "Университет")
+        if localizer:
+            object_name = localizer.object(type_id) or f"Object {type_id}"
+        else:
+            object_name = obj.get('type_name') or f"Object {type_id}"
+
+        locality = "море" if obj.get('loc') == 8 else "суша"
+
+        # Data-driven dispatch via config fields (no type_id hardcoding)
+        cfg = get_skill_tile_parser(type_id)
+        if cfg is None:
+            continue
+
+        # Determine extraction mode from config:
+        # - tile_skill_extraction: True (default) → use skill_id_formula at tile level
+        # - tile_skill_extraction: False → use post_tile_section + offsets
+        use_tile_extraction = cfg.get("tile_skill_extraction", True)
+
+        if use_tile_extraction:
+            # WitchHut-style: tile-level extraction via formula
+            s = obj.get('offset')
+            if s is None or not isinstance(s, int) or raw is None:
+                continue
+            skill_id = extract_skill_id_from_tile(raw, s, type_id)
+            if skill_id is None:
+                skill_str = None
+            else:
+                skill_str = localizer.skill(skill_id) if localizer else f"Skill {skill_id}"
+            records.append({
+                "x": obj.get('x'), "y": obj.get('y'), "z": obj.get('z'),
+                "locality": locality,
+                "object": object_name,
+                "skill": skill_str,
+                "skill_id": skill_id,
+            })
+        else:
+            # Univer-style: post-tile section parsing
+            info = get_skill_post_tile_info(type_id)
+            if info is None:
+                continue
+            separator = info.get("skill_join_separator", ", ")
+            # Get the corresponding post-tile record by scan order index
+            section_key = info.get("post_tile_section")
+            if not section_key or univer_idx >= len(univer_records):
+                continue
+            u_rec = univer_records[univer_idx]
+            univer_idx += 1
+            # Read skill_ids from the post-tile record
+            skills_list = u_rec.get("skills", [])
+            skill_names = []
+            for sid in skills_list:
+                if isinstance(sid, int) and 0 <= sid < 28:
+                    skill_names.append(localizer.skill(sid) if localizer else f"Skill {sid}")
+            skill_str = separator.join(skill_names) if skill_names else None
+            records.append({
+                "x": obj.get('x'), "y": obj.get('y'), "z": obj.get('z'),
+                "locality": locality,
+                "object": object_name,
+                "skill": skill_str,
+                "skill_id": None,
+                "skills_list": skills_list,
+            })
+
+    return records
+
+
+# Backward-compat alias
+merge_skills = merge_witch_huts
 
 
 def merge_refugee_camps(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -1215,7 +1323,8 @@ def merge_all(tile_objects: List[Dict[str, Any]],
                                     localizer=localizer, raw=raw),
         "Сундуки": merge_chests(tile_objects, obj_dict),
         "Заклинания_Святилища": merge_shrines(tile_objects),
-        "Ведьмины_Хижины": merge_witch_huts(tile_objects),
+        "Ведьмины_Хижины": merge_witch_huts(tile_objects, post_tile_content,
+                                              localizer=localizer, raw=raw),
         "Лагеря_Беженцев": merge_refugee_camps(tile_objects),
         "Рынки": merge_market(tile_objects, post_tile_content),
         "Провидцы": merge_seer_huts(tile_objects, post_tile_content),

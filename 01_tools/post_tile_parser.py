@@ -2137,6 +2137,27 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
     except Exception as e:
         result["town_timed_events"] = []
 
+    # A9. Univer (University of Magic — 4 secondary skills per record)
+    # PRT MainForm.cs:8018 GetUniverContent iterates TblUniver (populated during
+    # tile scan) and for each row calls UniverContent which reads 4 skill_ids
+    # (at offsets 0, 4, 8, 12 within the 16-byte record).
+    try:
+        univer_off = offsets.get("univer", 0)
+        if univer_off > 0:
+            # PRT line 8022: s = map.Univer + 2 (skip count u8 + 1 byte)
+            # Count is at raw[univer_off] (u8), records start at univer_off + 2
+            n = raw[univer_off]
+            s = univer_off + 2
+            universers = []
+            for i in range(n):
+                rec, s = parse_univer_content(raw, s)
+                universers.append(rec)
+            result["universers"] = universers
+        else:
+            result["universers"] = []
+    except Exception as e:
+        result["universers"] = []
+
     # G2. Monolith + Whirlpool
     try:
         # BitField = CurrentState + 130 - Chrn (assume Chrn=0)
