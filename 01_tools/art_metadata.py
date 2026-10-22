@@ -27,6 +27,8 @@ TBL_ART_PATH = os.path.join(_DOCS, "tbl_art_mapping.json")
 TILE_PARSERS_PATH = os.path.join(_DOCS, "artifact_tile_parsers.json")
 BANK_CONFIG_PATH = os.path.join(_DOCS, "bank_artifact_config.json")
 RESOURCE_PARSERS_PATH = os.path.join(_DOCS, "resource_tile_parsers.json")
+MONSTER_MAPPING_PATH = os.path.join(_DOCS, "tbl_monsters_mapping.json")
+REFUGEE_CAMP_CONFIG_PATH = os.path.join(_DOCS, "refugee_camp_config.json")
 
 
 # ----------------------------------------------------------------------------
@@ -631,6 +633,106 @@ def get_all_skill_bearing_type_ids() -> List[int]:
     Includes: Witch Hut (113), University (104).
     """
     return get_skill_tile_type_ids()
+
+
+# ============================================================================
+# Monster metadata (TblMonsters lookup — name, level, hp, altar, town)
+# ============================================================================
+
+_TBL_MONSTERS: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _load_tbl_monsters() -> Dict[str, Dict[str, Any]]:
+    """Lazy loader for tbl_monsters_mapping.json. Cached after first call."""
+    global _TBL_MONSTERS
+    if _TBL_MONSTERS is None:
+        try:
+            data = _load_json(MONSTER_MAPPING_PATH)
+            _TBL_MONSTERS = {k: v for k, v in data.items() if not k.startswith("_")}
+        except Exception:
+            _TBL_MONSTERS = {}
+    return _TBL_MONSTERS
+
+
+def get_monster_info(monster_id: int) -> Optional[Dict[str, Any]]:
+    """Return TblMonsters info for the given monster_id.
+
+    Returns dict with: name (str), level (int), hp (int), altar (int), town (int).
+    Returns None if monster_id is not in TblMonsters.
+
+    Source: PRT MainForm.cs CreateTblMonsters (line 11049+) — 126 entries
+    covering all standard HoMM3 SoD creatures (levels 1-7).
+    """
+    return _load_tbl_monsters().get(str(monster_id))
+
+
+def get_monster_name(monster_id: int) -> str:
+    """Return PRT-style localized monster name (from TblMonsters).
+
+    Falls back to empty string if monster_id is not found.
+    Note: This uses PRT's hardcoded Russian names (e.g. 'Джинн', 'Скелет')
+    which differ slightly from localizer.monstr() (ru_sod: 'Джин').
+    Use this for sheets that need PRT-exact monster names.
+    """
+    info = get_monster_info(monster_id)
+    return info.get("name", "") if info else ""
+
+
+def get_monster_level(monster_id: int) -> int:
+    """Return monster level (1..7) from TblMonsters. 0 if unknown."""
+    info = get_monster_info(monster_id)
+    return int(info.get("level", 0)) if info else 0
+
+
+def get_monster_hp(monster_id: int) -> int:
+    """Return monster HP from TblMonsters. 0 if unknown."""
+    info = get_monster_info(monster_id)
+    return int(info.get("hp", 0)) if info else 0
+
+
+# ============================================================================
+# Refugee Camp (Лагеря Беженцев) — per type_id config
+# ============================================================================
+
+_REFUGEE_CAMP_CONFIG: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _load_refugee_camp_config() -> Dict[str, Dict[str, Any]]:
+    """Lazy loader for refugee_camp_config.json. Cached after first call."""
+    global _REFUGEE_CAMP_CONFIG
+    if _REFUGEE_CAMP_CONFIG is None:
+        try:
+            data = _load_json(REFUGEE_CAMP_CONFIG_PATH)
+            _REFUGEE_CAMP_CONFIG = {k: v for k, v in data.items() if not k.startswith("_")}
+        except Exception:
+            _REFUGEE_CAMP_CONFIG = {}
+    return _REFUGEE_CAMP_CONFIG
+
+
+def get_refugee_camp_config(type_id: int) -> Optional[Dict[str, Any]]:
+    """Return the refugee camp config for the given type_id.
+
+    Returns None if this type_id is not a refugee camp (only type 78 in SoD).
+
+    Config schema (see 02_format_docs/refugee_camp_config.json):
+      save_method: str        — 'SaveCamp'
+      always_row: bool        — always True
+      monster_id_offset: int  — byte offset for monster_id (2)
+      count_offset: int       — byte offset for count (6)
+      count_size: int         — size of count field in bytes (1)
+      lookup_table: str       — 'tbl_monsters' for name + level lookup
+    """
+    return _load_refugee_camp_config().get(str(type_id))
+
+
+def is_refugee_camp_type(type_id: int) -> bool:
+    """Return True if this type_id is a Refugee Camp (produces rows in Лагеря Беженцев)."""
+    return str(type_id) in _load_refugee_camp_config()
+
+
+def get_refugee_camp_type_ids() -> List[int]:
+    """Return list of type_ids that produce rows in Лагеря Беженцев sheet."""
+    return sorted(int(k) for k in _load_refugee_camp_config().keys())
 
 
 # ----------------------------------------------------------------------------

@@ -927,20 +927,101 @@ def merge_witch_huts(tile_objects: List[Dict[str, Any]],
 merge_skills = merge_witch_huts
 
 
-def merge_refugee_camps(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge refugee camp tile objects (sheet "Лагеря Беженцев")."""
-    return [
-        {
+def merge_refugee_camps(tile_objects: List[Dict[str, Any]],
+                        localizer=None,
+                        raw: Optional[bytes] = None
+                        ) -> List[Dict[str, Any]]:
+    """Merge refugee camp tile objects (sheet "Лагеря Беженцев").
+
+    Universal: no hardcoding — uses art_metadata.is_refugee_camp_type to
+    determine which type_ids produce rows (currently type 78 in SoD).
+
+    PRT behavior (MainForm.cs SaveCamp, line 10465):
+      - Reads monster_id at byte s+2 (u8)
+      - Reads count at byte s+6 (u8, max 255)
+      - Looks up Monster name and Level from TblMonsters table
+      - Each Refugee Camp row contains: X, Y, Z, Locality, Object (localized),
+        Monster (name), Number (count), Level (1..7)
+
+    Returns records with:
+      x, y, z, locality, object (localized), monster (name), count (int), level (int)
+    """
+    try:
+        from art_metadata import (
+            is_refugee_camp_type,
+            get_refugee_camp_config,
+            get_monster_info,
+            get_monster_name,
+            get_monster_level,
+        )
+        _has_meta = True
+    except Exception:
+        _has_meta = False
+
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    records: List[Dict[str, Any]] = []
+
+    for obj in tile_objects:
+        type_id = int(obj.get('type_id', 0))
+        if not (_has_meta and is_refugee_camp_type(type_id)):
+            continue
+
+        # Localized object name (e.g., "Лагерь Беженцов" in ru_sod)
+        if localizer:
+            object_name = localizer.object(type_id) or f"Object {type_id}"
+        else:
+            object_name = obj.get('type_name') or f"Object {type_id}"
+
+        locality = "море" if obj.get('loc') == 8 else "суша"
+
+        # Get config (data-driven offsets and lookup table)
+        cfg = get_refugee_camp_config(type_id)
+        if cfg is None:
+            continue
+
+        # Read monster_id from tile bytes (per config: offset 2)
+        s = obj.get('offset')
+        if s is None or not isinstance(s, int) or raw is None:
+            continue
+
+        # Get monster_id and count from tile_object (already parsed by _parse_camp)
+        # OR re-read from raw bytes for robustness
+        monster_id_off = cfg.get("monster_id_offset", 2)
+        count_off = cfg.get("count_offset", 6)
+        if s + max(monster_id_off, count_off) + 1 > len(raw):
+            continue
+        monster_id = raw[s + monster_id_off]
+        count = raw[s + count_off]
+
+        # Look up monster name and level from TblMonsters (PRT-exact names)
+        monster_info = get_monster_info(monster_id)
+        if monster_info:
+            # PRT-style name (e.g., "Скелет", "Крестоносец" — matches PRT 0000.xlsx)
+            monster_name = monster_info.get("name", f"M{monster_id}")
+            level = int(monster_info.get("level", 0))
+        else:
+            # Fallback to localizer for name (will differ from PRT but still readable)
+            monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
+            level = 0
+
+        records.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Refugee Camp",
-            "monster_type": obj.get('monster_type', 0),
-            "count": obj.get('count', 0),
-        }
-        for obj in tile_objects if obj.get('type_id') == 39
-    ]
+            "locality": locality,
+            "object": object_name,
+            "monster": monster_name,
+            "count": count,
+            "level": level,
+        })
+
+    return records
 
 
 def merge_learning_stones(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -1325,7 +1406,7 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         "Заклинания_Святилища": merge_shrines(tile_objects),
         "Ведьмины_Хижины": merge_witch_huts(tile_objects, post_tile_content,
                                               localizer=localizer, raw=raw),
-        "Лагеря_Беженцев": merge_refugee_camps(tile_objects),
+        "Лагеря_Беженцев": merge_refugee_camps(tile_objects, localizer=localizer, raw=raw),
         "Рынки": merge_market(tile_objects, post_tile_content),
         "Провидцы": merge_seer_huts(tile_objects, post_tile_content),
         "Border_Guards": merge_pass_guards(tile_objects, post_tile_content),

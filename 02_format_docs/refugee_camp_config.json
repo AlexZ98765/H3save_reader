@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "source": "07_prt_decompiled/ProspectorRT_source/ProspectorRT/MainForm.cs",
+    "extracted_from": [
+      "SaveCamp (line 10465) — type_id=78",
+      "TblMonsters (line 11049+) — for name + level lookup"
+    ],
+    "description": "Per-type_id config for Лагеря Беженцев (Refugee Camp) sheet. Universal — works for any save of any map. Each Refugee Camp row contains a monster (with count) that the player can recruit. Monster name and level are looked up from tbl_monsters_mapping.json (extracted from PRT TblMonsters).",
+    "usage": "art_metadata.get_refugee_camp_config(type_id) -> dict | None"
+  },
+
+  "78": {
+    "save_method": "SaveCamp",
+    "always_row": true,
+    "sheet_name": "Лагеря Беженцев",
+    "monster_id_offset": 2,
+    "monster_id_size": 1,
+    "count_offset": 6,
+    "count_size": 1,
+    "count_max": 255,
+    "lookup_table": "tbl_monsters",
+    "lookup_fields": ["name", "level"],
+    "notes": "Refugee Camp (Лагерь беженцев). Reads monster_id at byte s+2 (u8), count at byte s+6 (u8, max 255). Looks up Monster name and Level from TblMonsters table. PRT MainForm.cs:10465 SaveCamp — r_CampRow.Monster = TblMonsters[monster_id][1], r_CampRow.Level = TblMonsters[monster_id][2], r_CampRow.Number = decmp[s+6]."
+  }
+}

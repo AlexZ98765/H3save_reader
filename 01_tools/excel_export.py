@@ -620,13 +620,24 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Лагеря Беженцев ──
+        # Universal: writes all populated fields from merge_refugee_camps() output.
+        #   rec keys: x, y, z, locality, object, monster (PRT name), count (u8), level (1..7)
+        # No hardcoding — uses merge output directly.
         ws = wb.create_sheet("Лагеря Беженцев")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Монстр", "Количество", "Уровень"])
         for rec in mo.get("Лагеря_Беженцев", []):
-            mid = rec.get("monster_type", 0) or 0
+            # Monster name: PRT-style from TblMonsters (e.g., "Скелет", "Крестоносец")
+            monster_name = rec.get("monster")
+            # Count: u8 value (max 255)
+            count_val = rec.get("count")
+            # Level: 1..7 from TblMonsters lookup
+            level_val = rec.get("level")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       "Лагерь беженцев", _mon_name(mid) or mid, rec.get("count"), None])
+                       rec.get("object", "Лагерь беженцев"),
+                       monster_name,
+                       count_val,
+                       level_val])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
