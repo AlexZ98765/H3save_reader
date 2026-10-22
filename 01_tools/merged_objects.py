@@ -1385,107 +1385,125 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
     return prisons
 
 
-def merge_keymaster_tents(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge keymaster tent tile objects (sheet "Топология")."""
-    return [
-        {
+def merge_keymaster_tents(tile_objects: List[Dict[str, Any]],
+                           localizer=None
+                           ) -> List[Dict[str, Any]]:
+    """Merge keymaster tent tile objects (sheet "Топология").
+
+    PRT SaveTent (line 9778): creates 1 row per tent with:
+      X, Y, Z, Locality, Object (localized name), Color (from aTent[])
+    """
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    out = []
+    for obj in tile_objects:
+        if obj.get('type_id') != 10:
+            continue
+        object_name = localizer.object(10) if localizer else "Палатка ключника"
+        color_id = obj.get('color_id', 0)
+        color_name = localizer.tent(color_id) if localizer else f"Color {color_id}"
+        out.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
             "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Keymaster Tent",
-            "color_id": obj.get('color_id', 0),
-            "color_name": obj.get('color_name', '?'),
-        }
-        for obj in tile_objects if obj.get('type_id') == 10
-    ]
+            "object": object_name,
+            "color": color_name,
+        })
+    return out
 
 
 def merge_monoliths(tile_objects: List[Dict[str, Any]],
-                    post_tile_content: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Merge monolith tile objects + post-tile MonolithInfo (sheet "Топология")."""
+                    post_tile_content: Optional[Dict[str, Any]] = None,
+                    localizer=None
+                    ) -> List[Dict[str, Any]]:
+    """Merge monolith tile objects (sheet "Топология").
+
+    PRT SaveMonolith (line 9766): creates 1 row per monolith from tile scan only.
+    Post-tile monolith data is used for pairing computation, NOT for additional rows.
+    Type column = monolith subtype (decmp[s+2] as string).
+    """
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
     out = []
-    # Tile scan monoliths: types 43, 44, 45
     for obj in tile_objects:
-        if obj.get('type_id') in (43, 44, 45):
-            out.append({
-                "x": obj.get('x'),
-                "y": obj.get('y'),
-                "z": obj.get('z'),
-                "locality": "море" if obj.get('loc') == 8 else "суша",
-                "object": "Monolith",
-                "monolith_subtype": obj.get('monolith_subtype', 0),
-            })
-    # Post-tile monoliths (with pairing info)
-    monos = post_tile_content.get("monoliths")
-    if monos:
-        monos = _to_dict(monos)
-        # Add one_way_groups + two_way_groups + whirlpools
-        for group_idx, group in enumerate(monos.get("one_way_groups", [])):
-            for entry in group:
-                # entry is a tuple (x, y, z, bits) — not a dataclass
-                if isinstance(entry, (tuple, list)) and len(entry) >= 3:
-                    x, y, z = entry[0], entry[1], entry[2]
-                else:
-                    x = y = z = None
-                out.append({
-                    "object": "One-Way Monolith",
-                    "group": group_idx,
-                    "x": x, "y": y, "z": z,
-                })
-        for group_idx, group in enumerate(monos.get("two_way_groups", [])):
-            for entry in group:
-                if isinstance(entry, (tuple, list)) and len(entry) >= 3:
-                    x, y, z = entry[0], entry[1], entry[2]
-                else:
-                    x = y = z = None
-                out.append({
-                    "object": "Two-Way Monolith",
-                    "group": group_idx,
-                    "x": x, "y": y, "z": z,
-                })
-        for entry in monos.get("whirlpools", []):
-            if isinstance(entry, (tuple, list)) and len(entry) >= 3:
-                x, y, z = entry[0], entry[1], entry[2]
-            else:
-                x = y = z = None
-            out.append({
-                "object": "Whirlpool",
-                "x": x, "y": y, "z": z,
-            })
+        type_id = obj.get('type_id')
+        if type_id not in (43, 44, 45):
+            continue
+        object_name = localizer.object(type_id) if localizer else f"Monolith {type_id}"
+        subtype = obj.get('monolith_subtype', 0)
+        out.append({
+            "x": obj.get('x'),
+            "y": obj.get('y'),
+            "z": obj.get('z'),
+            "locality": "море" if obj.get('loc') == 8 else "суша",
+            "object": object_name,
+            "type": str(subtype) if subtype is not None else None,
+        })
+    # REMOVED: post-tile one_way_groups, two_way_groups, whirlpools appending
+    # These were creating 26 duplicate rows with wrong coordinates.
+    # PRT uses post-tile data ONLY for pair computation, not for new rows.
     return out
 
 
 def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
-                             post_tile_content: Dict[str, Any]
+                             post_tile_content: Optional[Dict[str, Any]] = None,
+                             localizer=None
                              ) -> List[Dict[str, Any]]:
-    """Merge subterranean gate tile objects + post-tile pairing (sheet "Топология")."""
+    """Merge subterranean gate tile objects (sheet "Топология").
+
+    PRT SaveTopologyObj (line 9790): creates 1 row per gate from tile scan.
+    Pair info is set on EXISTING rows from post-tile pairing computation.
+    """
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
     out = []
-    # Tile scan: type 103 (topology_object)
     for obj in tile_objects:
-        if obj.get('type_id') == 103:
-            out.append({
-                "x": obj.get('x'),
-                "y": obj.get('y'),
-                "z": obj.get('z'),
-                "locality": "море" if obj.get('loc') == 8 else "суша",
-                "object": "Subterranean Gate",
-            })
-    # Post-tile pairing
-    stg = post_tile_content.get("sub_ter_gates")
-    if stg and isinstance(stg, dict):
-        gates = stg.get("gates", [])
-        pair_ids = stg.get("pair_ids", [])
-        for i, gate in enumerate(gates):
-            gate = _to_dict(gate)
-            pair_id = pair_ids[i] if i < len(pair_ids) else -1
-            out.append({
-                "object": "Subterranean Gate (paired)",
-                "x": gate.get('x'),
-                "y": gate.get('y'),
-                "z": gate.get('z'),
-                "pair_id": pair_id,
-            })
+        if obj.get('type_id') != 103:
+            continue
+        object_name = localizer.object(103) if localizer else "Врата подземного мира"
+        out.append({
+            "x": obj.get('x'),
+            "y": obj.get('y'),
+            "z": obj.get('z'),
+            "locality": "море" if obj.get('loc') == 8 else "суша",
+            "object": object_name,
+        })
+
+    # Set Pair field on existing rows from post-tile sub_ter_gates pairing
+    # PRT (line 9371-9380): finds row by X/Y/Z and sets Pair = pair_index
+    if post_tile_content and isinstance(post_tile_content, dict):
+        stg = post_tile_content.get("sub_ter_gates")
+        if stg and isinstance(stg, dict):
+            gates = stg.get("gates", [])
+            pair_ids = stg.get("pair_ids", [])
+            for i, gate in enumerate(gates):
+                gate = _to_dict(gate)
+                gx = gate.get('x')
+                gy = gate.get('y')
+                gz = gate.get('z')
+                pair_id = pair_ids[i] if i < len(pair_ids) else -1
+                # Find matching row in out[] and set pair
+                for row in out:
+                    if row.get('x') == gx and row.get('y') == gy and row.get('z') == gz:
+                        row['pair'] = pair_id if pair_id >= 0 else None
+                        break
+
     return out
 
 
@@ -1629,9 +1647,11 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         "Объекты": merge_generic_objects(tile_objects),
         "Университеты": merge_universities(tile_objects, post_tile_content),
         "Learning_Stones": merge_learning_stones(tile_objects),
-        "Топология_Палатки": merge_keymaster_tents(tile_objects),
-        "Топология_Монолиты": merge_monoliths(tile_objects, post_tile_content),
-        "Топология_Подземные_Врата": merge_subterranean_gates(tile_objects, post_tile_content),
+        "Топология_Палатки": merge_keymaster_tents(tile_objects, localizer=localizer),
+        "Топология_Монолиты": merge_monoliths(tile_objects, post_tile_content,
+                                                localizer=localizer),
+        "Топология_Подземные_Врата": merge_subterranean_gates(tile_objects, post_tile_content,
+                                                                localizer=localizer),
         "Герои_на_карте": merge_heroes_on_map(tile_objects, heroes_parsed),
         "Гарнизоны": merge_garrisons(tile_objects, post_tile_content),
     }

@@ -891,23 +891,33 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Топология ──
+        # PRT: 1 row per topology object from tile scan (no duplicates).
+        # Tent: Object (localized) + Color (from aTent[]).
+        # Monolith: Object (localized) + Type (subtype as string).
+        # Subterranean Gate: Object (localized) + Pair (from post-tile pairing).
         ws = wb.create_sheet("Топология")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Тип", "Цвет", "Пара"])
         for rec in mo.get("Топология_Палатки", []):
-            cid = rec.get("color_id", 0) or 0
-            # Always use localized tent name (it has the correct color order for tents)
-            color_name = _tent_name(cid) or rec.get("color_name") or cid
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       "Палатка ключника", None, color_name, None])
+                       rec.get("object", "Палатка ключника"),
+                       None,
+                       rec.get("color"),
+                       None])
         for rec in mo.get("Топология_Монолиты", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Монолит"), None, None, None])
+                       rec.get("object", "Монолит"),
+                       rec.get("type"),
+                       None,
+                       None])
         for rec in mo.get("Топология_Подземные_Врата", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Врата"), None, None, rec.get("pair_id")])
+                       rec.get("object", "Врата подземного мира"),
+                       None,
+                       None,
+                       rec.get("pair")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
