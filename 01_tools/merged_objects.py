@@ -368,44 +368,140 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
 
 def merge_monsters(tile_objects: List[Dict[str, Any]],
                    post_tile_content: Dict[str, Any],
-                   obj_dict: Optional[Dict] = None
+                   obj_dict: Optional[Dict] = None,
+                   localizer=None,
+                   raw: Optional[bytes] = None
                    ) -> List[Dict[str, Any]]:
-    """Merge monster tile objects with Monstr content (sheet "Монстры").
+    """Merge monster tile objects + post-tile Monstr content (sheet "Монстры").
+
+    Universal: no hardcoding — uses art_metadata.get_monster_info for
+    TblMonsters lookups (name, level, hp). PRT MainForm.cs SaveMonster +
+    MonstrContent logic.
+
+    PRT behavior:
+      - SaveMonster (tile scan): reads monster_id at s+2, count at s+6..s+7
+        (u12), mood at s+7 (high nibble), grows at s+8 bit 2, has_guard at
+        s+9 bit 7. Looks up Name + Level + HP from TblMonsters.
+        Sum HP = monster_hp * count.
+        Прирост = "Да" if grows, else None.
+      - MonstrContent (post-tile): for each guarded monster (has_guard=True),
+        reads resources (6 x 4 bytes), gold (24-bit LE), artifact_id (u8).
+        Linked by monstr_num field (sorted index).
 
     Returns records with:
-      x, y, z, locality, monster_id, count, mood, level, hp, grows,
-      artifact_id, gold, resources
+      x, y, z, locality, monster (name), count, mood, level, hp (Sum HP),
+      artifact (name), gold, resource (PRT "G8, S5"), grows ('Да' or None)
     """
-    monsters = []
-    tile_map = _build_tile_object_map(tile_objects)
+    try:
+        from art_metadata import (
+            get_monster_info,
+            get_monster_name,
+            get_monster_level,
+            get_monster_hp,
+        )
+        _has_meta = True
+    except Exception:
+        _has_meta = False
 
-    # From tile scan: monsters have type_id 54 (Monster)
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+
+    monsters: List[Dict[str, Any]] = []
+
+    # Build MonstrContent records index (by monstr_num) for guarded monster linking.
+    # Per PRT AnalysisMonstrContent: TblMonstr is sorted by Num, and aMonstrID[Num]
+    # gives the offset. Our post_tile_content["monstr_records"] is already in
+    # parse order (which corresponds to sorted-by-Num order). So monstr_records[i]
+    # corresponds to the guarded monster with monstr_num == i.
+    monstr_records: List[Dict[str, Any]] = []
+    if post_tile_content and isinstance(post_tile_content, dict):
+        for mr in post_tile_content.get("monstr_records", []):
+            monstr_records.append(_to_dict(mr))
+
+    # Resource letter mapping (matches PRT aResource[])
+    A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    A_RESOURCE_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+    name_to_letter = dict(zip(A_RESOURCE_NAMES, A_RESOURCE_LETTERS))
+
     for obj in tile_objects:
         if obj.get('type_id') != 54:
             continue
-        rec = {
+
+        # Monster name + Level + HP from TblMonsters (PRT-exact names)
+        monster_id = obj.get('monster_type', 0)
+        if _has_meta:
+            info = get_monster_info(monster_id)
+            if info:
+                monster_name = info.get("name", f"M{monster_id}")
+                level = int(info.get("level", 0))
+                base_hp = int(info.get("hp", 0))
+            else:
+                monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
+                level = 0
+                base_hp = 0
+        else:
+            monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
+            level = 0
+            base_hp = 0
+
+        count = obj.get('count', 0)
+        mood = obj.get('mood', 0)
+        grows = obj.get('grows', False)
+
+        # Sum HP = monster_hp * count (PRT: r_MonstrRow.HP *= Number)
+        sum_hp = base_hp * count if base_hp and count else None
+
+        # прирост: bit set = "doesn't grow" (override), bit clear = "grows" (default)
+        # PRT MainForm.cs:10514 — Increase = ((decmp[s+8] & 4) > 0) ? aReply[0] : aReply[1]
+        # aReply[0]="Нет" (bit set = override = no growth), aReply[1]="Да" (bit clear = default = grows)
+        grows_str = "Нет" if grows else "Да"
+
+        # For guarded monsters, link MonstrContent by monstr_num
+        artifact_name = None
+        gold = None
+        resource_str = None
+
+        if obj.get('has_artifact') and obj.get('monstr_num', 0) < len(monstr_records):
+            mr = monstr_records[obj['monstr_num']]
+
+            # Resources: format as PRT "G8, S5" string
+            resources_dict = mr.get("resources", {})
+            if isinstance(resources_dict, dict):
+                res_parts = []
+                for rname in A_RESOURCE_NAMES:
+                    amount = resources_dict.get(rname, 0)
+                    if amount and amount > 0:
+                        letter = name_to_letter.get(rname, "?")
+                        res_parts.append(f"{letter}{amount}")
+                resource_str = ", ".join(res_parts) if res_parts else None
+
+            # Gold (24-bit LE from parse_monstr_content)
+            gold_val = mr.get("gold", 0)
+            gold = gold_val if gold_val > 0 else None
+
+            # Artifact (u8, 0xFF = none)
+            art_id = mr.get("artifact_id", -1)
+            if art_id is not None and 0 <= art_id < 0xFF:
+                artifact_name = localizer.art(art_id) if localizer else f"A{art_id}"
+
+        monsters.append({
             "x": obj.get('x'),
             "y": obj.get('y'),
             "z": obj.get('z'),
             "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": "Monster",
-            "monster_type": obj.get('monster_type', 0),
-            "count": obj.get('count', 0),
-            "mood": obj.get('mood', 0),
-            "grows": obj.get('grows', False),
-            "has_artifact": obj.get('has_artifact', False),
-        }
-        monsters.append(rec)
-
-    # From post-tile Monstr content (treasure)
-    monstr_records = post_tile_content.get("monstr_records", [])
-    for mr in monstr_records:
-        mr = _to_dict(mr)
-        monsters.append({
-            "address": mr.get("address"),
-            "resources": mr.get("resources", {}),
-            "gold": mr.get("gold", 0),
-            "artifact_id": mr.get("artifact_id", -1),
+            "monster": monster_name,
+            "count": count,
+            "mood": mood,
+            "level": level,
+            "hp": sum_hp,
+            "artifact": artifact_name,
+            "gold": gold,
+            "resource": resource_str,
+            "grows": grows_str,
         })
 
     return monsters
@@ -1513,7 +1609,8 @@ def merge_all(tile_objects: List[Dict[str, Any]],
     return {
         "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict,
                                       localizer=localizer, raw=raw),
-        "Монстры": merge_monsters(tile_objects, post_tile_content, obj_dict),
+        "Монстры": merge_monsters(tile_objects, post_tile_content, obj_dict,
+                                    localizer=localizer, raw=raw),
         "Банки": merge_banks(tile_objects, post_tile_content,
                               localizer=localizer, raw=raw),
         "События_Ящики_Пандоры": merge_event_boxes(tile_objects, post_tile_content),

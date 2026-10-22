@@ -1467,46 +1467,67 @@ class GM1ParserWindow(QMainWindow):
     def _build_ui(self):
         central = QWidget()
         self.setCentralWidget(central)
-        layout = QVBoxLayout(central)
+        # Root layout: HBox — vertical button column on left, content on right
+        layout = QHBoxLayout(central)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(4)
 
-        # Toolbar — grouped by function
-        toolbar = QHBoxLayout()
+        # ── Left: vertical button column ──────────────────────────────────
+        # All buttons stacked vertically (one per row) for better readability
+        button_column = QVBoxLayout()
+        button_column.setContentsMargins(0, 0, 0, 0)
+        button_column.setSpacing(4)
 
         # Group 1: Loading (workflow steps 1→2→3)
         load_group = QGroupBox("Load")
-        load_layout = QHBoxLayout(load_group)
-        load_layout.setContentsMargins(4, 2, 4, 2)
-        load_map_btn = QPushButton("1. Map JSON…")
+        load_layout = QVBoxLayout(load_group)
+        load_layout.setContentsMargins(6, 4, 6, 4)
+        load_layout.setSpacing(4)
+        load_map_btn = QPushButton("1. Map parsing JSON…")
+        load_map_btn.setToolTip("Load a pre-parsed .h3m map JSON (.json or .zip with .json inside).\n"
+                                 "Required for building a MapConfig from a day-zero save.\n"
+                                 "Optional for parsing a save (enriches object types/sprites).")
         load_map_btn.clicked.connect(self._on_load_map_json)
         load_layout.addWidget(load_map_btn)
-        load_dz_btn = QPushButton("2. Day-Zero Save…")
+        load_dz_btn = QPushButton("2. Day-Zero ‘Save’ file…")
+        load_dz_btn.setToolTip("Load a 0000.GM1 day-zero save (immediately after map load, before any player action).\n"
+                               "Builds a MapConfig (anchor table with dynamic offsets) and saves it\n"
+                               "automatically next to the save as save_map_config_<mapname>.json.")
         load_dz_btn.clicked.connect(self._on_load_day_zero)
         load_layout.addWidget(load_dz_btn)
-        load_cfg_btn = QPushButton("2b. Map Config…")
-        load_cfg_btn.setToolTip("Load a previously-saved map_config_<mapname>.json (produced by step 2).\n"
-                                 "Lets you skip step 2 (Day-Zero Save) if a config already exists.")
+        load_cfg_btn = QPushButton("2b. ‘Save’ config JSON…")
+        load_cfg_btn.setToolTip("Load a previously-saved save_map_config_<mapname>.json (produced by step 2).\n"
+                                 "Lets you skip step 2 (‘Save’ file) if a config already exists.")
         load_cfg_btn.clicked.connect(self._on_load_map_config)
         load_layout.addWidget(load_cfg_btn)
-        open_btn = QPushButton("3. Open Save…")
+        open_btn = QPushButton("3. ‘Save’ file…")
+        open_btn.setToolTip("Open any .GM1 save of the currently-loaded map.\n"
+                            "Requires MapConfig (from step 2 or 2b) to adapt offsets between saves.")
         open_btn.clicked.connect(self._on_open_file)
         load_layout.addWidget(open_btn)
         info_btn = QPushButton("ℹ Info")
         info_btn.setToolTip("Show available workflows and what each one provides")
         info_btn.clicked.connect(self._on_info)
         load_layout.addWidget(info_btn)
-        toolbar.addWidget(load_group)
+        button_column.addWidget(load_group)
 
         # Group 2: Export
         export_group = QGroupBox("Export")
-        export_layout = QHBoxLayout(export_group)
-        export_layout.setContentsMargins(4, 2, 4, 2)
+        export_layout = QVBoxLayout(export_group)
+        export_layout.setContentsMargins(6, 4, 6, 4)
+        export_layout.setSpacing(4)
         export_btn = QPushButton("JSON…")
+        export_btn.setToolTip("Export parsed save data to a .json file\n"
+                              "(parsed_save_<mapname>.json with all blocks, heroes, towns, merged_objects).")
         export_btn.clicked.connect(self._on_export_json)
         export_layout.addWidget(export_btn)
         export_xlsx_btn = QPushButton("Excel…")
+        export_xlsx_btn.setToolTip("Export all map objects + standardized tables (Артефакты, Монстры, Банки, etc.)\n"
+                                   "to an .xlsx workbook with 25+ sheets.")
         export_xlsx_btn.clicked.connect(self._on_export_objects_excel)
         export_layout.addWidget(export_xlsx_btn)
         export_bin_btn = QPushButton("Binary…")
+        export_bin_btn.setToolTip("Export the decompressed save as a .bin file for hex-editor analysis.")
         export_bin_btn.clicked.connect(self._on_export_binary)
         export_layout.addWidget(export_bin_btn)
         cov_btn = QPushButton("Coverage…")
@@ -1515,31 +1536,73 @@ class GM1ParserWindow(QMainWindow):
                            "we fully parse them.")
         cov_btn.clicked.connect(self._on_export_coverage)
         export_layout.addWidget(cov_btn)
-        toolbar.addWidget(export_group)
+        button_column.addWidget(export_group)
 
         # Group 3: Tools
         tools_group = QGroupBox("Tools")
-        tools_layout = QHBoxLayout(tools_group)
-        tools_layout.setContentsMargins(4, 2, 4, 2)
+        tools_layout = QVBoxLayout(tools_group)
+        tools_layout.setContentsMargins(6, 4, 6, 4)
+        tools_layout.setSpacing(4)
         reload_btn = QPushButton("Reload Mapping")
+        reload_btn.setToolTip("Reload gm1_mapping.json from disk (useful after editing the file).")
         reload_btn.clicked.connect(self._on_reload_mapping)
         tools_layout.addWidget(reload_btn)
-        toolbar.addWidget(tools_group)
+        button_column.addWidget(tools_group)
 
-        # toolbar.addStretch()
-        # self.file_label = QLabel("No file loaded")
-        # toolbar.addWidget(self.file_label)
-        # layout.addLayout(toolbar)
+        # Group 4: Loaded Data (moved here from right pane to free vertical space
+        # for the main work area). Compact status checkboxes.
+        status_group = QGroupBox("Loaded Data")
+        status_layout = QVBoxLayout(status_group)
+        status_layout.setContentsMargins(6, 4, 6, 4)
+        status_layout.setSpacing(2)
 
-        toolbar.addStretch()
+        self.chk_map_json = QCheckBox("Map parsing JSON")
+        self.chk_map_json.setEnabled(False)
+        status_layout.addWidget(self.chk_map_json)
+
+        self.chk_day_zero = QCheckBox("Day-Zero ‘Save’ file")
+        self.chk_day_zero.setEnabled(False)
+        status_layout.addWidget(self.chk_day_zero)
+
+        self.chk_map_config = QCheckBox("‘Save’ config JSON")
+        self.chk_map_config.setEnabled(False)
+        status_layout.addWidget(self.chk_map_config)
+
+        self.chk_save_file = QCheckBox("‘Save’ file")
+        self.chk_save_file.setEnabled(False)
+        status_layout.addWidget(self.chk_save_file)
+
+        self.chk_objects = QCheckBox("Objects located")
+        self.chk_objects.setEnabled(False)
+        status_layout.addWidget(self.chk_objects)
+
+        self.lbl_map_name = QLabel("")
+        self.lbl_map_name.setWordWrap(True)
+        self.lbl_map_name.setStyleSheet("color: gray; font-style: italic; font-size: 10px;")
+        status_layout.addWidget(self.lbl_map_name)
+
+        button_column.addWidget(status_group)
+
+        # Stretch to keep groups at the top of the column
+        button_column.addStretch()
+
+        # Wrap button column in a widget with fixed/max width so it doesn't expand
+        button_column_widget = QWidget()
+        button_column_widget.setLayout(button_column)
+        button_column_widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        # Reasonable max width for the button column (longest label ~ "2b. ‘Save’ config JSON…" ~ 180px + margins)
+        button_column_widget.setMaximumWidth(220)
+        button_column_widget.setMinimumWidth(180)
+        layout.addWidget(button_column_widget)
+
+        # ── Right: vertical content (splitter + status, no top toolbar) ───
+        right_layout = QVBoxLayout()
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(4)
+
+        # File label at top of right pane (was in toolbar before)
         self.file_label = QLabel("No file loaded")
-        toolbar.addWidget(self.file_label)
-
-        toolbar_widget = QWidget()
-        toolbar_widget.setLayout(toolbar)
-        toolbar_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        toolbar_widget.setMaximumHeight(toolbar_widget.sizeHint().height())
-        layout.addWidget(toolbar_widget)
+        right_layout.addWidget(self.file_label)
 
         # Splitter
         splitter = QSplitter(Qt.Horizontal)
@@ -1655,42 +1718,10 @@ class GM1ParserWindow(QMainWindow):
         splitter.addWidget(self.tabs)
         splitter.setStretchFactor(0, 2)
         splitter.setStretchFactor(1, 3)
-        layout.addWidget(splitter)
+        right_layout.addWidget(splitter, 1)  # stretch=1: splitter takes all available vertical space
 
-        # ----- Load status panel (vertical checkboxes, minimal height) -----
-        status_group = QGroupBox("Loaded Data")
-        status_layout = QVBoxLayout(status_group)
-        status_layout.setContentsMargins(8, 2, 8, 2)
-        status_layout.setSpacing(1)
-
-        self.chk_map_json = QCheckBox("Map JSON")
-        self.chk_map_json.setEnabled(False)
-        status_layout.addWidget(self.chk_map_json)
-
-        self.chk_day_zero = QCheckBox("Day-Zero Save")
-        self.chk_day_zero.setEnabled(False)
-        status_layout.addWidget(self.chk_day_zero)
-
-        self.chk_map_config = QCheckBox("Map Config")
-        self.chk_map_config.setEnabled(False)
-        status_layout.addWidget(self.chk_map_config)
-
-        self.chk_save_file = QCheckBox("Save File")
-        self.chk_save_file.setEnabled(False)
-        status_layout.addWidget(self.chk_save_file)
-
-        self.chk_objects = QCheckBox("Objects Located")
-        self.chk_objects.setEnabled(False)
-        status_layout.addWidget(self.chk_objects)
-
-        self.lbl_map_name = QLabel("")
-        self.lbl_map_name.setStyleSheet("color: gray; font-style: italic; font-size: 10px;")
-        status_layout.addWidget(self.lbl_map_name)
-
-        # Force minimal height
-        status_group.setMaximumHeight(140)
-        status_group.setSizePolicy(status_group.sizePolicy().Policy.Fixed, status_group.sizePolicy().Policy.Fixed)
-        layout.addWidget(status_group)
+        # Add right_layout (splitter only — status moved to left column) to main horizontal layout
+        layout.addLayout(right_layout, 1)  # stretch=1: right side takes all available horizontal space
 
         self.status = QStatusBar()
         self.setStatusBar(self.status)
@@ -1738,19 +1769,19 @@ class GM1ParserWindow(QMainWindow):
 
         # --- Load menu ---
         load_menu = menubar.addMenu("&Load")
-        load_map_action = QAction("Load Map JSON…", self)
+        load_map_action = QAction("Load Map parsing JSON…", self)
         load_map_action.setShortcut("Ctrl+M")
         load_map_action.triggered.connect(self._on_load_map_json)
         load_menu.addAction(load_map_action)
-        load_dz_action = QAction("Load Day-Zero Save…", self)
+        load_dz_action = QAction("Load Day-Zero ‘Save’ file…", self)
         load_dz_action.setShortcut("Ctrl+D")
         load_dz_action.triggered.connect(self._on_load_day_zero)
         load_menu.addAction(load_dz_action)
-        load_cfg_action = QAction("Load Map Config…", self)
+        load_cfg_action = QAction("2b. ‘Save’ config JSON…", self)
         load_cfg_action.setShortcut("Ctrl+L")
         load_cfg_action.triggered.connect(self._on_load_map_config)
         load_menu.addAction(load_cfg_action)
-        open_action = QAction("Open Save…", self)
+        open_action = QAction("Open ‘Save’ file…", self)
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self._on_open_file)
         load_menu.addAction(open_action)
@@ -1822,19 +1853,19 @@ class GM1ParserWindow(QMainWindow):
         # Map JSON
         if getattr(self, "map_data", None):
             self.chk_map_json.setChecked(True)
-            self.chk_map_json.setText(f"Map JSON: {self.map_data.n_objects} objects, "
+            self.chk_map_json.setText(f"Map parsing JSON: {self.map_data.n_objects} objects, "
                                        f"{self.map_data.n_towns} towns")
         else:
             self.chk_map_json.setChecked(False)
-            self.chk_map_json.setText("Map JSON")
+            self.chk_map_json.setText("Map parsing JSON")
 
         # Day-Zero Save
         if getattr(self, "day_zero_raw", None):
             self.chk_day_zero.setChecked(True)
-            self.chk_day_zero.setText(f"Day-Zero Save: {len(self.day_zero_raw):,} bytes")
+            self.chk_day_zero.setText(f"Day-Zero ‘Save’ file: {len(self.day_zero_raw):,} bytes")
         else:
             self.chk_day_zero.setChecked(False)
-            self.chk_day_zero.setText("Day-Zero Save")
+            self.chk_day_zero.setText("Day-Zero ‘Save’ file")
 
         # Map Config (built from day-zero)
         if getattr(self, "map_config", None):
@@ -1852,22 +1883,22 @@ class GM1ParserWindow(QMainWindow):
                 n_towns = c.get("town_section", {}).get("count", 0)
                 n_clusters = len(c.get("clusters", []))
             self.chk_map_config.setText(
-                f"Map Config: {n_heroes} heroes, "
+                f"‘Save’ config JSON: {n_heroes} heroes, "
                 f"{n_towns} towns, "
                 f"{n_clusters} clusters"
             )
         else:
             self.chk_map_config.setChecked(False)
-            self.chk_map_config.setText("Map Config")
+            self.chk_map_config.setText("‘Save’ config JSON")
 
         # Save File (currently loaded save for viewing/editing)
         if self.raw_data and self.current_file:
             self.chk_save_file.setChecked(True)
-            self.chk_save_file.setText(f"Save File: {os.path.basename(self.current_file)} "
+            self.chk_save_file.setText(f"\u2018Save\u2019 file: {os.path.basename(self.current_file)} "
                                         f"({len(self.raw_data):,} bytes)")
         else:
             self.chk_save_file.setChecked(False)
-            self.chk_save_file.setText("Save File")
+            self.chk_save_file.setText("\u2018Save\u2019 file")
 
         # Objects Located (addresses computed in current save)
         n_off = len(getattr(self, "_computed_offsets", {}))
@@ -1875,10 +1906,10 @@ class GM1ParserWindow(QMainWindow):
                     if v.get("verified"))
         if n_ver > 0:
             self.chk_objects.setChecked(True)
-            self.chk_objects.setText(f"Objects Located: {n_ver}/{n_off}")
+            self.chk_objects.setText(f"Objects located: {n_ver}/{n_off}")
         else:
             self.chk_objects.setChecked(False)
-            self.chk_objects.setText("Objects Located")
+            self.chk_objects.setText("Objects located")
 
         # Map name label
         if getattr(self, "map_data", None):
@@ -2186,91 +2217,131 @@ class GM1ParserWindow(QMainWindow):
 
     def _on_info(self):
         """Show a dialog explaining all available workflows and what each provides."""
-        has_map_json = "✅ loaded" if self.map_data and getattr(self.map_data, 'n_sprites', 0) > 0 else "❌ not loaded"
-        has_config = "✅ loaded" if getattr(self, "map_config", None) else "❌ not loaded"
-        has_day0 = "✅ loaded" if getattr(self, "day_zero_raw", None) else "❌ not loaded"
-        has_save = "✅ loaded" if self.raw_data else "❌ not loaded"
+        has_map_json = "loaded" if self.map_data and getattr(self.map_data, 'n_sprites', 0) > 0 else "not loaded"
+        has_config = "loaded" if getattr(self, "map_config", None) else "not loaded"
+        has_day0 = "loaded" if getattr(self, "day_zero_raw", None) else "not loaded"
+        has_save = "loaded" if self.raw_data else "not loaded"
+
+        # Use ASCII quotes inside info dialog for monospace alignment
+        # (smart quotes ' ' break Consolas column widths)
+        SQ = "'Save'"  # ASCII single quotes for monospace alignment
+
+        # ── Helper: build a boxed section with aligned borders ──
+        BOX_W = 63  # total width between │ and │ (content area)
+        def box_line(content=""):
+            """Build a line: │ <content padded to BOX_W> │"""
+            return "│ " + content.ljust(BOX_W - 2) + " │"
+
+        def box_top():
+            return "┌" + "─" * BOX_W + "┐"
+
+        def box_bottom():
+            return "└" + "─" * BOX_W + "┘"
+
+        def box(title, *lines):
+            """Build a complete box with title + content lines.
+            Caller controls spacing via "" entries in *lines."""
+            result = [box_top(), box_line(title)]
+            for ln in lines:
+                result.append(box_line(ln))
+            result.append(box_bottom())
+            return "\n".join(result)
+
+        # ── Status section ──
+        # Align labels to 22 chars, then status
+        status_label_w = 22
+        def status_line(label, status):
+            check = "✅" if status == "loaded" else "❌"
+            return f"  {label.ljust(status_label_w)} {check} {status}"
+
+        status_section = f"""═══════════════════════════════════════════════════════════════
+ТЕКУЩЕЕ СОСТОЯНИЕ:
+{status_line("Map parsing JSON", has_map_json)}
+{status_line(SQ + " config JSON", has_config)}
+{status_line("Day-Zero " + SQ + " file", has_day0)}
+{status_line(SQ + " file", has_save)}
+═══════════════════════════════════════════════════════════════"""
+
+        # ── Mode boxes ──
+        mode1 = box(
+            "РЕЖИМ 1: Минимальный — только сейв",
+            "",
+            "   Шаг: 3. " + SQ + " file… (Ctrl+O)",
+            "",
+            "   Что нужно:  только .GM1 файл",
+            "   Что даёт:   • Заголовок (magic, version, map_name)",
+            "              • Герои (156, с именами, статы, армия)",
+            "   Чего нет:   • Города (нужны координаты)",
+            "              • Кластеры объектов (нужны координаты)",
+            "              • Типы объектов (нужен map JSON)",
+        )
+
+        mode2 = box(
+            "РЕЖИМ 2: Map parsing JSON + сейв (РЕКОМЕНДУЕМЫЙ)",
+            "",
+            "   Шаги: 1. Map parsing JSON… → 3. " + SQ + " file…",
+            "",
+            "   Что нужно:  .h3m.zip (парсинг карты) + .GM1 сейв",
+            "   Что даёт:   • Всё из режима 1",
+            "              • Города (21, с именами, фракциями)",
+            "              • Кластеры объектов (6006, 100% verified)",
+            "              • Типы объектов (town, mine, monster, ...)",
+            "              • Спрайты (.def names)",
+            "              • Описание карты, слухи, глобальные события",
+            "              • Запрещённые артефакты/заклинания/навыки",
+            "   Чего нет:   • Начальное состояние (сколько было в",
+            "                сундуках ДО действий игрока)",
+        )
+
+        mode3 = box(
+            "РЕЖИМ 3: " + SQ + " config JSON + сейв",
+            "",
+            "   Шаги: 2b. " + SQ + " config JSON… → 3. " + SQ + " file…",
+            "",
+            "   Что нужно:  save_config_*.json + .GM1 сейв",
+            "   Что даёт:   • Всё из режима 2 (кроме типов/спрайтов)",
+            "              • Готовые смещения кластеров (из day-0)",
+            "   Чего нет:   • Типы объектов (нужен map JSON)",
+            "   Плюс:       Быстрее (config уже построен)",
+        )
+
+        mode4 = box(
+            "РЕЖИМ 4: Полный (Map parsing JSON + Day-0 + сейв)",
+            "",
+            "   Шаги: 1. Map parsing JSON… → 2. Day-Zero " + SQ + " file…",
+            "                       → 3. " + SQ + " file…",
+            "   ИЛИ:  1. Map parsing JSON… → 2b. " + SQ + " config JSON…",
+            "                       → 3. " + SQ + " file…",
+            "",
+            "   Что нужно:  .h3m.zip + 0000.GM1 (или config) + .GM1",
+            "   Что даёт:   • Всё из режима 2",
+            "              • Начальное состояние объектов",
+            "              • Валидация (что изменилось с day-0)",
+            "              • Готовый save_config_*.json для будущих сейвов",
+        )
 
         info_text = f"""HoMM3 .GM1 Save Parser — Режимы работы
 
-══════════════════════════════════════════════════════════════
-ТЕКУЩЕЕ СОСТОЯНИЕ:
-  Map JSON:       {has_map_json}
-  Map Config:     {has_config}
-  Day-0 Save:     {has_day0}
-  Open Save:      {has_save}
-══════════════════════════════════════════════════════════════
+{status_section}
 
 ДОСТУПНЫЕ РЕЖИМЫ (от простого к полному):
 
-┌─────────────────────────────────────────────────────────────┐
-│ РЕЖИМ 1: Минимальный — только сейв                           │
-│                                                             │
-│   Шаг: 3. Open Save… (Ctrl+O)                               │
-│                                                             │
-│   Что нужно:  только .GM1 файл                              │
-│   Что даёт:   • Заголовок (magic, version, map_name)        │
-│              • Герои (156, с именами, статы, армия)          │
-│   Чего нет:   • Города (нужны координаты)                   │
-│              • Кластеры объектов (нужны координаты)         │
-│              • Типы объектов (нужен map JSON)                │
-└─────────────────────────────────────────────────────────────┘
+{mode1}
 
-┌─────────────────────────────────────────────────────────────┐
-│ РЕЖИМ 2: Map JSON + сейв (РЕКОМЕНДУЕМЫЙ)                    │
-│                                                             │
-│   Шаги: 1. Map JSON… → 3. Open Save…                       │
-│                                                             │
-│   Что нужно:  .h3m.zip (парсинг карты) + .GM1 сейв           │
-│   Что даёт:   • Всё из режима 1                             │
-│              • Города (21, с именами, фракциями)            │
-│              • Кластеры объектов (6006, 100% verified)      │
-│              • Типы объектов (town, mine, monster, ...)     │
-│              • Спрайты (.def names)                          │
-│              • Описание карты, слухи, глобальные события      │
-│              • Запрещённые артефакты/заклинания/навыки      │
-│   Чего нет:   • Начальное состояние (сколько было в         │
-│                сундуках ДО действий игрока)                 │
-└─────────────────────────────────────────────────────────────┘
+{mode2}
 
-┌─────────────────────────────────────────────────────────────┐
-│ РЕЖИМ 3: Map Config + сейв                                  │
-│                                                             │
-│   Шаги: 2b. Map Config… → 3. Open Save…                    │
-│                                                             │
-│   Что нужно:  map_config_*.json + .GM1 сейв                 │
-│   Что даёт:   • Всё из режима 2 (кроме типов/спрайтов)       │
-│              • Готовые смещения кластеров (из day-0)        │
-│   Чего нет:   • Типы объектов (нужен map JSON)              │
-│   Плюс:       Быстрее (config уже построен)                 │
-└─────────────────────────────────────────────────────────────┘
+{mode3}
 
-┌─────────────────────────────────────────────────────────────┐
-│ РЕЖИМ 4: Полный (Map JSON + Day-0 + сейв)                   │
-│                                                             │
-│   Шаги: 1. Map JSON… → 2. Day-Zero Save… → 3. Open Save…   │
-│   ИЛИ:  1. Map JSON… → 2b. Map Config… → 3. Open Save…     │
-│                                                             │
-│   Что нужно:  .h3m.zip + 0000.GM1 (или config) + .GM1      │
-│   Что даёт:   • Всё из режима 2                             │
-│              • Начальное состояние объектов                 │
-│              • Валидация (что изменилось с day-0)           │
-│              • Готовый map_config_*.json для будущих сейвов  │
-└─────────────────────────────────────────────────────────────┘
+{mode4}
 
 ВСЕ ВХОДЫ ОПЦИОНАЛЬНЫ — парсер работает на любом уровне.
-Map JSON и Day-0 сейв — enrichment, не requirement.
-
-ОГРАНИЧЕНИЕ старого подхода: работал только со стартовыми сейвами,
-потому что ищет ".GM1" в имени файла (которое есть только у
-автосейвов с числовым именем, но не у ручных сохранений).
-Наш парсер НЕ имеет этого ограничения — работает с любыми сейвами."""
+Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
 
         # Create a read-only text dialog
         from PySide6.QtWidgets import QDialog, QDialogButtonBox, QTextEdit, QVBoxLayout
         dialog = QDialog(self)
         dialog.setWindowTitle("Режимы работы парсера")
-        dialog.resize(700, 600)
+        dialog.resize(760, 620)
         layout = QVBoxLayout(dialog)
         text_edit = QTextEdit()
         text_edit.setReadOnly(True)
@@ -2291,14 +2362,14 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         if not self.map_data and not self.map_config:
             reply = QMessageBox.question(
                 self, "No map data loaded",
-                "Neither Map JSON nor Map Config is loaded.\n\n"
+                "Neither Map parsing JSON nor ‘Save’ config JSON is loaded.\n\n"
                 "You can still open the save — the parser will find\n"
                 "heroes and header, but NOT towns or object clusters\n"
                 "(those require coordinate data from a map).\n\n"
                 "For full parsing, load one of:\n"
-                "  • Map JSON (Ctrl+M) — gives types, sprites, description\n"
-                "  • Map Config (Ctrl+L) — gives pre-built offsets\n"
-                "  • Day-Zero Save (Ctrl+D) — builds config from scratch\n\n"
+                "  • Map parsing JSON (Ctrl+M) — gives types, sprites, description\n"
+                "  • ‘Save’ config JSON (Ctrl+L) — gives pre-built offsets\n"
+                "  • Day-Zero ‘Save’ file (Ctrl+D) — builds config from scratch\n\n"
                 "Continue anyway?",
                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes
             )
@@ -2316,7 +2387,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         Uses map_data.coord_int_lookup for object coordinate set
         and map_data.objects_by_coord for town coords (with X-2 correction).
 
-        This enables parsing ANY save with just Map JSON — no day-0 save needed.
+        This enables parsing ANY save with just Map parsing JSON — no day-0 save needed.
         """
         from save_layout import MapConfig, ObjectOffsets
 
@@ -3294,9 +3365,9 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         After loading, the parser works for saves from ANY map.
         """
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Map JSON",
+            self, "Load Map parsing JSON",
             "",
-            "Map JSON files (*.json);;Map ZIP files (*.zip);;All files (*)"
+            "Map parsing JSON files (*.json);;Map ZIP files (*.zip);;All files (*)"
         )
         if not path:
             return
@@ -3348,12 +3419,12 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         n_ver = sum(1 for v in getattr(self, "_computed_offsets", {}).values() if v.get("verified")) if self.raw_data else 0
         self._set_idle()
         self.status.showMessage(
-            f"Map JSON loaded: {md.summary()}"
+            f"Map parsing JSON loaded: {md.summary()}"
             + (f" | {n_ver} objects located in save" if self.raw_data else ""),
             10000
         )
         QMessageBox.information(
-            self, "Map JSON Loaded",
+            self, "Map parsing JSON Loaded",
             f"Successfully loaded map JSON:\n\n"
             f"  Map:      {md.map_name}\n"
             f"  Size:     {md.map_size}×{md.map_size}"
@@ -3375,25 +3446,25 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         This config is then used to parse ANY subsequent save from the same map.
 
         Workflow:
-          1. Load Map JSON (Ctrl+M) — required first
-          2. Load Day-Zero Save (Ctrl+D) — this step, builds config
-          3. Open any save (Ctrl+O) — parsed using the config
+          1. Load Map parsing JSON (Ctrl+M) — required first
+          2. Load Day-Zero ‘Save’ file (Ctrl+D) — this step, builds config
+          3. Open ‘Save’ file (Ctrl+O) — parsed using the config
         """
         # Step 1: check that Map JSON is loaded
         if not self.map_data:
             QMessageBox.warning(
-                self, "No Map JSON loaded",
-                "You must load a Map JSON first (Ctrl+M).\n\n"
+                self, "No Map parsing JSON loaded",
+                "You must load a Map parsing JSON first (Ctrl+M).\n\n"
                 "Workflow:\n"
-                "  1. Load Map JSON… (Ctrl+M)\n"
-                "  2. Load Day-Zero Save… (Ctrl+D)  ← you are here\n"
-                "  3. Open any save (Ctrl+O)"
+                "  1. Load Map parsing JSON… (Ctrl+M)\n"
+                "  2. Load Day-Zero ‘Save’ file… (Ctrl+D)  ← you are here\n"
+                "  3. Open ‘Save’ file (Ctrl+O)"
             )
             return
 
         # Step 2: open day-zero save
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Day-Zero Save",
+            self, "Load Day-Zero ‘Save’ file",
             "",
             "GM1 saves (*.gm1 *.GM1);;All files (*)"
         )
@@ -3513,26 +3584,26 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
     def _on_load_map_config(self):
         """Load a previously-saved map_config_<mapname>.json (Phase 3 input).
 
-        Lets the user skip Phase 2 (Day-Zero Save) when a config already exists.
+        Lets the user skip Phase 2 (‘Save’ file) when a config already exists.
         After loading, the user can directly open any save of this map (Ctrl+O)
         and it will be parsed using Phase 3 (save_parser.parse_save).
 
         Workflow:
           Option A (full):
-            1. Load → Map JSON… (Ctrl+M)
-            2. Load → Day-Zero Save… (Ctrl+D)  ← builds config
-            3. Open any save (Ctrl+O)
+            1. Load → Map parsing JSON… (Ctrl+M)
+            2. Load → Day-Zero ‘Save’ file… (Ctrl+D)  ← builds config
+            3. Open ‘Save’ file (Ctrl+O)
 
           Option B (with pre-built config):
-            1. Load → Map JSON… (Ctrl+M)        ← required for objects_on_map
-            2b. Load → Map Config… (Ctrl+L)     ← you are here
-            3. Open any save (Ctrl+O)
+            1. Load → Map parsing JSON… (Ctrl+M)        ← required for objects_on_map
+            2b. Load → ‘Save’ config JSON… (Ctrl+L)     ← you are here
+            3. Open ‘Save’ file (Ctrl+O)
         """
         # Step 1: ask for the config file
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Map Config",
+            self, "Load ‘Save’ config JSON",
             "",
-            "Map Config JSON (*.json);;All files (*)"
+            "‘Save’ config JSON (*.json);;All files (*)"
         )
         if not path:
             return
@@ -3582,7 +3653,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                     "coord_key": ck,
                     "coord_int": ci,
                     "x": x, "y": y, "z": z,
-                    "type": "(unknown — load Map JSON for type info)",
+                    "type": "(unknown — load Map parsing JSON for type info)",
                     "category": "unknown",
                     "sprite_def": "",
                     "details": {},
@@ -3624,7 +3695,7 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
                         return (f"Map: {self.map_name} ({self.map_size}×{self.map_size}"
                                 f"{' + underground' if self.has_underground else ''}), "
                                 f"{self.n_objects} objects, {self.n_towns} towns, "
-                                f"{self.n_heroes} heroes (from MapConfig, no Map JSON)")
+                                f"{self.n_heroes} heroes (from MapConfig, no Map parsing JSON)")
 
                 self.map_data = _MinimalMapData(config)
                 self._cached_objects_by_coord = self.map_data.objects_by_coord
@@ -3641,17 +3712,17 @@ Map JSON и Day-0 сейв — enrichment, не requirement.
         map_size = config.meta.get("map_size", 0)
         has_ug = config.meta.get("has_underground", False)
         n_objects = config.meta.get("n_objects", 0)
-        has_map_json = "Map JSON" if self.map_data and hasattr(self.map_data, 'n_sprites') and self.map_data.n_sprites > 0 else "NO Map JSON"
+        has_map_json = "Map parsing JSON" if self.map_data and hasattr(self.map_data, 'n_sprites') and self.map_data.n_sprites > 0 else "NO Map JSON"
 
         self._set_idle()
         self.status.showMessage(
-            f"Map Config loaded: {map_name} | "
+            f"‘Save’ config JSON loaded: {map_name} | "
             f"{n_objects} objects, {n_heroes} heroes, {n_towns} towns, "
             f"{n_clusters} clusters ({has_map_json})", 10000
         )
 
         QMessageBox.information(
-            self, "Map Config Loaded",
+            self, "‘Save’ config JSON Loaded",
             f"Successfully loaded map config:\n\n"
             f"  Config file:  {os.path.basename(path)}\n"
             f"  Map:         {map_name}\n"

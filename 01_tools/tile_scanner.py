@@ -655,7 +655,7 @@ def _parse_monster(raw, s, obj):
     """Monster stack (SaveMonster, line 10498)"""
     obj['monster_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'monster_type', s + 2, 1, "u8")
-    # Count: u16 LE = (decmp[s+7] & 0x0F << 8) + decmp[s+6]
+    # Count: u12 LE = (decmp[s+7] & 0x0F << 8) + decmp[s+6]
     if s + 8 <= len(raw):
         obj['count'] = ((raw[s + 7] & 0x0F) << 8) + raw[s + 6]
         _enrich_typed_field(raw, obj, 'count', s + 6, 2, "u16")
@@ -669,9 +669,16 @@ def _parse_monster(raw, s, obj):
     # Growth flag: decmp[s+8] & 4
     obj['grows'] = bool(raw[s + 8] & 4) if s + 9 <= len(raw) else False
     _enrich_typed_field(raw, obj, 'grows', s + 8, 1, "bool")
-    # Has artifact: decmp[s+9] & 0x80
+    # Has artifact/guard: decmp[s+9] & 0x80
     obj['has_artifact'] = bool(raw[s + 9] & 0x80) if s + 10 <= len(raw) else False
     _enrich_typed_field(raw, obj, 'has_artifact', s + 9, 1, "bool")
+    # MonstrContent Num: ((decmp[s+9] & 7) << 8) + (decmp[s+8] >> 3)
+    # Used by PRT AnalysisMonstrContent to link guarded monsters to post-tile
+    # MonstrContent records (resources, gold, artifact) by index.
+    if s + 10 <= len(raw):
+        obj['monstr_num'] = ((raw[s + 9] & 7) << 8) + (raw[s + 8] >> 3)
+    else:
+        obj['monstr_num'] = 0
 
 
 def _parse_mine(raw, s, obj):

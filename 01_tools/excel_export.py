@@ -467,16 +467,24 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Монстры ──
+        # Universal: writes all populated fields from merge_monsters() output.
+        #   rec keys: x, y, z, locality, monster (PRT name), count, mood,
+        #             level (1..7), hp (∑ HP), artifact (name), gold (int),
+        #             resource (PRT "G8, S5"), grows ('Да' or None)
         ws = wb.create_sheet("Монстры")
         ws.append(["X", "Y", "Z", "Район", "Монстр", "Количество", "Настроение", "Уровень", "∑ HP", "Артефакт", "Золото", "Ресурс", "Прирост"])
         for rec in mo.get("Монстры", []):
-            mid = rec.get("monster_type", 0) or 0
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       _mon_name(mid) or mid, rec.get("count"),
-                       rec.get("mood"), None, None,
-                       _art_name(rec.get("artifact_id", -1)) if rec.get("has_artifact") else None,
-                       None, None, rec.get("grows")])
+                       rec.get("monster"),
+                       rec.get("count"),
+                       rec.get("mood"),
+                       rec.get("level"),
+                       rec.get("hp"),
+                       rec.get("artifact"),
+                       rec.get("gold"),
+                       rec.get("resource"),
+                       rec.get("grows")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
