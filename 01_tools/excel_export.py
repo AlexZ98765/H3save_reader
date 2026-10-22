@@ -933,8 +933,19 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # Towns sorted by block_offset (matches PRT's iteration order).
         # PRT's `town` pointer starts 1 byte before OUR's `block_offset`,
         # so PRT's R_Town.ID = raw[block_offset - 1] = TOWN INDEX in this list.
-        _towns_sorted = sorted(parsed.get("towns", []),
-                               key=lambda t: t.get("block_offset", 0))
+        # Two sources of town list:
+        #   - parsed["towns"]              (from parsed_save_to_dict — full dicts)
+        #   - parsed["towns_found"]        (from gm1_parser GUI — simplified dicts
+        #     with "offset" instead of "block_offset", and "location" tuple)
+        # Use whichever is non-empty.
+        _towns_source = parsed.get("towns") or parsed.get("towns_found") or []
+        # Normalize each town dict — both sources have name/type/faction/fields,
+        # but `towns_found` uses `offset` instead of `block_offset` and packs
+        # X/Y/Z into a `location` tuple. Use fields[] as the source of truth.
+        def _town_block_offset(t):
+            return t.get("block_offset") or t.get("offset") or \
+                   (t.get("fields", {}) or {}).get("_detail_block_offset", {}).get("first_addr", 0)
+        _towns_sorted = sorted(_towns_source, key=_town_block_offset)
 
         # Compute human_idx and aExistColor[] (PRT GetColorContent, line 7653).
         human_idx = -1
@@ -1007,21 +1018,46 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                             avail.append(_A_COLOR[j])
             return ", ".join(avail) if avail else None
 
+        # Helper: normalize an event object (dataclass OR dict) to a plain dict.
+        # When called from gm1_parser.py GUI, `ptc["map_timed_events"]` and
+        # `ptc["town_timed_events"]` contain TimedEvent dataclass instances
+        # (NOT dicts). When called from regenerate_repo_xlsx.py (which uses
+        # parsed_save_to_dict), they are already plain dicts. We must handle
+        # BOTH formats so the timers sheet works in all entry points.
+        def _ev_to_dict(ev):
+            if isinstance(ev, dict):
+                return ev
+            if hasattr(ev, "__dict__"):
+                # Dataclass — convert via asdict (handles nested dataclasses/tuples).
+                try:
+                    from dataclasses import asdict
+                    return asdict(ev)
+                except Exception:
+                    # Fallback: pull public attributes into a dict.
+                    return {k: getattr(ev, k) for k in vars(ev) if not k.startswith("_")}
+            # Last resort: object with __dict__-like accessor.
+            try:
+                return dict(ev)
+            except Exception:
+                return {}
+
         # Collect all timer events with metadata for sorting.
         # Each entry: (day, object_name, id_for_sort, raw_ev_dict, is_map_event)
         all_events = []
         for ev in ptc.get("map_timed_events", []):
-            if isinstance(ev, dict):
-                day = ev.get("day") or 0
+            ev_dict = _ev_to_dict(ev)
+            if ev_dict:
+                day = ev_dict.get("day") or 0
                 # PRT MapTimedEvents does NOT set ID; default to 0 (DBNull sorts first)
-                ev_id = ev.get("id") or 0
-                all_events.append((day, "Карта", ev_id, ev, True))
+                ev_id = ev_dict.get("id") or 0
+                all_events.append((day, "Карта", ev_id, ev_dict, True))
         for ev in ptc.get("town_timed_events", []):
-            if isinstance(ev, dict):
-                day = ev.get("day") or 0
+            ev_dict = _ev_to_dict(ev)
+            if ev_dict:
+                day = ev_dict.get("day") or 0
                 # PRT R_AllTimerRow.ID = byte[body_start+37] = town_index
-                ev_id = ev.get("id") or 0
-                all_events.append((day, "Город", ev_id, ev, False))
+                ev_id = ev_dict.get("id") or 0
+                all_events.append((day, "Город", ev_id, ev_dict, False))
 
         # Sort by (Day, Object, ID) — PRT DataView.Sort.
         # "Город" (Г=U+0413) < "Карта" (К=U+041A) alphabetically.
@@ -1050,16 +1086,27 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 town_idx = ev_id
                 town = _towns_sorted[town_idx] if 0 <= town_idx < len(_towns_sorted) else None
                 if town:
-                    t_name = town.get("name") or town.get("fields", {}).get("name", "")
-                    t_type_idx = town.get("type") or town.get("fields", {}).get("type", 0)
+                    t_fields = town.get("fields", {}) or {}
+                    t_name = town.get("name") or t_fields.get("name", "")
+                    t_type_idx = town.get("type")
+                    if t_type_idx is None:
+                        t_type_idx = t_fields.get("type", 0)
                     t_type = _A_TOWN[t_type_idx] if 0 <= t_type_idx < len(_A_TOWN) else None
-                    tx = town.get("x") or town.get("fields", {}).get("x", 0)
-                    ty = town.get("y") or town.get("fields", {}).get("y", 0)
-                    tz = town.get("z") or town.get("fields", {}).get("z", 0)
+                    # Coords: `towns` has x/y/z as separate keys; `towns_found`
+                    # packs them into a `location` tuple (x, y, z).
+                    t_loc_tuple = town.get("location")
+                    if isinstance(t_loc_tuple, (list, tuple)) and len(t_loc_tuple) >= 3:
+                        tx, ty, tz = t_loc_tuple[0], t_loc_tuple[1], t_loc_tuple[2]
+                    else:
+                        tx = town.get("x") or t_fields.get("x", 0)
+                        ty = town.get("y") or t_fields.get("y", 0)
+                        tz = town.get("z") or t_fields.get("z", 0)
                     t_loc = f"{tx}.{ty}.{tz}"
                     # PRT Color = aColor[decmp[town+1]] if byte < 255.
                     # OUR's faction = raw[block_offset] = byte[town+1] in PRT's terms.
-                    faction = town.get("fields", {}).get("faction", 255)
+                    faction = town.get("faction")
+                    if faction is None:
+                        faction = t_fields.get("faction", 255)
                     t_flag = _A_COLOR[faction] if faction is not None and faction < 255 else None
                 else:
                     t_name = t_type = t_loc = t_flag = None

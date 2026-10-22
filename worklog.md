@@ -2484,3 +2484,53 @@ Stage Summary:
 - All Steps 15-17 fixes are visible in the comparison report.
 - User can run `python3 scripts/regenerate_repo_xlsx.py` after any code change to refresh the xlsx.
 - Remaining 1791 diffs are localization (~800), aggregators (~650), translation differences (~250), and missing computed fields (~90).
+
+---
+Task ID: fix-gui-dataclass-compat
+Agent: main
+Task: User reported События-Таймеры sheet is EMPTY when generated via GUI tool (load 1,2,3 → export), but my regenerate_repo_xlsx.py script fills it. Same code, different result. Find and fix the bug.
+
+Work Log:
+- Root cause: excel_export.py timers section used `isinstance(ev, dict)` to skip events.
+  - GUI tool (gm1_parser.py) passes `parsed_dict["post_tile_content"]` with raw
+    dataclass instances (TimedEvent objects) — NOT dicts. So `isinstance(ev, dict)`
+    returned False, and all timer events were skipped → empty sheet.
+  - My regenerate_repo_xlsx.py uses `parsed_save_to_dict()` which serializes dataclasses
+    to dicts via `asdict()` — so `isinstance(ev, dict)` returned True, events were processed.
+- Secondary bug: GUI tool's `_parse_save_via_config` returns dict with key
+  `towns_found` (simplified dict format with "offset" + "location" tuple), but
+  my timers code looked up `parsed.get("towns", [])` — empty list → no town lookup.
+- Tertiary bug: My local var `loc = town.get("location")` (for coord tuple)
+  shadowed the outer `loc` (the Localizer instance), causing `_town_name(idx)`
+  to fail with `AttributeError: 'tuple' object has no attribute 'town'` when
+  the Города (towns) sheet was generated AFTER timers.
+
+Fixes applied (in excel_export.py):
+1. Added `_ev_to_dict(ev)` helper that normalizes any event (dataclass OR dict)
+   to a plain dict via `dataclasses.asdict()`. Used in both `map_timed_events`
+   and `town_timed_events` loops.
+2. Accept `towns_found` as fallback when `towns` is empty:
+   `_towns_source = parsed.get("towns") or parsed.get("towns_found") or []`
+3. `_town_block_offset(t)` helper handles both `block_offset` (towns) and
+   `offset` (towns_found) keys, with `_detail_block_offset` fallback.
+4. Renamed `loc` → `t_loc_tuple` to avoid shadowing the localizer variable.
+5. Coords extraction now handles both `towns` (separate x/y/z keys) and
+   `towns_found` (location tuple) formats.
+
+Verification:
+- Wrote a test that simulates the GUI workflow (passes raw post_tile_content
+  with dataclass instances + towns_found dict format).
+- Result: События-Таймеры: 175 rows ✓, Рынки: 28 rows ✓, События и Ящики
+  Пандоры: 99 rows ✓ — all 3 sheets fill correctly via both entry points.
+- Regenerated repo's save_map_objects_Мифы_и_легенды.xlsx and re-ran
+  comparison: 0 diffs for timers + markets; 9 diffs (localization) for
+  events sheet — same as before, no regression.
+
+Stage Summary:
+- Files modified: /home/z/my-project/repo/01_tools/excel_export.py
+- Key insight: the GUI tool and the CLI script use different serialization paths.
+  GUI keeps dataclasses intact (for performance); CLI serializes to dicts via
+  parsed_save_to_dict. Future sheets must support BOTH formats (use `_ev_to_dict`
+  helper or similar normalization at the entry point of each sheet).
+- The same `isinstance(ev, dict)` pattern may exist in other sheets that read
+  from `ptc` directly (not `mo` which is already plain dicts). Worth checking.
