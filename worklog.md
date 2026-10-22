@@ -2455,3 +2455,32 @@ Stage Summary:
 - Helper script: /home/z/my-project/scripts/compare_markets.py (saved)
 - Key insight: PRT's "tbl_art_mapping.json" (in 02_format_docs) already contains PRT-style capitalization matching 0000.xlsx — no need to hardcode 144 artifact names. Just bypass localizer.art() for this sheet and use tbl_art_mapping.json directly via `art_metadata.get_artifact_name(aid, localizer=None)`.
 - Total reduction: 4 → 28 rows with 0 diffs (perfect match).
+
+---
+Task ID: regenerate-repo-xlsx
+Agent: main
+Task: Per user request — regenerate repo's save_map_objects_Мифы_и_легенды.xlsx with current code (it was stale from Oct 22 17:09, before Steps 15-17 fixes).
+
+Work Log:
+- Verified all Step 15-17 fixes are in repo code:
+  - tile_scanner.py:749 — apply_for_all field ✓
+  - merged_objects.py:854-876 — GetEventApply logic with _A_COLOR ✓
+  - merged_objects.py:1779-1892 — _BLACK_MARKET_NAME, _ART_MERCHANTS_NAME in merge_market ✓
+  - excel_export.py:928,993-1007,1038,1063 — timers logic + markets section ✓
+- Created scripts/regenerate_repo_xlsx.py — same as generate_xlsx_test.py but writes to repo/examples/.../save_map_objects_Мифы_и_легенды.xlsx instead of download/.
+- Ran it: file regenerated from 1575218 bytes (old) → 1421774 bytes (new).
+- Re-ran compare_full.py against regenerated file:
+  - Рынки: 28 vs 28 rows, 0 diffs ✓ (was 3 vs 28, 20 diffs)
+  - События-Таймеры: 175 vs 175 rows, 0 diffs ✓ (was 0 vs 175)
+  - События и Ящики Пандоры: 99 vs 99 rows, 9 diffs ✓ (was 0 vs 99, 99 diffs) — remaining 9 are localization diffs (Вторичный навык/Артефакт/Монстр naming)
+  - Все Арты: 28 vs 182 → 53 vs 182 (added 25 rows from event boxes, but still missing Town/Hero/Scholar aggregations)
+  - Total diffs: 1904 → 1791 (saved 113 diffs from my fixes)
+- Updated download/comparison_report.md with v2 (current state).
+- Updated download/full_report.txt with new comparison output (652 lines).
+- Rebuilt download/H3save_reader.zip with the regenerated xlsx inside? — no, the zip is the source code archive; xlsx is in examples/.
+
+Stage Summary:
+- The repo's save_map_objects_Мифы_и_легенды.xlsx file is now consistent with the code.
+- All Steps 15-17 fixes are visible in the comparison report.
+- User can run `python3 scripts/regenerate_repo_xlsx.py` after any code change to refresh the xlsx.
+- Remaining 1791 diffs are localization (~800), aggregators (~650), translation differences (~250), and missing computed fields (~90).
