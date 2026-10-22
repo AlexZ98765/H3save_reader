@@ -1485,24 +1485,45 @@ def merge_subterranean_gates(tile_objects: List[Dict[str, Any]],
             "object": object_name,
         })
 
-    # Set Pair field on existing rows from post-tile sub_ter_gates pairing
-    # PRT (line 9371-9380): finds row by X/Y/Z and sets Pair = pair_index
+    # Set Pair field on existing rows from post-tile sub_ter_gates pairing.
+    # PRT GetPairSubterraneanGate (line 9335-9388):
+    #   pair_ids[i] = index of gate that gate[i] is paired with (both directions stored)
+    #   Algorithm: for each k, search for num3 > k where pair_ids[num3] == k.
+    #   When found: set Pair=k on BOTH gate k and gate pair_ids[k].
+    #   This gives paired gates the SAME pair index (the lower gate index).
     if post_tile_content and isinstance(post_tile_content, dict):
         stg = post_tile_content.get("sub_ter_gates")
         if stg and isinstance(stg, dict):
-            gates = stg.get("gates", [])
-            pair_ids = stg.get("pair_ids", [])
+            stg_dict = stg if isinstance(stg, dict) else {}
+            gates = stg_dict.get("gates", [])
+            pair_ids = stg_dict.get("pair_ids", [])
+            n = len(gates)
+
+            # Compute pair values: pair_values[i] = Pair for gate i (or None)
+            pair_values = [None] * n
+            for k in range(n):
+                # Search for num3 > k where pair_ids[num3] == k
+                for num3 in range(n - 1, k, -1):
+                    if num3 < len(pair_ids) and pair_ids[num3] == k:
+                        # Found: gate k and gate pair_ids[k] are paired
+                        j = pair_ids[k] if k < len(pair_ids) and pair_ids[k] >= 0 else None
+                        pair_values[k] = k
+                        if j is not None and 0 <= j < n:
+                            pair_values[j] = k
+                        break
+
+            # Apply pair values to existing rows by matching coords
             for i, gate in enumerate(gates):
                 gate = _to_dict(gate)
                 gx = gate.get('x')
                 gy = gate.get('y')
                 gz = gate.get('z')
-                pair_id = pair_ids[i] if i < len(pair_ids) else -1
-                # Find matching row in out[] and set pair
-                for row in out:
-                    if row.get('x') == gx and row.get('y') == gy and row.get('z') == gz:
-                        row['pair'] = pair_id if pair_id >= 0 else None
-                        break
+                pair_val = pair_values[i] if i < len(pair_values) else None
+                if pair_val is not None:
+                    for row in out:
+                        if row.get('x') == gx and row.get('y') == gy and row.get('z') == gz:
+                            row['pair'] = pair_val
+                            break
 
     return out
 
