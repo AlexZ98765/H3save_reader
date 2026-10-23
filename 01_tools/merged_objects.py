@@ -178,7 +178,8 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
             "gold": gold,
             "resource": resource,
             "guard": guard,
-            "hp": None,  # ∑ HP — calc, not computed (in calculations_todo.txt)
+            # ∑ HP is computed by excel_export via excel_calculations.artifact_sum_hp
+            # (Excel-only — NOT stored in JSON).
         }
         if artifact_id is not None and artifact_id >= 0 and _has_art_meta:
             # Localized artifact name
@@ -397,7 +398,6 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
             get_monster_info,
             get_monster_name,
             get_monster_level,
-            get_monster_hp,
         )
         _has_meta = True
     except Exception:
@@ -453,7 +453,9 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
         grows = obj.get('grows', False)
 
         # Sum HP = monster_hp * count (PRT: r_MonstrRow.HP *= Number)
-        sum_hp = base_hp * count if base_hp and count else None
+        # NOTE: ∑ HP is computed by excel_export via excel_calculations.monster_sum_hp
+        # (Excel-only — NOT stored in JSON to avoid polluting the JSON/tree output).
+        # We store `monster_type` (raw int from save) so excel_export can compute HP.
 
         # прирост: bit set = "doesn't grow" (override), bit clear = "grows" (default)
         # PRT MainForm.cs:10514 — Increase = ((decmp[s+8] & 4) > 0) ? aReply[0] : aReply[1]
@@ -494,10 +496,10 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
             "z": obj.get('z'),
             "locality": "море" if obj.get('loc') == 8 else "суша",
             "monster": monster_name,
+            "monster_type": monster_id,  # raw int — used by excel_calculations.monster_sum_hp
             "count": count,
             "mood": mood,
             "level": level,
-            "hp": sum_hp,
             "artifact": artifact_name,
             "gold": gold,
             "resource": resource_str,
@@ -629,7 +631,8 @@ def merge_resources(tile_objects: List[Dict[str, Any]],
             "resource": res_info.get("resource"),
             "gold": res_info.get("gold"),
             "guard": linked_guard,
-            "hp": None,  # ∑ HP — calc, not computed (in calculations_todo.txt)
+            # ∑ HP is computed by excel_export via excel_calculations.resource_sum_hp
+            # (Excel-only — NOT stored in JSON).
         }
         resources.append(rec)
 
@@ -727,19 +730,11 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
         # Each guard slot is listed separately (e.g., "Нага 3, Нага 3, Нага 3").
         guard_list = _serialize_guard(eb.get("guard", []))
         guard_str = None
-        sum_hp = None
+        # ∑ HP for guard is computed by excel_export via excel_calculations.event_box_sum_hp
+        # (Excel-only — NOT stored in JSON to avoid polluting the JSON/tree output).
+        # We store `guard_slots` (raw list of {monster_id, count}) so excel_calculations
+        # can compute HP; `guard` field keeps the formatted display string.
         if guard_list:
-            # Compute ∑ HP (sum of all slots, no dedup)
-            try:
-                from art_metadata import get_monster_hp
-                hp_total = 0
-                for g in guard_list:
-                    mid = g.get("monster_id", -1)
-                    cnt = g.get("count", 0)
-                    hp_total += get_monster_hp(mid) * cnt
-                sum_hp = hp_total if hp_total > 0 else None
-            except Exception:
-                pass
             # Format guard string WITHOUT dedup (each slot shown separately)
             parts = []
             for g in guard_list:
@@ -882,7 +877,7 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
             "locality": "море" if loc == 8 else "суша",
             "object": object_name,
             "guard": guard_str,
-            "hp": sum_hp,
+            "guard_slots": guard_list,  # raw list for excel_calculations.event_box_sum_hp
             "experience": experience,
             "mana": mana,
             "morale": morale_str,
@@ -924,7 +919,6 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
             is_artifact_bank,
             get_monster_info,
             get_monster_name,
-            get_monster_hp,
             get_monster_level,
         )
         _has_meta = True
@@ -980,24 +974,10 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
         # u8 count at offset s+i*4+28 in Step 7 fix to _parse_guard)
         guard_list = pb.get("guard", [])
 
-        # Compute ∑ HP = sum(monster_hp × count) for all unique monsters
-        # (per PRT GetBankGuard:9058: hp += TblMonsters[mid][3] * count)
-        sum_hp = 0
-        seen_monsters = {}  # ItWas dedup — same logic as _guard_str
-        for g in guard_list:
-            if isinstance(g, dict):
-                mid = g.get('monster_id', -1)
-                cnt = g.get('count', 0)
-                if mid is None or mid < 0 or cnt == 0:
-                    continue
-                if mid in seen_monsters:
-                    seen_monsters[mid] += cnt
-                else:
-                    seen_monsters[mid] = cnt
-        if _has_meta:
-            for mid, cnt in seen_monsters.items():
-                hp = get_monster_hp(mid)
-                sum_hp += hp * cnt
+        # ∑ HP is computed by excel_export via excel_calculations.bank_sum_hp
+        # (Excel-only — NOT stored in JSON to avoid polluting the JSON/tree output).
+        # The bank's guard is already stored as `guard` (list of {monster_id, count})
+        # in the rec, so excel_calculations can compute HP from it.
 
         # Format Monster reward as "<name> <count>" (PRT GetBankMonster:9015)
         # PRT: TblMonsters[decmp[s]][1] + " " + decmp[s+4]
@@ -1042,7 +1022,6 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
             "locality": "море" if tb.get('loc') == 8 else "суша",
             "object": object_name,
             "guard": guard_list,  # keep as list for _guard_str formatting in excel
-            "hp": sum_hp if sum_hp > 0 else None,
             "monster_reward": monster_str,
             "gold": gold,
             "resources": resource_str,  # PRT-formatted string
@@ -1581,6 +1560,9 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
                     mname = loc.monstr(mid) if loc else str(mid)
                     mon_parts.append(f"{mname} {cnt}")
             rec["monster"] = ", ".join(mon_parts) if mon_parts else None
+            # Store raw army data for excel_calculations.prison_sum_hp (Excel-only).
+            rec["army_types"] = at
+            rec["army_counts"] = ac
 
             # Machine (war machine name)
             # war_machines is list of dicts {slot_id, machine_id, machine_name, ...}

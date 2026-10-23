@@ -340,6 +340,20 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     except Exception:
         _has_prt_names = False
 
+    # ----- Excel-only calculations (∑ HP) — imported from excel_calculations -----
+    # This module is NOT imported by parsing modules (save_parser, merged_objects,
+    # art_metadata) or JSON/tree exporters. Only excel_export uses it.
+    try:
+        from excel_calculations import (
+            hero_sum_hp, town_sum_hp, prison_sum_hp,
+            artifact_sum_hp, resource_sum_hp, bank_sum_hp,
+            event_box_sum_hp, monster_sum_hp,
+        )
+    except Exception:
+        hero_sum_hp = town_sum_hp = prison_sum_hp = None
+        artifact_sum_hp = resource_sum_hp = bank_sum_hp = None
+        event_box_sum_hp = monster_sum_hp = None
+
     def _mon_name(idx):
         """Return localized monster name. Tries PRT TblMonsters first (for
         PRT-exact match), falls back to localizer (ru_sod) if not found.
@@ -461,7 +475,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        rec.get("gold"),
                        rec.get("resource"),
                        guard_str,
-                       rec.get("hp")])
+                       artifact_sum_hp(rec) if artifact_sum_hp else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -480,7 +494,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        rec.get("count"),
                        rec.get("mood"),
                        rec.get("level"),
-                       rec.get("hp"),
+                       monster_sum_hp(rec) if monster_sum_hp else None,
                        rec.get("artifact"),
                        rec.get("gold"),
                        rec.get("resource"),
@@ -502,8 +516,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             # with ItWas dedup, e.g. "Нага 8, Королева нага 2")
             guard_val = rec.get("guard")
             guard_str = _guard_str(guard_val) if guard_val else None
-            # ∑ HP: computed in merge_banks via TblMonsters hp × count
-            hp_val = rec.get("hp")
+            # ∑ HP: computed by excel_calculations.bank_sum_hp (Excel-only)
+            hp_val = bank_sum_hp(rec) if bank_sum_hp else None
             # Monster reward: PRT-formatted "<name> <count>" (e.g. "Виверн 4")
             monster_val = rec.get("monster_reward")
             # Gold: int or None
@@ -536,7 +550,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Событие"),
                        rec.get("guard"),
-                       rec.get("hp"),
+                       event_box_sum_hp(rec) if event_box_sum_hp else None,
                        rec.get("experience"),
                        rec.get("mana"),
                        rec.get("morale"),
@@ -589,7 +603,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        resource_val,
                        gold_val,
                        guard_str,
-                       rec.get("hp")])
+                       resource_sum_hp(rec) if resource_sum_hp else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -857,7 +871,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        None,                          # Артефакт (not in prison per PRT)
                        rec.get("spell"),              # single starting spell name
                        rec.get("monster"),            # "Копейщик 12, Арбалетчик 7"
-                       None,                          # ∑ HP (calculation — see calculations_todo.txt)
+                       prison_sum_hp(rec) if prison_sum_hp else None,  # ∑ HP (Excel-only)
                        rec.get("machine"),            # "Палатка первой помощи" or None
                        rec.get("book"),               # "Да" or None
                        rec.get("mp")])                # 1560
@@ -1141,11 +1155,19 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             spells_str = h.get("spell")
 
             # Monster: in JSON it's ALWAYS present (full dump).
-            # In Excel (report): only show if Place != "Запрещен" (matches PRT).
+            # In Excel (report): only show if Place is set AND != "Запрещен"
+            # (matches PRT MainForm.cs:7793 condition: !IsPlaceNull && Place != aPlace[2]
+            # where aPlace[2] = "Запрещен"). Heroes with Place = None (not on map,
+            # not in tavern) get NO monster/HP.
             monster_str = h.get("monster")
-            # Excel filter: hide monster for disabled heroes
-            if place_str == "Запрещен":
+            # ∑ HP: Excel-only — computed from army_types/counts via excel_calculations.
+            # Same filter as monster: only show for active heroes (Place set + != "Запрещен").
+            is_active = bool(place_str) and place_str != "Запрещен"
+            if not is_active:
                 monster_str = None
+                hero_hp_val = None
+            else:
+                hero_hp_val = hero_sum_hp(h) if hero_sum_hp else None
 
             # Machine: from JSON
             machines_str = h.get("machine")
@@ -1159,7 +1181,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             ws.append([i, f.get("name", "?"), place_str, flag_str,
                        f.get("level"), f.get("experience"),
                        primary_str, secondary_str, equip_str, spells_str,
-                       monster_str, None, machines_str, book_str, mp])
+                       monster_str, hero_hp_val, machines_str, book_str, mp])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1193,23 +1215,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                     garrison_list.append({"monster_id": mt, "count": ct})
             garrison_str = _guard_str(garrison_list) if garrison_list else None
 
-            # ∑ HP = sum(monster_hp × count) for all garrison monsters
-            sum_hp = None
-            if garrison_list:
-                try:
-                    from art_metadata import get_monster_hp
-                    seen = {}
-                    for g in garrison_list:
-                        mid = g.get("monster_id", -1)
-                        cnt = g.get("count", 0)
-                        if mid in seen:
-                            seen[mid] += cnt
-                        else:
-                            seen[mid] = cnt
-                    hp_total = sum(get_monster_hp(mid) * cnt for mid, cnt in seen.items())
-                    sum_hp = hp_total if hp_total > 0 else None
-                except Exception:
-                    pass
+            # ∑ HP: computed by excel_calculations.town_sum_hp (Excel-only)
+            sum_hp = town_sum_hp(t) if town_sum_hp else None
 
             # Library: Tower (type=2) has Library by default → "Доступно"
             # PRT GetTownSpell: num5=1 for Tower, Library defaults to "Доступно" (aStatus[0])
