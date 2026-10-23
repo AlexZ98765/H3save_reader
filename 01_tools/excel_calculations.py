@@ -533,26 +533,48 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
 
     # ── 8. Heroes (artifact string from doll slots) ──
     # PRT reads 83 doll slots; our parser produces a formatted `artifact` string.
-    # PRT shows hero artifacts at the hero's coords, with Слот=None, Кукла=doll slot
-    # name (e.g. "Разное1"), Местоположение=None.
+    #
+    # NOTE on PRT bug fixed here:
+    #   PRT (MainForm.cs:7842-7868) only calls ArtDollPlace1 (for heroes with X.Y.Z
+    #   loc byte != 255, "flag") OR ArtDollPlace2 (for non-banned, "else if !flag2").
+    #   Banned heroes (flag2=true, Place="Запрещен") are completely SKIPPED — their
+    #   artifacts never reach R_AllArts. We fix this: include ALL heroes regardless
+    #   of Place.
+    #
+    # Местоположение (Place column) per hero state — matches PRT's intent WITHOUT
+    # the missing-hero bug:
+    #   - "Таверна"      → tavern hero (in player's tavern, hireable)
+    #   - "Запрещен"     → banned hero (cannot be hired this scenario)
+    #   - "Тюрьма"       → prison-on-map hero (decmp[num]!=255 but no player color)
+    #   - None           → active map hero with color (PRT shows empty Place column)
     for h in parsed.get("heroes_found", []):
-        place = h.get("place")
-        if not place or place == "Запрещен":
-            continue  # PRT only shows artifacts for active heroes
         art_str = h.get("artifact")
         if not art_str:
             continue
         hero_name = h.get("name", "?")
         flag = h.get("flag")
-        # Parse X.Y.Z from place string
+        place = h.get("place")
+
+        # Determine Местоположение column + (X,Y,Z) coords per hero state
         hx, hy, hz = None, None, None
-        if isinstance(place, str) and "." in place:
+        place_col = None
+        if place == "Таверна":
+            place_col = "Таверна"
+        elif place == "Запрещен":
+            place_col = "Запрещен"
+        elif isinstance(place, str) and "." in place:
             parts = place.split(".")
             if len(parts) >= 3:
                 try:
                     hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
                 except ValueError:
                     pass
+            # Hero is on the map (loc byte != 0xFF). Two cases:
+            #   - Has flag/color → active hero, no Place label (PRT behavior)
+            #   - No flag/color → prison-on-map hero, label "Тюрьма"
+            place_col = None if flag else "Тюрьма"
+        # else: place is None — regular hireable-but-not-on-map hero; leave None
+
         art_names = [a.strip() for a in art_str.split(",") if a.strip()]
         for slot_idx, art_name in enumerate(art_names):
             rows.append({
@@ -566,7 +588,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                 "hero": hero_name,
                 "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
                 "flag": flag,
-                "place": None,  # PRT shows None for Местоположение
+                "place": place_col,
                 "monster": None, "mission": None, "guard": None,
             })
 
@@ -622,18 +644,55 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                 "mission": None, "guard": None,
             })
 
-    # ── 3. Hero spells — include ALL heroes (PRT doesn't filter by place) ──
+    # ── 3. Hero spells — include ALL heroes, split spells per row, label Place ──
+    #
+    # NOTE on PRT bugs fixed here:
+    #   1. PRT filter (MainForm.cs:7273) `Place <> 'Запрещен' OR Place IS NULL`
+    #      EXCLUDES banned heroes — their spells never reach R_AllSpell. We
+    #      include ALL heroes regardless of Place.
+    #   2. PRT GetAllSpell line 7418: for heroes with X.Y.Z Place and no Color
+    #      (prison-on-map heroes), PRT writes `Place = "Тюрьма"` for ALL such
+    #      heroes. This is mostly correct, but mislabels any hero placed on map
+    #      AND in a tavern as "Тюрьма" — PRT never re-checks tavern membership
+    #      once loc byte != 0xFF. We accept the same "Тюрьма" label for the
+    #      simple prison case.
+    #   3. PRT splits spell string by ", " → one row per spell (line 7277, 7381,
+    #      7401). We do the same.
     for h in parsed.get("heroes_found", []):
         spell_str = h.get("spell")
-        if spell_str:
-            # PRT shows hero spells at (None,None,None) — no X/Y/Z
+        if not spell_str:
+            continue
+        hero_name = h.get("name", "?")
+        flag = h.get("flag")
+        place = h.get("place")
+
+        # Determine Местоположение column + (X,Y,Z) coords per hero state
+        # (same logic as aggregate_all_artifacts — see notes there)
+        hx, hy, hz = None, None, None
+        place_col = None
+        if place == "Таверна":
+            place_col = "Таверна"
+        elif place == "Запрещен":
+            place_col = "Запрещен"
+        elif isinstance(place, str) and "." in place:
+            parts = place.split(".")
+            if len(parts) >= 3:
+                try:
+                    hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
+                except ValueError:
+                    pass
+            place_col = None if flag else "Тюрьма"
+
+        # Split spells by ", " → one row per spell (matches PRT GetAllSpell)
+        spell_names = [s.strip() for s in spell_str.split(",") if s.strip()]
+        for spell_name in spell_names:
             rows.append({
-                "x": None, "y": None, "z": None,
-                "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
-                "spell_name": spell_str,
-                "level": None, "flag": h.get("flag"), "town": None, "built": None,
-                "garrison": None, "hero": h.get("name"),
-                "place": None,  # PRT shows None for Местоположение
+                "x": hx, "y": hy, "z": hz,
+                "object": _PRT_OBJECT.get(34, "Герой"),
+                "spell_name": spell_name,
+                "level": None, "flag": flag, "town": None, "built": None,
+                "garrison": None, "hero": hero_name,
+                "place": place_col,
                 "mission": None, "guard": None,
             })
 
