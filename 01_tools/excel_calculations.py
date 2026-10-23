@@ -554,6 +554,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
         hero_name = h.get("name", "?")
         flag = h.get("flag")
         place = h.get("place")
+        tavern_owner = h.get("tavern_owner")
 
         # Determine Местоположение column + (X,Y,Z) coords per hero state
         hx, hy, hz = None, None, None
@@ -569,10 +570,17 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
                 except ValueError:
                     pass
-            # Hero is on the map (loc byte != 0xFF). Two cases:
+            # Hero is on the map (loc byte != 0xFF). Three cases:
             #   - Has flag/color → active hero, no Place label (PRT behavior)
-            #   - No flag/color → prison-on-map hero, label "Тюрьма"
-            place_col = None if flag else "Тюрьма"
+            #   - No flag/color + in a tavern → "escaped" hero: record keeps
+            #     map (prison) coords, but the hero waits in a tavern → "Таверна"
+            #   - No flag/color, not in tavern → prison-on-map hero → "Тюрьма"
+            if flag:
+                place_col = None
+            elif tavern_owner is not None and tavern_owner >= 0:
+                place_col = "Таверна"
+            else:
+                place_col = "Тюрьма"
         # else: place is None — regular hireable-but-not-on-map hero; leave None
 
         art_names = [a.strip() for a in art_str.split(",") if a.strip()]
@@ -652,10 +660,10 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
     #      include ALL heroes regardless of Place.
     #   2. PRT GetAllSpell line 7418: for heroes with X.Y.Z Place and no Color
     #      (prison-on-map heroes), PRT writes `Place = "Тюрьма"` for ALL such
-    #      heroes. This is mostly correct, but mislabels any hero placed on map
-    #      AND in a tavern as "Тюрьма" — PRT never re-checks tavern membership
-    #      once loc byte != 0xFF. We accept the same "Тюрьма" label for the
-    #      simple prison case.
+    #      heroes, mislabeling any "escaped" hero placed on map AND listed in a
+    #      tavern — PRT never re-checks tavern membership once loc byte != 0xFF.
+    #      We fix this via the hero's `tavern_owner` field (mirrors the
+    #      IsHeroTavern check added in MainForm_fixed1.cs FIX1-C).
     #   3. PRT splits spell string by ", " → one row per spell (line 7277, 7381,
     #      7401). We do the same.
     for h in parsed.get("heroes_found", []):
@@ -665,6 +673,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
         hero_name = h.get("name", "?")
         flag = h.get("flag")
         place = h.get("place")
+        tavern_owner = h.get("tavern_owner")
 
         # Determine Местоположение column + (X,Y,Z) coords per hero state
         # (same logic as aggregate_all_artifacts — see notes there)
@@ -681,7 +690,15 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                     hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
                 except ValueError:
                     pass
-            place_col = None if flag else "Тюрьма"
+            # Same three cases as in aggregate_all_artifacts: active hero (has
+            # color) → None; colorless but in a tavern (escaped) → "Таверна";
+            # colorless prison-on-map → "Тюрьма"
+            if flag:
+                place_col = None
+            elif tavern_owner is not None and tavern_owner >= 0:
+                place_col = "Таверна"
+            else:
+                place_col = "Тюрьма"
 
         # Split spells by ", " → one row per spell (matches PRT GetAllSpell)
         spell_names = [s.strip() for s in spell_str.split(",") if s.strip()]

@@ -1622,6 +1622,16 @@ class GM1ParserWindow(QMainWindow):
         reload_btn.setToolTip("Reload gm1_mapping.json from disk (useful after editing the file).")
         reload_btn.clicked.connect(self._on_reload_mapping)
         tools_layout.addWidget(reload_btn)
+        # Compare Excel files button — opens CompareDialog and writes
+        # compare_save_<map_name>.xlsx with diff rows per sheet.
+        compare_btn = QPushButton("Compare…")
+        compare_btn.setToolTip(
+            "Compare two .xlsx files (e.g. OUR export vs PRT export).\n"
+            "Output: compare_save_<map_name>.xlsx — each sheet shows only\n"
+            "differences. Source column: A-only / B-only / A≠B."
+        )
+        compare_btn.clicked.connect(self._on_compare)
+        tools_layout.addWidget(compare_btn)
         button_column.addWidget(tools_group)
 
         # Group 4: Loaded Data (moved here from right pane to free vertical space

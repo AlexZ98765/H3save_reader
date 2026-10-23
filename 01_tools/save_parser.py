@@ -1182,6 +1182,11 @@ def _format_hero_for_json(h: Dict[str, Any],
                 tavern_player = pidx
                 break
 
+    # Tavern membership exposed for ALL heroes (not only loc==255 ones):
+    # an "escaped" hero may keep map (prison) coordinates in its record while
+    # waiting in a tavern — aggregators use this to label it "Таверна".
+    out["tavern_owner"] = tavern_player if tavern_player >= 0 else None
+
     # Determine Place
     if loc_x is not None and loc_x >= 0 and loc_y is not None and loc_y >= 0:
         out["place"] = f"{loc_x}.{loc_y}.{loc_z}"
