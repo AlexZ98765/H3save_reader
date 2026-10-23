@@ -298,6 +298,20 @@ def monster_sum_hp(monster_rec: Dict[str, Any]) -> Optional[int]:
 # Called ONLY by excel_export.py (not by parsing modules or JSON/tree exporters).
 # ============================================================================
 
+# PRT DEFAULT TblObject names (MainForm.cs:10717+). Used for Object column
+# in aggregator sheets to match PRT 0000.xlsx exactly.
+_PRT_OBJECT = {
+    26: "Событие",       # Event
+    34: "Герой",         # Hero
+    54: "Монстр",        # Monster
+    81: "Ученый",        # Scholar
+    83: "Хижина провидца",  # Seer Hut
+    98: "Городок",       # Town
+    100: "Камень знаний", # Learning Stone
+    101: "Сундук с сокровищами",  # Treasure Chest
+    113: "Хижина ведьмы",  # Witch Hut
+}
+
 def _guard_str_safe(guard) -> Optional[str]:
     """Format a guard list as 'Pikeman 5, Goblin 20' string.
     If guard is already a string, return it as-is.
@@ -489,7 +503,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
-                    "object": rec.get("object"),
+                    "object": _PRT_OBJECT.get(83, "Хижина провидца"),
                     "slot": None,
                     "artifact_name": info.get("name"),
                     "class_": info.get("class"),
@@ -507,7 +521,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     rows.append({
                         "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                         "locality": rec.get("locality"),
-                        "object": rec.get("object"),
+                        "object": _PRT_OBJECT.get(83, "Хижина провидца"),
                         "slot": None,
                         "artifact_name": info.get("name"),
                         "class_": info.get("class"),
@@ -544,7 +558,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
             rows.append({
                 "x": hx, "y": hy, "z": hz,
                 "locality": "суша",
-                "object": "Hero",
+                "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
                 "slot": None,  # PRT shows None for hero artifact Слот
                 "artifact_name": art_name,
                 "class_": None,
@@ -600,7 +614,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
         if sid is not None and sid >= 0:
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                "object": rec.get("object"),
+                "object": _PRT_OBJECT.get(81, "Ученый"),
                 "spell_name": _spl_name(sid) or str(sid),
                 "level": rec.get("spell_level"),
                 "flag": None, "town": None, "built": None,
@@ -615,7 +629,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
             # PRT shows hero spells at (None,None,None) — no X/Y/Z
             rows.append({
                 "x": None, "y": None, "z": None,
-                "object": "Hero",
+                "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
                 "spell_name": spell_str,
                 "level": None, "flag": h.get("flag"), "town": None, "built": None,
                 "garrison": None, "hero": h.get("name"),
@@ -639,7 +653,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                     if sid is not None and sid >= 0:
                         rows.append({
                             "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
-                            "object": town_type_name,
+                            "object": _PRT_OBJECT.get(98, "Городок"),  # PRT uses "Городок" for all town spells
                             "spell_name": _spl_name(sid) or str(sid),
                             "level": level_idx + 1,
                             "flag": flag, "town": town_name, "built": None,
@@ -653,7 +667,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
         if sid is not None and sid >= 0:
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                "object": rec.get("object"),
+                "object": _PRT_OBJECT.get(81, "Ученый"),
                 "spell_name": _spl_name(sid) or str(sid),
                 "level": None, "flag": None, "town": None, "built": None,
                 "garrison": None, "hero": None, "place": None,
@@ -668,7 +682,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
             if sid is not None and sid >= 0:
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                    "object": rec.get("object"),
+                    "object": _PRT_OBJECT.get(81, "Ученый"),
                     "spell_name": _spl_name(sid) or str(sid),
                     "level": None, "flag": None, "town": None, "built": None,
                     "garrison": None, "hero": None, "place": None,
@@ -745,7 +759,7 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
-                "object": rec.get("object"),
+                "object": _PRT_OBJECT.get(81, "Ученый"),
                 "level_name": None,
                 "skill_name": _skl_name(sid) or str(sid),
                 "mission": None, "guard": None,
@@ -801,7 +815,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
         rows.append({
             "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
             "locality": rec.get("locality"),
-            "object": rec.get("object", "Learning Stone"),
+            "object": _PRT_OBJECT.get(100, "Камень знаний"),
             "town": None, "hero": None, "flag": None,
             "monster": None, "artifact": None, "resource": None,
             "guard": None, "hp": None,
@@ -831,7 +845,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
-                "object": rec.get("object"),
+                "object": _PRT_OBJECT.get(83, "Хижина провидца"),
                 "town": None, "hero": None, "flag": None,
                 "monster": None, "artifact": None, "resource": None,
                 "guard": rec.get("guard"), "hp": hp_val,
@@ -874,7 +888,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
-                "object": rec.get("object", "Монстр"),
+                "object": _PRT_OBJECT.get(54, "Монстр"),
                 "town": None, "hero": None, "flag": None,
                 "monster": rec.get("monster"), "artifact": None,
                 "resource": None, "guard": None, "hp": hp_val,
@@ -908,7 +922,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
-                    "object": rec.get("object", "Провидец"),
+                    "object": _PRT_OBJECT.get(83, "Хижина провидца"),  # PRT name for SeerHut
                     "town": None, "hero": None, "flag": None,
                     "monster": None, "artifact": None, "resource": None,
                     "guard": None, "hp": None,
@@ -935,7 +949,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
             rows.append({
                 "x": hx, "y": hy, "z": hz,
                 "locality": "суша",
-                "object": "Hero",
+                "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
                 "town": None, "hero": h.get("name"), "flag": h.get("flag"),
                 "monster": h.get("monster"), "artifact": None,
                 "resource": None, "guard": None, "hp": hp_val,
@@ -951,7 +965,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
             rows.append({
                 "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
                 "locality": "суша",
-                "object": "Town",
+                "object": _PRT_OBJECT.get(98, "Городок"),  # PRT "Городок" for Town
                 "town": f.get("name"), "hero": None,
                 "flag": None,
                 "monster": None, "artifact": None, "resource": None,

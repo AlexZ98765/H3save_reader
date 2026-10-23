@@ -395,6 +395,9 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         """
         if not guard_list:
             return None
+        # If guard is already a formatted string (from aggregator), return as-is.
+        if isinstance(guard_list, str):
+            return guard_list
         # Deduplicate by monster_id, summing counts (PRT ItWas logic)
         seen: dict = {}  # monster_id → total_count
         order: list = []  # preserve first-seen order
@@ -1305,22 +1308,27 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Герой", "Кукла", "Флаг", "Местоположение", "Монстр", "Задание", "Охрана"])
         if aggregate_all_artifacts:
             for rec in aggregate_all_artifacts(parsed, localizer=loc):
-                # For Hero artifacts: convert doll slot number to doll slot name.
-                # For Market/Bank artifacts: show slot number directly (PRT shows "1".."7").
+                # For Hero artifacts: Кукла = doll slot name (e.g. "Разное1"), Слот = None.
+                # For Market/Bank artifacts: Слот = numeric (1..7), Кукла = None.
                 obj = rec.get("object")
                 slot_val = rec.get("slot")
-                if obj == "Hero" and isinstance(slot_val, int) and slot_val >= 0 and loc:
-                    slot_name = loc.doll(slot_val)
+                doll_val = rec.get("doll_slot")
+                if obj == "Герой":  # PRT name for hero artifacts
+                    # Hero artifact: PRT shows doll slot NAME in Кукла, None in Слот
+                    slot_name = None
+                    doll_name = loc.doll(doll_val) if isinstance(doll_val, int) and doll_val >= 0 and loc else None
                 elif isinstance(slot_val, int) and slot_val >= 0:
                     slot_name = slot_val  # numeric for markets/banks
+                    doll_name = None
                 else:
                     slot_name = None
+                    doll_name = None
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("locality"),
                            rec.get("object"), slot_name,
                            rec.get("artifact_name"),
                            rec.get("class_"), rec.get("relic"),
-                           rec.get("hero"), rec.get("doll_slot"), rec.get("flag"),
+                           rec.get("hero"), doll_name, rec.get("flag"),
                            rec.get("place"), None, rec.get("mission"),
                            _guard_str(rec.get("guard")) if rec.get("guard") else None])
         ws.freeze_panes = "A2"
