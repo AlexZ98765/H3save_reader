@@ -1285,10 +1285,16 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Герой", "Кукла", "Флаг", "Местоположение", "Монстр", "Задание", "Охрана"])
         if aggregate_all_artifacts:
             for rec in aggregate_all_artifacts(parsed, localizer=loc):
+                # For Hero artifacts: convert doll slot number to doll slot name.
+                # For Market/Bank artifacts: show slot number directly (PRT shows "1".."7").
+                obj = rec.get("object")
                 slot_val = rec.get("slot")
-                slot_name = None
-                if isinstance(slot_val, int) and slot_val >= 0 and loc:
+                if obj == "Hero" and isinstance(slot_val, int) and slot_val >= 0 and loc:
                     slot_name = loc.doll(slot_val)
+                elif isinstance(slot_val, int) and slot_val >= 0:
+                    slot_name = slot_val  # numeric for markets/banks
+                else:
+                    slot_name = None
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("locality"),
                            rec.get("object"), slot_name,

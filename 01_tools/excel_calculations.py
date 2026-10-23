@@ -91,6 +91,14 @@ def get_monster_hp(monster_id: int) -> int:
     return int(entry.get("hp", 0))
 
 
+def get_monster_name(monster_id: int) -> str:
+    """Return PRT DEFAULT Russian name for the given monster_id (from TblMonsters).
+    Used by _guard_str_safe for formatting guard strings in aggregator sheets.
+    """
+    entry = _load_tbl_monsters().get(str(monster_id))
+    return entry.get("name", "") if entry else ""
+
+
 # ============================================================================
 # ∑ HP computation for various army / guard formats
 # ============================================================================
@@ -290,6 +298,27 @@ def monster_sum_hp(monster_rec: Dict[str, Any]) -> Optional[int]:
 # Called ONLY by excel_export.py (not by parsing modules or JSON/tree exporters).
 # ============================================================================
 
+def _guard_str_safe(guard) -> Optional[str]:
+    """Format a guard list as 'Pikeman 5, Goblin 20' string.
+    If guard is already a string, return it as-is.
+    If guard is a list of {monster_id, count} dicts, format each.
+    """
+    if not guard:
+        return None
+    if isinstance(guard, str):
+        return guard
+    if isinstance(guard, list):
+        parts = []
+        for g in guard:
+            if isinstance(g, dict):
+                mid = g.get("monster_id", -1)
+                cnt = g.get("count", 0)
+                if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                    mname = get_monster_name(mid) or f"M{mid}"
+                    parts.append(f"{mname} {cnt}")
+        return ", ".join(parts) if parts else None
+    return None
+
 def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
     """Aggregate ALL artifacts from every source on the map → "Все Арты" sheet.
 
@@ -449,8 +478,9 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                         "guard": rec.get("guard"),
                     })
 
-    # ── 7. Seer Huts with artifact reward ──
+    # ── 7. Seer Huts with artifact reward OR artifact mission ──
     for rec in mo.get("Провидцы", []):
+        # Check if reward is an artifact
         reward = rec.get("reward", {})
         if isinstance(reward, dict) and "artifact_id" in reward:
             aid = reward.get("artifact_id", -1)
@@ -468,38 +498,63 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     "place": None, "monster": None, "mission": rec.get("quest"),
                     "guard": None,
                 })
-
-    # ── 8. Heroes (doll slot artifacts, excluding book/machines) ──
-    for h in parsed.get("heroes_found", []):
-        f = h.get("fields", {}) or {}
-        hero_name = h.get("name", "?")
-        place = h.get("place")
-        flag = h.get("flag")
-        # Equipment: 19 × (artifact_id, data) — the OLD approach.
-        # PRT reads 83 doll slots but our parser stores equipment.
-        # For now, check if equipment has valid artifact_ids.
-        for i, eq in enumerate(f.get("equipment", [])):
-            if isinstance(eq, (list, tuple)) and len(eq) >= 1:
-                aid = eq[0]
-                if aid != 0xFFFFFFFF and aid > 0:
-                    # Skip spell book (0), catapult (3), war machines (4/5/6)
-                    if aid in (0, 3, 4, 5, 6):
-                        continue
+        # Check if mission is to bring artifacts (mission_type=5)
+        mission = rec.get("mission", {})
+        if isinstance(mission, dict) and "artifacts" in mission:
+            for aid in mission.get("artifacts", []):
+                if isinstance(aid, int) and aid >= 0:
                     info = _art_info(aid)
                     rows.append({
-                        "x": None, "y": None, "z": None,
-                        "locality": "суша",
-                        "object": "Hero",
-                        "slot": i + 1,
+                        "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                        "locality": rec.get("locality"),
+                        "object": rec.get("object"),
+                        "slot": None,
                         "artifact_name": info.get("name"),
                         "class_": info.get("class"),
                         "relic": info.get("relic"),
-                        "hero": hero_name,
-                        "doll_slot": i + 1,
-                        "flag": flag,
-                        "place": place,
-                        "monster": None, "mission": None, "guard": None,
+                        "hero": None, "doll_slot": None, "flag": None,
+                        "place": None, "monster": None, "mission": rec.get("quest"),
+                        "guard": None,
                     })
+
+    # ── 8. Heroes (artifact string from doll slots) ──
+    # PRT reads 83 doll slots; our parser produces a formatted `artifact` string.
+    # We split the string by ", " to create one row per artifact.
+    for h in parsed.get("heroes_found", []):
+        place = h.get("place")
+        if not place or place == "Запрещен":
+            continue  # PRT only shows artifacts for active heroes
+        art_str = h.get("artifact")
+        if not art_str:
+            continue
+        hero_name = h.get("name", "?")
+        flag = h.get("flag")
+        # Parse X.Y.Z from place string (e.g. "62.22.0" → x=62, y=22, z=0)
+        hx, hy, hz = None, None, None
+        if isinstance(place, str) and "." in place:
+            parts = place.split(".")
+            if len(parts) >= 3:
+                try:
+                    hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
+                except ValueError:
+                    pass
+        # Split by ", " — each is a separate artifact
+        art_names = [a.strip() for a in art_str.split(",") if a.strip()]
+        for slot_idx, art_name in enumerate(art_names):
+            rows.append({
+                "x": hx, "y": hy, "z": hz,
+                "locality": "суша",
+                "object": "Hero",
+                "slot": slot_idx + 1,
+                "artifact_name": art_name,
+                "class_": None,  # can't lookup without artifact_id
+                "relic": None,
+                "hero": hero_name,
+                "doll_slot": slot_idx + 1,
+                "flag": flag,
+                "place": place,
+                "monster": None, "mission": None, "guard": None,
+            })
 
     return rows
 
@@ -539,28 +594,42 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                 "mission": None, "guard": rec.get("guard"),
             })
 
-    # ── 2. Shrine spells ──
+    # ── 2. Shrine spells — shrines store spell_id + spell_level, NOT spell string ──
     for rec in mo.get("Заклинания_Святилища", []):
-        rows.append({
-            "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-            "object": rec.get("object"),
-            "spell_name": rec.get("spell"),
-            "level": rec.get("level"),
-            "flag": None, "town": None, "built": None,
-            "garrison": None, "hero": None, "place": None,
-            "mission": None, "guard": rec.get("guard"),
-        })
+        sid = rec.get("spell_id")
+        if sid is not None and sid >= 0:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "object": rec.get("object"),
+                "spell_name": _spl_name(sid) or str(sid),
+                "level": rec.get("spell_level"),
+                "flag": None, "town": None, "built": None,
+                "garrison": None, "hero": None, "place": None,
+                "mission": None, "guard": None,
+            })
 
-    # ── 3. Hero spells ──
+    # ── 3. Hero spells — only for active heroes (Place set AND ≠ "Запрещен") ──
     for h in parsed.get("heroes_found", []):
+        place = h.get("place")
+        if not place or place == "Запрещен":
+            continue  # PRT only shows spells for active heroes
         spell_str = h.get("spell")
         if spell_str:
+            # Parse X/Y/Z from place string
+            hx, hy, hz = None, None, None
+            if isinstance(place, str) and "." in place:
+                parts = place.split(".")
+                if len(parts) >= 3:
+                    try:
+                        hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
+                    except ValueError:
+                        pass
             rows.append({
-                "x": None, "y": None, "z": None,
+                "x": hx, "y": hy, "z": hz,
                 "object": "Hero",
                 "spell_name": spell_str,
                 "level": None, "flag": h.get("flag"), "town": None, "built": None,
-                "garrison": None, "hero": h.get("name"), "place": h.get("place"),
+                "garrison": None, "hero": h.get("name"), "place": place,
                 "mission": None, "guard": None,
             })
 
@@ -626,8 +695,8 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
             return localizer.skill(sid)
         return None
 
-    # ── 1. Witch Huts ──
-    for rec in mo.get("Навыки", []):
+    # ── 1. Witch Huts — stored in mo["Ведьмины_Хижины"], NOT mo["Навыки"] ──
+    for rec in mo.get("Ведьмины_Хижины", []):
         skill_str = rec.get("skill")
         if skill_str:
             rows.append({
@@ -652,18 +721,33 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                 "mission": None, "guard": rec.get("guard"),
             })
 
-    # ── 3. Scholars ──
+    # ── 3. Scholars — use skill_id field (localized via localizer) ──
     for rec in mo.get("Ученые", []):
-        skill_str = rec.get("secondary_skill")
-        if skill_str:
+        sid = rec.get("skill_id")
+        if sid is not None and sid >= 0:
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
                 "object": rec.get("object"),
                 "level_name": None,
-                "skill_name": skill_str,
+                "skill_name": _skl_name(sid) or str(sid),
                 "mission": None, "guard": None,
             })
+
+    # ── 4. Universities — skills list (array of skill IDs) ──
+    for rec in mo.get("Университеты", []):
+        skills = rec.get("skills", [])
+        if skills and isinstance(skills, list):
+            for sid in skills:
+                if isinstance(sid, int) and sid >= 0:
+                    rows.append({
+                        "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                        "locality": rec.get("locality"),
+                        "object": rec.get("object"),
+                        "level_name": None,
+                        "skill_name": _skl_name(sid) or str(sid),
+                        "mission": None, "guard": None,
+                    })
 
     # ── 4. Seer Huts with skill reward ──
     for rec in mo.get("Провидцы", []):
@@ -761,7 +845,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 "Артефакты": artifact_sum_hp,
                 "Ресурсы": resource_sum_hp,
                 "Банки": bank_sum_hp,
-                "Заклинания_Святилища": None,  # spells have guard too but no helper
+                "Заклинания_Святилища": None,
             }.get(sheet_key)
             hp_val = hp_func(rec) if hp_func else None
             if hp_val and hp_val > 0:
@@ -771,7 +855,8 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                     "object": rec.get("object", obj_name),
                     "town": None, "hero": None, "flag": None,
                     "monster": None, "artifact": rec.get("artifact"),
-                    "resource": rec.get("resource"), "guard": rec.get("guard"),
+                    "resource": rec.get("resource"),
+                    "guard": _guard_str_safe(rec.get("guard")),
                     "hp": hp_val,
                     "experience": None, "xp_total": hp_val,
                 })
@@ -790,7 +875,41 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 "experience": None, "xp_total": hp_val,
             })
 
-    # ── 10. Heroes ──
+    # ── 10. Garrisons (guard HP = XP) ──
+    for rec in mo.get("Гарнизоны", []):
+        guard = rec.get("guard")
+        if guard:
+            hp_val = compute_guard_hp(guard)
+            if hp_val and hp_val > 0:
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object", "Гарнизон"),
+                    "town": None, "hero": None, "flag": rec.get("flag"),
+                    "monster": None, "artifact": None,
+                    "resource": None,
+                    "guard": _guard_str_safe(guard),
+                    "hp": hp_val,
+                    "experience": None, "xp_total": hp_val,
+                })
+
+    # ── 11. SeerHut XP rewards ──
+    for rec in mo.get("Провидцы", []):
+        reward = rec.get("reward", {})
+        if isinstance(reward, dict) and "experience" in reward:
+            xp = reward.get("experience", 0)
+            if xp and xp > 0:
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object", "Провидец"),
+                    "town": None, "hero": None, "flag": None,
+                    "monster": None, "artifact": None, "resource": None,
+                    "guard": None, "hp": None,
+                    "experience": xp, "xp_total": xp,
+                })
+
+    # ── 12. Heroes ──
     for h in parsed.get("heroes_found", []):
         place = h.get("place")
         if not place or place == "Запрещен":
@@ -798,8 +917,17 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
         hp_val = hero_sum_hp(h) if hero_sum_hp else None
         if hp_val and hp_val > 0:
             xp = hp_val + 500
+            # Parse X/Y/Z from place string
+            hx, hy, hz = None, None, None
+            if isinstance(place, str) and "." in place:
+                parts = place.split(".")
+                if len(parts) >= 3:
+                    try:
+                        hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
+                    except ValueError:
+                        pass
             rows.append({
-                "x": None, "y": None, "z": None,
+                "x": hx, "y": hy, "z": hz,
                 "locality": "суша",
                 "object": "Hero",
                 "town": None, "hero": h.get("name"), "flag": h.get("flag"),
