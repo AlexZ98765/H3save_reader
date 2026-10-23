@@ -311,8 +311,17 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         return loc.spell(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
     def _skl_name(idx):
         return loc.skill(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
-    def _cls_name(idx):
-        return loc.art_class(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
+    def _cls_name(aid):
+        """Return localized artifact class name. `aid` is artifact_id (NOT class_id).
+        Looks up class_id from art_metadata, then localizes."""
+        if not loc or not isinstance(aid, int) or aid < 0:
+            return ""
+        try:
+            from art_metadata import get_artifact_class_id
+            cls_id = get_artifact_class_id(aid)
+            return loc.art_class(cls_id)
+        except Exception:
+            return ""
     def _town_name(idx):
         return loc.town(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
     def _color_name(idx):
@@ -617,11 +626,22 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.append(["X", "Y", "Z", "Район", "Объект", "Золото", "Опыт", "Артефакт", "Класс", "Реликт-С"])
         for rec in mo.get("Сундуки", []):
             aid = rec.get("artifact_id", -1) if rec.get("has_artifact") else -1
+            # Look up relic-C from art_metadata (PRT DEFAULT TblArt)
+            relic_name = None
+            if aid >= 0:
+                try:
+                    from art_metadata import get_artifact_relic_c_id, get_artifact_name
+                    relic_id = get_artifact_relic_c_id(aid)
+                    if relic_id is not None:
+                        relic_name = get_artifact_name(relic_id, localizer=None)
+                except Exception:
+                    pass
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object", "Сундук"), rec.get("gold"), rec.get("experience"),
                        _art_name(aid) if aid >= 0 else None,
-                       _cls_name(aid) if aid >= 0 else None, None])
+                       _cls_name(aid) if aid >= 0 else None,
+                       relic_name])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
