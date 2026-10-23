@@ -285,10 +285,544 @@ def monster_sum_hp(monster_rec: Dict[str, Any]) -> Optional[int]:
 
 
 # ============================================================================
-# Future aggregators (stubs — to be implemented in next steps)
+# Aggregators — aggregate from merged_objects + heroes_found + towns_found
+# to build the "Все Арты" / "Все Заклы" / "Все Навыки" / "Опыт" sheets.
+# Called ONLY by excel_export.py (not by parsing modules or JSON/tree exporters).
 # ============================================================================
-# GetAllArt (MainForm.cs): aggregate all artifacts from EventBox, Scholar,
-#   SeerHut, Spell, Art, Monstr, Bank, Garrison, Heroes, Towns → "Все Арты" sheet.
-# GetAllSpell (MainForm.cs): aggregate all spells → "Все Заклы" sheet.
-# GetAllSkill (MainForm.cs): aggregate all skills → "Все Навыки" sheet.
-# GetAllExperience (MainForm.cs): aggregate XP from all sources → "Опыт" sheet.
+
+def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+    """Aggregate ALL artifacts from every source on the map → "Все Арты" sheet.
+
+    Matches PRT R_AllArts table, populated during:
+      1. Art Merchants (GetArtMerchants) — 7 rows, no X/Y/Z
+      2. Black Market (GetMarketContent + SaveMarket) — 3 markets × 7 slots
+      3. Ground artifacts (SaveArt/ArtResContent) — Tomb/Skeleton/Survivor/Ground
+      4. Chests (SaveChest when artifact_id != 0xFF)
+      5. Event/Pandora boxes (EventBoxContent artifacts list)
+      6. Creature Banks (BankContent for artifact-banks, type 24/25/84/85)
+      7. Seer Huts (SeerHutContent reward_type == artifact)
+      8. Heroes (GetHeroesContent — doll slot artifacts, excluding book/machines)
+
+    Each row has: x, y, z, locality, object, slot, artifact_name, class_, relic,
+    hero, doll_slot, flag, place, monster, mission, guard.
+
+    Args:
+        parsed: the parsed dict (from parsed_save_to_dict or gm1_parser).
+        localizer: Localizer instance for localized artifact names/classes.
+
+    Returns:
+        List of dicts, one per artifact row.
+    """
+    mo = parsed.get("merged_objects", {}) or {}
+    rows: List[Dict[str, Any]] = []
+
+    # Lazy-load art_metadata for name/class/relic lookups.
+    try:
+        from art_metadata import (
+            get_artifact_name, get_artifact_class_id, get_artifact_relic_c_id,
+        )
+        _has_art_meta = True
+    except Exception:
+        _has_art_meta = False
+
+    def _art_info(aid):
+        """Return dict {name, class, relic} for the given artifact_id."""
+        if not _has_art_meta or aid is None or aid < 0:
+            return {}
+        info = {}
+        info["name"] = get_artifact_name(aid, localizer=None)  # PRT-style name
+        cls_id = get_artifact_class_id(aid)
+        if localizer:
+            info["class"] = localizer.art_class(cls_id)
+        relic_id = get_artifact_relic_c_id(aid)
+        if relic_id is not None:
+            info["relic"] = get_artifact_name(relic_id, localizer=None)
+        return info
+
+    # ── 1. Art Merchants (no X/Y/Z) ──
+    for rec in mo.get("Рынки", []):
+        if rec.get("object") == "Торговцы Артефактами":
+            aid = rec.get("artifact_id", -1)
+            if aid is not None and aid >= 0:
+                info = _art_info(aid)
+                rows.append({
+                    "x": None, "y": None, "z": None,
+                    "locality": None,
+                    "object": rec.get("object"),
+                    "slot": rec.get("slot"),
+                    "artifact_name": info.get("name"),
+                    "class_": info.get("class"),
+                    "relic": info.get("relic"),
+                    "hero": None, "doll_slot": None, "flag": None,
+                    "place": None, "monster": None, "mission": None, "guard": None,
+                })
+
+    # ── 2. Black Market (with X/Y/Z) ──
+    for rec in mo.get("Рынки", []):
+        if rec.get("object") == "Черный рынок":
+            aid = rec.get("artifact_id", -1)
+            if aid is not None and aid >= 0:
+                info = _art_info(aid)
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object"),
+                    "slot": rec.get("slot"),
+                    "artifact_name": info.get("name"),
+                    "class_": info.get("class"),
+                    "relic": info.get("relic"),
+                    "hero": None, "doll_slot": None, "flag": None,
+                    "place": None, "monster": None, "mission": None, "guard": None,
+                })
+
+    # ── 3. Ground artifacts (Tomb, Skeleton, Survivor, Ground Art) ──
+    for rec in mo.get("Артефакты", []):
+        aid = rec.get("artifact_id", -1)
+        if aid is not None and aid >= 0:
+            info = _art_info(aid)
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "slot": None,
+                "artifact_name": info.get("name") or rec.get("artifact_name"),
+                "class_": info.get("class") or rec.get("class_"),
+                "relic": info.get("relic") or rec.get("relic"),
+                "hero": None, "doll_slot": None, "flag": None,
+                "place": None, "monster": None, "mission": None,
+                "guard": rec.get("guard"),
+            })
+
+    # ── 4. Chests with artifacts ──
+    for rec in mo.get("Сундуки", []):
+        aid = rec.get("artifact_id", -1)
+        if aid is not None and aid >= 0 and aid < 0xFF:
+            info = _art_info(aid)
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "slot": None,
+                "artifact_name": info.get("name") or rec.get("artifact"),
+                "class_": info.get("class"),
+                "relic": info.get("relic"),
+                "hero": None, "doll_slot": None, "flag": None,
+                "place": None, "monster": None, "mission": None, "guard": None,
+            })
+
+    # ── 5. Event/Pandora box artifacts ──
+    for rec in mo.get("События_Ящики_Пандоры", []):
+        art_str = rec.get("artifact")
+        if art_str:
+            # art_str is a formatted string like "Shield of Dwarven Lords, Sword of Justice"
+            # For now, include as a single row with the formatted string.
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "slot": None,
+                "artifact_name": art_str,
+                "class_": None,
+                "relic": None,
+                "hero": None, "doll_slot": None, "flag": None,
+                "place": None, "monster": None, "mission": None,
+                "guard": rec.get("guard"),
+            })
+
+    # ── 6. Creature Banks (artifact-banks only: type 24/25/84/85) ──
+    for rec in mo.get("Банки", []):
+        if rec.get("is_artifact_bank", False):
+            aids = rec.get("artifact_ids", [])
+            for slot_idx, aid in enumerate(aids):
+                if aid is not None and aid >= 0 and aid < 0xFF:
+                    info = _art_info(aid)
+                    rows.append({
+                        "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                        "locality": rec.get("locality"),
+                        "object": rec.get("object"),
+                        "slot": slot_idx + 1,
+                        "artifact_name": info.get("name"),
+                        "class_": info.get("class"),
+                        "relic": info.get("relic"),
+                        "hero": None, "doll_slot": None, "flag": None,
+                        "place": None, "monster": None, "mission": None,
+                        "guard": rec.get("guard"),
+                    })
+
+    # ── 7. Seer Huts with artifact reward ──
+    for rec in mo.get("Провидцы", []):
+        reward = rec.get("reward", {})
+        if isinstance(reward, dict) and "artifact_id" in reward:
+            aid = reward.get("artifact_id", -1)
+            if aid is not None and aid >= 0:
+                info = _art_info(aid)
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object"),
+                    "slot": None,
+                    "artifact_name": info.get("name"),
+                    "class_": info.get("class"),
+                    "relic": info.get("relic"),
+                    "hero": None, "doll_slot": None, "flag": None,
+                    "place": None, "monster": None, "mission": rec.get("quest"),
+                    "guard": None,
+                })
+
+    # ── 8. Heroes (doll slot artifacts, excluding book/machines) ──
+    for h in parsed.get("heroes_found", []):
+        f = h.get("fields", {}) or {}
+        hero_name = h.get("name", "?")
+        place = h.get("place")
+        flag = h.get("flag")
+        # Equipment: 19 × (artifact_id, data) — the OLD approach.
+        # PRT reads 83 doll slots but our parser stores equipment.
+        # For now, check if equipment has valid artifact_ids.
+        for i, eq in enumerate(f.get("equipment", [])):
+            if isinstance(eq, (list, tuple)) and len(eq) >= 1:
+                aid = eq[0]
+                if aid != 0xFFFFFFFF and aid > 0:
+                    # Skip spell book (0), catapult (3), war machines (4/5/6)
+                    if aid in (0, 3, 4, 5, 6):
+                        continue
+                    info = _art_info(aid)
+                    rows.append({
+                        "x": None, "y": None, "z": None,
+                        "locality": "суша",
+                        "object": "Hero",
+                        "slot": i + 1,
+                        "artifact_name": info.get("name"),
+                        "class_": info.get("class"),
+                        "relic": info.get("relic"),
+                        "hero": hero_name,
+                        "doll_slot": i + 1,
+                        "flag": flag,
+                        "place": place,
+                        "monster": None, "mission": None, "guard": None,
+                    })
+
+    return rows
+
+
+def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+    """Aggregate ALL spells from every source → "Все Заклы" sheet.
+
+    Sources (matching PRT GetAllSpell, MainForm.cs:7263):
+      1. Event/Pandora boxes (EventBoxContent spells list)
+      2. Shrines (ShrineContent)
+      3. Heroes (spells_book)
+      4. Towns (spell pool per level)
+      5. Seer Huts (if spell reward)
+      6. Scholars (if spell reward)
+
+    Returns list of dicts with: x, y, z, object, spell_name, level, flag,
+    town, built, garrison, hero, place, mission, guard.
+    """
+    mo = parsed.get("merged_objects", {}) or {}
+    rows: List[Dict[str, Any]] = []
+
+    def _spl_name(sid):
+        if localizer and isinstance(sid, int) and sid >= 0:
+            return localizer.spell(sid)
+        return None
+
+    # ── 1. Event/Pandora box spells ──
+    for rec in mo.get("События_Ящики_Пандоры", []):
+        spell_str = rec.get("spell")
+        if spell_str:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "object": rec.get("object"),
+                "spell_name": spell_str,
+                "level": None, "flag": None, "town": None, "built": None,
+                "garrison": None, "hero": None, "place": None,
+                "mission": None, "guard": rec.get("guard"),
+            })
+
+    # ── 2. Shrine spells ──
+    for rec in mo.get("Заклинания_Святилища", []):
+        rows.append({
+            "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+            "object": rec.get("object"),
+            "spell_name": rec.get("spell"),
+            "level": rec.get("level"),
+            "flag": None, "town": None, "built": None,
+            "garrison": None, "hero": None, "place": None,
+            "mission": None, "guard": rec.get("guard"),
+        })
+
+    # ── 3. Hero spells ──
+    for h in parsed.get("heroes_found", []):
+        spell_str = h.get("spell")
+        if spell_str:
+            rows.append({
+                "x": None, "y": None, "z": None,
+                "object": "Hero",
+                "spell_name": spell_str,
+                "level": None, "flag": h.get("flag"), "town": None, "built": None,
+                "garrison": None, "hero": h.get("name"), "place": h.get("place"),
+                "mission": None, "guard": None,
+            })
+
+    # ── 4. Town spells (from spell pool per level) ──
+    for t in parsed.get("towns_found", []):
+        f = t.get("fields", {}) or {}
+        sp = f.get("spell_pool", {})
+        levels = sp.get("levels", []) if isinstance(sp, dict) else []
+        town_name = f.get("name", "?")
+        ttype = f.get("type", 0) or 0
+        town_type_name = localizer.town(ttype) if localizer and isinstance(ttype, int) else str(ttype)
+        faction = f.get("faction", -1)
+        flag = localizer.color(faction) if localizer and isinstance(faction, int) and 0 <= faction < 8 else None
+        for level_idx, level_spells in enumerate(levels):
+            if isinstance(level_spells, list):
+                for sid in level_spells:
+                    if sid is not None and sid >= 0:
+                        rows.append({
+                            "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
+                            "object": town_type_name,
+                            "spell_name": _spl_name(sid) or str(sid),
+                            "level": level_idx + 1,
+                            "flag": flag, "town": town_name, "built": None,
+                            "garrison": None, "hero": None, "place": None,
+                            "mission": None, "guard": None,
+                        })
+
+    # ── 5. Seer Huts with spell reward ──
+    for rec in mo.get("Провидцы", []):
+        reward = rec.get("reward", {})
+        if isinstance(reward, dict) and "spell_id" in reward:
+            sid = reward.get("spell_id", -1)
+            if sid is not None and sid >= 0:
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "object": rec.get("object"),
+                    "spell_name": _spl_name(sid) or str(sid),
+                    "level": None, "flag": None, "town": None, "built": None,
+                    "garrison": None, "hero": None, "place": None,
+                    "mission": rec.get("quest"), "guard": None,
+                })
+
+    return rows
+
+
+def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+    """Aggregate ALL skills from every source → "Все Навыки" sheet.
+
+    Sources (matching PRT GetAllSkill, MainForm.cs:7160):
+      1. Witch Huts (WitchHutContent)
+      2. Event/Pandora boxes (EventBoxContent secondary_skills list)
+      3. Scholars (ScholarContent)
+      4. Seer Huts (if skill reward)
+
+    Returns list of dicts with: x, y, z, locality, object, level_name,
+    skill_name, mission, guard.
+    """
+    mo = parsed.get("merged_objects", {}) or {}
+    rows: List[Dict[str, Any]] = []
+
+    def _skl_name(sid):
+        if localizer and isinstance(sid, int) and sid >= 0:
+            return localizer.skill(sid)
+        return None
+
+    # ── 1. Witch Huts ──
+    for rec in mo.get("Навыки", []):
+        skill_str = rec.get("skill")
+        if skill_str:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "level_name": None,
+                "skill_name": skill_str,
+                "mission": None, "guard": None,
+            })
+
+    # ── 2. Event/Pandora box skills ──
+    for rec in mo.get("События_Ящики_Пандоры", []):
+        skill_str = rec.get("secondary_skill")
+        if skill_str:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "level_name": None,
+                "skill_name": skill_str,
+                "mission": None, "guard": rec.get("guard"),
+            })
+
+    # ── 3. Scholars ──
+    for rec in mo.get("Ученые", []):
+        skill_str = rec.get("secondary_skill")
+        if skill_str:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "level_name": None,
+                "skill_name": skill_str,
+                "mission": None, "guard": None,
+            })
+
+    # ── 4. Seer Huts with skill reward ──
+    for rec in mo.get("Провидцы", []):
+        reward = rec.get("reward", {})
+        if isinstance(reward, dict) and "skill_id" in reward:
+            sid = reward.get("skill_id", -1)
+            if sid is not None and sid >= 0:
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object"),
+                    "level_name": None,
+                    "skill_name": _skl_name(sid) or str(sid),
+                    "mission": rec.get("quest"), "guard": None,
+                })
+
+    return rows
+
+
+def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+    """Aggregate ALL XP sources → "Опыт" sheet.
+
+    Sources (matching PRT GetAllExperience, MainForm.cs:6400+):
+      1. Learning Stones (1000 XP each)
+      2. Chests (gold or XP)
+      3. Events (experience field)
+      4. Artifacts (guard HP = XP)
+      5. Resources (guard HP = XP)
+      6. Banks (guard HP = XP)
+      7. Monsters (count × HP = XP)
+      8. Spells (guard HP = XP)
+      9. Seer Huts (if XP reward)
+      10. Heroes (500 + army HP)
+      11. Towns (500 + garrison HP)
+
+    Returns list of dicts with: x, y, z, locality, object, town, hero, flag,
+    monster, artifact, resource, guard, hp, experience, xp_total.
+    """
+    mo = parsed.get("merged_objects", {}) or {}
+    rows: List[Dict[str, Any]] = []
+
+    # ── 1. Learning Stones ──
+    for rec in mo.get("Learning_Stones", []):
+        xp = rec.get("experience", 1000)
+        rows.append({
+            "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+            "locality": rec.get("locality"),
+            "object": rec.get("object", "Learning Stone"),
+            "town": None, "hero": None, "flag": None,
+            "monster": None, "artifact": None, "resource": None,
+            "guard": None, "hp": None,
+            "experience": xp, "xp_total": xp,
+        })
+
+    # ── 2. Chests ──
+    for rec in mo.get("Сундуки", []):
+        xp = rec.get("experience")
+        if xp and xp > 0:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "town": None, "hero": None, "flag": None,
+                "monster": None, "artifact": rec.get("artifact"),
+                "resource": None, "guard": None, "hp": None,
+                "experience": xp, "xp_total": xp,
+            })
+
+    # ── 3. Events (experience field) ──
+    for rec in mo.get("События_Ящики_Пандоры", []):
+        xp = rec.get("experience")
+        if xp and xp > 0:
+            hp_val = event_box_sum_hp(rec) if event_box_sum_hp else None
+            total_xp = (hp_val or 0) + xp
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),
+                "town": None, "hero": None, "flag": None,
+                "monster": None, "artifact": None, "resource": None,
+                "guard": rec.get("guard"), "hp": hp_val,
+                "experience": xp, "xp_total": total_xp,
+            })
+
+    # ── 4-8. Guarded tiles (Artifacts, Resources, Banks, Spells) ──
+    # For each, HP = guard HP = XP
+    for sheet_key, obj_name in [
+        ("Артефакты", "Артефакт"),
+        ("Ресурсы", "Ресурс"),
+        ("Банки", "Банк"),
+        ("Заклинания_Святилища", "Святыня"),
+    ]:
+        for rec in mo.get(sheet_key, []):
+            hp_func = {
+                "Артефакты": artifact_sum_hp,
+                "Ресурсы": resource_sum_hp,
+                "Банки": bank_sum_hp,
+                "Заклинания_Святилища": None,  # spells have guard too but no helper
+            }.get(sheet_key)
+            hp_val = hp_func(rec) if hp_func else None
+            if hp_val and hp_val > 0:
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object", obj_name),
+                    "town": None, "hero": None, "flag": None,
+                    "monster": None, "artifact": rec.get("artifact"),
+                    "resource": rec.get("resource"), "guard": rec.get("guard"),
+                    "hp": hp_val,
+                    "experience": None, "xp_total": hp_val,
+                })
+
+    # ── 9. Monsters ──
+    for rec in mo.get("Монстры", []):
+        hp_val = monster_sum_hp(rec) if monster_sum_hp else None
+        if hp_val and hp_val > 0:
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object", "Монстр"),
+                "town": None, "hero": None, "flag": None,
+                "monster": rec.get("monster"), "artifact": None,
+                "resource": None, "guard": None, "hp": hp_val,
+                "experience": None, "xp_total": hp_val,
+            })
+
+    # ── 10. Heroes ──
+    for h in parsed.get("heroes_found", []):
+        place = h.get("place")
+        if not place or place == "Запрещен":
+            continue
+        hp_val = hero_sum_hp(h) if hero_sum_hp else None
+        if hp_val and hp_val > 0:
+            xp = hp_val + 500
+            rows.append({
+                "x": None, "y": None, "z": None,
+                "locality": "суша",
+                "object": "Hero",
+                "town": None, "hero": h.get("name"), "flag": h.get("flag"),
+                "monster": h.get("monster"), "artifact": None,
+                "resource": None, "guard": None, "hp": hp_val,
+                "experience": 500, "xp_total": xp,
+            })
+
+    # ── 11. Towns ──
+    for t in parsed.get("towns_found", []):
+        f = t.get("fields", {}) or {}
+        hp_val = town_sum_hp(t) if town_sum_hp else None
+        if hp_val and hp_val > 0:
+            xp = hp_val + 500
+            rows.append({
+                "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
+                "locality": "суша",
+                "object": "Town",
+                "town": f.get("name"), "hero": None,
+                "flag": None,
+                "monster": None, "artifact": None, "resource": None,
+                "guard": None, "hp": hp_val,
+                "experience": 500, "xp_total": xp,
+            })
+
+    return rows

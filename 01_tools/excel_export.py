@@ -348,11 +348,15 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             hero_sum_hp, town_sum_hp, prison_sum_hp,
             artifact_sum_hp, resource_sum_hp, bank_sum_hp,
             event_box_sum_hp, monster_sum_hp,
+            aggregate_all_artifacts, aggregate_all_spells,
+            aggregate_all_skills, aggregate_all_experience,
         )
     except Exception:
         hero_sum_hp = town_sum_hp = prison_sum_hp = None
         artifact_sum_hp = resource_sum_hp = bank_sum_hp = None
         event_box_sum_hp = monster_sum_hp = None
+        aggregate_all_artifacts = aggregate_all_spells = None
+        aggregate_all_skills = aggregate_all_experience = None
 
     def _mon_name(idx):
         """Return localized monster name. Tries PRT TblMonsters first (for
@@ -1279,23 +1283,20 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # ── Все Арты (aggregator) ──
         ws = wb.create_sheet("Все Арты")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Слот", "Артефакт", "Класс", "Реликт-С", "Герой", "Кукла", "Флаг", "Местоположение", "Монстр", "Задание", "Охрана"])
-        aggr = parsed.get("aggregators", {})
-        for rec in aggr.get("all_artifacts", []):
-            if isinstance(rec, dict):
-                aid = rec.get("artifact_id", -1) or -1
-                slot = rec.get("slot", -1)
-                # Doll slot name lookup
+        if aggregate_all_artifacts:
+            for rec in aggregate_all_artifacts(parsed, localizer=loc):
+                slot_val = rec.get("slot")
                 slot_name = None
-                if isinstance(slot, int) and slot >= 0:
-                    slot_name = loc.doll(slot) if loc else None
+                if isinstance(slot_val, int) and slot_val >= 0 and loc:
+                    slot_name = loc.doll(slot_val)
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("locality", "суша") != "море" else "море",
+                           rec.get("locality"),
                            rec.get("object"), slot_name,
-                           _art_name(aid) or aid if aid >= 0 else None,
-                           _cls_name(aid) if aid >= 0 else None, None,
-                           rec.get("hero"), None, rec.get("flag"),
-                           _place_name(rec.get("place", -1)) if rec.get("place") is not None else None,
-                           None, rec.get("mission"), None])
+                           rec.get("artifact_name"),
+                           rec.get("class_"), rec.get("relic"),
+                           rec.get("hero"), rec.get("doll_slot"), rec.get("flag"),
+                           rec.get("place"), None, rec.get("mission"),
+                           _guard_str(rec.get("guard")) if rec.get("guard") else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1303,12 +1304,15 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # ── Все Заклы (aggregator) ──
         ws = wb.create_sheet("Все Заклы")
         ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана"])
-        for rec in aggr.get("all_spells", []):
-            if isinstance(rec, dict):
-                sid = rec.get("spell_id", -1) or -1
+        if aggregate_all_spells:
+            for rec in aggregate_all_spells(parsed, localizer=loc):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           rec.get("object"), _spl_name(sid) or sid if sid >= 0 else None, None, None,
-                           None, None, None, None, None, None, None])
+                           rec.get("object"), rec.get("spell_name"),
+                           rec.get("level"), rec.get("flag"),
+                           rec.get("town"), rec.get("built"),
+                           rec.get("garrison"), rec.get("hero"),
+                           rec.get("place"), rec.get("mission"),
+                           _guard_str(rec.get("guard")) if rec.get("guard") else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1316,15 +1320,13 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # ── Все Навыки (aggregator) ──
         ws = wb.create_sheet("Все Навыки")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Уровень", "Навык", "Задание", "Охрана"])
-        for rec in aggr.get("all_skills", []):
-            if isinstance(rec, dict):
-                skid = rec.get("skill_id", -1) or -1
-                lvl = rec.get("level", -1)
-                level_name = loc.full_level_skill(lvl) if loc and isinstance(lvl, int) and lvl >= 0 else None
+        if aggregate_all_skills:
+            for rec in aggregate_all_skills(parsed, localizer=loc):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                           "суша" if rec.get("locality", "суша") != "море" else "море",
-                           rec.get("object"), level_name,
-                           _skl_name(skid) or skid if skid >= 0 else None, None, None])
+                           rec.get("locality"),
+                           rec.get("object"), rec.get("level_name"),
+                           rec.get("skill_name"), rec.get("mission"),
+                           rec.get("guard")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1332,12 +1334,16 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # ── Опыт (aggregator) ──
         ws = wb.create_sheet("Опыт")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP"])
-        # Experience aggregator is optional — populate from Learning Stones
-        for rec in mo.get("Learning_Stones", []):
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
-                       "суша" if rec.get("locality", "суша") != "море" else "море",
-                       "Камень знаний", None, None, None, None, None, None, None, None,
-                       rec.get("experience", 1000), rec.get("experience", 1000)])
+        if aggregate_all_experience:
+            for rec in aggregate_all_experience(parsed, localizer=loc):
+                ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                           rec.get("locality"),
+                           rec.get("object"), rec.get("town"),
+                           rec.get("hero"), rec.get("flag"),
+                           rec.get("monster"), rec.get("artifact"),
+                           rec.get("resource"), _guard_str(rec.get("guard")) if rec.get("guard") else None,
+                           rec.get("hp"), rec.get("experience"),
+                           rec.get("xp_total")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
