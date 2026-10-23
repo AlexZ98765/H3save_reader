@@ -380,6 +380,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 return name
         return loc.monstr(idx) if loc else ""
 
+    def _sanitize(val):
+        """Convert any list/dict/tuple to string for safe Excel output."""
+        if isinstance(val, (list, dict, tuple)):
+            return str(val)
+        return val
+
     def _guard_str(guard_list):
         """Format guard list as 'Pikeman 5, Goblin 20' — matching PRT format.
 
@@ -876,9 +882,9 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                     reward_str += f" {psk}"
                     if amt:
                         reward_str += f" +{amt}"
-            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+            ws.append([_sanitize(rec.get("x")), _sanitize(rec.get("y")), _sanitize(rec.get("z")),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       mission_str, reward_str, rec.get("deadline")])
+                       _sanitize(mission_str), _sanitize(reward_str), _sanitize(rec.get("deadline"))])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -914,6 +920,62 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        "суша" if rec.get("locality", "суша") != "море" else "море",
                        rec.get("object"),
                        rec.get("payment")])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Гарнизоны ──
+        ws = wb.create_sheet("Гарнизоны")
+        ws.append(["X", "Y", "Z", "Район", "Антимагический", "Охрана", "∑ HP", "Флаг", "Можно забрать"])
+        for rec in mo.get("Гарнизоны", []):
+            guard = rec.get("guard", [])
+            guard_str = _guard_str(guard) if guard else None
+            hp_val = 0
+            try:
+                from excel_calculations import compute_guard_hp
+                hp_val = compute_guard_hp(guard)
+            except Exception:
+                pass
+            color_idx = rec.get("color", -1)
+            color_str = _color_name(color_idx) if isinstance(color_idx, int) and 0 <= color_idx < 8 else None
+            can_take = "Да" if rec.get("can_take") else "Нет"
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "море" if rec.get("locality") == "море" else "суша",
+                       "Нет",  # AntiMagic — TODO
+                       guard_str,
+                       hp_val if hp_val > 0 else None,
+                       color_str,
+                       can_take])
+        ws.freeze_panes = "A2"
+        ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Стражи Прохода ──
+        ws = wb.create_sheet("Стражи Прохода")
+        ws.append(["X", "Y", "Z", "Район", "Задание", "Срок"])
+        for rec in mo.get("Border_Guards", []):
+            mission = rec.get("mission", {})
+            mission_str = None
+            if isinstance(mission, dict):
+                if "level" in mission:
+                    mission_str = f"Достичь уровня {mission['level']}"
+                elif "primary_skills" in mission:
+                    ps = mission["primary_skills"]
+                    if isinstance(ps, dict):
+                        parts = [f"{k} {v}" for k, v in ps.items()]
+                        mission_str = "Иметь первичные навыки " + ", ".join(parts)
+                elif "hero_id" in mission:
+                    mission_str = f"Победить героя ({mission.get('mission_str', '')})"
+                elif "artifacts" in mission:
+                    arts = mission["artifacts"]
+                    if isinstance(arts, list):
+                        mission_str = f"Принести артефакты {arts}"
+            deadline = rec.get("deadline")
+            if isinstance(deadline, (list, dict, tuple)):
+                deadline = str(deadline)
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       "море" if rec.get("locality") == "море" else "суша",
+                       _sanitize(mission_str), deadline])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

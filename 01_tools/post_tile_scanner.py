@@ -106,8 +106,33 @@ def scan_seer_hut_content(raw, s):
 
 
 def scan_pass_guard_content(raw, s):
-    """ScanPassGuardContent — same structure as SeerHut."""
-    return scan_seer_hut_content(raw, s)
+    """ScanPassGuardContent — DIFFERENT from ScanSeerHutContent!
+
+    Key differences (per PRT MainForm.cs:9273-9321):
+    - Type 0: returns s + 1 (just the type byte, NOT s + 15)
+    - No reward section (no s += 15 at the end)
+    - 3 variable sections: ALWAYS s += u16 + 4 (no zero check)
+    - Returns s directly (no --s)
+    """
+    t = raw[s]
+    if t == 0:
+        return s + 1
+    elif t == 1: s += 5
+    elif t == 2: s += 7
+    elif t == 3: s += 6
+    elif t == 4: s += 10
+    elif t == 5: s = s + raw[s + 1] * 2 + 4
+    elif t == 6: s = s + raw[s + 1] * 6 + 4
+    elif t == 7: s += 31
+    elif t == 8: s += 5
+    elif t == 9: s += 4
+    # No else for unknown types (PRT doesn't advance)
+    # Deadline (4 bytes)
+    s += 4
+    # 3 variable sections — ALWAYS advance by u16 + 4 (no zero check)
+    for i in range(3):
+        s += _u16(raw, s) + 4
+    return s
 
 
 def scan_object_content(raw, s, scan_func):
