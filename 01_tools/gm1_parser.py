@@ -1433,6 +1433,81 @@ def hex_dump(raw: bytes, start: int, length: int, prefix: str = "    ") -> str:
 # GUI (PySide6)
 # ============================================================================
 
+class CompareDialog(QDialog):
+    """Dialog for comparing two Excel files. Has tabs (first = Excel),
+    two file path inputs with browse buttons, and a Compare button."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Compare Excel Files")
+        self.setModal(True)
+        self.setMinimumWidth(600)
+
+        self.file_a_path = ""
+        self.file_b_path = ""
+
+        layout = QVBoxLayout(self)
+
+        # Tab widget
+        tabs = QTabWidget()
+        tab_excel = QWidget()
+        tab_layout = QVBoxLayout(tab_excel)
+
+        # File A input
+        a_group = QGroupBox("File A (e.g. YOUR export)")
+        a_layout = QHBoxLayout(a_group)
+        self.a_edit = QLineEdit()
+        self.a_edit.setPlaceholderText("Path to first .xlsx file…")
+        a_btn = QPushButton("Browse…")
+        a_btn.clicked.connect(lambda: self._browse(self.a_edit, "File A"))
+        a_layout.addWidget(self.a_edit)
+        a_layout.addWidget(a_btn)
+        tab_layout.addWidget(a_group)
+
+        # File B input
+        b_group = QGroupBox("File B (e.g. PRT export)")
+        b_layout = QHBoxLayout(b_group)
+        self.b_edit = QLineEdit()
+        self.b_edit.setPlaceholderText("Path to second .xlsx file…")
+        b_btn = QPushButton("Browse…")
+        b_btn.clicked.connect(lambda: self._browse(self.b_edit, "File B"))
+        b_layout.addWidget(self.b_edit)
+        b_layout.addWidget(b_btn)
+        tab_layout.addWidget(b_group)
+
+        # Info label
+        info = QLabel(
+            "Click Compare to choose output path.\n"
+            "Result file: compare_save_<map_name>.xlsx — each sheet shows only differences.\n"
+            "Source column: A-only / B-only / A≠B"
+        )
+        info.setWordWrap(True)
+        tab_layout.addWidget(info)
+        tab_layout.addStretch()
+
+        tabs.addTab(tab_excel, "Excel")
+        layout.addWidget(tabs)
+
+        # Buttons
+        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        btn_box.button(QDialogButtonBox.Ok).setText("Compare")
+        btn_box.accepted.connect(self._on_accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addWidget(btn_box)
+
+    def _browse(self, edit: QLineEdit, title: str):
+        path, _ = QFileDialog.getOpenFileName(
+            self, f"Select {title}", "", "Excel files (*.xlsx)"
+        )
+        if path:
+            edit.setText(path)
+
+    def _on_accept(self):
+        self.file_a_path = self.a_edit.text()
+        self.file_b_path = self.b_edit.text()
+        self.accept()
+
+
 class GM1ParserWindow(QMainWindow):
     def __init__(self, mapping_path: str = None):
         super().__init__()
@@ -1806,6 +1881,10 @@ class GM1ParserWindow(QMainWindow):
         reload_action = QAction("Reload Mapping", self)
         reload_action.triggered.connect(self._on_reload_mapping)
         tools_menu.addAction(reload_action)
+
+        compare_action = QAction("Compare...", self)
+        compare_action.triggered.connect(self._on_compare)
+        tools_menu.addAction(compare_action)
 
         # --- Help menu ---
         help_menu = menubar.addMenu("&Help")
@@ -3306,6 +3385,56 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
             self._set_idle()
             self.status.showMessage("Export failed")
             QMessageBox.critical(self, "Error", f"Failed to export binary:\n{e}")
+
+    def _on_compare(self):
+        """Open the Compare dialog — compare two Excel files and save differences."""
+        dialog = CompareDialog(self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        file_a = dialog.file_a_path.strip()
+        file_b = dialog.file_b_path.strip()
+        if not file_a or not file_b:
+            QMessageBox.warning(self, "Warning", "Both file paths must be specified.")
+            return
+        if not os.path.isfile(file_a):
+            QMessageBox.warning(self, "Warning", f"File A not found:\n{file_a}")
+            return
+        if not os.path.isfile(file_b):
+            QMessageBox.warning(self, "Warning", f"File B not found:\n{file_b}")
+            return
+
+        # Suggest output path based on map name
+        map_name = "unknown"
+        if self.parsed_data:
+            map_name = self.parsed_data.get("file_info", {}).get("map_name", "unknown")
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in map_name)
+        default_output = f"compare_save_{safe_name}.xlsx"
+
+        out_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Comparison Result", default_output, "Excel files (*.xlsx)"
+        )
+        if not out_path:
+            return
+
+        try:
+            self._set_loading("Сравнение файлов…")
+            from excel_compare import compare_excel_files
+            compare_excel_files(file_a, file_b, out_path,
+                                 ignore_localization=True)
+            self._set_idle()
+            self.status.showMessage(f"Comparison saved: {out_path}")
+            QMessageBox.information(
+                self, "Compare Complete",
+                f"Comparison result saved to:\n{out_path}\n\n"
+                f"File A: {os.path.basename(file_a)}\n"
+                f"File B: {os.path.basename(file_b)}\n\n"
+                f"Each sheet contains only the rows that differ.\n"
+                f"Source column: A-only / B-only / A≠B"
+            )
+        except Exception as e:
+            self._set_idle()
+            self.status.showMessage("Compare failed")
+            QMessageBox.critical(self, "Error", f"Failed to compare files:\n{e}")
 
     def _on_export_coverage(self):
         """Export a coverage report text file showing all major blocks in the save."""
