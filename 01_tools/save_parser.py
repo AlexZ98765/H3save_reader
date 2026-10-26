@@ -1260,6 +1260,9 @@ def _format_hero_for_json(h: Dict[str, Any],
     # PRT (MainForm.cs:7842-7868): for each doll slot, if artifact_id not in {0,3,4,5,6,255}:
     #   text6 += ", " + TblArt.Rows.Find(num6)[1]
     artifact_parts = []
+    # Also store list of (slot_index, artifact_id) tuples for aggregate_all_artifacts
+    # to look up class/relic per-artifact (Bug fix: Класс/Реликт-С for hero artifacts).
+    doll_artifacts = []
     if raw:
         import struct as _struct
         bo = h.get("block_offset", 0)
@@ -1277,7 +1280,12 @@ def _format_hero_for_json(h: Dict[str, Any],
                         aname = loc.art(art_id)
                         if aname:
                             artifact_parts.append(aname)
+                    # Store (slot_index, artifact_id) for class/relic lookup
+                    doll_artifacts.append((num5, art_id))
     out["artifact"] = ", ".join(artifact_parts) if artifact_parts else None
+    # doll_artifacts: list of (slot_index 0..82, artifact_id) — used by aggregate_all_artifacts
+    # to emit one row per artifact with proper class/relic-C columns.
+    out["doll_artifacts"] = doll_artifacts
 
     # Book: "Да" if spell_book present
     out["book"] = "Да" if f.get("spell_book") else None

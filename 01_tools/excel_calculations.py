@@ -427,7 +427,10 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
                 "object": rec.get("object"),
-                "slot": None,
+                # Preserve slot from rec — bank rows (e.g., Dragon Utopia)
+                # have slot=1,2,3,4; ground artifacts have slot=None.
+                # Previously hardcoded None which lost bank slot info.
+                "slot": rec.get("slot"),
                 "artifact_name": info.get("name") or rec.get("artifact_name"),
                 "class_": info.get("class") or rec.get("class_"),
                 "relic": info.get("relic") or rec.get("relic"),
@@ -454,11 +457,33 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
             })
 
     # ── 5. Event/Pandora box artifacts ──
+    # PRT splits event artifacts into separate rows (one per artifact).
+    # Each row gets the artifact's class and relic-C from art_metadata.
     for rec in mo.get("События_Ящики_Пандоры", []):
         art_str = rec.get("artifact")
-        if art_str:
-            # art_str is a formatted string like "Shield of Dwarven Lords, Sword of Justice"
-            # For now, include as a single row with the formatted string.
+        # Prefer artifact_ids list (more reliable for class/relic lookup)
+        art_ids = rec.get("artifact_ids", [])
+        if art_ids:
+            # Iterate individual artifact IDs (one row per artifact)
+            for aid in art_ids:
+                if aid is None or aid < 0:
+                    continue
+                info = _art_info(aid)
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "locality": rec.get("locality"),
+                    "object": rec.get("object"),
+                    "slot": None,
+                    "artifact_name": info.get("name"),
+                    "class_": info.get("class"),
+                    "relic": info.get("relic"),
+                    "hero": None, "doll_slot": None, "flag": None,
+                    "place": None, "monster": None, "mission": None,
+                    "guard": rec.get("guard"),
+                })
+        elif art_str:
+            # Fallback: art_str is a formatted string like "Art1, Art2"
+            # (older path — no per-artifact IDs available; emit single row).
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
@@ -584,21 +609,43 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
         # else: place is None — regular hireable-but-not-on-map hero; leave None
 
         art_names = [a.strip() for a in art_str.split(",") if a.strip()]
-        for slot_idx, art_name in enumerate(art_names):
-            rows.append({
-                "x": hx, "y": hy, "z": hz,
-                "locality": "суша",
-                "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
-                "slot": None,  # PRT shows None for hero artifact Слот
-                "artifact_name": art_name,
-                "class_": None,
-                "relic": None,
-                "hero": hero_name,
-                "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
-                "flag": flag,
-                "place": place_col,
-                "monster": None, "mission": None, "guard": None,
-            })
+        # Prefer doll_artifacts list (has artifact_id for class/relic lookup)
+        doll_arts = h.get("doll_artifacts", [])
+        if doll_arts:
+            # Iterate (slot_index, artifact_id) tuples
+            for slot_idx, art_id in doll_arts:
+                info = _art_info(art_id)
+                rows.append({
+                    "x": hx, "y": hy, "z": hz,
+                    "locality": "суша",
+                    "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
+                    "slot": None,  # PRT shows None for hero artifact Слот
+                    "artifact_name": info.get("name") or (localizer.art(art_id) if localizer else f"A{art_id}"),
+                    "class_": info.get("class"),
+                    "relic": info.get("relic"),
+                    "hero": hero_name,
+                    "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
+                    "flag": flag,
+                    "place": place_col,
+                    "monster": None, "mission": None, "guard": None,
+                })
+        else:
+            # Fallback: parse art_str (no class/relic available)
+            for slot_idx, art_name in enumerate(art_names):
+                rows.append({
+                    "x": hx, "y": hy, "z": hz,
+                    "locality": "суша",
+                    "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
+                    "slot": None,  # PRT shows None for hero artifact Слот
+                    "artifact_name": art_name,
+                    "class_": None,
+                    "relic": None,
+                    "hero": hero_name,
+                    "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
+                    "flag": flag,
+                    "place": place_col,
+                    "monster": None, "mission": None, "guard": None,
+                })
 
     return rows
 
@@ -854,19 +901,124 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
     # PRT's R_Skill table which is populated by both SaveWitchHut + SaveUniver.)
 
     # ── 4. Seer Huts with skill reward ──
+    # PRT SeerHutContent reward_type=7 (Secondary skill) populates R_Skill table
+    # with one row per hut: level prefix + skill name. Reward dict has keys
+    # `secondary_skill_id` and `level_id` (1-based: 1=Basic, 2=Advanced, 3=Expert).
+    # Also include the mission string (formatted like PRT "Принести ресурсы M5, ...").
+    # PRT DEFAULT arrays: aQuest[5]="Принести ресурсы", aResource letters W/M/O/S/C/G.
+    _A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    _A_RESOURCE_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+    _QUEST_NAME_FOR_MT = {
+        # mission_type → PRT aQuest index (mission_type 1-based, aQuest 0-based)
+        1: 0,  # Achieve level
+        2: 1,  # Achieve skill (PRT only — Kill hero etc)
+        3: 2,  # Defeat monster
+        4: 3,  # Return with artifacts
+        5: 4,  # Return with creatures
+        6: 5,  # Return with resources
+        7: 5,  # Bring resources — PRT also maps to "Принести ресурсы"
+        8: 6,  # Belong to player
+        9: 7,  # Defeat Hero
+    }
+
+    def _fmt_seer_mission(rec):
+        """Format seer hut mission string (matches PRT R_AllSkill.Mission column).
+
+        PRT format examples:
+          "Принести ресурсы M5, Золото 9"  (resource letter + amount, comma-separated)
+          "Принести артефакты ..."
+          "Принести существ ..."
+        """
+        mtype = rec.get("mission_type", 0)
+        mission = rec.get("mission", {}) or {}
+        if not mtype:
+            return None
+        quest_idx = _QUEST_NAME_FOR_MT.get(mtype, mtype - 1)
+        # Get Russian quest name from localizer (or fallback)
+        quest_name = None
+        if localizer:
+            quest_name = localizer.quest(quest_idx)
+        if not quest_name:
+            return None
+        parts = [quest_name]
+        # Add specifics based on mission content
+        if "level" in mission:
+            parts.append(str(mission['level']))
+        if "artifacts" in mission:
+            arts = mission['artifacts']
+            if isinstance(arts, list):
+                art_names = []
+                for a in arts:
+                    if isinstance(a, int) and a >= 0:
+                        if localizer:
+                            n = localizer.art(a)
+                            if n:
+                                art_names.append(n)
+                        if not (localizer and localizer.art(a)):
+                            art_names.append(str(a))
+                if art_names:
+                    parts.append(", ".join(art_names))
+        if "resources" in mission:
+            res = mission['resources']
+            if isinstance(res, dict):
+                res_parts = []
+                for rkey, rcount in res.items():
+                    if rcount:
+                        # Find resource letter
+                        try:
+                            ridx = _A_RESOURCE_NAMES.index(rkey)
+                            letter = _A_RESOURCE_LETTERS[ridx]
+                            res_parts.append(f"{letter}{rcount}")
+                        except (ValueError, IndexError):
+                            # Gold special case (idx 6, not in our 6-letter array)
+                            if rkey == "Gold":
+                                res_parts.append(f"Золото {rcount}")
+                            else:
+                                res_parts.append(f"{rkey} {rcount}")
+                if res_parts:
+                    parts.append(", ".join(res_parts))
+        if "monsters" in mission:
+            mons = mission['monsters']
+            if isinstance(mons, list):
+                mon_parts = []
+                for m in mons:
+                    if isinstance(m, dict):
+                        mid = m.get('monster_id', -1)
+                        cnt = m.get('count', 0)
+                        if mid >= 0 and localizer:
+                            mname = localizer.monstr(mid)
+                            if mname:
+                                mon_parts.append(f"{mname} {cnt}")
+                            else:
+                                mon_parts.append(f"M{mid} {cnt}")
+                if mon_parts:
+                    parts.append(", ".join(mon_parts))
+        return " ".join(parts)
+
     for rec in mo.get("Провидцы", []):
         reward = rec.get("reward", {})
-        if isinstance(reward, dict) and "skill_id" in reward:
+        if not isinstance(reward, dict):
+            continue
+        # Check both possible key names: skill_id (older format) OR secondary_skill_id
+        sid = reward.get("secondary_skill_id")
+        if sid is None:
             sid = reward.get("skill_id", -1)
-            if sid is not None and sid >= 0:
-                rows.append({
-                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                    "locality": rec.get("locality"),
-                    "object": rec.get("object"),
-                    "level_name": None,
-                    "skill_name": _skl_name(sid) or str(sid),
-                    "mission": rec.get("quest"), "guard": None,
-                })
+        if sid is not None and isinstance(sid, int) and sid >= 0:
+            lvl = reward.get("level_id", 0)
+            # level_id is 1-based (1=Basic, 2=Advanced, 3=Expert) per PRT SeerHut
+            # Convert to 0-based index for localizer.full_level_skill
+            level_name = None
+            if isinstance(lvl, int) and lvl >= 1 and localizer:
+                level_name = localizer.full_level_skill(lvl - 1)
+            rows.append({
+                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                "locality": rec.get("locality"),
+                "object": rec.get("object"),  # localized "Хижина Провидца"
+                "level_name": level_name,
+                "skill_name": _skl_name(sid) or str(sid),
+                "mission": _fmt_seer_mission(rec),
+                "guard": None,
+            })
 
     return rows
 

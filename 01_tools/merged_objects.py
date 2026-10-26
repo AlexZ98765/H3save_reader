@@ -966,6 +966,9 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
             "primary_skill": ps_str,
             "secondary_skill": ss_str,
             "artifact": art_str,
+            # Also store raw artifact IDs (used by aggregate_all_artifacts to
+            # look up class/relic per-artifact for "Все Арты" sheet).
+            "artifact_ids": list(art_list) if art_list else [],
             "spell": spl_str,
             "monster": mon_str,
             "available": available,
@@ -1151,7 +1154,8 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
 
 
 def merge_seer_huts(tile_objects: List[Dict[str, Any]],
-                    post_tile_content: Dict[str, Any]
+                    post_tile_content: Dict[str, Any],
+                    localizer=None
                     ) -> List[Dict[str, Any]]:
     """Merge seer hut tile objects + post-tile SeerHut content (sheet "Провидцы").
 
@@ -1159,6 +1163,15 @@ def merge_seer_huts(tile_objects: List[Dict[str, Any]],
       x, y, z, locality, object, num (quest ID), mission_type, mission,
       deadline, reward_type, reward
     """
+    if localizer is None:
+        try:
+            from localizer import get_localizer
+            localizer = get_localizer()
+        except Exception:
+            localizer = None
+    # Localized object name (PRT TblObject code 83 = "Хижина Провидца")
+    seer_hut_name = localizer.object(83) if localizer else "Хижина Провидца"
+
     seer_huts = []
     tile_seer = [obj for obj in tile_objects if obj.get('type_id') == 83]
     post_seer = post_tile_content.get("seer_huts", [])
@@ -1171,7 +1184,7 @@ def merge_seer_huts(tile_objects: List[Dict[str, Any]],
             "y": ts.get('y'),
             "z": ts.get('z'),
             "locality": "море" if ts.get('loc') == 8 else "суша",
-            "object": "Seer Hut",
+            "object": seer_hut_name,
             "address": ps.get("address"),
             "num": ts.get("num", 0),
             "mission_type": ps.get("mission_type", 0),
@@ -2126,7 +2139,7 @@ def merge_all(tile_objects: List[Dict[str, Any]],
                               localizer=localizer, raw=raw,
                               map_start_info=map_start_info,
                               towns_parsed=towns_parsed),
-        "Провидцы": merge_seer_huts(tile_objects, post_tile_content),
+        "Провидцы": merge_seer_huts(tile_objects, post_tile_content, localizer=localizer),
         "Border_Guards": merge_pass_guards(tile_objects, post_tile_content),
         "Тюрьмы": merge_prisons(tile_objects, heroes_parsed),
         "Объекты": merge_generic_objects(tile_objects),
