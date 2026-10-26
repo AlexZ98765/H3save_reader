@@ -946,9 +946,10 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             color_idx = rec.get("color", -1)
             color_str = _color_name(color_idx) if isinstance(color_idx, int) and 0 <= color_idx < 8 else None
             can_take = "Да" if rec.get("can_take") else "Нет"
+            anti_magic = "Да" if rec.get("anti_magic") else "Нет"
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "море" if rec.get("locality") == "море" else "суша",
-                       "Нет",  # AntiMagic — TODO
+                       anti_magic,
                        guard_str,
                        hp_val if hp_val > 0 else None,
                        color_str,
@@ -1405,7 +1406,40 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Города")
         ws.append(["X", "Y", "Z", "Город", "Тип", "Флаг", "Уровень", "Заклинание",
                    "Построен", "Доступен", "Таймер", "Библиотека", "Гарнизон", "∑ HP"])
-        for t in parsed.get("towns_found", []):
+
+        # Pre-compute MageTimer per town (PRT GetTimerTown line 7069):
+        #   MageTimer = OR of byte[1] of buildings array across all timed events
+        #   for this town, EXCLUDING events with null Apply (which contribute 0).
+        # The "Таймер" column on Города sheet shows "Да" if MageTimer != 0,
+        # else None. This indicates the town has at least one timed event that
+        # changes buildings via byte[1] bitmask (which contains Mage Guild
+        # levels and similar "magic-related" buildings).
+        town_timer_links = parsed.get("town_timer_links", []) or []
+        mage_timer_by_town: Dict[int, int] = {}  # town_id → MageTimer bitmask
+        for link in town_timer_links:
+            link_dict = link if isinstance(link, dict) else {}
+            town_id = link_dict.get("town_id", 0)
+            mage_timer = 0
+            for ev in link_dict.get("events", []):
+                ev_dict = ev if isinstance(ev, dict) else {}
+                # Check Apply — if null/zero, this event doesn't contribute
+                # (PRT line 7064-7067: if IsApplyNull, reset num=0 for this event)
+                apply_tuple = ev_dict.get("apply")
+                if not apply_tuple or not isinstance(apply_tuple, (list, tuple)):
+                    continue
+                # Apply is (x_flags, y_num, z_num). Considered non-null if any
+                # of the three is non-zero. (PRT checks IsApplyNull which is
+                # True when the field was never set; we approximate by checking
+                # all-zero tuple as "null".)
+                if apply_tuple == (0, 0, 0):
+                    continue
+                buildings = ev_dict.get("buildings", [])
+                if isinstance(buildings, (list, tuple)) and len(buildings) >= 2:
+                    # byte[1] is at index 1 (0-based) — Mage Guild levels etc.
+                    mage_timer |= int(buildings[1]) if buildings[1] else 0
+            mage_timer_by_town[town_id] = mage_timer
+
+        for town_idx, t in enumerate(parsed.get("towns_found", [])):
             f = t.get("fields", {})
             sp = f.get("spell_pool", {})
             levels = sp.get("levels", []) if isinstance(sp, dict) else []
@@ -1429,6 +1463,14 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
 
             # ∑ HP: computed by excel_calculations.town_sum_hp (Excel-only)
             sum_hp = town_sum_hp(t) if town_sum_hp else None
+
+            # MageTimer — PRT GetTimerTown sets trow.MageTimer = bitmask.
+            # The "Таймер" column shows "Да" if MageTimer != 0, else None.
+            # town_timer_links.town_id = town's positional index in towns list
+            # (matches `town_idx` from enumerate here, since both iterate
+            # parsed.towns in the same order).
+            mage_timer = mage_timer_by_town.get(town_idx, 0)
+            timer_str = "Да" if mage_timer else None
 
             # Library: Tower (type=2) has Library by default → "Доступно"
             # PRT GetTownSpell: num5=1 for Tower, Library defaults to "Доступно" (aStatus[0])
@@ -1474,7 +1516,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            level_num, spells_str,
                            built_str,
                            "Да",  # Доступен — default "Да" for existing levels
-                           None,  # Таймер — complex PRT logic, leave None for now
+                           timer_str,  # Таймер — "Да" if MageTimer != 0, else None
                            library_str if is_first else None,
                            garrison_str if is_first else None,
                            sum_hp if is_first else None])
@@ -1482,7 +1524,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             if level_num == 0:
                 ws.append([f.get("x"), f.get("y"), f.get("z"),
                            f.get("name", "?"), ttype_name, faction_name,
-                           1, None, None, "Да", None, None,
+                           1, None, None, "Да", timer_str, None,
                            garrison_str, sum_hp])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions

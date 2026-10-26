@@ -1109,7 +1109,13 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
                     ) -> List[Dict[str, Any]]:
     """Merge garrison tile objects + post-tile Garrison content (sheet "Garrisons").
 
-    Returns records with: x, y, z, locality, object, guard, color, can_take
+    Returns records with: x, y, z, locality, object, anti_magic, guard, color, can_take
+
+    PRT layout (SaveGarrison + GarrisonContent):
+      - Tile scan (SaveGarrison, line 10017): reads anti_magic from decmp[s+2]
+      - Post-tile (GarrisonContent, line 8136): reads guard/color/can_take from
+        the 61-byte record (color at offset 0, monster_ids at i*4+1, counts at
+        i*4+29,30, X/Y/Z at 57..59, CanTake at 60)
     """
     garrisons = []
     tile_garrisons = [obj for obj in tile_objects if obj.get('type_id') == 33]
@@ -1124,6 +1130,7 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
             "z": tg.get('z'),
             "locality": "море" if tg.get('loc') == 8 else "суша",
             "object": "Garrison",
+            "anti_magic": tg.get('anti_magic', False),
             "address": pg.get("address"),
             "guard": _serialize_guard(pg.get("guard", [])),
             "color": pg.get("color", -1),

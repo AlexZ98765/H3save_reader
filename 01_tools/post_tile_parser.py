@@ -738,17 +738,48 @@ def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
     """Parse one Garrison record (post-tile, separate from tile-scan garrison).
 
     Reference: MainForm.cs:8136 `GarrisonContent(DataRow row, int s)`.
-    Layout (61 bytes):
-    - 7-slot guard (56 bytes) — counts at offset +29..+30
-    - 1 byte color (0xFF = none)
-    - 1 byte "CanTake"
-    - 2 bytes x,y,z at +57, +58, +59 (used to match row)
+
+    Layout (61 bytes total):
+    - byte 0: color index (0..7, 0xFF = none)
+    - bytes 1..28: 7 monster_ids (each 4-byte slot, byte 0 of slot = monster_id;
+      0xFF = empty). Offsets: 1, 5, 9, 13, 17, 21, 25 (i*4 + 1 for i=0..6).
+    - bytes 29..56: 7 counts (u16 LE each, byte 0 = low, byte 1 = high).
+      Offsets: 29-30, 33-34, 37-38, ..., 53-54 (i*4 + 29 low, i*4 + 30 high
+      for i=0..6).
+    - bytes 57, 58, 59: X, Y, Z (used to match R_Garrison row by coordinates)
+    - byte 60: CanTake flag (0="Нет", 1="Да")
+
+    NOTE: Garrison layout is DIFFERENT from Bank layout (GetBankGuard line 9033).
+    Banks use offsets i*4 (no +1) for monster_ids and SINGLE byte count at
+    i*4+28. Garrisons use i*4+1 for monster_ids and u16 LE count at i*4+29,30.
+    Do NOT reuse _parse_guard for garrisons — it would read the wrong bytes.
+
+    Returns (GarrisonContent, new_s = s + 61).
     """
     rec = GarrisonContent(address=s)
-    rec.guard, s = _parse_guard(raw, s)
+    # Color byte at offset 0 (read BEFORE guard; PRT line 8163-8166)
     if raw[s] != 0xFF:
         rec.color = raw[s]
-    rec.can_take = raw[s + 60] if s + 60 < len(raw) else 0
+    # 7 monster slots — monster_id at offset s + i*4 + 1, count u16 LE at
+    # offset (s + i*4 + 29, s + i*4 + 30). 0xFF in monster_id = empty slot.
+    slots: List[ArmySlot] = []
+    for i in range(7):
+        mid_off = s + i * 4 + 1
+        if mid_off >= len(raw):
+            break
+        mid = raw[mid_off]
+        if mid != 0xFF and mid < 0xFF:
+            cnt_low_off = s + i * 4 + 29
+            cnt_high_off = s + i * 4 + 30
+            if cnt_high_off < len(raw):
+                cnt = raw[cnt_low_off] | (raw[cnt_high_off] << 8)
+            else:
+                cnt = raw[cnt_low_off] if cnt_low_off < len(raw) else 0
+            slots.append(ArmySlot(monster_id=mid, count=cnt))
+    rec.guard = slots
+    # CanTake at offset 60 (PRT line 8167: aReply[decmp[s + 60]])
+    if s + 60 < len(raw):
+        rec.can_take = raw[s + 60]
     return rec, s + 61
 
 
