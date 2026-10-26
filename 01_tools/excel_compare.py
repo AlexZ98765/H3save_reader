@@ -162,6 +162,11 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
 
         # Auto-size columns
         _autosize(ws_out)
+        # Freeze the first row (header) so it stays visible while scrolling,
+        # and enable auto_filter on the header row so the user can quickly
+        # filter by Source (A-only / B-only / A≠B) or any other column.
+        ws_out.freeze_panes = "A2"
+        ws_out.auto_filter.ref = ws_out.dimensions
 
     # Summary sheet (always at front)
     if wb_out.sheetnames:
@@ -178,6 +183,9 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
             ws_sum.append(["Только в A:"] + only_a)
             ws_sum.append(["Только в B:"] + only_b)
         _autosize(ws_sum)
+        # Freeze + filter on summary sheet too
+        ws_sum.freeze_panes = "A2"
+        ws_sum.auto_filter.ref = ws_sum.dimensions
 
     # If no sheets were created (no diffs and no sheet mismatches)
     if not wb_out.sheetnames:
@@ -329,6 +337,7 @@ def _write_sheet_mismatch(wb_out, sheet_name, headers_a, headers_b, ws_a, ws_b):
     ws.append([])
     ws.append(["File A headers:"] + list(headers_a))
     ws.append(["File B headers:"] + list(headers_b))
+    # No freeze/filter here — this sheet has only 4 meta-rows, not a tabular diff.
 
 
 def _autosize(ws, max_width: int = 60):

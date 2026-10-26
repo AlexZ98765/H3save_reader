@@ -1,0 +1,2954 @@
+{
+  "0:1:0": {
+    "type": 0,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "0:1:1": {
+    "type": 0,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "0:1:2": {
+    "type": 0,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "0:1:3": {
+    "type": 0,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "0:1:4": {
+    "type": 0,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "0:1:5": {
+    "type": 0,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "0:1:6": {
+    "type": 0,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "0:1:7": {
+    "type": 0,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "0:2:0": {
+    "type": 0,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "0:2:1": {
+    "type": 0,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "0:2:2": {
+    "type": 0,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:2:3": {
+    "type": 0,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "0:2:4": {
+    "type": 0,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "0:2:5": {
+    "type": 0,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "0:2:6": {
+    "type": 0,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "0:2:7": {
+    "type": 0,
+    "byte": 2,
+    "bit": 7,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:3:0": {
+    "type": 0,
+    "byte": 3,
+    "bit": 0,
+    "building": "Верфь",
+    "complete": "",
+    "sod_en": "Shipyard"
+  },
+  "0:3:1": {
+    "type": 0,
+    "byte": 3,
+    "bit": 1,
+    "building": "Колосс",
+    "complete": "",
+    "sod_en": "Colossus"
+  },
+  "0:3:2": {
+    "type": 0,
+    "byte": 3,
+    "bit": 2,
+    "building": "Маяк",
+    "complete": "",
+    "sod_en": "Lighthouse"
+  },
+  "0:3:3": {
+    "type": 0,
+    "byte": 3,
+    "bit": 3,
+    "building": "Братство меча",
+    "complete": "",
+    "sod_en": "Brotherhood"
+  },
+  "0:3:4": {
+    "type": 0,
+    "byte": 3,
+    "bit": 4,
+    "building": "Конюшни",
+    "complete": "",
+    "sod_en": "Stables"
+  },
+  "0:3:5": {
+    "type": 0,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:3:6": {
+    "type": 0,
+    "byte": 3,
+    "bit": 6,
+    "building": "Сторожевой пост",
+    "complete": "Караулка",
+    "sod_en": "Guardhouse"
+  },
+  "0:3:7": {
+    "type": 0,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.сторожевой пост",
+    "complete": "Сторожевая",
+    "sod_en": "Upg. Guardhouse"
+  },
+  "0:4:0": {
+    "type": 0,
+    "byte": 4,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:4:1": {
+    "type": 0,
+    "byte": 4,
+    "bit": 1,
+    "building": "Башня лучников",
+    "complete": "Башня стрелков",
+    "sod_en": "Archers' Tower"
+  },
+  "0:4:2": {
+    "type": 0,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.башня лучников",
+    "complete": "Башня лучников",
+    "sod_en": "Upg. Archers' Tower"
+  },
+  "0:4:3": {
+    "type": 0,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:4:4": {
+    "type": 0,
+    "byte": 4,
+    "bit": 4,
+    "building": "Башня Грифонов",
+    "complete": "",
+    "sod_en": "Griffin Tower"
+  },
+  "0:4:5": {
+    "type": 0,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.башня грифонов",
+    "complete": "Крепость грифонов",
+    "sod_en": "Upg. Griffin Tower"
+  },
+  "0:4:6": {
+    "type": 0,
+    "byte": 4,
+    "bit": 6,
+    "building": "Бастион грифонов",
+    "complete": "",
+    "sod_en": "Griffin Bastion"
+  },
+  "0:4:7": {
+    "type": 0,
+    "byte": 4,
+    "bit": 7,
+    "building": "Казармы",
+    "complete": "Бараки",
+    "sod_en": "Barracks"
+  },
+  "0:5:0": {
+    "type": 0,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.казармы",
+    "complete": "Казармы",
+    "sod_en": "Upg. Barracks"
+  },
+  "0:5:1": {
+    "type": 0,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:5:2": {
+    "type": 0,
+    "byte": 5,
+    "bit": 2,
+    "building": "Монастырь",
+    "complete": "",
+    "sod_en": "Monastery"
+  },
+  "0:5:3": {
+    "type": 0,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул. монастырь",
+    "complete": "Храм",
+    "sod_en": "Upg. Monastery"
+  },
+  "0:5:4": {
+    "type": 0,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "0:5:5": {
+    "type": 0,
+    "byte": 5,
+    "bit": 5,
+    "building": "Ипподром",
+    "complete": "Арена",
+    "sod_en": "Training Grounds"
+  },
+  "0:5:6": {
+    "type": 0,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.ипподром",
+    "complete": "Ристалище",
+    "sod_en": "Upg. Training Grounds"
+  },
+  "0:5:7": {
+    "type": 0,
+    "byte": 5,
+    "bit": 7,
+    "building": "Портал славы",
+    "complete": "",
+    "sod_en": "Portal of Glory"
+  },
+  "0:6:0": {
+    "type": 0,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.портал славы",
+    "complete": "Портал доблести",
+    "sod_en": "Upg. Portal of Glory"
+  },
+  "1:1:0": {
+    "type": 1,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "1:1:1": {
+    "type": 1,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "1:1:2": {
+    "type": 1,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "1:1:3": {
+    "type": 1,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "1:1:4": {
+    "type": 1,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "1:1:5": {
+    "type": 1,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "1:1:6": {
+    "type": 1,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "1:1:7": {
+    "type": 1,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "1:2:0": {
+    "type": 1,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "1:2:1": {
+    "type": 1,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "1:2:2": {
+    "type": 1,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:2:3": {
+    "type": 1,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "1:2:4": {
+    "type": 1,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "1:2:5": {
+    "type": 1,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "1:2:6": {
+    "type": 1,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "1:2:7": {
+    "type": 1,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "1:3:0": {
+    "type": 1,
+    "byte": 3,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:3:1": {
+    "type": 1,
+    "byte": 3,
+    "bit": 1,
+    "building": "Хранитель духа",
+    "complete": "Дух-хранитель",
+    "sod_en": "Spirit Guardian"
+  },
+  "1:3:2": {
+    "type": 1,
+    "byte": 3,
+    "bit": 2,
+    "building": "Таинственный пруд",
+    "complete": "",
+    "sod_en": "Mystic Pond"
+  },
+  "1:3:3": {
+    "type": 1,
+    "byte": 3,
+    "bit": 3,
+    "building": "Фонтан удачи",
+    "complete": "",
+    "sod_en": "Fountain of Fortune"
+  },
+  "1:3:4": {
+    "type": 1,
+    "byte": 3,
+    "bit": 4,
+    "building": "Сокровищница",
+    "complete": "",
+    "sod_en": "Treasury"
+  },
+  "1:3:5": {
+    "type": 1,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:3:6": {
+    "type": 1,
+    "byte": 3,
+    "bit": 6,
+    "building": "Конюшни кентавров",
+    "complete": "",
+    "sod_en": "Centaur Stables"
+  },
+  "1:3:7": {
+    "type": 1,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.конюшни кентавров",
+    "complete": "Двор кентавров",
+    "sod_en": "Upg. Centaur Stables"
+  },
+  "1:4:0": {
+    "type": 1,
+    "byte": 4,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:4:1": {
+    "type": 1,
+    "byte": 4,
+    "bit": 1,
+    "building": "Коттедж гномов",
+    "complete": "Избушка гномов",
+    "sod_en": "Dwarf Cottage"
+  },
+  "1:4:2": {
+    "type": 1,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.коттедж гномов",
+    "complete": "Хоромы гномов",
+    "sod_en": "Upg. Dwarf Cottage"
+  },
+  "1:4:3": {
+    "type": 1,
+    "byte": 4,
+    "bit": 3,
+    "building": "Гильдия горняков",
+    "complete": "",
+    "sod_en": "Miners' Guild"
+  },
+  "1:4:4": {
+    "type": 1,
+    "byte": 4,
+    "bit": 4,
+    "building": "Усадьба",
+    "complete": "",
+    "sod_en": "Homestead"
+  },
+  "1:4:5": {
+    "type": 1,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.усадьба",
+    "complete": "Большая усадьба",
+    "sod_en": "Upg. Homestead"
+  },
+  "1:4:6": {
+    "type": 1,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:4:7": {
+    "type": 1,
+    "byte": 4,
+    "bit": 7,
+    "building": "Заколдованный ручей",
+    "complete": "Волшебный родник",
+    "sod_en": "Enchanted Spring"
+  },
+  "1:5:0": {
+    "type": 1,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.заколдованный ручей",
+    "complete": "Волшебный источник",
+    "sod_en": "Upg. Enchanted Spring"
+  },
+  "1:5:1": {
+    "type": 1,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "1:5:2": {
+    "type": 1,
+    "byte": 5,
+    "bit": 2,
+    "building": "Арка дендроидов",
+    "complete": "Роща дендроидов",
+    "sod_en": "Dendroid Arches"
+  },
+  "1:5:3": {
+    "type": 1,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.арка дендроидов",
+    "complete": "Лес дендроидов",
+    "sod_en": "Upg. Dendroid Arches"
+  },
+  "1:5:4": {
+    "type": 1,
+    "byte": 5,
+    "bit": 4,
+    "building": "Молодые дендроиды",
+    "complete": "Роща дендроидов",
+    "sod_en": "Dendroid Saplings"
+  },
+  "1:5:5": {
+    "type": 1,
+    "byte": 5,
+    "bit": 5,
+    "building": "Лужайка единорогов",
+    "complete": "Поляна единорогов",
+    "sod_en": "Unicorn Glade"
+  },
+  "1:5:6": {
+    "type": 1,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.лужайка единорогов",
+    "complete": "Лужайка единорогов",
+    "sod_en": "Upg. Unicorn Glade"
+  },
+  "1:5:7": {
+    "type": 1,
+    "byte": 5,
+    "bit": 7,
+    "building": "Драконьи скалы",
+    "complete": "Утесы дракона",
+    "sod_en": "Dragon Cliffs"
+  },
+  "1:6:0": {
+    "type": 1,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.драконьи скалы",
+    "complete": "Скала дракона",
+    "sod_en": "Upg. Dragon Cliffs"
+  },
+  "2:1:0": {
+    "type": 2,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "2:1:1": {
+    "type": 2,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "2:1:2": {
+    "type": 2,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "2:1:3": {
+    "type": 2,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "2:1:4": {
+    "type": 2,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "2:1:5": {
+    "type": 2,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "2:1:6": {
+    "type": 2,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "2:1:7": {
+    "type": 2,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "2:2:0": {
+    "type": 2,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "2:2:1": {
+    "type": 2,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "2:2:2": {
+    "type": 2,
+    "byte": 2,
+    "bit": 2,
+    "building": "Торговцы артефактами",
+    "complete": "Торговец артефактами",
+    "sod_en": "Artifact Merchants"
+  },
+  "2:2:3": {
+    "type": 2,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "2:2:4": {
+    "type": 2,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "2:2:5": {
+    "type": 2,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "2:2:6": {
+    "type": 2,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "2:2:7": {
+    "type": 2,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "2:3:0": {
+    "type": 2,
+    "byte": 3,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:3:1": {
+    "type": 2,
+    "byte": 3,
+    "bit": 1,
+    "building": "Небесный корабль",
+    "complete": "",
+    "sod_en": "Skyship"
+  },
+  "2:3:2": {
+    "type": 2,
+    "byte": 3,
+    "bit": 2,
+    "building": "Библиотека",
+    "complete": "",
+    "sod_en": "Library"
+  },
+  "2:3:3": {
+    "type": 2,
+    "byte": 3,
+    "bit": 3,
+    "building": "Стена знаний",
+    "complete": "",
+    "sod_en": "Wall of Knowledge"
+  },
+  "2:3:4": {
+    "type": 2,
+    "byte": 3,
+    "bit": 4,
+    "building": "Смотровая башня",
+    "complete": "Сторожевая башня",
+    "sod_en": "Lookout Tower"
+  },
+  "2:3:5": {
+    "type": 2,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:3:6": {
+    "type": 2,
+    "byte": 3,
+    "bit": 6,
+    "building": "Мастерская",
+    "complete": "",
+    "sod_en": "Workshop"
+  },
+  "2:3:7": {
+    "type": 2,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.мастерская",
+    "complete": "Мануфактура",
+    "sod_en": "Upg. Workshop"
+  },
+  "2:4:0": {
+    "type": 2,
+    "byte": 4,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:4:1": {
+    "type": 2,
+    "byte": 4,
+    "bit": 1,
+    "building": "Парапет",
+    "complete": "",
+    "sod_en": "Parapet"
+  },
+  "2:4:2": {
+    "type": 2,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.парапет",
+    "complete": "Часовня",
+    "sod_en": "Upg. Parapet"
+  },
+  "2:4:3": {
+    "type": 2,
+    "byte": 4,
+    "bit": 3,
+    "building": "Крылья ваятеля",
+    "complete": "Мастерская скульптора",
+    "sod_en": "Sculptor's Wings"
+  },
+  "2:4:4": {
+    "type": 2,
+    "byte": 4,
+    "bit": 4,
+    "building": "Фабрика големов",
+    "complete": "",
+    "sod_en": "Golem Factory"
+  },
+  "2:4:5": {
+    "type": 2,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.фабрика големов",
+    "complete": "Завод големов",
+    "sod_en": "Upg. Golem Factory"
+  },
+  "2:4:6": {
+    "type": 2,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:4:7": {
+    "type": 2,
+    "byte": 4,
+    "bit": 7,
+    "building": "Башня магов",
+    "complete": "",
+    "sod_en": "Mage Tower"
+  },
+  "2:5:0": {
+    "type": 2,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.башня магов",
+    "complete": "Оплот магов",
+    "sod_en": "Upg. Mage Tower"
+  },
+  "2:5:1": {
+    "type": 2,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:5:2": {
+    "type": 2,
+    "byte": 5,
+    "bit": 2,
+    "building": "Алтарь желаний",
+    "complete": "Алтарь грез",
+    "sod_en": "Altar of Wishes"
+  },
+  "2:5:3": {
+    "type": 2,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.алтарь желаний",
+    "complete": "Алтарь мечты",
+    "sod_en": "Upg. Altar of Wishes"
+  },
+  "2:5:4": {
+    "type": 2,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "2:5:5": {
+    "type": 2,
+    "byte": 5,
+    "bit": 5,
+    "building": "Золотой павильон",
+    "complete": "",
+    "sod_en": "Golden Pavilion"
+  },
+  "2:5:6": {
+    "type": 2,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.золотой павильон",
+    "complete": "Золотой сад",
+    "sod_en": "Upg. Golden Pavilion"
+  },
+  "2:5:7": {
+    "type": 2,
+    "byte": 5,
+    "bit": 7,
+    "building": "Заоблачный храм",
+    "complete": "Небесный храм",
+    "sod_en": "Cloud Temple"
+  },
+  "2:6:0": {
+    "type": 2,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.заоблачный храм",
+    "complete": "Небесный чертог",
+    "sod_en": "Upg. Cloud Temple"
+  },
+  "3:1:0": {
+    "type": 3,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "3:1:1": {
+    "type": 3,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "3:1:2": {
+    "type": 3,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "3:1:3": {
+    "type": 3,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "3:1:4": {
+    "type": 3,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "3:1:5": {
+    "type": 3,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "3:1:6": {
+    "type": 3,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "3:1:7": {
+    "type": 3,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "3:2:0": {
+    "type": 3,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "3:2:1": {
+    "type": 3,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "3:2:2": {
+    "type": 3,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:2:3": {
+    "type": 3,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "3:2:4": {
+    "type": 3,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "3:2:5": {
+    "type": 3,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "3:2:6": {
+    "type": 3,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "3:2:7": {
+    "type": 3,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "3:3:0": {
+    "type": 3,
+    "byte": 3,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:3:1": {
+    "type": 3,
+    "byte": 3,
+    "bit": 1,
+    "building": "Бог Огня",
+    "complete": "",
+    "sod_en": "Deity of Fire"
+  },
+  "3:3:2": {
+    "type": 3,
+    "byte": 3,
+    "bit": 2,
+    "building": "Серные тучи",
+    "complete": "Облака серы",
+    "sod_en": "Brimstone Stormclouds"
+  },
+  "3:3:3": {
+    "type": 3,
+    "byte": 3,
+    "bit": 3,
+    "building": "Врата замка",
+    "complete": "Врата города",
+    "sod_en": "Castle Gate"
+  },
+  "3:3:4": {
+    "type": 3,
+    "byte": 3,
+    "bit": 4,
+    "building": "Орден огня",
+    "complete": "",
+    "sod_en": "Order of Fire"
+  },
+  "3:3:5": {
+    "type": 3,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:3:6": {
+    "type": 3,
+    "byte": 3,
+    "bit": 6,
+    "building": "Котел бесов",
+    "complete": "Тигель бесов",
+    "sod_en": "Imp Crucible"
+  },
+  "3:3:7": {
+    "type": 3,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.котел бесов",
+    "complete": "Котел бесов",
+    "sod_en": "Upg. Imp Crucible"
+  },
+  "3:4:0": {
+    "type": 3,
+    "byte": 4,
+    "bit": 0,
+    "building": "Инкубатор",
+    "complete": "",
+    "sod_en": "Birthing Pools"
+  },
+  "3:4:1": {
+    "type": 3,
+    "byte": 4,
+    "bit": 1,
+    "building": "Дворец пророков",
+    "complete": "Зал грехов",
+    "sod_en": "Hall of Sins"
+  },
+  "3:4:2": {
+    "type": 3,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.дворец пророков",
+    "complete": "Храм грехов",
+    "sod_en": "Upg. Hall of Sins"
+  },
+  "3:4:3": {
+    "type": 3,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:4:4": {
+    "type": 3,
+    "byte": 4,
+    "bit": 4,
+    "building": "Псарни",
+    "complete": "",
+    "sod_en": "Kennels"
+  },
+  "3:4:5": {
+    "type": 3,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.псарни",
+    "complete": "Большие псарни",
+    "sod_en": "Upg. Kennels"
+  },
+  "3:4:6": {
+    "type": 3,
+    "byte": 4,
+    "bit": 6,
+    "building": "Клетки",
+    "complete": "",
+    "sod_en": "Cages"
+  },
+  "3:4:7": {
+    "type": 3,
+    "byte": 4,
+    "bit": 7,
+    "building": "Врата демонов",
+    "complete": "",
+    "sod_en": "Demon Gate"
+  },
+  "3:5:0": {
+    "type": 3,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.врата демонов",
+    "complete": "Врата Ада",
+    "sod_en": "Upg. Demon Gate"
+  },
+  "3:5:1": {
+    "type": 3,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:5:2": {
+    "type": 3,
+    "byte": 5,
+    "bit": 2,
+    "building": "Провал",
+    "complete": "Геенна",
+    "sod_en": "Hell Hole"
+  },
+  "3:5:3": {
+    "type": 3,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.провал",
+    "complete": "Преисподняя",
+    "sod_en": "Upg. Hell Hole"
+  },
+  "3:5:4": {
+    "type": 3,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "3:5:5": {
+    "type": 3,
+    "byte": 5,
+    "bit": 5,
+    "building": "Огненное озеро",
+    "complete": "",
+    "sod_en": "Fire Lake"
+  },
+  "3:5:6": {
+    "type": 3,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.огненное озеро",
+    "complete": "Огненное море",
+    "sod_en": "Upg. Fire Lake"
+  },
+  "3:5:7": {
+    "type": 3,
+    "byte": 5,
+    "bit": 7,
+    "building": "Покинутый дворец",
+    "complete": "Заброшенный дворец",
+    "sod_en": "Forsaken Palace"
+  },
+  "3:6:0": {
+    "type": 3,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.покинутый дворец",
+    "complete": "Заброшенный замок",
+    "sod_en": "Upg. Forsaken Palace"
+  },
+  "4:1:0": {
+    "type": 4,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "4:1:1": {
+    "type": 4,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "4:1:2": {
+    "type": 4,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "4:1:3": {
+    "type": 4,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "4:1:4": {
+    "type": 4,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "4:1:5": {
+    "type": 4,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "4:1:6": {
+    "type": 4,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "4:1:7": {
+    "type": 4,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "4:2:0": {
+    "type": 4,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "4:2:1": {
+    "type": 4,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "4:2:2": {
+    "type": 4,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:2:3": {
+    "type": 4,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "4:2:4": {
+    "type": 4,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "4:2:5": {
+    "type": 4,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "4:2:6": {
+    "type": 4,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "4:2:7": {
+    "type": 4,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "4:3:0": {
+    "type": 4,
+    "byte": 3,
+    "bit": 0,
+    "building": "Верфь",
+    "complete": "",
+    "sod_en": "Shipyard"
+  },
+  "4:3:1": {
+    "type": 4,
+    "byte": 3,
+    "bit": 1,
+    "building": "Темница душ",
+    "complete": "",
+    "sod_en": "Soul Prison"
+  },
+  "4:3:2": {
+    "type": 4,
+    "byte": 3,
+    "bit": 2,
+    "building": "Вуаль тьмы",
+    "complete": "Завеса тьмы",
+    "sod_en": "Cover of Darkness"
+  },
+  "4:3:3": {
+    "type": 4,
+    "byte": 3,
+    "bit": 3,
+    "building": "Усилитель черной магии",
+    "complete": "Усилитель некромантии",
+    "sod_en": "Necromancy Amplifier"
+  },
+  "4:3:4": {
+    "type": 4,
+    "byte": 3,
+    "bit": 4,
+    "building": "Преобразователь скелетов",
+    "complete": "Машина скелетов",
+    "sod_en": "Skeleton Transformer"
+  },
+  "4:3:5": {
+    "type": 4,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:3:6": {
+    "type": 4,
+    "byte": 3,
+    "bit": 6,
+    "building": "Проклятый замок",
+    "complete": "",
+    "sod_en": "Cursed Temple"
+  },
+  "4:3:7": {
+    "type": 4,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.проклятый замок",
+    "complete": "Проклятый чертог",
+    "sod_en": "Upg. Cursed Temple"
+  },
+  "4:4:0": {
+    "type": 4,
+    "byte": 4,
+    "bit": 0,
+    "building": "Разрытые могилы",
+    "complete": "",
+    "sod_en": "Unearthed Graves"
+  },
+  "4:4:1": {
+    "type": 4,
+    "byte": 4,
+    "bit": 1,
+    "building": "Кладбище",
+    "complete": "",
+    "sod_en": "Graveyard"
+  },
+  "4:4:2": {
+    "type": 4,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.кладбище",
+    "complete": "Курган",
+    "sod_en": "Upg. Graveyard"
+  },
+  "4:4:3": {
+    "type": 4,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:4:4": {
+    "type": 4,
+    "byte": 4,
+    "bit": 4,
+    "building": "Пристанище душ",
+    "complete": "Гробница душ",
+    "sod_en": "Tomb of Souls"
+  },
+  "4:4:5": {
+    "type": 4,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.пристанище душ",
+    "complete": "Склеп душ",
+    "sod_en": "Upg. Tomb of Souls"
+  },
+  "4:4:6": {
+    "type": 4,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:4:7": {
+    "type": 4,
+    "byte": 4,
+    "bit": 7,
+    "building": "Поместье",
+    "complete": "",
+    "sod_en": "Estate"
+  },
+  "4:5:0": {
+    "type": 4,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.поместье",
+    "complete": "Большое поместье",
+    "sod_en": "Upg. Estate"
+  },
+  "4:5:1": {
+    "type": 4,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:5:2": {
+    "type": 4,
+    "byte": 5,
+    "bit": 2,
+    "building": "Мавзолей",
+    "complete": "",
+    "sod_en": "Mausoleum"
+  },
+  "4:5:3": {
+    "type": 4,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.мавзолей",
+    "complete": "Старый мавзолей",
+    "sod_en": "Upg. Mausoleum"
+  },
+  "4:5:4": {
+    "type": 4,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "4:5:5": {
+    "type": 4,
+    "byte": 5,
+    "bit": 5,
+    "building": "Дворец тьмы",
+    "complete": "Чертог Тьмы",
+    "sod_en": "Hall of Darkness"
+  },
+  "4:5:6": {
+    "type": 4,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.дворец тьмы",
+    "complete": "Храм Тьмы",
+    "sod_en": "Upg. Hall of Darkness"
+  },
+  "4:5:7": {
+    "type": 4,
+    "byte": 5,
+    "bit": 7,
+    "building": "Склеп драконов",
+    "complete": "Склеп дракона",
+    "sod_en": "Dragon Vault"
+  },
+  "4:6:0": {
+    "type": 4,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.склеп драконов",
+    "complete": "Гробница дракона",
+    "sod_en": "Upg. Dragon Vault"
+  },
+  "5:1:0": {
+    "type": 5,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "5:1:1": {
+    "type": 5,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "5:1:2": {
+    "type": 5,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "5:1:3": {
+    "type": 5,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "5:1:4": {
+    "type": 5,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "5:1:5": {
+    "type": 5,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "5:1:6": {
+    "type": 5,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "5:1:7": {
+    "type": 5,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "5:2:0": {
+    "type": 5,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "5:2:1": {
+    "type": 5,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "5:2:2": {
+    "type": 5,
+    "byte": 2,
+    "bit": 2,
+    "building": "Торговцы артефактами",
+    "complete": "Торговец артефактами",
+    "sod_en": "Artifact Merchants"
+  },
+  "5:2:3": {
+    "type": 5,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "5:2:4": {
+    "type": 5,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "5:2:5": {
+    "type": 5,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "5:2:6": {
+    "type": 5,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "5:2:7": {
+    "type": 5,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "5:3:0": {
+    "type": 5,
+    "byte": 3,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:3:1": {
+    "type": 5,
+    "byte": 3,
+    "bit": 1,
+    "building": "Хранитель земли",
+    "complete": "Страж земли",
+    "sod_en": "Guardian of Earth"
+  },
+  "5:3:2": {
+    "type": 5,
+    "byte": 3,
+    "bit": 2,
+    "building": "Вихрь маны",
+    "complete": "",
+    "sod_en": "Mana Vortex"
+  },
+  "5:3:3": {
+    "type": 5,
+    "byte": 3,
+    "bit": 3,
+    "building": "Портал вызова",
+    "complete": "Портал",
+    "sod_en": "Portal of Summoning"
+  },
+  "5:3:4": {
+    "type": 5,
+    "byte": 3,
+    "bit": 4,
+    "building": "Академия боевых искусств",
+    "complete": "Военная академия",
+    "sod_en": "Battle Scholar Academy"
+  },
+  "5:3:5": {
+    "type": 5,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:3:6": {
+    "type": 5,
+    "byte": 3,
+    "bit": 6,
+    "building": "Загон",
+    "complete": "Садок",
+    "sod_en": "Warren"
+  },
+  "5:3:7": {
+    "type": 5,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.загон",
+    "complete": "Роща",
+    "sod_en": "Upg. Warren"
+  },
+  "5:4:0": {
+    "type": 5,
+    "byte": 4,
+    "bit": 0,
+    "building": "Грибные кольца",
+    "complete": "Кольца грибов",
+    "sod_en": "Mushroom Rings"
+  },
+  "5:4:1": {
+    "type": 5,
+    "byte": 4,
+    "bit": 1,
+    "building": "Чердак гарпий",
+    "complete": "",
+    "sod_en": "Harpy Loft"
+  },
+  "5:4:2": {
+    "type": 5,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.чердак гарпий",
+    "complete": "Хоры гарпий",
+    "sod_en": "Upg. Harpy Loft"
+  },
+  "5:4:3": {
+    "type": 5,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:4:4": {
+    "type": 5,
+    "byte": 4,
+    "bit": 4,
+    "building": "Камень глаз",
+    "complete": "Глазница",
+    "sod_en": "Pillar of Eyes"
+  },
+  "5:4:5": {
+    "type": 5,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.камень глаз",
+    "complete": "Великая глазница",
+    "sod_en": "Upg. Pillar of Eyes"
+  },
+  "5:4:6": {
+    "type": 5,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:4:7": {
+    "type": 5,
+    "byte": 4,
+    "bit": 7,
+    "building": "Часовня безмолвия",
+    "complete": "Капелла безмолвия",
+    "sod_en": "Chapel of Stilled Voices"
+  },
+  "5:5:0": {
+    "type": 5,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.часовня безмолвия",
+    "complete": "Капелла тишины",
+    "sod_en": "Upg. Stilled Voices"
+  },
+  "5:5:1": {
+    "type": 5,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:5:2": {
+    "type": 5,
+    "byte": 5,
+    "bit": 2,
+    "building": "Лабиринт",
+    "complete": "",
+    "sod_en": "Labyrinth"
+  },
+  "5:5:3": {
+    "type": 5,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.лабиринт",
+    "complete": "Великий лабиринт",
+    "sod_en": "Upg. Labyrinth"
+  },
+  "5:5:4": {
+    "type": 5,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "5:5:5": {
+    "type": 5,
+    "byte": 5,
+    "bit": 5,
+    "building": "Логово мантикор",
+    "complete": "",
+    "sod_en": "Manticore Lair"
+  },
+  "5:5:6": {
+    "type": 5,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.логово мантикор",
+    "complete": "Гнездо мантикор",
+    "sod_en": "Upg. Manticore Lair"
+  },
+  "5:5:7": {
+    "type": 5,
+    "byte": 5,
+    "bit": 7,
+    "building": "Пещера драконов",
+    "complete": "",
+    "sod_en": "Dragon Cave"
+  },
+  "5:6:0": {
+    "type": 5,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.пещера драконов",
+    "complete": "Логово драконов",
+    "sod_en": "Upg. Dragon Cave"
+  },
+  "6:1:0": {
+    "type": 6,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "6:1:1": {
+    "type": 6,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "6:1:2": {
+    "type": 6,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "6:1:3": {
+    "type": 6,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "6:1:4": {
+    "type": 6,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "6:1:5": {
+    "type": 6,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "6:1:6": {
+    "type": 6,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "6:1:7": {
+    "type": 6,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "6:2:0": {
+    "type": 6,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "6:2:1": {
+    "type": 6,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "6:2:2": {
+    "type": 6,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:2:3": {
+    "type": 6,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "6:2:4": {
+    "type": 6,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "6:2:5": {
+    "type": 6,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "6:2:6": {
+    "type": 6,
+    "byte": 2,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:2:7": {
+    "type": 6,
+    "byte": 2,
+    "bit": 7,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:3:0": {
+    "type": 6,
+    "byte": 3,
+    "bit": 0,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:3:1": {
+    "type": 6,
+    "byte": 3,
+    "bit": 1,
+    "building": "Памятник богам войны",
+    "complete": "Монумент полководца",
+    "sod_en": "Warlords' Monument"
+  },
+  "6:3:2": {
+    "type": 6,
+    "byte": 3,
+    "bit": 2,
+    "building": "Черный ход",
+    "complete": "Подземный ход",
+    "sod_en": "Escape Tunnel"
+  },
+  "6:3:3": {
+    "type": 6,
+    "byte": 3,
+    "bit": 3,
+    "building": "Гильдия наемников",
+    "complete": "",
+    "sod_en": "Freelancer's Guild"
+  },
+  "6:3:4": {
+    "type": 6,
+    "byte": 3,
+    "bit": 4,
+    "building": "Двор баллист",
+    "complete": "",
+    "sod_en": "Ballista Yard"
+  },
+  "6:3:5": {
+    "type": 6,
+    "byte": 3,
+    "bit": 5,
+    "building": "Храм валгаллы",
+    "complete": "Валгалла",
+    "sod_en": "Hall of Valhalla"
+  },
+  "6:3:6": {
+    "type": 6,
+    "byte": 3,
+    "bit": 6,
+    "building": "Казармы гоблинов",
+    "complete": "Бараки гоблинов",
+    "sod_en": "Goblin Barracks"
+  },
+  "6:3:7": {
+    "type": 6,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.казармы гоблинов",
+    "complete": "Казармы гоблинов",
+    "sod_en": "Upg. Goblin Barracks"
+  },
+  "6:4:0": {
+    "type": 6,
+    "byte": 4,
+    "bit": 0,
+    "building": "Столовая",
+    "complete": "Трапезная",
+    "sod_en": "Mess Hall"
+  },
+  "6:4:1": {
+    "type": 6,
+    "byte": 4,
+    "bit": 1,
+    "building": "Волчий загон",
+    "complete": "Волчье логово",
+    "sod_en": "Wolf Pen"
+  },
+  "6:4:2": {
+    "type": 6,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.волчий загон",
+    "complete": "Волчий загон",
+    "sod_en": "Upg. Wolf Pen"
+  },
+  "6:4:3": {
+    "type": 6,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:4:4": {
+    "type": 6,
+    "byte": 4,
+    "bit": 4,
+    "building": "Башня орков",
+    "complete": "",
+    "sod_en": "Orc Tower"
+  },
+  "6:4:5": {
+    "type": 6,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.башня орков",
+    "complete": "Крепость орков",
+    "sod_en": "Upg. Orc Tower"
+  },
+  "6:4:6": {
+    "type": 6,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:4:7": {
+    "type": 6,
+    "byte": 4,
+    "bit": 7,
+    "building": "Форт огров",
+    "complete": "",
+    "sod_en": "Ogre Fort"
+  },
+  "6:5:0": {
+    "type": 6,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.форт огров",
+    "complete": "Крепость огров",
+    "sod_en": "Upg. Ogre Fort"
+  },
+  "6:5:1": {
+    "type": 6,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:5:2": {
+    "type": 6,
+    "byte": 5,
+    "bit": 2,
+    "building": "Гнездо на скале",
+    "complete": "Гнездо на утесе",
+    "sod_en": "Cliff Nest"
+  },
+  "6:5:3": {
+    "type": 6,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.гнездо на скале",
+    "complete": "Гнездо на скале",
+    "sod_en": "Upg. Cliff Nest"
+  },
+  "6:5:4": {
+    "type": 6,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "6:5:5": {
+    "type": 6,
+    "byte": 5,
+    "bit": 5,
+    "building": "Пещера циклопов",
+    "complete": "",
+    "sod_en": "Cyclops Cave"
+  },
+  "6:5:6": {
+    "type": 6,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.пещера циклопов",
+    "complete": "Логово циклопов",
+    "sod_en": "Upg. Cyclops Cave"
+  },
+  "6:5:7": {
+    "type": 6,
+    "byte": 5,
+    "bit": 7,
+    "building": "Утес чудищ",
+    "complete": "Обиталище чудищ",
+    "sod_en": "Behemoth Lair"
+  },
+  "6:6:0": {
+    "type": 6,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.утес чудищ",
+    "complete": "Логово чудищ",
+    "sod_en": "Upg. Behemoth Lair"
+  },
+  "7:1:0": {
+    "type": 7,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "7:1:1": {
+    "type": 7,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "7:1:2": {
+    "type": 7,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "7:1:3": {
+    "type": 7,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "7:1:4": {
+    "type": 7,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "7:1:5": {
+    "type": 7,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "7:1:6": {
+    "type": 7,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "7:1:7": {
+    "type": 7,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "7:2:0": {
+    "type": 7,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "7:2:1": {
+    "type": 7,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "7:2:2": {
+    "type": 7,
+    "byte": 2,
+    "bit": 2,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:2:3": {
+    "type": 7,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "7:2:4": {
+    "type": 7,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "7:2:5": {
+    "type": 7,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "7:2:6": {
+    "type": 7,
+    "byte": 2,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:2:7": {
+    "type": 7,
+    "byte": 2,
+    "bit": 7,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:3:0": {
+    "type": 7,
+    "byte": 3,
+    "bit": 0,
+    "building": "Верфь",
+    "complete": "",
+    "sod_en": "Shipyard"
+  },
+  "7:3:1": {
+    "type": 7,
+    "byte": 3,
+    "bit": 1,
+    "building": "Плотоядное растение",
+    "complete": "",
+    "sod_en": "Carnivorous Plant"
+  },
+  "7:3:2": {
+    "type": 7,
+    "byte": 3,
+    "bit": 2,
+    "building": "Клетка богов войны",
+    "complete": "Клеть воителя",
+    "sod_en": "Cage of Warlords"
+  },
+  "7:3:3": {
+    "type": 7,
+    "byte": 3,
+    "bit": 3,
+    "building": "Знаки страха",
+    "complete": "Глифы Ужаса",
+    "sod_en": "Glyphs of Fear"
+  },
+  "7:3:4": {
+    "type": 7,
+    "byte": 3,
+    "bit": 4,
+    "building": "Обелиск крови",
+    "complete": "Кровавый обелиск",
+    "sod_en": "Blood Obelisk"
+  },
+  "7:3:5": {
+    "type": 7,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:3:6": {
+    "type": 7,
+    "byte": 3,
+    "bit": 6,
+    "building": "Хижина гноллов",
+    "complete": "Лачуга гноллов",
+    "sod_en": "Gnoll Hut"
+  },
+  "7:3:7": {
+    "type": 7,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.хижина гноллов",
+    "complete": "Хибара гноллов",
+    "sod_en": "Upg. Gnoll Hut"
+  },
+  "7:4:0": {
+    "type": 7,
+    "byte": 4,
+    "bit": 0,
+    "building": "Квартира капитана",
+    "complete": "Жилье капитана",
+    "sod_en": "Captain's Quarters"
+  },
+  "7:4:1": {
+    "type": 7,
+    "byte": 4,
+    "bit": 1,
+    "building": "Логово ящериц",
+    "complete": "Пещера ящеров",
+    "sod_en": "Lizard Den"
+  },
+  "7:4:2": {
+    "type": 7,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.логово ящериц",
+    "complete": "Логово ящеров",
+    "sod_en": "Upg. Lizard Den"
+  },
+  "7:4:3": {
+    "type": 7,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:4:4": {
+    "type": 7,
+    "byte": 4,
+    "bit": 4,
+    "building": "Улей змиев",
+    "complete": "Змеиное гнездо",
+    "sod_en": "Serpent Fly Hive"
+  },
+  "7:4:5": {
+    "type": 7,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.улей змиев",
+    "complete": "Змеиное логово",
+    "sod_en": "Upg. Serpent Fly Hive"
+  },
+  "7:4:6": {
+    "type": 7,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:4:7": {
+    "type": 7,
+    "byte": 4,
+    "bit": 7,
+    "building": "Яма василиска",
+    "complete": "Яма василисков",
+    "sod_en": "Basilisk Pit"
+  },
+  "7:5:0": {
+    "type": 7,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.яма василиска",
+    "complete": "Логово василисков",
+    "sod_en": "Upg. Basilisk Pit"
+  },
+  "7:5:1": {
+    "type": 7,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:5:2": {
+    "type": 7,
+    "byte": 5,
+    "bit": 2,
+    "building": "Логово горгон",
+    "complete": "Гнездо горгон",
+    "sod_en": "Gorgon Lair"
+  },
+  "7:5:3": {
+    "type": 7,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.логово горгон",
+    "complete": "Логово горгон",
+    "sod_en": "Upg. Gorgon Lair"
+  },
+  "7:5:4": {
+    "type": 7,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "7:5:5": {
+    "type": 7,
+    "byte": 5,
+    "bit": 5,
+    "building": "Гнездо виверн",
+    "complete": "",
+    "sod_en": "Wyvern Nest"
+  },
+  "7:5:6": {
+    "type": 7,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.гнездо виверн",
+    "complete": "Насест виверн",
+    "sod_en": "Upg. Wyvern Nest"
+  },
+  "7:5:7": {
+    "type": 7,
+    "byte": 5,
+    "bit": 7,
+    "building": "Пруд гидр",
+    "complete": "",
+    "sod_en": "Hydra Pond"
+  },
+  "7:6:0": {
+    "type": 7,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.пруд гидр",
+    "complete": "Озеро гидр",
+    "sod_en": "Upg. Hydra Pond"
+  },
+  "8:1:0": {
+    "type": 8,
+    "byte": 1,
+    "bit": 0,
+    "building": "Префектура",
+    "complete": "Ратуша",
+    "sod_en": "Town Hall"
+  },
+  "8:1:1": {
+    "type": 8,
+    "byte": 1,
+    "bit": 1,
+    "building": "Муниципалитет",
+    "complete": "Магистрат",
+    "sod_en": "City Hall"
+  },
+  "8:1:2": {
+    "type": 8,
+    "byte": 1,
+    "bit": 2,
+    "building": "Капитолий",
+    "complete": "",
+    "sod_en": "Capitol"
+  },
+  "8:1:3": {
+    "type": 8,
+    "byte": 1,
+    "bit": 3,
+    "building": "Форт",
+    "complete": "",
+    "sod_en": "Fort"
+  },
+  "8:1:4": {
+    "type": 8,
+    "byte": 1,
+    "bit": 4,
+    "building": "Цитадель",
+    "complete": "",
+    "sod_en": "Citadel"
+  },
+  "8:1:5": {
+    "type": 8,
+    "byte": 1,
+    "bit": 5,
+    "building": "Замок",
+    "complete": "",
+    "sod_en": "Castle"
+  },
+  "8:1:6": {
+    "type": 8,
+    "byte": 1,
+    "bit": 6,
+    "building": "Таверна",
+    "complete": "",
+    "sod_en": "Tavern"
+  },
+  "8:1:7": {
+    "type": 8,
+    "byte": 1,
+    "bit": 7,
+    "building": "Кузница",
+    "complete": "",
+    "sod_en": "Blacksmith"
+  },
+  "8:2:0": {
+    "type": 8,
+    "byte": 2,
+    "bit": 0,
+    "building": "Рынок",
+    "complete": "",
+    "sod_en": "Marketplace"
+  },
+  "8:2:1": {
+    "type": 8,
+    "byte": 2,
+    "bit": 1,
+    "building": "Хранилище ресурсов",
+    "complete": "Склад ресурсов",
+    "sod_en": "Resource Silo"
+  },
+  "8:2:2": {
+    "type": 8,
+    "byte": 2,
+    "bit": 2,
+    "building": "Торговцы артефактами",
+    "complete": "Торговец артефактами",
+    "sod_en": "Artifact Merchants"
+  },
+  "8:2:3": {
+    "type": 8,
+    "byte": 2,
+    "bit": 3,
+    "building": "Гильдия магов 1-го уровня",
+    "complete": "1 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 1"
+  },
+  "8:2:4": {
+    "type": 8,
+    "byte": 2,
+    "bit": 4,
+    "building": "Гильдия магов 2-го уровня",
+    "complete": "2 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 2"
+  },
+  "8:2:5": {
+    "type": 8,
+    "byte": 2,
+    "bit": 5,
+    "building": "Гильдия магов 3-го уровня",
+    "complete": "3 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 3"
+  },
+  "8:2:6": {
+    "type": 8,
+    "byte": 2,
+    "bit": 6,
+    "building": "Гильдия магов 4-го уровня",
+    "complete": "4 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 4"
+  },
+  "8:2:7": {
+    "type": 8,
+    "byte": 2,
+    "bit": 7,
+    "building": "Гильдия магов 5-го уровня",
+    "complete": "5 этаж Гильдии магов",
+    "sod_en": "Mage Guild Level 5"
+  },
+  "8:3:0": {
+    "type": 8,
+    "byte": 3,
+    "bit": 0,
+    "building": "Верфь",
+    "complete": "",
+    "sod_en": "Shipyard"
+  },
+  "8:3:1": {
+    "type": 8,
+    "byte": 3,
+    "bit": 1,
+    "building": "Радуга",
+    "complete": "Полярное сияние",
+    "sod_en": "Aurora Borealias"
+  },
+  "8:3:2": {
+    "type": 8,
+    "byte": 3,
+    "bit": 2,
+    "building": "Университет магии",
+    "complete": "Магический университет",
+    "sod_en": "Magic University"
+  },
+  "8:3:3": {
+    "type": 8,
+    "byte": 3,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:3:4": {
+    "type": 8,
+    "byte": 3,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:3:5": {
+    "type": 8,
+    "byte": 3,
+    "bit": 5,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:3:6": {
+    "type": 8,
+    "byte": 3,
+    "bit": 6,
+    "building": "Волшебный фонарь",
+    "complete": "",
+    "sod_en": "Magic Lantern"
+  },
+  "8:3:7": {
+    "type": 8,
+    "byte": 3,
+    "bit": 7,
+    "building": "Ул.волшебный фонарь",
+    "complete": "Волшебный омут",
+    "sod_en": "Upg. Magic Lantern"
+  },
+  "8:4:0": {
+    "type": 8,
+    "byte": 4,
+    "bit": 0,
+    "building": "Сад жизни",
+    "complete": "Роща Жизни",
+    "sod_en": "Garden of Life"
+  },
+  "8:4:1": {
+    "type": 8,
+    "byte": 4,
+    "bit": 1,
+    "building": "Алтарь воздуха",
+    "complete": "",
+    "sod_en": "Altar of Air"
+  },
+  "8:4:2": {
+    "type": 8,
+    "byte": 4,
+    "bit": 2,
+    "building": "Ул.алтарь воздуха",
+    "complete": "Храм грома",
+    "sod_en": "Upg. Altar of Air"
+  },
+  "8:4:3": {
+    "type": 8,
+    "byte": 4,
+    "bit": 3,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:4:4": {
+    "type": 8,
+    "byte": 4,
+    "bit": 4,
+    "building": "Алтарь воды",
+    "complete": "",
+    "sod_en": "Altar of Water"
+  },
+  "8:4:5": {
+    "type": 8,
+    "byte": 4,
+    "bit": 5,
+    "building": "Ул.алтарь воды",
+    "complete": "Храм льда",
+    "sod_en": "Upg. Altar of Water"
+  },
+  "8:4:6": {
+    "type": 8,
+    "byte": 4,
+    "bit": 6,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:4:7": {
+    "type": 8,
+    "byte": 4,
+    "bit": 7,
+    "building": "Алтарь огня",
+    "complete": "",
+    "sod_en": "Altar of Fire"
+  },
+  "8:5:0": {
+    "type": 8,
+    "byte": 5,
+    "bit": 0,
+    "building": "Ул.алтарь огня",
+    "complete": "Храм энергии",
+    "sod_en": "Upg. Altar of Fire"
+  },
+  "8:5:1": {
+    "type": 8,
+    "byte": 5,
+    "bit": 1,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:5:2": {
+    "type": 8,
+    "byte": 5,
+    "bit": 2,
+    "building": "Алтарь земли",
+    "complete": "",
+    "sod_en": "Altar of Earth"
+  },
+  "8:5:3": {
+    "type": 8,
+    "byte": 5,
+    "bit": 3,
+    "building": "Ул.алтарь земли",
+    "complete": "Храм магмы",
+    "sod_en": "Upg. Altar of Earth"
+  },
+  "8:5:4": {
+    "type": 8,
+    "byte": 5,
+    "bit": 4,
+    "building": "",
+    "complete": "",
+    "sod_en": ""
+  },
+  "8:5:5": {
+    "type": 8,
+    "byte": 5,
+    "bit": 5,
+    "building": "Алтарь мысли",
+    "complete": "Алтарь разума",
+    "sod_en": "Altar of Thought"
+  },
+  "8:5:6": {
+    "type": 8,
+    "byte": 5,
+    "bit": 6,
+    "building": "Ул.алтарь мысли",
+    "complete": "Храм магии",
+    "sod_en": "Upg. Altar of Thought"
+  },
+  "8:5:7": {
+    "type": 8,
+    "byte": 5,
+    "bit": 7,
+    "building": "Костер",
+    "complete": "Погребальный костер",
+    "sod_en": "Pyre"
+  },
+  "8:6:0": {
+    "type": 8,
+    "byte": 6,
+    "bit": 0,
+    "building": "Ул.костер",
+    "complete": "Похоронный костер",
+    "sod_en": "Upg. Pyre"
+  }
+}
