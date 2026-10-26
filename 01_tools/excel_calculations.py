@@ -810,8 +810,16 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
     for rec in mo.get("События_Ящики_Пандоры", []):
         skill_str = rec.get("secondary_skill")
         if skill_str:
-            # Parse level prefix: "Б.Лидерство" → level="Базовый", skill="Лидерство"
-            level_map = {"Б.": "Базовый", "П.": "Продвинутый", "Е.": "Экспертный"}
+            # Parse level prefix:
+            #   ru_sod/ru_wog: "Б."/"П."/"Э." → "Базовый"/"Продвинутый"/"Экспертный"
+            #   en: "B."/"A."/"E." → fallback to ru_sod full names
+            #   ru_complete: "1."/"2."/"3." → fallback to ru_sod full names
+            # All map to the same 3 levels (Basic/Advanced/Expert).
+            level_map = {
+                "Б.": "Базовый", "П.": "Продвинутый", "Е.": "Экспертный",
+                "B.": "Базовый", "A.": "Продвинутый", "E.": "Экспертный",
+                "1.": "Базовый", "2.": "Продвинутый", "3.": "Экспертный",
+            }
             level_name = None
             parsed_skill = skill_str
             for prefix, lname in level_map.items():

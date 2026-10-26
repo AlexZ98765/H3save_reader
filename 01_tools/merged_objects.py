@@ -670,12 +670,17 @@ def merge_resources(tile_objects: List[Dict[str, Any]],
 
         # For guarded Resource piles (type 79), link to ArtRes by art_res_num
         # to attach guard info (matches PRT AnalysisContent logic).
+        # NOTE: PRT's ArtResContent checks row["Type"] == 1 to ensure the
+        # ArtRes record is a resource-type entry (not artifact). OUR's
+        # post_tile_parser doesn't track art_type (hardcoded to 0), so we
+        # can't check it. But we trust that art_res_num (computed per PRT
+        # formula from raw bytes) points to the correct ArtRes record — each
+        # tile has its own unique art_res_num, so there's no ambiguity.
+        # We just link the guard unconditionally when has_guard is True.
         linked_guard = None
         if res_info.get("has_guard") and res_info.get("art_res_num", 0) < len(art_res_records):
             ar = art_res_records[res_info["art_res_num"]]
-            # Verify this ArtRes is a resource (Type=1), not artifact (Type=0)
-            if ar.get("art_type", 0) == 1:
-                linked_guard = _serialize_guard(ar.get("guard", [])) or None
+            linked_guard = _serialize_guard(ar.get("guard", [])) or None
 
         rec = {
             "x": obj.get('x'),
@@ -764,7 +769,18 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
     name_to_prskill = dict(zip(PRSKILL_NAMES, A_PRSKILL))
 
     # Secondary skill level prefixes (PRT aLevelSkill)
-    A_LEVELSKILL = ["Б.", "А.", "Е."]  # Basic, Advanced, Expert
+    # Use localizer if available (returns "Б."/"П."/"Э." for ru_sod, ru_wog;
+    # "1."/"2."/"3." for ru_complete; "B."/"A."/"E." for en).
+    # Previously was hardcoded as ["Б.", "А.", "Е."] — the "А." was wrong
+    # (English "Advanced" first letter, not Russian "П" = "Продвинутый").
+    # PRT 0000.xlsx output uses ru_sod = "Б."/"П."/"Э.", so we match it.
+    if localizer:
+        A_LEVELSKILL = [localizer.level_skill(i) for i in range(3)]
+        # Fallback if localizer returned empty strings
+        if not all(A_LEVELSKILL):
+            A_LEVELSKILL = ["Б.", "П.", "Э."]
+    else:
+        A_LEVELSKILL = ["Б.", "П.", "Э."]
 
     records = []
     for i, event_tile in enumerate(events_sorted):
