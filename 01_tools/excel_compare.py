@@ -74,18 +74,30 @@ from openpyxl.styles import Font, PatternFill, Alignment
 #
 # Algorithm:
 #   1. For each section, for each ID, gather non-empty entries across all 4
-#      languages → that's a synonym group.
-#   2. Pick canonical form: first Cyrillic entry (prefer Russian), else first.
-#   3. Build reverse-lookup: lowercased_string → canonical_form.
+#      languages → that's a raw synonym group.
+#   2. MERGE groups that share at least one member (transitive closure via
+#      union-find). Necessary because some strings appear in MULTIPLE groups
+#      with different meanings — e.g. "Стрелок" appears in Monstr ID=2 (Archer,
+#      ru_complete), Monstr ID=3 (Marksman, ru_sod), AND Skill ID=1 (Archery,
+#      ru_complete). Without merging, only the last group's canonical wins.
+#      Merging guarantees ALL groups sharing a string collapse to one class,
+#      so any two translations of the same concept always match.
+#   3. For each equivalence class, pick canonical form: first Cyrillic entry
+#      (prefer Russian), else first entry. Normalize ё→е in canonical too.
+#   4. Build reverse-lookup: lowercased_string (ё→е normalized) → canonical.
+#
+# ё/е normalization:
+#   Russian ё and е are often used interchangeably (Тяжёлый vs Тяжелый). We
+#   treat them as the same letter — normalize ё→е in BOTH keys and lookup
+#   strings, so "Тяжелый арбалетчик" matches "Тяжёлый арбалетчик".
 #
 # Cell normalization (when ignore_localization=True):
 #   1. Whole-cell match (fast path): if the entire stripped lowercase cell
-#      matches a known synonym → return canonical. Catches single-word cells
-#      like Тип="Темница" ↔ "Подземелье", Флаг="Пурпурный" ↔ "Багровый".
+#      (after ё→е) matches a known synonym → return canonical. Catches
+#      single-word cells like Тип="Темница" ↔ "Подземелье".
 #   2. Token-level match (multi-word cells): split by whitespace+comma,
 #      replace each token that matches a known synonym, rejoin. Catches
-#      "Джинн 10" ↔ "Джин 10" (where "Джинн"/"Джин" are synonyms for
-#      Monstr ID=36).
+#      "Джинн 10" ↔ "Джин 10".
 #
 # User-extensible: if localization_dictionary.json has a top-level
 # "synonyms_extra" key (list of string lists), those custom groups are also
@@ -96,12 +108,18 @@ _SYN_MAP: Optional[Dict[str, str]] = None
 _LANGS_ORDER = ["en", "ru_sod", "ru_wog", "ru_complete"]
 
 
-def _build_synonym_map() -> Dict[str, str]:
-    """Build reverse-lookup map: lowercased_string → canonical_form.
+def _normalize_yo(s: str) -> str:
+    """Replace ё→е and Ё→Е. Russian ё is often written as е in practice."""
+    return s.replace('ё', 'е').replace('Ё', 'Е')
 
-    Reads 02_format_docs/localization_dictionary.json directly. No separate
-    synonyms file is needed — synonym groups are derived 1:1 from the
-    multilingual structure (all translations of the same ID are synonyms).
+
+def _build_synonym_map() -> Dict[str, str]:
+    """Build reverse-lookup map: normalized_string → canonical_form.
+
+    Reads 02_format_docs/localization_dictionary.json directly. Uses
+    union-find to transitively merge synonym groups that share at least one
+    member (necessary when the same string appears in multiple groups with
+    different meanings, e.g. "Стрелок" is both a monster and a skill name).
     """
     try:
         import json
@@ -113,27 +131,8 @@ def _build_synonym_map() -> Dict[str, str]:
     except Exception:
         return {}
 
-    syn_map: Dict[str, str] = {}
-
-    def _add_group(synonyms):
-        """Add a list of synonymous strings to the reverse-lookup map."""
-        if not synonyms or len(synonyms) < 2:
-            return
-        # Pick canonical: prefer first Cyrillic entry, else first entry
-        canonical = None
-        for s in synonyms:
-            if isinstance(s, str) and s and not s.isascii():
-                canonical = s
-                break
-        if canonical is None:
-            canonical = synonyms[0]
-        canonical_lower = canonical.lower()
-        # Add all members to reverse-lookup (case-insensitive keys)
-        for s in synonyms:
-            if isinstance(s, str) and s:
-                syn_map[s.lower()] = canonical_lower
-
-    # 1. Iterate sections → for each ID, gather all-language translations
+    # Step 1: collect all raw synonym groups (lists of original strings)
+    raw_groups: List[List[str]] = []
     sections = data.get("sections", {})
     for sec_name, sec in sections.items():
         if not isinstance(sec, dict):
@@ -141,13 +140,11 @@ def _build_synonym_map() -> Dict[str, str]:
         langs_data = sec.get("languages", {})
         if not isinstance(langs_data, dict):
             continue
-        # Collect ALL IDs that appear in any language dict for this section
         all_ids = set()
         for lang in _LANGS_ORDER:
             lang_dict = langs_data.get(lang, {})
             if isinstance(lang_dict, dict):
                 all_ids.update(lang_dict.keys())
-        # Iterate by ID — each ID = one synonym group across languages
         for id_str in sorted(all_ids, key=lambda k: int(k) if k.isdigit() else 0):
             group = []
             seen_lower = set()
@@ -161,18 +158,77 @@ def _build_synonym_map() -> Dict[str, str]:
                 v = v.strip()
                 if not v:
                     continue
-                # Dedupe case-insensitive within a group
-                low = v.lower()
+                low = _normalize_yo(v.lower())
                 if low in seen_lower:
                     continue
                 seen_lower.add(low)
                 group.append(v)
-            _add_group(group)
+            if len(group) >= 2:
+                raw_groups.append(group)
 
-    # 2. User-extensible custom groups (for terms not in any section)
+    # User-extensible custom groups
     for group in data.get("synonyms_extra", []):
-        if isinstance(group, list):
-            _add_group(group)
+        if isinstance(group, list) and len(group) >= 2:
+            raw_groups.append(group)
+
+    # Step 2: union-find merge groups that share at least one normalized member
+    parent: Dict[str, str] = {}
+
+    def find(x: str) -> str:
+        if x not in parent:
+            parent[x] = x
+            return x
+        # Path compression
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    def union(x: str, y: str) -> None:
+        rx, ry = find(x), find(y)
+        if rx != ry:
+            parent[rx] = ry
+
+    for group in raw_groups:
+        normalized = [_normalize_yo(s.lower()) for s in group if isinstance(s, str) and s]
+        if len(normalized) < 2:
+            continue
+        base = normalized[0]
+        for other in normalized[1:]:
+            union(base, other)
+
+    # Step 3: for each equivalence class, collect all ORIGINAL (non-normalized)
+    # strings that belong to it. Pick canonical = first Cyrillic string.
+    class_strings: Dict[str, List[str]] = {}
+    for group in raw_groups:
+        for s in group:
+            if not isinstance(s, str) or not s:
+                continue
+            key = _normalize_yo(s.lower())
+            root = find(key)
+            class_strings.setdefault(root, []).append(s)
+
+    canonical_per_root: Dict[str, str] = {}
+    for root, strings in class_strings.items():
+        canonical = None
+        for s in strings:
+            if not s.isascii():  # prefer Cyrillic
+                canonical = s
+                break
+        if canonical is None:
+            canonical = strings[0] if strings else root
+        canonical_per_root[root] = _normalize_yo(canonical.lower())
+
+    # Step 4: build reverse-lookup
+    syn_map: Dict[str, str] = {}
+    for key, root in parent.items():
+        syn_map[key] = canonical_per_root.get(root, key)
+    # Also include keys that ended up as their own root (single-member "classes")
+    for root in canonical_per_root:
+        if root not in syn_map:
+            syn_map[root] = canonical_per_root[root]
 
     return syn_map
 
@@ -335,6 +391,7 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
     - None / empty string → None (canonical empty marker)
     - "0" string → 0 int (PRT often stores 0 as both "0" and None)
     - String → strip; if ignore_localization:
+        * ё→е normalization (Russian ё often written as е in practice)
         * whole-cell synonym match (case-insensitive) → canonical form
         * else tokenize by whitespace+comma, replace synonym tokens, lowercase
     - int/float → as-is
@@ -347,8 +404,8 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
             return None if s == '' else 0
         if not ignore_localization:
             return s
-        # Lowercase + synonym substitution
-        lower = s.lower()
+        # ё→е normalization + lowercase + synonym substitution
+        lower = _normalize_yo(s.lower())
         syn_map = _get_syn_map()
         # Whole-cell synonym match (fast path)
         if lower in syn_map:
@@ -360,12 +417,12 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
         for i, tok in enumerate(tokens):
             if not tok or tok.isspace() or tok == ',':
                 continue
-            low = tok.lower()
-            if low in syn_map:
-                tokens[i] = syn_map[low]
+            tok_low = _normalize_yo(tok.lower())
+            if tok_low in syn_map:
+                tokens[i] = syn_map[tok_low]
                 any_replaced = True
         result = ''.join(tokens) if any_replaced else s
-        return result.lower()
+        return _normalize_yo(result.lower())
     # Numbers (int, float)
     return v
 
