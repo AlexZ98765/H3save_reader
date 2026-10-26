@@ -64,33 +64,50 @@ from openpyxl.styles import Font, PatternFill, Alignment
 
 
 # ============================================================================
-# Synonym map — built once from 02_format_docs/synonyms.json (auto-generated
-# from localization_dictionary.json by scripts/build_synonyms.py).
+# Synonym map — built once at runtime directly from
+# 02_format_docs/localization_dictionary.json (no separate synonyms file).
 #
-# All 4 languages (en, ru_sod, ru_wog, ru_complete) for the SAME concept ID
-# are treated as synonyms. Example: Color[5] = ["Purple", "Багровый",
-# "Пурпурный", "Лиловый"] — all map to canonical form "багровый".
+# All 4 languages (en, ru_sod, ru_wog, ru_complete) for the SAME ID in the
+# SAME section are SYNONYMS. Example: Color section ID=5 has:
+#   en=Purple, ru_sod=Багровый, ru_wog=Пурпурный, ru_complete=Лиловый
+# All 4 are treated as equivalent — they refer to the same game color.
 #
-# Cell normalization rules (when ignore_localization=True):
-#   1. Whole-cell match: if the entire stripped lowercase cell string matches
-#      a known synonym, replace with canonical form. Catches single-word
-#      cells like Тип="Темница" ↔ "Подземелье", Флаг="Пурпурный" ↔ "Багровый".
-#   2. Token-level match: if whole-cell doesn't match, split by whitespace
-#      and comma, replace each token that matches a known synonym, rejoin.
-#      Catches multi-word cells like "Джинн 10" ↔ "Джин 10" (where "Джинн"
-#      and "Джин" are synonyms for monster ID 36).
+# Algorithm:
+#   1. For each section, for each ID, gather non-empty entries across all 4
+#      languages → that's a synonym group.
+#   2. Pick canonical form: first Cyrillic entry (prefer Russian), else first.
+#   3. Build reverse-lookup: lowercased_string → canonical_form.
+#
+# Cell normalization (when ignore_localization=True):
+#   1. Whole-cell match (fast path): if the entire stripped lowercase cell
+#      matches a known synonym → return canonical. Catches single-word cells
+#      like Тип="Темница" ↔ "Подземелье", Флаг="Пурпурный" ↔ "Багровый".
+#   2. Token-level match (multi-word cells): split by whitespace+comma,
+#      replace each token that matches a known synonym, rejoin. Catches
+#      "Джинн 10" ↔ "Джин 10" (where "Джинн"/"Джин" are synonyms for
+#      Monstr ID=36).
+#
+# User-extensible: if localization_dictionary.json has a top-level
+# "synonyms_extra" key (list of string lists), those custom groups are also
+# added — for terms NOT covered by any section.
 # ============================================================================
 
 _SYN_MAP: Optional[Dict[str, str]] = None
+_LANGS_ORDER = ["en", "ru_sod", "ru_wog", "ru_complete"]
 
 
 def _build_synonym_map() -> Dict[str, str]:
-    """Load synonyms.json and build reverse-lookup: lowercased_string → canonical."""
+    """Build reverse-lookup map: lowercased_string → canonical_form.
+
+    Reads 02_format_docs/localization_dictionary.json directly. No separate
+    synonyms file is needed — synonym groups are derived 1:1 from the
+    multilingual structure (all translations of the same ID are synonyms).
+    """
     try:
         import json
         _here = os.path.dirname(os.path.abspath(__file__))
         _docs = os.path.normpath(os.path.join(_here, "..", "02_format_docs"))
-        path = os.path.join(_docs, "synonyms.json")
+        path = os.path.join(_docs, "localization_dictionary.json")
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
@@ -98,7 +115,8 @@ def _build_synonym_map() -> Dict[str, str]:
 
     syn_map: Dict[str, str] = {}
 
-    def _add_group(synonyms: List[str]):
+    def _add_group(synonyms):
+        """Add a list of synonymous strings to the reverse-lookup map."""
         if not synonyms or len(synonyms) < 2:
             return
         # Pick canonical: prefer first Cyrillic entry, else first entry
@@ -110,18 +128,49 @@ def _build_synonym_map() -> Dict[str, str]:
         if canonical is None:
             canonical = synonyms[0]
         canonical_lower = canonical.lower()
-        # Add all members to reverse-lookup (case-insensitive)
+        # Add all members to reverse-lookup (case-insensitive keys)
         for s in synonyms:
             if isinstance(s, str) and s:
                 syn_map[s.lower()] = canonical_lower
 
-    # Auto-generated groups from localization_dictionary.json
-    for group in data.get("groups", []):
-        if isinstance(group, list):
+    # 1. Iterate sections → for each ID, gather all-language translations
+    sections = data.get("sections", {})
+    for sec_name, sec in sections.items():
+        if not isinstance(sec, dict):
+            continue
+        langs_data = sec.get("languages", {})
+        if not isinstance(langs_data, dict):
+            continue
+        # Collect ALL IDs that appear in any language dict for this section
+        all_ids = set()
+        for lang in _LANGS_ORDER:
+            lang_dict = langs_data.get(lang, {})
+            if isinstance(lang_dict, dict):
+                all_ids.update(lang_dict.keys())
+        # Iterate by ID — each ID = one synonym group across languages
+        for id_str in sorted(all_ids, key=lambda k: int(k) if k.isdigit() else 0):
+            group = []
+            seen_lower = set()
+            for lang in _LANGS_ORDER:
+                lang_dict = langs_data.get(lang, {})
+                if not isinstance(lang_dict, dict):
+                    continue
+                v = lang_dict.get(id_str)
+                if not isinstance(v, str):
+                    continue
+                v = v.strip()
+                if not v:
+                    continue
+                # Dedupe case-insensitive within a group
+                low = v.lower()
+                if low in seen_lower:
+                    continue
+                seen_lower.add(low)
+                group.append(v)
             _add_group(group)
 
-    # User-extensible custom groups (for synonyms not in localization dict)
-    for group in data.get("groups_extra", []):
+    # 2. User-extensible custom groups (for terms not in any section)
+    for group in data.get("synonyms_extra", []):
         if isinstance(group, list):
             _add_group(group)
 

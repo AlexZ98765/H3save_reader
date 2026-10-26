@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Multilingual name dictionary for HoMM3 SoD/HotA objects, parsed from the original editor Data/*.txt files. Each language is a DICT keyed by integer ID (as string), preserving the IDs from the source files.",
+    "description": "Multilingual name dictionary for HoMM3 SoD/HotA objects, parsed from the original editor Data/*.txt files. Each language is a DICT keyed by integer ID (as string), preserving the IDs from the source files. Also serves as the single source of truth for synonym groups — all translations of the same ID across languages are treated as synonyms by excel_compare.py.",
     "sources": {
       "en": "SoD_En.txt (English, ASCII)",
       "ru_sod": "SoD_Ru.txt (Russian SoD localization, cp1251)",
@@ -21,7 +21,13 @@
       "Use localizer.section(name, int_id) for language-aware lookup.",
       "If a string is missing for a specific language, fallback to default (ru_sod).",
       "IDs preserved 1:1 from source files — same IDs used in save file binary data.",
-      "To extend: add new entries to 02_format_docs/localization_dictionary.json in the appropriate section/language dict, or extend the .txt source files and re-run scripts/build_localization_dict.py."
+      "Synonym groups are derived AUTOMATICALLY at runtime by excel_compare.py:",
+      "  all translations of the same (section, id) across the 4 languages are synonyms.",
+      "No separate synonyms.json file needed — this file is the single source of truth.",
+      "To extend with custom synonym groups (for terms NOT in any section), add them",
+      "to the top-level 'synonyms_extra' key (list of string lists).",
+      "To extend with new translations, add entries to the appropriate section/language",
+      "dict, or extend the .txt source files and re-run scripts/build_localization_dict.py."
     ]
   },
   "language_aliases": {
@@ -2666,5 +2672,6 @@
         }
       }
     }
-  }
+  },
+  "synonyms_extra": []
 }
