@@ -105,6 +105,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 # ============================================================================
 
 _SYN_MAP: Optional[Dict[str, str]] = None
+_SYN_PHRASES_SORTED: Optional[List[str]] = None  # multi-word phrases, sorted by length desc
 _LANGS_ORDER = ["en", "ru_sod", "ru_wog", "ru_complete"]
 
 
@@ -225,7 +226,6 @@ def _build_synonym_map() -> Dict[str, str]:
     syn_map: Dict[str, str] = {}
     for key, root in parent.items():
         syn_map[key] = canonical_per_root.get(root, key)
-    # Also include keys that ended up as their own root (single-member "classes")
     for root in canonical_per_root:
         if root not in syn_map:
             syn_map[root] = canonical_per_root[root]
@@ -238,6 +238,65 @@ def _get_syn_map() -> Dict[str, str]:
     if _SYN_MAP is None:
         _SYN_MAP = _build_synonym_map()
     return _SYN_MAP
+
+
+def _get_syn_phrases() -> List[str]:
+    """Return multi-word synonym phrases sorted by length (longest first).
+
+    Used for phrase-level matching in _norm_cell. A 'phrase' is a synonym
+    that contains whitespace (e.g., 'тяжелый арбалетчик', 'хозяин зверей').
+    We try to match the longest phrases first to avoid partial matches.
+    """
+    global _SYN_PHRASES_SORTED
+    if _SYN_PHRASES_SORTED is None:
+        syn_map = _get_syn_map()
+        phrases = [k for k in syn_map.keys() if ' ' in k or '\t' in k]
+        # Sort by length descending — try longest phrases first
+        _SYN_PHRASES_SORTED = sorted(set(phrases), key=lambda p: -len(p))
+    return _SYN_PHRASES_SORTED
+
+
+def _apply_phrase_synonyms(s: str) -> Tuple[str, bool]:
+    """Replace any matching multi-word synonym phrase in s with its canonical.
+
+    Scans left-to-right, trying the longest known phrase at each position.
+    Returns (result_string, any_replaced).
+    """
+    phrases = _get_syn_phrases()
+    if not phrases:
+        return s, False
+    # We work on the lowercased + ё→е normalized form for matching, but we
+    # need to preserve original case in non-matched parts. Approach:
+    # iterate position by position, at each position try to match a phrase.
+    result_parts: List[str] = []
+    i = 0
+    any_replaced = False
+    n = len(s)
+    # Pre-compute normalized version for matching (case-insensitive, ё→е)
+    while i < n:
+        matched = False
+        # Try each phrase (sorted longest first) at position i
+        # Use lowercased+normalized comparison
+        suffix_norm = _normalize_yo(s[i:].lower())
+        for phrase in phrases:
+            # phrase is already normalized lowercased (it's a syn_map key)
+            if suffix_norm.startswith(phrase):
+                # Found a phrase match at position i. Get canonical from syn_map.
+                canonical = _get_syn_map()[phrase]
+                result_parts.append(canonical)
+                # Advance i by the ORIGINAL length of the matched phrase.
+                # But the matched phrase is normalized lowercased — we need
+                # the original length. Since ё→е is 1 char each, and
+                # lowercasing doesn't change length, we can use len(phrase).
+                i += len(phrase)
+                matched = True
+                any_replaced = True
+                break
+        if not matched:
+            # No phrase match at position i — append original char and advance
+            result_parts.append(s[i])
+            i += 1
+    return ''.join(result_parts), any_replaced
 
 
 def compare_excel_files(file_a: str, file_b: str, output_path: str,
@@ -393,7 +452,9 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
     - String → strip; if ignore_localization:
         * ё→е normalization (Russian ё often written as е in practice)
         * whole-cell synonym match (case-insensitive) → canonical form
-        * else tokenize by whitespace+comma, replace synonym tokens, lowercase
+        * else phrase-level match: scan for multi-word synonym substrings
+          (e.g., "Тяжелый арбалетчик" inside "Тяжелый арбалетчик 5, Мечник 8")
+        * else tokenize by whitespace+comma, replace single-word synonym tokens
     - int/float → as-is
     """
     if v is None:
@@ -410,19 +471,28 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
         # Whole-cell synonym match (fast path)
         if lower in syn_map:
             return syn_map[lower]
-        # Token-level synonym match for multi-word cells.
-        # Split keeping separators, replace any token that's a known synonym.
-        tokens = re.split(r'(\s+|,)', s)
-        any_replaced = False
+        # Phrase-level match for multi-word cells: try to replace multi-word
+        # synonym phrases first (e.g., "Тяжелый арбалетчик" inside a guard
+        # string). This catches cases that token-level matching misses.
+        result, any_phrase_replaced = _apply_phrase_synonyms(s)
+        # Token-level synonym match for multi-word cells (single-word synonyms).
+        # Applied AFTER phrase-level so single-word synonyms in remaining text
+        # (e.g., "Мечник" after "Тяжелый арбалетчик" was replaced) also collapse.
+        # Tokenize by whitespace+comma, replace any token that's a known synonym.
+        tokens = re.split(r'(\s+|,)', result)
+        any_token_replaced = False
         for i, tok in enumerate(tokens):
             if not tok or tok.isspace() or tok == ',':
                 continue
             tok_low = _normalize_yo(tok.lower())
             if tok_low in syn_map:
                 tokens[i] = syn_map[tok_low]
-                any_replaced = True
-        result = ''.join(tokens) if any_replaced else s
-        return _normalize_yo(result.lower())
+                any_token_replaced = True
+        if any_phrase_replaced or any_token_replaced:
+            result_final = ''.join(tokens) if any_token_replaced else result
+            return _normalize_yo(result_final.lower())
+        # No synonyms matched — just lowercase + ё→е
+        return _normalize_yo(s.lower())
     # Numbers (int, float)
     return v
 

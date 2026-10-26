@@ -486,22 +486,30 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
         if obj.get('type_id') != 54:
             continue
 
-        # Monster name + Level + HP from TblMonsters (PRT-exact names)
+        # Monster name + Level + HP.
+        # Use localizer.monstr() (ru_sod) for NAME — matches PRT's binary output
+        # exactly. Use get_monster_info() only for metadata (level, hp, altar,
+        # town) — those are structural, not name translations.
         monster_id = obj.get('monster_type', 0)
+        monster_name = localizer.monstr(monster_id) if localizer else None
+        level = 0
+        base_hp = 0
         if _has_meta:
             info = get_monster_info(monster_id)
             if info:
-                monster_name = info.get("name", f"M{monster_id}")
+                # Only use metadata from tbl_monsters_mapping — NOT the name
+                # (tbl_monsters_mapping has ru_wog names which differ from
+                # PRT's actual ru_sod binary output).
+                if not monster_name:
+                    monster_name = info.get("name", f"M{monster_id}")
                 level = int(info.get("level", 0))
                 base_hp = int(info.get("hp", 0))
             else:
-                monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
-                level = 0
-                base_hp = 0
+                if not monster_name:
+                    monster_name = f"M{monster_id}"
         else:
-            monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
-            level = 0
-            base_hp = 0
+            if not monster_name:
+                monster_name = f"M{monster_id}"
 
         count = obj.get('count', 0)
         mood = obj.get('mood', 0)
@@ -1058,12 +1066,15 @@ def merge_banks(tile_objects: List[Dict[str, Any]],
         monster_reward_count = pb.get("monster_reward_count", 0)
         monster_str = None
         if monster_reward_id is not None and 0 <= monster_reward_id < 255:
-            if _has_meta:
-                mname = get_monster_name(monster_reward_id) or (
-                    localizer.monstr(monster_reward_id) if localizer else f"M{monster_reward_id}"
+            # Primary: localizer (ru_sod) — matches PRT's binary output exactly.
+            # Fallback: tbl_monsters_mapping only if localizer missing.
+            if localizer:
+                mname = localizer.monstr(monster_reward_id) or (
+                    get_monster_name(monster_reward_id) if _has_meta else f"M{monster_reward_id}"
                 )
             else:
-                mname = localizer.monstr(monster_reward_id) if localizer else f"M{monster_reward_id}"
+                mname = (get_monster_name(monster_reward_id) if _has_meta
+                         else f"M{monster_reward_id}")
             # PRT format: "<name> <count>" (e.g., "Виверн 4")
             monster_str = f"{mname} {monster_reward_count}" if monster_reward_count > 0 else mname
 
@@ -1528,16 +1539,16 @@ def merge_refugee_camps(tile_objects: List[Dict[str, Any]],
         monster_id = raw[s + monster_id_off]
         count = raw[s + count_off]
 
-        # Look up monster name and level from TblMonsters (PRT-exact names)
-        monster_info = get_monster_info(monster_id)
-        if monster_info:
-            # PRT-style name (e.g., "Скелет", "Крестоносец" — matches PRT 0000.xlsx)
-            monster_name = monster_info.get("name", f"M{monster_id}")
-            level = int(monster_info.get("level", 0))
-        else:
-            # Fallback to localizer for name (will differ from PRT but still readable)
-            monster_name = localizer.monstr(monster_id) if localizer else f"M{monster_id}"
-            level = 0
+        # Look up monster name (localizer first — matches PRT binary output)
+        # and level/HP metadata from TblMonsters.
+        monster_info = get_monster_info(monster_id) if _has_meta else None
+        monster_name = localizer.monstr(monster_id) if localizer else None
+        if not monster_name:
+            if monster_info:
+                monster_name = monster_info.get("name", f"M{monster_id}")
+            else:
+                monster_name = f"M{monster_id}"
+        level = int(monster_info.get("level", 0)) if monster_info else 0
 
         records.append({
             "x": obj.get('x'),

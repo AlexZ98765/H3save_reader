@@ -339,10 +339,16 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
     def _hero_class_name(idx):
         return loc.hero_class(idx) if loc and isinstance(idx, int) and idx >= 0 else ""
 
-    # ----- Monster name lookup (PRT TblMonsters, then localizer fallback) -----
-    # PRT uses hardcoded TblMonsters table (e.g., "Джинн", "Скелет", "Змий-дракон").
-    # Our localizer (ru_sod) has slightly different names ("Джин", "Стрекоза").
-    # Use TblMonsters first for PRT-exact matching; fall back to localizer.
+    # ----- Monster name lookup (localizer first, PRT TblMonsters fallback) -----
+    # IMPORTANT: Use localizer.monstr() (ru_sod) FIRST — this returns the same
+    # Russian names PRT's actual binary outputs ("Стрелок", "Рыцарь", "Джин").
+    # The 02_format_docs/tbl_monsters_mapping.json (art_metadata.get_monster_name)
+    # has ru_wog-style names ("Тяжелый арбалетчик", "Мечник", "Джинн") which
+    # differ from PRT's actual output. Using localizer first means OUR's
+    # monster names match PRT exactly, eliminating the need for synonym
+    # string-matching at compare time.
+    # tbl_monsters_mapping.json is still used for HP/level/town metadata
+    # (via excel_calculations), but NOT for name lookup.
     try:
         from art_metadata import get_monster_name as _prt_monster_name
         _has_prt_names = True
@@ -368,17 +374,24 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         aggregate_all_skills = aggregate_all_experience = None
 
     def _mon_name(idx):
-        """Return localized monster name. Tries PRT TblMonsters first (for
-        PRT-exact match), falls back to localizer (ru_sod) if not found.
-        Returns empty string for invalid indices.
+        """Return localized monster name. Uses localizer (ru_sod) FIRST —
+        this matches PRT's actual binary output exactly. Falls back to
+        tbl_monsters_mapping (ru_wog) only if localizer doesn't have the
+        entry. Returns empty string for invalid indices.
         """
         if not isinstance(idx, int) or idx < 0:
             return ""
+        # Primary: localizer (ru_sod) — matches PRT's binary output exactly
+        if loc:
+            name = loc.monstr(idx)
+            if name:
+                return name
+        # Fallback: PRT TblMonsters (ru_wog) — only if localizer missing
         if _has_prt_names:
             name = _prt_monster_name(idx)
             if name:
                 return name
-        return loc.monstr(idx) if loc else ""
+        return ""
 
     def _sanitize(val):
         """Convert any list/dict/tuple to string for safe Excel output."""
@@ -1490,33 +1503,97 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             if sp_addr and sp_addr - 16 >= 0 and sp_addr - 16 < len(raw):
                 built_byte = raw[sp_addr - 16]
 
-            # Create 1 row per spell level
+            # Read "Available" flags from byte at spell_off - 8
+            # PRT GetTownSpell line 7594: if ((decmp[num - 8] >> i) & 1) > 0 row.Available = "Да"
+            avail_byte = 0
+            if sp_addr and sp_addr - 8 >= 0 and sp_addr - 8 < len(raw):
+                avail_byte = raw[sp_addr - 8]
+
+            # Per PRT GetTownContent line 7505-7523, each town type has a
+            # max spell level (passed as `lvl` to GetTownSpell):
+            #   case 6, 7   (Inferno, Necropolis):   lvl=3 (max 3 levels)
+            #   case 0      (Castle):                 lvl=4 (max 4 levels)
+            #   case 2      (Tower):                 lvl=6 (max 5 + Library)
+            #   case 1, 3, 4, 5, 8 (others):         lvl=5 (max 5 levels)
+            # Inside GetTownSpell: num2 = (lvl == 6) ? 5 : lvl → max levels to iterate.
+            max_levels = 5  # default
+            if ttype in (6, 7):
+                max_levels = 3
+            elif ttype == 0:
+                max_levels = 4
+            elif ttype == 2:
+                max_levels = 5  # lvl=6 → num2=5
+            else:
+                max_levels = 5
+
+            # PRT GetTownSpell line 7586-7588: only emit level i if ANY of:
+            #   1. (MageTimer >> (i+3)) > 0   — a timed event queues this level or higher
+            #   2. ((avail_byte >> i) & 1) > 0 — level is available (construction started)
+            #   3. ((built_byte >> i) & 1) > 0 — level is already built
+            # If none of these, PRT SKIPS the level (no row emitted).
+            # This is why PRT shows fewer levels than OUR used to.
+            #
+            # MageTimer check: MageTimer is OR of byte[1] of buildings bitmask
+            # across all timed events for this town. byte[1] bits 3..7 encode
+            # Mage Guild levels 1..5 (per TblBuilding). So:
+            #   - bit 3 set → level 1 queued
+            #   - bit 4 set → level 2 queued
+            #   - ...
+            #   - bit 7 set → level 5 queued
+            # `MageTimer >> (i+3) > 0` checks if ANY bit at position i+3 OR
+            # HIGHER is set — meaning any level >= i+1 is queued by a timer.
+
+            # Create 1 row per spell level, filtering by PRT visibility rules
             level_num = 0
             for level_idx, level_spells in enumerate(levels):
+                if level_idx >= max_levels:
+                    break  # PRT only emits up to max_levels for this town type
                 if not isinstance(level_spells, list) or not level_spells:
-                    # Empty level — PRT deletes it, but if it's the first level,
-                    # PRT shows it with Available="Да"
-                    if level_idx == 0:
-                        ws.append([f.get("x"), f.get("y"), f.get("z"),
-                                   f.get("name", "?"), ttype_name, faction_name,
-                                   1, None, None, "Да", None, None,
-                                   garrison_str, sum_hp])
-                    continue
+                    # Empty level — PRT deletes it, but only if NONE of the
+                    # visibility conditions are met. If timer/avail/built bit
+                    # is set, we still emit it (with empty spells).
+                    level_visible = (
+                        (mage_timer >> (level_idx + 3)) > 0 or
+                        ((avail_byte >> level_idx) & 1) > 0 or
+                        ((built_byte >> level_idx) & 1) > 0
+                    )
+                    if not level_visible:
+                        # Only emit empty first level as fallback (PRT behavior)
+                        if level_idx == 0 and level_num == 0:
+                            ws.append([f.get("x"), f.get("y"), f.get("z"),
+                                       f.get("name", "?"), ttype_name, faction_name,
+                                       1, None, None, "Да", timer_str, library_str,
+                                       garrison_str, sum_hp])
+                        continue
+                # Check visibility per PRT GetTownSpell line 7588
+                level_visible = (
+                    (mage_timer >> (level_idx + 3)) > 0 or
+                    ((avail_byte >> level_idx) & 1) > 0 or
+                    ((built_byte >> level_idx) & 1) > 0
+                )
+                if not level_visible:
+                    continue  # PRT skips this level (no row emitted)
                 level_num = level_idx + 1
                 # Spell names for this level
                 spell_names = [_spl_name(sid) or str(sid) for sid in level_spells
-                               if sid is not None and sid >= 0]
+                               if sid is not None and sid >= 0] if level_spells else []
                 spells_str = ", ".join(spell_names) if spell_names else None
                 # First row gets Garrison + ∑ HP + Library; subsequent rows get None
-                is_first = (level_idx == 0)
+                is_first = (level_num == 1)
                 # Built: bit i of built_byte → "Да" if set, else None
                 built_str = "Да" if (built_byte >> level_idx) & 1 else None
+                # Available: bit i of avail_byte → "Да" if set, else "Нет"
+                # PRT line 7594-7600: if bit set → "Да", else → "Нет"
+                avail_str = "Да" if (avail_byte >> level_idx) & 1 else "Нет"
+                # Timer: per-level check — if MageTimer bit (i+3) is set, this
+                # level is queued by a timed event → "Да" (PRT line 7590-7592)
+                level_timer_str = "Да" if (mage_timer >> (level_idx + 3)) > 0 else None
                 ws.append([f.get("x"), f.get("y"), f.get("z"),
                            f.get("name", "?"), ttype_name, faction_name,
                            level_num, spells_str,
                            built_str,
-                           "Да",  # Доступен — default "Да" for existing levels
-                           timer_str,  # Таймер — "Да" if MageTimer != 0, else None
+                           avail_str,
+                           level_timer_str,
                            library_str if is_first else None,
                            garrison_str if is_first else None,
                            sum_hp if is_first else None])
@@ -1524,7 +1601,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             if level_num == 0:
                 ws.append([f.get("x"), f.get("y"), f.get("z"),
                            f.get("name", "?"), ttype_name, faction_name,
-                           1, None, None, "Да", timer_str, None,
+                           1, None, None, "Да", timer_str, library_str,
                            garrison_str, sum_hp])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
