@@ -1208,14 +1208,34 @@ def merge_seer_huts(tile_objects: List[Dict[str, Any]],
 def merge_pass_guards(tile_objects: List[Dict[str, Any]],
                       post_tile_content: Dict[str, Any]
                       ) -> List[Dict[str, Any]]:
-    """Merge border guard tile objects + post-tile PassGuard content."""
+    """Merge border guard tile objects + post-tile PassGuard content.
+
+    IMPORTANT: PRT AnalysisContent (MainForm.cs:6818) sorts TblPassGuard by
+    Num field, then iterates in that order to parse save bytes. This means
+    post_tile_content["pass_guards"][i] corresponds to the PassGuard with
+    Num == i.
+
+    OUR's tile scan stores `num` field for each tile object. To match
+    tile_pg[i] with the correct post_pg entry, we use tile_pg[i].num as
+    index into post_pg (which is already in Num-sorted order).
+
+    Without this fix, positional matching (tile_pg[i] ↔ post_pg[i]) produces
+    SHIFTED results because tile scan order != Num order.
+    """
     pass_guards = []
     tile_pg = [obj for obj in tile_objects if obj.get('type_id') == 215]
     post_pg = post_tile_content.get("pass_guards", [])
 
-    for i, pp in enumerate(post_pg):
-        pp = _to_dict(pp)
-        tp = tile_pg[i] if i < len(tile_pg) else {}
+    for i, tp in enumerate(tile_pg):
+        # Use `num` field to find the matching post_pg entry
+        num = tp.get("num")
+        if num is not None and 0 <= num < len(post_pg):
+            pp = _to_dict(post_pg[num])
+        elif i < len(post_pg):
+            # Fallback: positional matching (only if num is missing/invalid)
+            pp = _to_dict(post_pg[i])
+        else:
+            pp = {}
         pass_guards.append({
             "x": tp.get('x'),
             "y": tp.get('y'),

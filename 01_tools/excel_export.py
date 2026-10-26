@@ -972,31 +972,154 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Стражи Прохода ──
+        # PRT PassGuardContent (MainForm.cs:8740) formats missions per type:
+        #   0: empty
+        #   1: "Достичь уровня N"
+        #   2: "Получить навык A4, P4" (primary skills)
+        #   3: "{hero_id" (defeat hero)
+        #   4: "Победить монстра Name (X.Y.Z)"
+        #   5: "Принести артефакты Art1, Art2"
+        #   6: "Принести монстров Name1 count1, Name2 count2"
+        #   7: "Принести ресурсы W6, G7, Золото N"
+        #   8: "}hero_id" (be hero)
+        #   9: "Иметь цвет флага Color"
+        # Uses localizer for quest/color/mine/monster/artifact names (ru_sod).
         ws = wb.create_sheet("Стражи Прохода")
         ws.append(["X", "Y", "Z", "Район", "Задание", "Срок"])
+        # Resource letters (DEFAULT aResource[]) — used for resource amounts
+        _A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+        _A_RESOURCE_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+
+        def _fmt_pass_guard_mission(rec):
+            """Format PassGuard mission string per PRT PassGuardContent."""
+            mtype = rec.get("mission_type", 0)
+            mission = rec.get("mission", {}) or {}
+            if not mtype:
+                return None
+            # aQuest indices (0-based): 0..8 = 9 quest types
+            # (localizer.quest(idx) returns localized name)
+            if mtype == 1:
+                # "Достичь уровня N"
+                lvl = mission.get("level", 0)
+                return f"{loc.quest(0)} {lvl}" if loc else f"Достичь уровня {lvl}"
+            elif mtype == 2:
+                # "Получить навык A4, P4" — primary skill SINGLE LETTER codes
+                # PRT uses aPrSkill = ["A", "D", "P", "K"] (Attack/Defense/Power/Knowledge)
+                ps = mission.get("primary_skills", {})
+                if isinstance(ps, dict) and ps:
+                    # Map full English name → single letter
+                    _PSKILL_LETTERS = {"Attack": "A", "Defense": "D", "Power": "P", "Knowledge": "K"}
+                    parts = [f"{_PSKILL_LETTERS.get(k, k[:1].upper())}{v}" for k, v in ps.items()]
+                    return f"{loc.quest(1)} {', '.join(parts)}" if loc else f"Получить навык {', '.join(parts)}"
+                return loc.quest(1) if loc else "Получить навык"
+            elif mtype == 3:
+                # "Победить героя Name (X.Y.Z)" — resolve hero_id → hero name
+                hero_id = mission.get("hero_id", -1)
+                heroes_list = parsed.get("heroes_found", []) or []
+                hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+                hero_name = hero.get("name", "") or f"H{hero_id}"
+                hero_place = hero.get("place") or ""
+                if hero_place and "." in str(hero_place):
+                    return f"{loc.quest(7)} {hero_name} ({hero_place})" if loc else f"Победить героя {hero_name} ({hero_place})"
+                return f"{loc.quest(7)} {hero_name}" if loc else f"Победить героя {hero_name}"
+            elif mtype == 4:
+                # "Победить монстра Name (X.Y.Z)"
+                mid = mission.get("monster_id", -1)
+                mx = mission.get("x", 0)
+                my = mission.get("y", 0)
+                mz = mission.get("bit", 0)
+                if loc and mid >= 0:
+                    mname = loc.monstr(mid) or f"M{mid}"
+                else:
+                    mname = f"M{mid}"
+                return f"{loc.quest(2)} {mname} ({mx}.{my}.{mz})" if loc else f"Победить монстра {mname} ({mx}.{my}.{mz})"
+            elif mtype == 5:
+                # "Принести артефакты Art1, Art2"
+                arts = mission.get("artifacts", [])
+                if isinstance(arts, list) and arts:
+                    art_names = []
+                    for aid in arts:
+                        if isinstance(aid, int) and aid >= 0:
+                            if loc:
+                                n = loc.art(aid)
+                                art_names.append(n if n else f"A{aid}")
+                            else:
+                                art_names.append(str(aid))
+                    if art_names:
+                        return f"{loc.quest(3)} {', '.join(art_names)}" if loc else f"Принести артефакты {', '.join(art_names)}"
+                return loc.quest(3) if loc else "Принести артефакты"
+            elif mtype == 6:
+                # "Принести монстров Name1 count1, Name2 count2"
+                mons = mission.get("monsters", [])
+                if isinstance(mons, list) and mons:
+                    mon_parts = []
+                    for m in mons:
+                        if isinstance(m, (list, tuple)) and len(m) >= 2:
+                            mid, cnt = m[0], m[1]
+                            if isinstance(mid, int) and mid >= 0:
+                                if loc:
+                                    mname = loc.monstr(mid) or f"M{mid}"
+                                else:
+                                    mname = f"M{mid}"
+                                mon_parts.append(f"{mname} {cnt}")
+                    if mon_parts:
+                        return f"{loc.quest(4)} {', '.join(mon_parts)}" if loc else f"Принести монстров {', '.join(mon_parts)}"
+                return loc.quest(4) if loc else "Принести монстров"
+            elif mtype == 7:
+                # "Принести ресурсы W6, G7, Золото N"
+                res = mission.get("resources", {})
+                if isinstance(res, dict) and res:
+                    res_parts = []
+                    for rkey, rcount in res.items():
+                        if rcount:
+                            try:
+                                ridx = _A_RESOURCE_NAMES.index(rkey)
+                                letter = _A_RESOURCE_LETTERS[ridx]
+                                res_parts.append(f"{letter}{rcount}")
+                            except (ValueError, IndexError):
+                                if rkey == "Gold":
+                                    res_parts.append(f"Золото {rcount}")
+                                else:
+                                    res_parts.append(f"{rkey} {rcount}")
+                    if res_parts:
+                        return f"{loc.quest(5)} {', '.join(res_parts)}" if loc else f"Принести ресурсы {', '.join(res_parts)}"
+                return loc.quest(5) if loc else "Принести ресурсы"
+            elif mtype == 8:
+                # "Быть героем Name" — resolve hero_id → hero name
+                hero_id = mission.get("hero_id", -1)
+                heroes_list = parsed.get("heroes_found", []) or []
+                hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+                hero_name = hero.get("name", "") or f"H{hero_id}"
+                return f"{loc.quest(8)} {hero_name}" if loc else f"Быть героем {hero_name}"
+            elif mtype == 9:
+                # "Иметь цвет флага Color" — use loc.color(color_id) for localized name
+                color_id = mission.get("color_id")
+                color_val = mission.get("color")
+                if color_id is not None and isinstance(color_id, int) and loc:
+                    color_name = loc.color(color_id)
+                elif isinstance(color_val, str) and loc:
+                    # Reverse-lookup English color name → ID → localize
+                    ids = _reverse_lookup("Color", color_val) if _reverse_lookup else None
+                    if ids:
+                        color_name = loc.color(min(ids))
+                    else:
+                        color_name = color_val
+                else:
+                    color_name = color_val or "?"
+                return f"{loc.quest(6)} {color_name}" if loc else f"Иметь цвет флага {color_name}"
+            return None
+
         for rec in mo.get("Border_Guards", []):
-            mission = rec.get("mission", {})
-            mission_str = None
-            if isinstance(mission, dict):
-                if "level" in mission:
-                    mission_str = f"Достичь уровня {mission['level']}"
-                elif "primary_skills" in mission:
-                    ps = mission["primary_skills"]
-                    if isinstance(ps, dict):
-                        parts = [f"{k} {v}" for k, v in ps.items()]
-                        mission_str = "Иметь первичные навыки " + ", ".join(parts)
-                elif "hero_id" in mission:
-                    mission_str = f"Победить героя ({mission.get('mission_str', '')})"
-                elif "artifacts" in mission:
-                    arts = mission["artifacts"]
-                    if isinstance(arts, list):
-                        mission_str = f"Принести артефакты {arts}"
+            mission_str = _fmt_pass_guard_mission(rec)
             deadline = rec.get("deadline")
-            if isinstance(deadline, (list, dict, tuple)):
+            # Format deadline as PRT: concatenated digits "441" (not tuple "[4, 4, 1]")
+            if isinstance(deadline, (list, tuple)) and len(deadline) == 3:
+                deadline = f"{deadline[0]}{deadline[1]}{deadline[2]}"
+            elif isinstance(deadline, (list, dict, tuple)):
                 deadline = str(deadline)
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "море" if rec.get("locality") == "море" else "суша",
-                       _sanitize(mission_str), deadline])
+                       mission_str, deadline])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1633,7 +1756,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            rec.get("artifact_name"),
                            rec.get("class_"), rec.get("relic"),
                            rec.get("hero"), doll_name, rec.get("flag"),
-                           rec.get("place"), None, rec.get("mission"),
+                           rec.get("place"), rec.get("monster"), rec.get("mission"),
                            _guard_str(rec.get("guard")) if rec.get("guard") else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions

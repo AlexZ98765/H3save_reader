@@ -404,13 +404,19 @@ class SeerHutContent:
 
 def _decode_deadline(b0: int) -> Optional[Tuple[int, int, int]]:
     """Layout: `num2 = b0/28; num3 = (b0 - num2*28)/7; num4 = b0 - num2*28 - num3*7;`.
-    Returns (month+1, week+1, day+1) or None if b0 == 0xFF."""
+    Returns (month+1, week+1, day+1) or None if b0 == 0xFF.
+
+    PRT also checks decmp[s+1] != 0xFF — both bytes must be non-0xFF.
+    The caller should check raw[s+1] before calling this function, or
+    pass it as the second argument.
+    """
     if b0 == 0xFF:
         return None
     month = b0 // 28
     rem = b0 - month * 28
     week = rem // 7
-    day = rem - month * 28 - week * 7
+    # FIX: day = rem - week * 7 (NOT rem - month*28 - week*7 — that double-subtracts month*28)
+    day = rem - week * 7
     return (month + 1, week + 1, day + 1)
 
 
@@ -499,7 +505,11 @@ def parse_seer_hut_content(raw: bytes, s: int) -> Tuple[SeerHutContent, int]:
         rec.mission = {"hero_id": raw[s + 1], "mission_str": "}" + str(raw[s + 1])}
         s += 5
     elif t == 9:
-        rec.mission = {"color": A_COLOR[raw[s + 1]] if raw[s + 1] < 8 else "Unknown"}
+        color_id = raw[s + 1]
+        rec.mission = {
+            "color_id": color_id,
+            "color": A_COLOR[color_id] if color_id < 8 else "Unknown",
+        }
         s += 4
     else:
         s += 1
@@ -634,7 +644,11 @@ def parse_pass_guard_content(raw: bytes, s: int) -> Tuple[PassGuardContent, int]
         rec.mission = {"hero_id": raw[s + 1], "mission_str": "}" + str(raw[s + 1])}
         s += 5
     elif t == 9:
-        rec.mission = {"color": A_COLOR[raw[s + 1]] if raw[s + 1] < 8 else "Unknown"}
+        color_id = raw[s + 1]
+        rec.mission = {
+            "color_id": color_id,
+            "color": A_COLOR[color_id] if color_id < 8 else "Unknown",
+        }
         s += 4
     else:
         s += 1
