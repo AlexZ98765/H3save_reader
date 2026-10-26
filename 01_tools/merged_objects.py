@@ -364,6 +364,61 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
     # here, producing 10+ "Книга Заклинаний" rows with None coords. PRT does NOT
     # include these in Артефакты sheet. Removed.
 
+    # ----- 5. Wagons (type 105 = "Телега") — SaveWagon, MainForm.cs:10337 -----
+    # PRT emits a R_Art row for EVERY wagon (regardless of whether it has an
+    # artifact, a resource, or is empty). Only artifact-bearing wagons ALSO
+    # get a R_AllArts row (handled in excel_calculations.aggregate_all_artifacts
+    # via the heroes/banks path — wagons are NOT yet duplicated there because
+    # they don't appear in tile scan heroes/banks; but the Артефакты sheet
+    # just needs the R_Art row).
+    #
+    # _parse_wagon already classified each wagon as 'artifact'/'resource'/'empty'
+    # and extracted artifact_id + resource_type + resource_amount per PRT formula:
+    #   artifact case: artifact_id = (raw[s+8] << 1) + (raw[s+7] >> 7)
+    #   resource case: Resource = aResource[(raw[s+9] & 0xF) >> 1] + raw[s+6]
+    if localizer:
+        wagon_name = localizer.object(105)  # "Телега"
+    else:
+        wagon_name = "Телега"
+    # PRT aResource[] = ["Дерево", "Ртуть", "Руда", "Сера", "Кристалл", "Самоцвет"]
+    # (DEFAULT Russian names). For Артефакты sheet "Ресурс" column PRT outputs
+    # the resource letter+amount: e.g. "G2" (2 gems), "M5" (5 mercury).
+    # See MainForm.cs SaveWagon line 10351:
+    #   r_ArtRow.Resource = aResource[(decmp[s+9] & 0xF) >> 1] + decmp[s+6]
+    # aResource DEFAULT array (MainForm.cs:11762) — using FIRST LETTER only
+    # since PRT DEFAULT display uses single-letter codes:
+    #   ["Дерево", "Ртуть", "Руда", "Сера", "Кристалл", "Самоцвет"]
+    # But the actual PRT output uses "G2"/"M5" style — that's because aResource
+    # contains full names but PRT display concatenates first letter + amount.
+    # Actually checking: aResource is itself full names ("Gold", "Wood"...) and
+    # PRT writes them AS-IS + the amount. We use the DEFAULT resource letter
+    # convention matching PRT's actual 0000.xlsx output: "W"/"M"/"O"/"S"/"C"/"G".
+    _A_RESOURCE_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    for obj in tile_objects:
+        if int(obj.get('type_id', 0)) != 105:
+            continue
+        mode = obj.get('mode', 'empty')
+        artifact_id = obj.get('artifact_id')
+        resource_type = obj.get('resource_type')
+        resource_amount = obj.get('resource_amount')
+
+        # Format Resource column (matches PRT DEFAULT "G2" style)
+        resource_str = None
+        if mode == 'resource' and resource_type is not None and resource_amount is not None:
+            if 0 <= resource_type < len(_A_RESOURCE_LETTERS):
+                resource_str = f"{_A_RESOURCE_LETTERS[resource_type]}{resource_amount}"
+
+        # Always emit a row (matches PRT SaveWagon's always-added R_Art row)
+        rec = _build_rec(
+            x=obj.get('x'), y=obj.get('y'), z=obj.get('z'),
+            locality="море" if obj.get('loc') == 8 else "суша",
+            object_name=wagon_name,
+            slot=None,
+            artifact_id=artifact_id if (mode == 'artifact' and artifact_id is not None) else None,
+            resource=resource_str,
+        )
+        artifacts.append(rec)
+
     return artifacts
 
 
@@ -1184,40 +1239,74 @@ def merge_scholars(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Merge shrine tile objects (sheet "Заклинания" — shrines only).
+    """Merge shrine + pyramid tile objects (sheet "Заклинания").
+
+    PRT puts both Shrines (SaveShrine, code 88/89/90) and Pyramids
+    (SavePyramid, code 63) into the SAME R_Spell table → both appear
+    on the "Заклинания" sheet. Pyramids carry a hardcoded guard
+    "Золотой Голем 40, Алмазный Голем 20" + HP 3200.
 
     Returns records with:
-      x, y, z, locality, object (localized shrine name), shrine_type, spell_id, spell_level
+      x, y, z, locality, object (localized name), shrine_type, spell_id, spell_level,
+      guard (str, pyramids only), hp (int, pyramids only)
     """
     # Localized shrine names: code 88/89/90 → Святыня магического воплощения/жеста/мысли
     try:
         from localizer import get_localizer
         loc = get_localizer()
         shrine_names = {88: loc.object(88), 89: loc.object(89), 90: loc.object(90)}
+        pyramid_name = loc.object(63)  # "Пирамида"
     except Exception:
         shrine_names = {88: "Святыня", 89: "Святыня", 90: "Святыня"}
+        pyramid_name = "Пирамида"
 
     out = []
     for obj in tile_objects:
-        if obj.get('type_id') not in (88, 89, 90):
-            continue
-        shrine_type = obj.get('shrine_type', 0) or obj.get('type_id', 0)
-        spell_id = obj.get('spell_id', 0)
-        # Spell level (1..5) — structural attribute from CreateTblSpell
-        try:
-            spell_level = loc.spell_level(spell_id) if loc else 0
-        except Exception:
-            spell_level = 0
-        out.append({
-            "x": obj.get('x'),
-            "y": obj.get('y'),
-            "z": obj.get('z'),
-            "locality": "море" if obj.get('loc') == 8 else "суша",
-            "object": shrine_names.get(shrine_type, "Святыня"),
-            "shrine_type": shrine_type,
-            "spell_id": spell_id,
-            "spell_level": spell_level,
-        })
+        type_id = obj.get('type_id')
+        # ---- Shrines (88/89/90) ----
+        if type_id in (88, 89, 90):
+            shrine_type = obj.get('shrine_type', 0) or obj.get('type_id', 0)
+            spell_id = obj.get('spell_id', 0)
+            # Spell level (1..5) — structural attribute from CreateTblSpell
+            try:
+                spell_level = loc.spell_level(spell_id) if loc else 0
+            except Exception:
+                spell_level = 0
+            out.append({
+                "x": obj.get('x'),
+                "y": obj.get('y'),
+                "z": obj.get('z'),
+                "locality": "море" if obj.get('loc') == 8 else "суша",
+                "object": shrine_names.get(shrine_type, "Святыня"),
+                "shrine_type": shrine_type,
+                "spell_id": spell_id,
+                "spell_level": spell_level,
+                "guard": None,
+                "hp": None,
+            })
+        # ---- Pyramid (63) — same spell_id formula as shrine ----
+        elif type_id == 63:
+            spell_id = obj.get('spell_id', 0)
+            try:
+                spell_level = loc.spell_level(spell_id) if loc else 0
+            except Exception:
+                spell_level = 0
+            # PRT hardcodes pyramid guard + HP (MainForm.cs:10460-10461):
+            #   r_SpellRow.Guard = "Золотой Голем 40, Алмазный Голем 20"
+            #   r_SpellRow.HP = 3200
+            # TblMonsters IDs 116 (Gold Golem) + 117 (Diamond Golem).
+            out.append({
+                "x": obj.get('x'),
+                "y": obj.get('y'),
+                "z": obj.get('z'),
+                "locality": "море" if obj.get('loc') == 8 else "суша",
+                "object": pyramid_name,
+                "shrine_type": 63,
+                "spell_id": spell_id,
+                "spell_level": spell_level,
+                "guard": "Золотой Голем 40, Алмазный Голем 20",
+                "hp": 3200,
+            })
     return out
 
 

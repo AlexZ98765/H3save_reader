@@ -656,6 +656,10 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Заклинания ──
+        # Reads from mo["Заклинания_Святилища"] — now includes BOTH shrines (88/89/90)
+        # and pyramids (63) per PRT R_Spell table (SaveShrine + SavePyramid both
+        # populate the SAME table). Pyramids carry a hardcoded guard
+        # "Золотой Голем 40, Алмазный Голем 20" + HP 3200.
         ws = wb.create_sheet("Заклинания")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Заклинание", "Уровень", "Охрана", "∑ HP"])
         for rec in mo.get("Заклинания_Святилища", []):
@@ -665,9 +669,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             spell_level = rec.get("spell_level")
             if spell_level is None and loc:
                 spell_level = loc.spell_level(sid)
+            # Guard + HP — only populated for pyramids; shrines leave them None
+            guard_str = rec.get("guard")
+            hp_val = rec.get("hp")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       shrine_name, spell_name, spell_level, None, None])
+                       shrine_name, spell_name, spell_level, guard_str, hp_val])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1078,30 +1085,143 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                     parts.append(f"{letter}{amount}")
             return ", ".join(parts) if parts else None
 
-        # Helper: format buildings (None when all zero, per PRT GetTimerTown line 7014-7017).
-        def _fmt_timer_buildings(buildings):
+        # Helper: format buildings per PRT GetTimerTown (line 7018-7063).
+        # PRT decodes the 6-byte building bitmask array using TblBuilding
+        # lookup table (Type, Byte, Bit → Building name).
+        #   - For k in 0..4 (5 bytes): each byte's 8 bits → building name lookup
+        #     via (Type=town_type, Byte=k+1, Bit=l) where bit l is set
+        #   - For k=5 (byte 6): single bit (Bit=0) → one building lookup
+        # Empty Building ("") entries in TblBuilding are skipped by PRT.
+        #
+        # Load TblBuilding from 02_format_docs/tbl_building_mapping.json
+        # (extracted from MainForm.cs CreateTblBuilding).
+        _TBL_BUILDING_CACHE = None
+        def _load_tbl_building():
+            nonlocal _TBL_BUILDING_CACHE
+            if _TBL_BUILDING_CACHE is not None:
+                return _TBL_BUILDING_CACHE
+            try:
+                import json
+                import os
+                _here = os.path.dirname(os.path.abspath(__file__))
+                _docs = os.path.normpath(os.path.join(_here, "..", "02_format_docs"))
+                path = os.path.join(_docs, "tbl_building_mapping.json")
+                with open(path, "r", encoding="utf-8") as f:
+                    _TBL_BUILDING_CACHE = json.load(f)
+            except Exception:
+                _TBL_BUILDING_CACHE = {}
+            return _TBL_BUILDING_CACHE
+
+        # tbl_monsters_mapping.json — already loaded as _tbl_monsters at top
+        # of this module. Has "town" field; we need (town, level) → name.
+        _TBL_MONSTERS_CACHE = None
+        def _load_tbl_monsters():
+            nonlocal _TBL_MONSTERS_CACHE
+            if _TBL_MONSTERS_CACHE is not None:
+                return _TBL_MONSTERS_CACHE
+            try:
+                import json
+                import os
+                _here = os.path.dirname(os.path.abspath(__file__))
+                _docs = os.path.normpath(os.path.join(_here, "..", "02_format_docs"))
+                path = os.path.join(_docs, "tbl_monsters_mapping.json")
+                with open(path, "r", encoding="utf-8") as f:
+                    _TBL_MONSTERS_CACHE = json.load(f)
+            except Exception:
+                _TBL_MONSTERS_CACHE = {}
+            return _TBL_MONSTERS_CACHE
+
+        def _fmt_timer_buildings(buildings, town_type_idx):
+            """Decode 6-byte building bitmask array → PRT-style building names.
+
+            Args:
+              buildings: list of 6 ints (one per Byte 1..6, last is single-bit)
+              town_type_idx: int 0..8 (PRT aTown index: 0=Замок, 1=Оплот, 2=Башня,
+                              3=Инферно, 4=Некрополис, 5=Темница, 6=Цитадель,
+                              7=Крепость, 8=Сопряжение)
+
+            PRT logic (MainForm.cs:7018-7063):
+              for k in 0..4: (5 bytes)
+                num3 = int(array4[k])
+                for l in 0..7:
+                  if num3 & (1<<l):
+                    find TblBuilding[type=town_type, byte=k+1, bit=l]
+                    if Building != "": append
+              if int(array4[5]) > 0:
+                find TblBuilding[type=town_type, byte=6, bit=0]
+                if Building != "": append
+            """
             if not buildings or not isinstance(buildings, (list, tuple)):
+                return None
+            if len(buildings) < 6:
                 return None
             if all(b == 0 for b in buildings):
                 return None
-            # PRT uses TblBuilding table to decode bitmask → building names.
-            # For now, return raw values (matches PRT format "1, 0, 0, ...") but only when nonzero.
+            tbl = _load_tbl_building()
             parts = []
-            for b in buildings:
-                parts.append(str(b))
-            return ", ".join(parts)
+            # First 5 bytes — 8 bits each
+            for k in range(5):
+                num3 = int(buildings[k])
+                if num3 <= 0:
+                    continue
+                for l in range(8):
+                    if (num3 & (1 << l)) > 0:
+                        key = f"{town_type_idx}:{k + 1}:{l}"
+                        entry = tbl.get(key)
+                        if entry and entry.get("building"):
+                            parts.append(entry["building"])
+            # 6th byte — only bit 0
+            if int(buildings[5]) > 0:
+                key = f"{town_type_idx}:6:0"
+                entry = tbl.get(key)
+                if entry and entry.get("building"):
+                    parts.append(entry["building"])
+            return ", ".join(parts) if parts else None
 
-        # Helper: format monsters (None when all zero, per PRT GetTimerTown line 7014-7017).
-        def _fmt_timer_monsters(monsters):
+        # Helper: format monsters per PRT GetTimerTown (line 7000-7017).
+        # PRT decodes the 7-element monster count array using TblMonsters lookup
+        # (Town=town_type, Level=j+1) → monster name. Output format:
+        #   "{Monster Name} {count}, ..." (matches PRT DEFAULT "Монах 6" style).
+        def _fmt_timer_monsters(monsters, town_type_idx):
+            """Decode 7-element monster count array → PRT-style monster names.
+
+            Args:
+              monsters: list of 7 ints (one per level 1..7)
+              town_type_idx: int 0..8 (PRT aTown index)
+
+            PRT logic (MainForm.cs:7001-7009):
+              for j in 0..6:
+                if int(array3[j]) > 0:
+                  dataRow = TblMonsters.Select("Town=town_type AND Level=j+1")[0]
+                  text += ", " + dataRow["Name"] + " " + array3[j]
+            """
             if not monsters or not isinstance(monsters, (list, tuple)):
+                return None
+            if len(monsters) < 7:
                 return None
             if all(m == 0 for m in monsters):
                 return None
-            # PRT decodes via TblMonsters and town type. Return raw counts for now.
+            tbl_m = _load_tbl_monsters()
+            # Build (town, level) → name index for fast lookup
             parts = []
-            for m in monsters:
-                parts.append(str(m))
-            return ", ".join(parts)
+            for j in range(7):
+                count = int(monsters[j])
+                if count <= 0:
+                    continue
+                # Find monster with matching (town, level)
+                # PRT: TblMonsters.Select("Town=town_type AND Level=j+1")[0]
+                # — first match wins. In tbl_monsters_mapping.json:
+                #   "116": {"name": "Золотой Голем", "level": 6, "town": 2}, ...
+                name = None
+                for code, info in tbl_m.items():
+                    if (isinstance(info, dict) and
+                            info.get("town") == town_type_idx and
+                            info.get("level") == j + 1):
+                        name = info.get("name")
+                        break
+                if name:
+                    parts.append(f"{name} {count}")
+            return ", ".join(parts) if parts else None
 
         # Helper: compute "Доступно" per PRT GetTimerApply (line 7124).
         def _fmt_timer_apply(apply_tuple):
@@ -1213,9 +1333,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                     t_flag = _A_COLOR[faction] if faction is not None and faction < 255 else None
                 else:
                     t_name = t_type = t_loc = t_flag = None
+                    t_type_idx = None
 
-                bld_str = _fmt_timer_buildings(ev.get("buildings"))
-                mon_str = _fmt_timer_monsters(ev.get("monsters"))
+                bld_str = _fmt_timer_buildings(ev.get("buildings"),
+                                               t_type_idx if t_type_idx is not None else 0)
+                mon_str = _fmt_timer_monsters(ev.get("monsters"),
+                                               t_type_idx if t_type_idx is not None else 0)
 
                 ws.append([obj_name, day, repeat_val,
                            t_name, t_type, t_loc, t_flag, available,

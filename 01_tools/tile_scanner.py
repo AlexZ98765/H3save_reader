@@ -835,9 +835,27 @@ def _parse_shrine(raw, s, obj, type_id):
 
 
 def _parse_pyramid(raw, s, obj):
-    """Pyramid (SavePyramid, line 10445)"""
-    obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
+    """Pyramid (SavePyramid, line 10445).
+
+    Layout (matches PRT exactly — same formula as SaveShrine):
+        s   = object code (63 = Пирамида)
+        s+7 = byte whose top 3 bits encode part of spell_id
+        s+8 = byte whose low 4 bits encode part of spell_id
+
+    PRT SavePyramid:
+        dataRow = TblSpell.Rows[((decmp[s + 8] & 0xF) << 3) + (decmp[s + 7] >> 5)]
+        r_SpellRow.Spell = dataRow[1]
+        r_SpellRow.Level = dataRow[2]
+        r_SpellRow.Guard = "Gold Golem 40, Diamond Golem 20"  (hardcoded)
+        r_SpellRow.HP = 3200  (hardcoded)
+    """
+    if s + 9 <= len(raw):
+        # PRT formula: ((decmp[s + 8] & 0xF) << 3) + (decmp[s + 7] >> 5)
+        spell_id = ((raw[s + 8] & 0x0F) << 3) + (raw[s + 7] >> 5)
+        obj['spell_id'] = spell_id
+        _enrich_typed_field(raw, obj, 'spell_id', s + 7, 2, "u16")
+    else:
+        obj['spell_id'] = 0
 
 
 def _parse_skeleton(raw, s, obj):
@@ -847,9 +865,60 @@ def _parse_skeleton(raw, s, obj):
 
 
 def _parse_wagon(raw, s, obj):
-    """Wagon (SaveWagon, line 10337)"""
-    obj['content'] = raw[s + 6] if s + 7 <= len(raw) else 0
-    _enrich_typed_field(raw, obj, 'content', s + 6, 1, "u8")
+    """Wagon (SaveWagon, line 10337).
+
+    Layout (matches PRT exactly):
+        s   = object code (105 = Телега)
+        s+6 = base resource amount (lower byte of 3-byte value)
+        s+7 = high byte (encodes resource type in low bits + flag bit in top bit)
+        s+8 = artifact_id high bit (top bit) + resource/amount continuation
+        s+9 = resource amount high bits (low nibble) + flag bit (top bit 0x80)
+
+    PRT SaveWagon logic:
+        if decmp[s+7]==160 AND decmp[s+8]==0xFF:
+            # Resource-only wagon
+            Resource = aResource[(decmp[s+9] & 0xF) >> 1] + decmp[s+6]
+            # → no artifact
+        elif decmp[s+7]!=128 AND decmp[s+8]!=0xFF:
+            # Artifact-bearing wagon
+            artifact_id = (decmp[s+8] << 1) + (decmp[s+7] >> 7)
+            # → adds row to R_Art AND R_AllArts
+        else:
+            # Empty wagon (decmp[s+7]==128): no artifact, no resource
+            # → still adds R_Art row with empty Name/Resource
+    """
+    if s + 10 <= len(raw):
+        b7 = raw[s + 7]
+        b8 = raw[s + 8]
+        if b7 == 160 and b8 == 0xFF:
+            # Resource-only wagon
+            obj['mode'] = 'resource'
+            # PRT: Resource = aResource[(decmp[s+9] & 0xF) >> 1] + decmp[s+6]
+            # Resource type index (0..5: W/M/O/S/C/G)
+            obj['resource_type'] = (raw[s + 9] & 0x0F) >> 1
+            obj['resource_amount'] = raw[s + 6]
+            obj['artifact_id'] = None
+            _enrich_typed_field(raw, obj, 'resource_type', s + 9, 1, "u8")
+            _enrich_typed_field(raw, obj, 'resource_amount', s + 6, 1, "u8")
+        elif b7 != 128 and b8 != 0xFF:
+            # Artifact-bearing wagon
+            obj['mode'] = 'artifact'
+            # PRT: artifact_id = (decmp[s+8] << 1) + (decmp[s+7] >> 7)
+            obj['artifact_id'] = (b8 << 1) + (b7 >> 7)
+            obj['resource_type'] = None
+            obj['resource_amount'] = None
+            _enrich_typed_field(raw, obj, 'artifact_id', s + 7, 2, "u16")
+        else:
+            # Empty wagon (s+7 == 128)
+            obj['mode'] = 'empty'
+            obj['artifact_id'] = None
+            obj['resource_type'] = None
+            obj['resource_amount'] = None
+    else:
+        obj['mode'] = 'empty'
+        obj['artifact_id'] = None
+        obj['resource_type'] = None
+        obj['resource_amount'] = None
 
 
 def _parse_witch_hut(raw, s, obj):
