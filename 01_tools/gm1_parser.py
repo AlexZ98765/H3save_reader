@@ -1511,7 +1511,7 @@ class CompareDialog(QDialog):
 class GM1ParserWindow(QMainWindow):
     def __init__(self, mapping_path: str = None):
         super().__init__()
-        self.setWindowTitle("HoMM3 .GM1 Parser v2.0")
+        self.setWindowTitle("HoMM3 .GM1 Parser v1.0")
         self.resize(1400, 900)
 
         self.mapping_path = mapping_path or DEFAULT_MAPPING_PATH
