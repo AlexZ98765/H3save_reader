@@ -174,8 +174,10 @@ class Localizer:
     def section(self, section_name: str, idx: int) -> str:
         """Generic lookup by section name + integer ID.
 
-        Returns "" if section does not exist.
-        Returns "" if index is out of range.
+        Uses DICT access on the language dict (keyed by string IDs):
+            langs[language][str(idx)]
+
+        Returns "" if section does not exist or ID is missing.
         Falls back to FALLBACK_LANGUAGE (ru_sod) when the entry is empty for
         the active language.
         """
@@ -183,33 +185,70 @@ class Localizer:
         if not section:
             return ''
         langs = section.get('languages', {})
-        arr = langs.get(self.language, [])
-        if 0 <= idx < len(arr) and arr[idx]:
-            return arr[idx]
+        lang_dict = langs.get(self.language, {})
+        if not isinstance(lang_dict, dict):
+            # Backward-compat: legacy list-format dict
+            arr = lang_dict
+            if 0 <= idx < len(arr) and arr[idx]:
+                return arr[idx]
+        else:
+            v = lang_dict.get(str(idx))
+            if v:
+                return v
         # Fallback to default Russian
-        fb_arr = langs.get(FALLBACK_LANGUAGE, [])
-        if 0 <= idx < len(fb_arr) and fb_arr[idx]:
-            return fb_arr[idx]
+        fb = langs.get(FALLBACK_LANGUAGE, {})
+        if isinstance(fb, dict):
+            v = fb.get(str(idx))
+            if v:
+                return v
+        else:
+            if 0 <= idx < len(fb) and fb[idx]:
+                return fb[idx]
         return ''
 
     def section_list(self, section_name: str) -> List[str]:
         """Return the entire list of names for a section (active language).
 
-        Missing entries are filled with fallback language. Out-of-range
-        entries are returned as empty strings.
+        Iterates IDs 0..max_id (across all languages) in order. For each ID,
+        returns the active-language value, falling back to FALLBACK_LANGUAGE
+        when missing.
+
+        Missing entries are returned as empty strings.
         """
         section = self._sections.get(section_name)
         if not section:
             return []
         langs = section.get('languages', {})
-        arr = langs.get(self.language, [])
-        fb_arr = langs.get(FALLBACK_LANGUAGE, [])
+        # Compute max ID across all languages (handles sparse dicts too)
+        max_id = -1
+        for v in langs.values():
+            if isinstance(v, dict):
+                for k in v.keys():
+                    try:
+                        ki = int(k)
+                        if ki > max_id:
+                            max_id = ki
+                    except ValueError:
+                        pass
+            elif isinstance(v, list):
+                if len(v) - 1 > max_id:
+                    max_id = len(v) - 1
+        if max_id < 0:
+            return []
+        active = langs.get(self.language, {})
+        fb = langs.get(FALLBACK_LANGUAGE, {})
         out = []
-        n = max(len(arr), len(fb_arr))
-        for i in range(n):
-            v = arr[i] if i < len(arr) else ''
+        for i in range(max_id + 1):
+            v = ''
+            if isinstance(active, dict):
+                v = active.get(str(i), '')
+            elif isinstance(active, list) and 0 <= i < len(active):
+                v = active[i] or ''
             if not v:
-                v = fb_arr[i] if i < len(fb_arr) else ''
+                if isinstance(fb, dict):
+                    v = fb.get(str(i), '')
+                elif isinstance(fb, list) and 0 <= i < len(fb):
+                    v = fb[i] or ''
             out.append(v)
         return out
 
