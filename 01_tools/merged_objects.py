@@ -529,6 +529,7 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
         artifact_name = None
         gold = None
         resource_str = None
+        art_id = None  # initialize before the if block (so it's always defined)
 
         if obj.get('has_artifact') and obj.get('monstr_num', 0) < len(monstr_records):
             mr = monstr_records[obj['monstr_num']]
@@ -552,6 +553,13 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
             art_id = mr.get("artifact_id", -1)
             if art_id is not None and 0 <= art_id < 0xFF:
                 artifact_name = localizer.art(art_id) if localizer else f"A{art_id}"
+            else:
+                art_id = None
+
+        # Store artifact_id for aggregate_all_artifacts to look up class/relic
+        # (PRT MonstrContent gives u8 artifact_id; we keep raw int separately
+        # from the localized name field `artifact`).
+        artifact_id_field = art_id if art_id is not None else -1
 
         monsters.append({
             "x": obj.get('x'),
@@ -564,6 +572,7 @@ def merge_monsters(tile_objects: List[Dict[str, Any]],
             "mood": mood,
             "level": level,
             "artifact": artifact_name,
+            "artifact_id": artifact_id_field,  # raw int (or -1 if no artifact)
             "gold": gold,
             "resource": resource_str,
             "grows": grows_str,

@@ -373,13 +373,23 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
         if not _has_art_meta or aid is None or aid < 0:
             return {}
         info = {}
-        info["name"] = get_artifact_name(aid, localizer=None)  # PRT-style name
+        # Use localizer (ru_sod) for NAME — matches PRT's binary output exactly.
+        # tbl_art_mapping.json (via get_artifact_name with localizer=None) has
+        # ru_wog-style names which differ from PRT's actual output.
+        if localizer:
+            info["name"] = localizer.art(aid) or get_artifact_name(aid, localizer=None)
+        else:
+            info["name"] = get_artifact_name(aid, localizer=None)
         cls_id = get_artifact_class_id(aid)
         if localizer:
             info["class"] = localizer.art_class(cls_id)
         relic_id = get_artifact_relic_c_id(aid)
         if relic_id is not None:
-            info["relic"] = get_artifact_name(relic_id, localizer=None)
+            # Use localizer for relic name (matches PRT binary output)
+            if localizer:
+                info["relic"] = localizer.art(relic_id) or get_artifact_name(relic_id, localizer=None)
+            else:
+                info["relic"] = get_artifact_name(relic_id, localizer=None)
         return info
 
     # ── 1. Art Merchants (no X/Y/Z) ──
@@ -455,6 +465,37 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                 "hero": None, "doll_slot": None, "flag": None,
                 "place": None, "monster": None, "mission": None, "guard": None,
             })
+
+    # ── 4b. Monsters with artifacts ──
+    # PRT MonstrContent (MainForm.cs ~9167): for guarded monsters with an
+    # artifact_id (u8 byte), the monster is shown on the "Все Арты" sheet
+    # with Object="Монстр", the artifact name in the Артефакт column, and the
+    # monster name + count in the Монстр column. Each monster-with-artifact
+    # emits ONE row.
+    # Source: mo["Монстры"] — each monster record has `artifact_id` (raw int)
+    # and `artifact` (localized name) fields. We use artifact_id to look up
+    # class and relic-C via art_metadata.
+    for rec in mo.get("Монстры", []):
+        aid = rec.get("artifact_id", -1)
+        if aid is None or aid < 0:
+            continue  # monster has no artifact
+        info = _art_info(aid)
+        # Monster column: "<name> <count>" (PRT format, e.g. "Циклоп 2")
+        mon_name = rec.get("monster", "")
+        mon_count = rec.get("count", 0)
+        mon_str = f"{mon_name} {mon_count}" if mon_count and mon_name else mon_name
+        rows.append({
+            "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+            "locality": rec.get("locality"),
+            "object": _PRT_OBJECT.get(54, "Монстр"),  # PRT TblObject code 54 = "Монстр"
+            "slot": None,
+            "artifact_name": info.get("name") or rec.get("artifact"),
+            "class_": info.get("class"),
+            "relic": info.get("relic"),
+            "hero": None, "doll_slot": None, "flag": None,
+            "place": None, "monster": mon_str, "mission": None,
+            "guard": None,
+        })
 
     # ── 5. Event/Pandora box artifacts ──
     # PRT splits event artifacts into separate rows (one per artifact).
@@ -612,7 +653,12 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
         # Prefer doll_artifacts list (has artifact_id for class/relic lookup)
         doll_arts = h.get("doll_artifacts", [])
         if doll_arts:
-            # Iterate (slot_index, artifact_id) tuples
+            # Iterate (slot_index, artifact_id) tuples.
+            # PRT GetDollPlace uses `pl` (slot index) DIRECTLY with aDoll[pl]
+            # (line 7963): `nrow.Doll = aDoll[pl]` (no +1 offset).
+            # OUR's loc.doll(idx) is also 0-based — so doll_slot = slot_idx
+            # (NOT slot_idx + 1, which was the previous bug causing Кукла to
+            # show "Разное" instead of "Ноги" for slot_idx=8).
             for slot_idx, art_id in doll_arts:
                 info = _art_info(art_id)
                 rows.append({
@@ -624,7 +670,8 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     "class_": info.get("class"),
                     "relic": info.get("relic"),
                     "hero": hero_name,
-                    "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
+                    # PRT GetDollPlace: aDoll[pl] — direct index, no +1 offset
+                    "doll_slot": slot_idx,
                     "flag": flag,
                     "place": place_col,
                     "monster": None, "mission": None, "guard": None,
@@ -641,7 +688,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     "class_": None,
                     "relic": None,
                     "hero": hero_name,
-                    "doll_slot": slot_idx + 1,  # PRT shows doll slot NAME (e.g. "Разное1")
+                    "doll_slot": slot_idx,  # PRT shows doll slot NAME
                     "flag": flag,
                     "place": place_col,
                     "monster": None, "mission": None, "guard": None,

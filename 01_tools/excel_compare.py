@@ -177,6 +177,8 @@ _COLUMN_SECTION_DEFAULT: Dict[str, str] = {
 _SHEET_COLUMN_OVERRIDES: Dict[Tuple[str, str], str] = {
     # "Доступно" in События-Таймеры = list of colors (e.g. "Красный, Синий")
     ("События-Таймеры", "Доступно"): "_color_list",
+    # Same for "События и Ящики Пандоры" — "Доступно" column lists colors
+    ("События и Ящики Пандоры", "Доступно"): "_color_list",
     # "Монстр" in Монстры/Лагеря Беженцев = single monster name (no count)
     ("Монстры", "Монстр"): "Monstr",
     ("Лагеря Беженцев", "Монстр"): "Monstr",
