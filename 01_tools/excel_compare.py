@@ -53,6 +53,7 @@ Each output sheet has the original columns plus a "Source" column:
 """
 from __future__ import annotations
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 from collections import Counter
@@ -60,6 +61,78 @@ from collections import Counter
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+
+
+# ============================================================================
+# Synonym map — built once from 02_format_docs/synonyms.json (auto-generated
+# from localization_dictionary.json by scripts/build_synonyms.py).
+#
+# All 4 languages (en, ru_sod, ru_wog, ru_complete) for the SAME concept ID
+# are treated as synonyms. Example: Color[5] = ["Purple", "Багровый",
+# "Пурпурный", "Лиловый"] — all map to canonical form "багровый".
+#
+# Cell normalization rules (when ignore_localization=True):
+#   1. Whole-cell match: if the entire stripped lowercase cell string matches
+#      a known synonym, replace with canonical form. Catches single-word
+#      cells like Тип="Темница" ↔ "Подземелье", Флаг="Пурпурный" ↔ "Багровый".
+#   2. Token-level match: if whole-cell doesn't match, split by whitespace
+#      and comma, replace each token that matches a known synonym, rejoin.
+#      Catches multi-word cells like "Джинн 10" ↔ "Джин 10" (where "Джинн"
+#      and "Джин" are synonyms for monster ID 36).
+# ============================================================================
+
+_SYN_MAP: Optional[Dict[str, str]] = None
+
+
+def _build_synonym_map() -> Dict[str, str]:
+    """Load synonyms.json and build reverse-lookup: lowercased_string → canonical."""
+    try:
+        import json
+        _here = os.path.dirname(os.path.abspath(__file__))
+        _docs = os.path.normpath(os.path.join(_here, "..", "02_format_docs"))
+        path = os.path.join(_docs, "synonyms.json")
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return {}
+
+    syn_map: Dict[str, str] = {}
+
+    def _add_group(synonyms: List[str]):
+        if not synonyms or len(synonyms) < 2:
+            return
+        # Pick canonical: prefer first Cyrillic entry, else first entry
+        canonical = None
+        for s in synonyms:
+            if isinstance(s, str) and s and not s.isascii():
+                canonical = s
+                break
+        if canonical is None:
+            canonical = synonyms[0]
+        canonical_lower = canonical.lower()
+        # Add all members to reverse-lookup (case-insensitive)
+        for s in synonyms:
+            if isinstance(s, str) and s:
+                syn_map[s.lower()] = canonical_lower
+
+    # Auto-generated groups from localization_dictionary.json
+    for group in data.get("groups", []):
+        if isinstance(group, list):
+            _add_group(group)
+
+    # User-extensible custom groups (for synonyms not in localization dict)
+    for group in data.get("groups_extra", []):
+        if isinstance(group, list):
+            _add_group(group)
+
+    return syn_map
+
+
+def _get_syn_map() -> Dict[str, str]:
+    global _SYN_MAP
+    if _SYN_MAP is None:
+        _SYN_MAP = _build_synonym_map()
+    return _SYN_MAP
 
 
 def compare_excel_files(file_a: str, file_b: str, output_path: str,
@@ -212,7 +285,9 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
 
     - None / empty string → None (canonical empty marker)
     - "0" string → 0 int (PRT often stores 0 as both "0" and None)
-    - String → strip; if ignore_localization → lower-case (case-insensitive)
+    - String → strip; if ignore_localization:
+        * whole-cell synonym match (case-insensitive) → canonical form
+        * else tokenize by whitespace+comma, replace synonym tokens, lowercase
     - int/float → as-is
     """
     if v is None:
@@ -221,9 +296,27 @@ def _norm_cell(v: Any, ignore_localization: bool) -> Any:
         s = v.strip()
         if s == '' or s == '0':
             return None if s == '' else 0
-        if ignore_localization:
-            return s.lower()
-        return s
+        if not ignore_localization:
+            return s
+        # Lowercase + synonym substitution
+        lower = s.lower()
+        syn_map = _get_syn_map()
+        # Whole-cell synonym match (fast path)
+        if lower in syn_map:
+            return syn_map[lower]
+        # Token-level synonym match for multi-word cells.
+        # Split keeping separators, replace any token that's a known synonym.
+        tokens = re.split(r'(\s+|,)', s)
+        any_replaced = False
+        for i, tok in enumerate(tokens):
+            if not tok or tok.isspace() or tok == ',':
+                continue
+            low = tok.lower()
+            if low in syn_map:
+                tokens[i] = syn_map[low]
+                any_replaced = True
+        result = ''.join(tokens) if any_replaced else s
+        return result.lower()
     # Numbers (int, float)
     return v
 
