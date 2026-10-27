@@ -559,7 +559,97 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     })
 
     # ── 7. Seer Huts with artifact reward OR artifact mission ──
+    # PRT also fills the Задание (mission) column with the formatted mission string.
+    # We format it the same way as _fmt_seer_mission in excel_export.py (using localizer).
+    _A_RES_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    _A_RES_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+    _PSKILL_LETTERS = {"Attack": "A", "Defense": "D", "Power": "P", "Knowledge": "K"}
+
+    def _fmt_mission_str(rec):
+        """Format seer hut mission string (same logic as _fmt_seer_mission)."""
+        mtype = rec.get("mission_type", 0)
+        mission = rec.get("mission", {}) or {}
+        if not mtype:
+            return None
+        if mtype == 1:
+            return f"{localizer.quest(0)} {mission.get('level', 0)}" if localizer else f"Достичь уровня {mission.get('level', 0)}"
+        elif mtype == 2:
+            ps = mission.get("primary_skills", {})
+            if isinstance(ps, dict) and ps:
+                parts = [f"{_PSKILL_LETTERS.get(k, k[:1].upper())}{v}" for k, v in ps.items()]
+                return f"{localizer.quest(1)} {', '.join(parts)}" if localizer else f"Получить навык {', '.join(parts)}"
+            return localizer.quest(1) if localizer else "Получить навык"
+        elif mtype == 3:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            hero_place = hero.get("place") or ""
+            if hero_place and "." in str(hero_place):
+                return f"{localizer.quest(7)} {hero_name} ({hero_place})" if localizer else f"Победить героя {hero_name} ({hero_place})"
+            return f"{localizer.quest(7)} {hero_name}" if localizer else f"Победить героя {hero_name}"
+        elif mtype == 4:
+            mid = mission.get("monster_id", -1)
+            mx = mission.get("x", 0)
+            my = mission.get("y", 0)
+            mz = mission.get("bit", 0)
+            mname = localizer.monstr(mid) if localizer and mid >= 0 else f"M{mid}"
+            return f"{localizer.quest(2)} {mname} ({mx}.{my}.{mz})" if localizer else f"Победить монстра {mname} ({mx}.{my}.{mz})"
+        elif mtype == 5:
+            arts = mission.get("artifacts", [])
+            if isinstance(arts, list) and arts:
+                art_names = [localizer.art(a) if localizer and isinstance(a, int) and a >= 0 else str(a) for a in arts]
+                art_names = [n for n in art_names if n]
+                if art_names:
+                    return f"{localizer.quest(3)} {', '.join(art_names)}" if localizer else f"Принести артефакты {', '.join(art_names)}"
+            return localizer.quest(3) if localizer else "Принести артефакты"
+        elif mtype == 6:
+            mons = mission.get("monsters", [])
+            if isinstance(mons, list) and mons:
+                mon_parts = []
+                for m in mons:
+                    if isinstance(m, (list, tuple)) and len(m) >= 2:
+                        mid, cnt = m[0], m[1]
+                        mname = localizer.monstr(mid) if localizer and isinstance(mid, int) and mid >= 0 else f"M{mid}"
+                        mon_parts.append(f"{mname} {cnt}")
+                if mon_parts:
+                    return f"{localizer.quest(4)} {', '.join(mon_parts)}" if localizer else f"Принести монстров {', '.join(mon_parts)}"
+            return localizer.quest(4) if localizer else "Принести монстров"
+        elif mtype == 7:
+            res = mission.get("resources", {})
+            if isinstance(res, dict) and res:
+                res_parts = []
+                for rkey, rcount in res.items():
+                    if rcount:
+                        try:
+                            ridx = _A_RES_NAMES.index(rkey)
+                            res_parts.append(f"{_A_RES_LETTERS[ridx]}{rcount}")
+                        except (ValueError, IndexError):
+                            if rkey == "Gold":
+                                res_parts.append(f"Золото {rcount}")
+                            else:
+                                res_parts.append(f"{rkey} {rcount}")
+                if res_parts:
+                    return f"{localizer.quest(5)} {', '.join(res_parts)}" if localizer else f"Принести ресурсы {', '.join(res_parts)}"
+            return localizer.quest(5) if localizer else "Принести ресурсы"
+        elif mtype == 8:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            return f"{localizer.quest(8)} {hero_name}" if localizer else f"Быть героем {hero_name}"
+        elif mtype == 9:
+            color_id = mission.get("color_id")
+            color_name = localizer.color(color_id) if localizer and color_id is not None else (mission.get("color") or "?")
+            return f"{localizer.quest(6)} {color_name}" if localizer else f"Иметь цвет флага {color_name}"
+        return None
+
+    # Use localizer for seer hut object name (matches PRT binary exactly)
+    _seer_hut_name = localizer.object(83) if localizer else "Хижина Провидца"
+
     for rec in mo.get("Провидцы", []):
+        # Format mission string for Задание column
+        mission_str = _fmt_mission_str(rec)
         # Check if reward is an artifact
         reward = rec.get("reward", {})
         if isinstance(reward, dict) and "artifact_id" in reward:
@@ -569,13 +659,13 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
-                    "object": _PRT_OBJECT.get(83, "Хижина провидца"),
+                    "object": _seer_hut_name,
                     "slot": None,
                     "artifact_name": info.get("name"),
                     "class_": info.get("class"),
                     "relic": info.get("relic"),
                     "hero": None, "doll_slot": None, "flag": None,
-                    "place": None, "monster": None, "mission": rec.get("quest"),
+                    "place": None, "monster": None, "mission": mission_str,
                     "guard": None,
                 })
         # Check if mission is to bring artifacts (mission_type=5)
@@ -587,13 +677,13 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     rows.append({
                         "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                         "locality": rec.get("locality"),
-                        "object": _PRT_OBJECT.get(83, "Хижина провидца"),
+                        "object": _seer_hut_name,
                         "slot": None,
                         "artifact_name": info.get("name"),
                         "class_": info.get("class"),
                         "relic": info.get("relic"),
                         "hero": None, "doll_slot": None, "flag": None,
-                        "place": None, "monster": None, "mission": rec.get("quest"),
+                        "place": None, "monster": None, "mission": mission_str,
                         "guard": None,
                     })
 
