@@ -870,10 +870,18 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 parts.append(f"+{reward['morale']}" if reward['morale'] > 0 else str(reward['morale']))
             if "luck" in reward:
                 parts.append(f"+{reward['luck']}" if reward['luck'] > 0 else str(reward['luck']))
-            if "resource_type" in reward and "amount" in reward:
-                rt = reward['resource_type']
-                rn = loc.mine(rt) if loc and isinstance(rt, int) else str(rt)
-                parts.append(f"{rn} {reward['amount']}")
+            if "resource" in reward and "amount" in reward:
+                rname_en = reward['resource']  # e.g. "Gold", "Mercury"
+                if rname_en == "Gold":
+                    rn = loc.mine(6) if loc else "Золото"
+                    parts.append(f"{rn} {reward['amount']}")
+                else:
+                    try:
+                        ridx = _A_RES_NAMES.index(rname_en)
+                        letter = _A_RES_LETTERS[ridx]
+                        parts.append(f"{letter}{reward['amount']}")
+                    except (ValueError, IndexError):
+                        parts.append(f"{rname_en} {reward['amount']}")
             if "artifact_id" in reward:
                 aid = reward.get("artifact_id", -1)
                 if isinstance(aid, int) and aid >= 0:

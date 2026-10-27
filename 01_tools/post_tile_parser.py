@@ -457,10 +457,16 @@ def parse_seer_hut_content(raw: bytes, s: int) -> Tuple[SeerHutContent, int]:
     rec.mission_type = t
 
     if t == 0:
-        # Empty — no mission, skip directly to reward (s += 15 happens after deadline+progress)
-        pass
+        # PRT line 8524-8528: for empty mission (type=0), skip 15 bytes and RETURN.
+        # Does NOT read deadline, progress sections, or reward.
+        # The 15 bytes = 1 (type) + 14 (rest of record).
+        # Without this early return, OUR would continue reading garbage,
+        # causing cascade errors for all subsequent seer huts.
+        return rec, s + 15
     elif t == 1:
-        rec.mission = {"level": _u32(raw, s + 1)}
+        # PRT line 8531: reads decmp[s + 1] — SINGLE BYTE (not u32).
+        # s += 5 (1 type + 4 bytes, but only byte 0 is the level value).
+        rec.mission = {"level": raw[s + 1]}
         s += 5
     elif t == 2:
         rec.mission = {"primary_skills": {A_PR_SKILL[i]: raw[s + i + 1]
