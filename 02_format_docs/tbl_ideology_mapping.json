@@ -1,0 +1,626 @@
+{
+  "0": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "1": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "2": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "3": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "4": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "5": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "6": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "7": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "8": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "9": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "10": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "11": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "12": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "13": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "14": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "15": {
+    "ideology_id": 0,
+    "class_id": 1
+  },
+  "16": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "17": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "18": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "19": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "20": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "21": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "22": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "23": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "24": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "25": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "26": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "27": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "28": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "29": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "30": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "31": {
+    "ideology_id": 0,
+    "class_id": 3
+  },
+  "32": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "33": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "34": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "35": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "36": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "37": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "38": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "39": {
+    "ideology_id": 0,
+    "class_id": 4
+  },
+  "40": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "41": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "42": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "43": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "44": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "45": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "46": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "47": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "48": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "49": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "50": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "51": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "52": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "53": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "54": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "55": {
+    "ideology_id": 1,
+    "class_id": 6
+  },
+  "56": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "57": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "58": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "59": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "60": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "61": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "62": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "63": {
+    "ideology_id": 1,
+    "class_id": 7
+  },
+  "64": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "65": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "66": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "67": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "68": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "69": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "70": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "71": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "72": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "73": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "74": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "75": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "76": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "77": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "78": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "79": {
+    "ideology_id": 1,
+    "class_id": 9
+  },
+  "80": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "81": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "82": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "83": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "84": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "85": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "86": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "87": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "88": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "89": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "90": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "91": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "92": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "93": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "94": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "95": {
+    "ideology_id": 1,
+    "class_id": 11
+  },
+  "96": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "97": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "98": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "99": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "100": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "101": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "102": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "103": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "104": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "105": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "106": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "107": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "108": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "109": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "110": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "111": {
+    "ideology_id": 2,
+    "class_id": 13
+  },
+  "112": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "113": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "114": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "115": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "116": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "117": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "118": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "119": {
+    "ideology_id": 2,
+    "class_id": 14
+  },
+  "120": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "121": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "122": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "123": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "124": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "125": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "126": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "127": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "128": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "129": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "130": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "131": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "132": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "133": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "134": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "135": {
+    "ideology_id": 2,
+    "class_id": 16
+  },
+  "136": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "137": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "138": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "139": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "140": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "141": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "142": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "143": {
+    "ideology_id": 2,
+    "class_id": 17
+  },
+  "144": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "145": {
+    "ideology_id": 2,
+    "class_id": 15
+  },
+  "146": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "147": {
+    "ideology_id": 0,
+    "class_id": 5
+  },
+  "148": {
+    "ideology_id": 0,
+    "class_id": 2
+  },
+  "149": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "150": {
+    "ideology_id": 1,
+    "class_id": 8
+  },
+  "151": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "152": {
+    "ideology_id": 0,
+    "class_id": 0
+  },
+  "153": {
+    "ideology_id": 1,
+    "class_id": 10
+  },
+  "154": {
+    "ideology_id": 2,
+    "class_id": 12
+  },
+  "155": {
+    "ideology_id": 1,
+    "class_id": 6
+  }
+}

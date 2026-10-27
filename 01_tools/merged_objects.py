@@ -981,6 +981,8 @@ def merge_event_boxes(tile_objects: List[Dict[str, Any]],
             "spell": spl_str,
             "monster": mon_str,
             "available": available,
+            # Repeat: PRT aReply[((decmp[s+8] & 8) >> 3) ^ 1] — "Нет" if bit 3 set, "Да" if clear
+            "repeat": "Нет" if event_tile.get("repeat", False) else "Да",
         })
 
     return records

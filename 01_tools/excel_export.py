@@ -579,7 +579,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("События и Ящики Пандоры")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Охрана", "∑ HP", "Опыт", "Мана",
                    "Мораль", "Удача", "Золото", "Ресурс", "Первичный навык",
-                   "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно"])
+                   "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "Доступно",
+                   "Повтор"])
         for rec in mo.get("События_Ящики_Пандоры", []):
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
@@ -597,7 +598,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        rec.get("artifact"),
                        rec.get("spell"),
                        rec.get("monster"),
-                       rec.get("available")])
+                       rec.get("available"),
+                       rec.get("repeat")])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1486,8 +1488,23 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Герои ──
+        # PRT GetHeroesContent (line 7723) also outputs:
+        #   - Ideology (from TblIdeology[hero_id][1] — localized via Ideology section)
+        #   - Class (from TblIdeology[hero_id][2] — localized via HeroClass section)
+        #   - Hire (aReply[1]="Да" if hireable by human, else aReply[0]="Нет")
         ws = wb.create_sheet("Герои")
-        ws.append(["№", "Герой", "Местоположение", "Флаг", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP"])
+        ws.append(["№", "Герой", "Местоположение", "Флаг", "Уровень", "Опыт", "Первичный навык", "Вторичный навык", "Артефакт", "Заклинание", "Монстр", "∑ HP", "Машина", "Книга заклинаний", "MP", "Идеология", "Класс", "Найм"])
+
+        # Load TblIdeology mapping (hero_id → ideology_id + class_id)
+        _tbl_ideology = None
+        try:
+            import json as _json
+            _ide_path = os.path.join(script_dir, "..", "02_format_docs", "tbl_ideology_mapping.json")
+            with open(_ide_path, "r", encoding="utf-8") as _f:
+                _tbl_ideology = _json.load(_f)
+        except Exception:
+            _tbl_ideology = {}
+
         for i, h in enumerate(parsed.get("heroes_found", [])):
             f = h.get("fields", {})
 
@@ -1527,10 +1544,28 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             # MP: movement_total
             mp = f.get("movement_total")
 
+            # Ideology + Class (from TblIdeology mapping)
+            ideo_entry = _tbl_ideology.get(str(i), {})
+            ideo_id = ideo_entry.get("ideology_id", 0)
+            cls_id = ideo_entry.get("class_id", 0)
+            ideo_str = loc.ideology(ideo_id) if loc else str(ideo_id)
+            cls_str = loc.hero_class(cls_id) if loc else str(cls_id)
+
+            # Hire (Найм): PRT line 7760 — "Да" if NOT banned AND hero's bit is set
+            # in heroState for human player. Approximation: use "Да" if hero is
+            # hireable (not banned and not on map with color).
+            hire_str = h.get("hire")  # may be None if not computed yet
+            if hire_str is None:
+                # PRT logic: Hire = "Да" if !flag2 AND (heroState & (1<<human)) > 0
+                # Simplified: "Да" if not banned (flag2=False)
+                is_banned = (place_str == "Запрещен")
+                hire_str = "Нет" if is_banned else "Да"
+
             ws.append([i, f.get("name", "?"), place_str, flag_str,
                        f.get("level"), f.get("experience"),
                        primary_str, secondary_str, equip_str, spells_str,
-                       monster_str, hero_hp_val, machines_str, book_str, mp])
+                       monster_str, hero_hp_val, machines_str, book_str, mp,
+                       ideo_str, cls_str, hire_str])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1764,7 +1799,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
 
         # ── Все Заклы (aggregator) ──
         ws = wb.create_sheet("Все Заклы")
-        ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана"])
+        ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана", "№"])
         if aggregate_all_spells:
             for rec in aggregate_all_spells(parsed, localizer=loc):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
@@ -1773,7 +1808,8 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            rec.get("town"), rec.get("built"),
                            rec.get("garrison"), rec.get("hero"),
                            rec.get("place"), rec.get("mission"),
-                           _guard_str(rec.get("guard")) if rec.get("guard") else None])
+                           _guard_str(rec.get("guard")) if rec.get("guard") else None,
+                           rec.get("num")])  # № column (hero ID for hero spell rows)
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
@@ -1793,10 +1829,12 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Опыт (aggregator) ──
+        # PRT updated xlsx adds: ∑ XP+10%, ∑ XP+15%, ∑ XP+5%, №, Задание, Заклинание
         ws = wb.create_sheet("Опыт")
-        ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP"])
+        ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP", "∑ XP+10%", "∑ XP+15%", "∑ XP+5%", "№", "Задание", "Заклинание"])
         if aggregate_all_experience:
             for rec in aggregate_all_experience(parsed, localizer=loc):
+                xp = rec.get("xp_total") or 0
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("locality"),
                            rec.get("object"), rec.get("town"),
@@ -1804,7 +1842,14 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            rec.get("monster"), rec.get("artifact"),
                            rec.get("resource"), _guard_str(rec.get("guard")) if rec.get("guard") else None,
                            rec.get("hp"), rec.get("experience"),
-                           rec.get("xp_total")])
+                           xp,
+                           round(xp * 1.10) if xp else None,   # ∑ XP+10%
+                           round(xp * 1.15) if xp else None,   # ∑ XP+15%
+                           round(xp * 1.05) if xp else None,   # ∑ XP+5%
+                           rec.get("num"),       # №
+                           rec.get("mission"),   # Задание
+                           rec.get("spell"),     # Заклинание
+                           ])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
