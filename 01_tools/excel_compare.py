@@ -473,9 +473,10 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
                         ignore_localization: bool = True) -> str:
     """Compare two .xlsx files and save differences to output_path.
 
-    The `ignore_localization` parameter is kept for backward compat but is
-    now always effectively True — the column-aware ID-based normalization
-    automatically collapses translation synonyms by ID.
+    When headers differ between A and B for a sheet:
+      - Comparison is done using ONLY common columns (intersection of headers)
+      - Header mismatch info is written at the top of the output sheet
+      - _Сводка sheet lists which columns are A-only / B-only per sheet
 
     Returns the output_path on success.
     """
@@ -492,9 +493,11 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
     fill_a = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
     fill_b = PatternFill(start_color="D9EAD3", end_color="D9EAD3", fill_type="solid")
     fill_diff = PatternFill(start_color="F4CCCC", end_color="F4CCCC", fill_type="solid")
+    fill_info = PatternFill(start_color="D9E1F3", end_color="D9E1F3", fill_type="solid")  # blue-ish for info rows
     bold_font = Font(bold=True)
 
-    summary_rows: List[Tuple[str, int, int, int, int]] = []
+    # summary_rows: (sheet_name, a_total, b_total, n_diffs, n_common, a_only_cols, b_only_cols)
+    summary_rows: List[Tuple] = []
 
     for sheet_name in common_sheets:
         ws_a = wb_a[sheet_name]
@@ -503,15 +506,32 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
         headers_a = [ws_a.cell(row=1, column=c).value for c in range(1, ws_a.max_column + 1)]
         headers_b = [ws_b.cell(row=1, column=c).value for c in range(1, ws_b.max_column + 1)]
 
-        if headers_a != headers_b:
-            _write_sheet_mismatch(wb_out, sheet_name, headers_a, headers_b, ws_a, ws_b)
-            summary_rows.append((sheet_name, ws_a.max_row - 1, ws_b.max_row - 1,
-                                 max(ws_a.max_row, ws_b.max_row), 0))
-            continue
+        headers_match = (headers_a == headers_b)
 
-        rows_a = _extract_rows(ws_a)
-        rows_b = _extract_rows(ws_b)
-        headers = headers_a
+        if headers_match:
+            # Headers identical — full comparison
+            headers = headers_a
+            rows_a = _extract_rows(ws_a)
+            rows_b = _extract_rows(ws_b)
+            a_only_cols = []
+            b_only_cols = []
+        else:
+            # Headers differ — compare using ONLY common columns
+            # Find common headers (preserving A's order for consistency)
+            common_headers = [h for h in headers_a if h in headers_b]
+            a_only_cols = [h for h in headers_a if h not in headers_b]
+            b_only_cols = [h for h in headers_b if h not in headers_a]
+
+            # Extract column indices for common headers
+            a_indices = [headers_a.index(h) for h in common_headers]
+            b_indices = [headers_b.index(h) for h in common_headers]
+
+            # Extract rows using only common columns
+            raw_a = _extract_rows(ws_a)
+            raw_b = _extract_rows(ws_b)
+            rows_a = [[row[i] if i < len(row) else None for i in a_indices] for row in raw_a]
+            rows_b = [[row[i] if i < len(row) else None for i in b_indices] for row in raw_b]
+            headers = common_headers
 
         # Build signatures using column-aware normalization
         sigs_a = Counter(_row_signature(r, sheet_name, headers) for r in rows_a)
@@ -522,16 +542,38 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
         common_sigs = sigs_a & sigs_b
         n_common = sum(common_sigs.values())
 
-        summary_rows.append((sheet_name, len(rows_a), len(rows_b), len(diffs), n_common))
+        summary_rows.append((sheet_name, len(rows_a), len(rows_b), len(diffs), n_common,
+                             a_only_cols, b_only_cols))
 
-        if not diffs:
-            continue
+        if not diffs and headers_match:
+            continue  # no diffs and headers match → skip sheet entirely
 
+        # Create output sheet
         ws_out = wb_out.create_sheet(sheet_name)
+
+        start_row = 1
+        if not headers_match:
+            # Write header mismatch info at the top
+            ws_out.append([f"Колонки только в A: {', '.join(a_only_cols)}" if a_only_cols
+                           else "Колонок только в A нет"])
+            ws_out.cell(row=1, column=1).fill = fill_info
+            ws_out.cell(row=1, column=1).font = bold_font
+            ws_out.append([f"Колонки только в B: {', '.join(b_only_cols)}" if b_only_cols
+                           else "Колонок только в B нет"])
+            ws_out.cell(row=2, column=1).fill = fill_info
+            ws_out.cell(row=2, column=1).font = bold_font
+            ws_out.append([f"Сравнение по общим колонкам ({len(headers)}): {', '.join(headers)}"])
+            ws_out.cell(row=3, column=1).fill = fill_info
+            ws_out.cell(row=3, column=1).font = bold_font
+            ws_out.append([])  # empty separator row
+            start_row = 5  # data headers start at row 5
+
+        # Write data headers + Source
         out_headers = list(headers) + ["Source"]
         ws_out.append(out_headers)
+        header_row = ws_out.max_row
         for col_idx in range(1, len(out_headers) + 1):
-            cell = ws_out.cell(row=1, column=col_idx)
+            cell = ws_out.cell(row=header_row, column=col_idx)
             cell.font = bold_font
             cell.alignment = Alignment(horizontal="center", wrap_text=True)
 
@@ -551,25 +593,48 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
             for col_idx in range(1, len(out_headers) + 1):
                 ws_out.cell(row=row_num, column=col_idx).fill = fill
 
-        _autosize(ws_out)
-        ws_out.freeze_panes = "A2"
-        ws_out.auto_filter.ref = ws_out.dimensions
+        # Auto-filter on the data header row (not the info rows)
+        if not headers_match:
+            ws_out.auto_filter.ref = f"A{header_row}:{openpyxl.utils.get_column_letter(len(out_headers))}{ws_out.max_row}"
+        else:
+            ws_out.auto_filter.ref = ws_out.dimensions
+        # Freeze panes at the data header row
+        ws_out.freeze_panes = ws_out.cell(row=header_row + 1, column=1).coordinate
 
+        _autosize(ws_out)
+
+    # ── _Сводка (summary) sheet ──
     if wb_out.sheetnames:
         ws_sum = wb_out.create_sheet("_Сводка", 0)
-        ws_sum.append(["Лист", "A: всего", "B: всего", "Diff-строк", "Совпадений"])
-        for col_idx in range(1, 6):
-            ws_sum.cell(row=1, column=col_idx).font = bold_font
-            ws_sum.cell(row=1, column=col_idx).alignment = Alignment(horizontal="center")
-        for name, na, nb, nd, nc in summary_rows:
-            ws_sum.append([name, na, nb, nd, nc])
+        # File paths
+        ws_sum.append(["File A:", file_a])
+        ws_sum.cell(row=1, column=1).font = bold_font
+        ws_sum.append(["File B:", file_b])
+        ws_sum.cell(row=2, column=1).font = bold_font
+        ws_sum.append([])  # empty separator
+
+        # Summary table header
+        sum_headers = ["Лист", "A: всего", "B: всего", "Diff", "Совп.",
+                        "Колонок только в A", "Колонок только в B"]
+        ws_sum.append(sum_headers)
+        hdr_row = ws_sum.max_row
+        for col_idx in range(1, len(sum_headers) + 1):
+            ws_sum.cell(row=hdr_row, column=col_idx).font = bold_font
+            ws_sum.cell(row=hdr_row, column=col_idx).alignment = Alignment(horizontal="center")
+
+        for name, na, nb, nd, nc, a_cols, b_cols in summary_rows:
+            a_cols_str = ", ".join(a_cols) if a_cols else ""
+            b_cols_str = ", ".join(b_cols) if b_cols else ""
+            ws_sum.append([name, na, nb, nd, nc, a_cols_str, b_cols_str])
+
         if only_a or only_b:
             ws_sum.append([])
             ws_sum.append(["Только в A:"] + only_a)
             ws_sum.append(["Только в B:"] + only_b)
+
         _autosize(ws_sum)
-        ws_sum.freeze_panes = "A2"
-        ws_sum.auto_filter.ref = ws_sum.dimensions
+        ws_sum.freeze_panes = f"A{hdr_row + 1}"
+        ws_sum.auto_filter.ref = f"A{hdr_row}:{openpyxl.utils.get_column_letter(len(sum_headers))}{ws_sum.max_row}"
 
     if not wb_out.sheetnames:
         ws = wb_out.create_sheet("Summary")
