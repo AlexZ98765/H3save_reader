@@ -1816,7 +1816,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Все Заклы")
         ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана", "№"])
         if aggregate_all_spells:
-            for rec in aggregate_all_spells(parsed, localizer=loc):
+            for rec in aggregate_all_spells(parsed, localizer=loc, raw=raw):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("object"), rec.get("spell_name"),
                            rec.get("level"), rec.get("flag"),

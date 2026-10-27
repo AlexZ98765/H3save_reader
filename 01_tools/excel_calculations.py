@@ -787,7 +787,7 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
     return rows
 
 
-def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[bytes] = None) -> List[Dict[str, Any]]:
     """Aggregate ALL spells from every source → "Все Заклы" sheet.
 
     Sources (matching PRT GetAllSpell, MainForm.cs:7263):
@@ -799,14 +799,37 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
       6. Scholars (if spell reward)
 
     Returns list of dicts with: x, y, z, object, spell_name, level, flag,
-    town, built, garrison, hero, place, mission, guard.
+    town, built, garrison, hero, place, mission, guard, num.
     """
     mo = parsed.get("merged_objects", {}) or {}
     rows: List[Dict[str, Any]] = []
 
+    # Build spell reverse-lookup: lowercased name → spell_id
+    _spell_rev = {}
+    if localizer:
+        try:
+            import json as _json
+            import os as _os
+            _here = _os.path.dirname(_os.path.abspath(__file__))
+            _docs = _os.path.normpath(_os.path.join(_here, "..", "02_format_docs"))
+            _path = _os.path.join(_docs, "localization_dictionary.json")
+            with open(_path, "r", encoding="utf-8") as _f:
+                _loc = _json.load(_f)
+            for _sid_str, _sname in _loc.get("sections", {}).get("Spell", {}).get("languages", {}).get("ru_sod", {}).items():
+                if _sname:
+                    _spell_rev[_sname.lower()] = int(_sid_str)
+        except Exception:
+            pass
+
     def _spl_name(sid):
         if localizer and isinstance(sid, int) and sid >= 0:
             return localizer.spell(sid)
+        return None
+
+    def _find_spell_id(name):
+        """Reverse-lookup spell name → ID (case-insensitive)."""
+        if name and isinstance(name, str):
+            return _spell_rev.get(name.lower())
         return None
 
     # ── 1. Event/Pandora box spells ──
@@ -822,18 +845,18 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                 "mission": None, "guard": rec.get("guard"),
             })
 
-    # ── 2. Shrine spells — shrines store spell_id + spell_level, NOT spell string ──
+    # ── 2. Shrine spells — use rec's localized object name ──
     for rec in mo.get("Заклинания_Святилища", []):
         sid = rec.get("spell_id")
         if sid is not None and sid >= 0:
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                "object": _PRT_OBJECT.get(81, "Ученый"),
+                "object": rec.get("object") or localizer.object(81) if localizer else "Святыня",
                 "spell_name": _spl_name(sid) or str(sid),
                 "level": rec.get("spell_level"),
                 "flag": None, "town": None, "built": None,
                 "garrison": None, "hero": None, "place": None,
-                "mission": None, "guard": None,
+                "mission": None, "guard": None, "num": None,
             })
 
     # ── 3. Hero spells — include ALL heroes, split spells per row, label Place ──
@@ -850,7 +873,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
     #      IsHeroTavern check added in MainForm_fixed1.cs FIX1-C).
     #   3. PRT splits spell string by ", " → one row per spell (line 7277, 7381,
     #      7401). We do the same.
-    for h in parsed.get("heroes_found", []):
+    for hero_idx, h in enumerate(parsed.get("heroes_found", [])):
         spell_str = h.get("spell")
         if not spell_str:
             continue
@@ -860,7 +883,6 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
         tavern_owner = h.get("tavern_owner")
 
         # Determine Местоположение column + (X,Y,Z) coords per hero state
-        # (same logic as aggregate_all_artifacts — see notes there)
         hx, hy, hz = None, None, None
         place_col = None
         if place == "Таверна":
@@ -874,9 +896,6 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
                     hx, hy, hz = int(parts[0]), int(parts[1]), int(parts[2])
                 except ValueError:
                     pass
-            # Same three cases as in aggregate_all_artifacts: active hero (has
-            # color) → None; colorless but in a tavern (escaped) → "Таверна";
-            # colorless prison-on-map → "Тюрьма"
             if flag:
                 place_col = None
             elif tavern_owner is not None and tavern_owner >= 0:
@@ -887,38 +906,68 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
         # Split spells by ", " → one row per spell (matches PRT GetAllSpell)
         spell_names = [s.strip() for s in spell_str.split(",") if s.strip()]
         for spell_name in spell_names:
+            # Look up spell level via localizer (PRT GetAllSpell reads it from TblSpell)
+            spell_level = None
+            if localizer:
+                # Try to find spell_id by reverse-lookup (spell_name → id)
+                # PRT stores spells as IDs in hero data, then looks up name + level
+                # We have the name (from hero's spell string) — need level
+                # Use localizer.spell_level() if we can find the ID
+                pass  # spell_level lookup is complex; PRT gets it from TblSpell directly
             rows.append({
                 "x": hx, "y": hy, "z": hz,
                 "object": _PRT_OBJECT.get(34, "Герой"),
                 "spell_name": spell_name,
-                "level": None, "flag": flag, "town": None, "built": None,
+                "level": localizer.spell_level(_find_spell_id(spell_name)) if localizer else None,
+                "flag": flag, "town": None, "built": None,
                 "garrison": None, "hero": hero_name,
                 "place": place_col,
-                "mission": None, "guard": None,
+                "mission": None, "guard": None, "num": hero_idx,
             })
 
     # ── 4. Town spells (from spell pool per level) ──
+    # PRT GetAllSpell for towns: reads spell pool + garrison + built flag.
+    # Garrison: formatted as "<name> <count>, ..." from army_types/counts.
+    # Built: "Да" if mage guild level is built (bit in built_byte at sp_addr-16).
     for t in parsed.get("towns_found", []):
         f = t.get("fields", {}) or {}
         sp = f.get("spell_pool", {})
         levels = sp.get("levels", []) if isinstance(sp, dict) else []
         town_name = f.get("name", "?")
         ttype = f.get("type", 0) or 0
-        town_type_name = localizer.town(ttype) if localizer and isinstance(ttype, int) else str(ttype)
         faction = f.get("faction", -1)
         flag = localizer.color(faction) if localizer and isinstance(faction, int) and 0 <= faction < 8 else None
+
+        # Garrison: format from army_types + army_counts
+        at = f.get("army_types", []) or []
+        ac = f.get("army_counts", []) or []
+        garrison_parts = []
+        for mt, ct in zip(at, ac):
+            if isinstance(mt, int) and mt >= 0 and ct:
+                mname = localizer.monstr(mt) if localizer else f"M{mt}"
+                garrison_parts.append(f"{mname} {ct}")
+        garrison_str = ", ".join(garrison_parts) if garrison_parts else None
+
+        # Built: check built_byte (similar to Города sheet logic)
+        sp_addr = sp.get("address", 0) if isinstance(sp, dict) else 0
+        built_byte = 0
+        if raw and sp_addr and sp_addr - 16 >= 0 and sp_addr - 16 < len(raw):
+            built_byte = raw[sp_addr - 16]
+
         for level_idx, level_spells in enumerate(levels):
             if isinstance(level_spells, list):
                 for sid in level_spells:
                     if sid is not None and sid >= 0:
+                        built_str = "Да" if (built_byte >> level_idx) & 1 else None
                         rows.append({
                             "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
-                            "object": _PRT_OBJECT.get(98, "Городок"),  # PRT uses "Городок" for all town spells
+                            "object": _PRT_OBJECT.get(98, "Городок"),
                             "spell_name": _spl_name(sid) or str(sid),
                             "level": level_idx + 1,
-                            "flag": flag, "town": town_name, "built": None,
-                            "garrison": None, "hero": None, "place": None,
-                            "mission": None, "guard": None,
+                            "flag": flag, "town": town_name, "built": built_str,
+                            "garrison": garrison_str if level_idx == 0 else None,
+                            "hero": None, "place": None,
+                            "mission": None, "guard": None, "num": None,
                         })
 
     # ── 5. Scholar spells (scholar_type='spell', has spell_id) ──
