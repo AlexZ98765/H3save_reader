@@ -757,156 +757,163 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         autosize_columns(ws)
 
         # ── Провидцы ──
+        # PRT SeerHutContent (MainForm.cs:8505) — same mission formatting as
+        # PassGuardContent + 15-byte reward block. Uses localizer for all names.
         ws = wb.create_sheet("Провидцы")
         ws.append(["X", "Y", "Z", "Район", "Задание", "Награда", "Срок"])
 
-        # Mapping from our post_tile_parser mission_type (0=empty, 1..9) to Quest[] index
-        # in the data dictionary (0..8). This is a direct mapping based on what each
-        # mission_type means in our parser (post_tile_parser.py:417).
-        QUEST_TYPE_TO_DICT_IDX = {
-            1: 0,  # t=1 "Reach level" → Quest[0]="Достичь уровня"
-            2: 1,  # t=2 "Reach primary skills" → Quest[1]="Получить навык"
-            3: 7,  # t=3 "Find hero {" → Quest[7]="Победить героя" (or similar)
-            4: 2,  # t=4 "Kill monster" → Quest[2]="Победить монстра"
-            5: 3,  # t=5 "Bring artefacts" → Quest[3]="Принести артефакты"
-            6: 4,  # t=6 "Bring monsters" → Quest[4]="Принести монстров"
-            7: 5,  # t=7 "Bring resources" → Quest[5]="Принести ресурсы"
-            8: 7,  # t=8 "Defeat hero }" → Quest[7]="Победить героя"
-            9: 6,  # t=9 "Defeat color" → Quest[6]="Иметь цвет флага"
-        }
-        # Mapping from our reward_type (0=none, 1..10) to Reward[] index in dictionary.
-        # Our parser order (post_tile_parser.py:535) matches Reward[] in dictionary:
-        # 1=experience→0, 2=mana→1, 3=morale→2, 4=luck→3, 5=resource→4, 6=primary→5(skill),
-        # 7=secondary→5(skill), 8=artifact→6, 9=spell→7, 10=monster→8
-        REWARD_TYPE_TO_DICT_IDX = {
-            1: 0,  # experience
-            2: 1,  # mana
-            3: 2,  # morale
-            4: 3,  # luck
-            5: 4,  # resource
-            6: 5,  # primary skill (matches "Навык" in dictionary)
-            7: 5,  # secondary skill (matches "Навык" in dictionary)
-            8: 6,  # artifact
-            9: 7,  # spell
-            10: 8, # monster
-        }
+        # Resource letters + names for resource formatting
+        _A_RES_LETTERS = ["W", "M", "O", "S", "C", "G"]
+        _A_RES_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+        _PSKILL_LETTERS = {"Attack": "A", "Defense": "D", "Power": "P", "Knowledge": "K"}
+
+        def _fmt_seer_mission(rec):
+            """Format SeerHut mission string — same logic as PassGuard."""
+            mtype = rec.get("mission_type", 0)
+            mission = rec.get("mission", {}) or {}
+            if not mtype:
+                return None
+            if mtype == 1:
+                lvl = mission.get("level", 0)
+                return f"{loc.quest(0)} {lvl}" if loc else f"Достичь уровня {lvl}"
+            elif mtype == 2:
+                ps = mission.get("primary_skills", {})
+                if isinstance(ps, dict) and ps:
+                    parts = [f"{_PSKILL_LETTERS.get(k, k[:1].upper())}{v}" for k, v in ps.items()]
+                    return f"{loc.quest(1)} {', '.join(parts)}" if loc else f"Получить навык {', '.join(parts)}"
+                return loc.quest(1) if loc else "Получить навык"
+            elif mtype == 3:
+                hero_id = mission.get("hero_id", -1)
+                heroes_list = parsed.get("heroes_found", []) or []
+                hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+                hero_name = hero.get("name", "") or f"H{hero_id}"
+                hero_place = hero.get("place") or ""
+                if hero_place and "." in str(hero_place):
+                    return f"{loc.quest(7)} {hero_name} ({hero_place})" if loc else f"Победить героя {hero_name} ({hero_place})"
+                return f"{loc.quest(7)} {hero_name}" if loc else f"Победить героя {hero_name}"
+            elif mtype == 4:
+                mid = mission.get("monster_id", -1)
+                mx = mission.get("x", 0)
+                my = mission.get("y", 0)
+                mz = mission.get("bit", 0)
+                mname = loc.monstr(mid) if loc and mid >= 0 else f"M{mid}"
+                return f"{loc.quest(2)} {mname} ({mx}.{my}.{mz})" if loc else f"Победить монстра {mname} ({mx}.{my}.{mz})"
+            elif mtype == 5:
+                arts = mission.get("artifacts", [])
+                if isinstance(arts, list) and arts:
+                    art_names = [loc.art(a) if loc and isinstance(a, int) and a >= 0 else str(a) for a in arts]
+                    art_names = [n for n in art_names if n]
+                    if art_names:
+                        return f"{loc.quest(3)} {', '.join(art_names)}" if loc else f"Принести артефакты {', '.join(art_names)}"
+                return loc.quest(3) if loc else "Принести артефакты"
+            elif mtype == 6:
+                mons = mission.get("monsters", [])
+                if isinstance(mons, list) and mons:
+                    mon_parts = []
+                    for m in mons:
+                        if isinstance(m, (list, tuple)) and len(m) >= 2:
+                            mid, cnt = m[0], m[1]
+                            mname = loc.monstr(mid) if loc and isinstance(mid, int) and mid >= 0 else f"M{mid}"
+                            mon_parts.append(f"{mname} {cnt}")
+                    if mon_parts:
+                        return f"{loc.quest(4)} {', '.join(mon_parts)}" if loc else f"Принести монстров {', '.join(mon_parts)}"
+                return loc.quest(4) if loc else "Принести монстров"
+            elif mtype == 7:
+                res = mission.get("resources", {})
+                if isinstance(res, dict) and res:
+                    res_parts = []
+                    for rkey, rcount in res.items():
+                        if rcount:
+                            try:
+                                ridx = _A_RES_NAMES.index(rkey)
+                                res_parts.append(f"{_A_RES_LETTERS[ridx]}{rcount}")
+                            except (ValueError, IndexError):
+                                if rkey == "Gold":
+                                    res_parts.append(f"Золото {rcount}")
+                                else:
+                                    res_parts.append(f"{rkey} {rcount}")
+                    if res_parts:
+                        return f"{loc.quest(5)} {', '.join(res_parts)}" if loc else f"Принести ресурсы {', '.join(res_parts)}"
+                return loc.quest(5) if loc else "Принести ресурсы"
+            elif mtype == 8:
+                hero_id = mission.get("hero_id", -1)
+                heroes_list = parsed.get("heroes_found", []) or []
+                hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+                hero_name = hero.get("name", "") or f"H{hero_id}"
+                return f"{loc.quest(8)} {hero_name}" if loc else f"Быть героем {hero_name}"
+            elif mtype == 9:
+                color_id = mission.get("color_id")
+                color_val = mission.get("color")
+                if color_id is not None and isinstance(color_id, int) and loc:
+                    color_name = loc.color(color_id)
+                else:
+                    color_name = color_val or "?"
+                return f"{loc.quest(6)} {color_name}" if loc else f"Иметь цвет флага {color_name}"
+            return None
+
+        def _fmt_seer_reward(rec):
+            """Format SeerHut reward string per PRT SeerHutContent."""
+            rtype = rec.get("reward_type", 0)
+            reward = rec.get("reward", {}) or {}
+            if not rtype:
+                return None  # PRT shows empty (None), not "—"
+            # Reward type → localized name via Reward section
+            REWARD_MAP = {1:0, 2:1, 3:2, 4:3, 5:4, 6:5, 7:5, 8:6, 9:7, 10:8}
+            rid = REWARD_MAP.get(rtype, rtype - 1)
+            rname = loc.reward(rid) if loc else str(rtype)
+            parts = [rname]
+            if "experience" in reward:
+                parts.append(str(reward["experience"]))
+            if "mana" in reward:
+                parts.append(str(reward["mana"]))
+            if "morale" in reward:
+                parts.append(f"+{reward['morale']}" if reward['morale'] > 0 else str(reward['morale']))
+            if "luck" in reward:
+                parts.append(f"+{reward['luck']}" if reward['luck'] > 0 else str(reward['luck']))
+            if "resource_type" in reward and "amount" in reward:
+                rt = reward['resource_type']
+                rn = loc.mine(rt) if loc and isinstance(rt, int) else str(rt)
+                parts.append(f"{rn} {reward['amount']}")
+            if "artifact_id" in reward:
+                aid = reward.get("artifact_id", -1)
+                if isinstance(aid, int) and aid >= 0:
+                    parts.append(loc.art(aid) if loc else str(aid))
+            if "spell_id" in reward:
+                sid = reward.get("spell_id", -1)
+                if isinstance(sid, int) and sid >= 0:
+                    parts.append(loc.spell(sid) if loc else str(sid))
+            if "monster_id" in reward:
+                mid = reward.get("monster_id", -1)
+                cnt = reward.get("monster_count", reward.get("count", 0))
+                if isinstance(mid, int) and mid >= 0:
+                    mname = loc.monstr(mid) if loc else f"M{mid}"
+                    parts.append(f"{mname} {cnt}" if cnt else mname)
+            if "secondary_skill_id" in reward:
+                sid = reward.get("secondary_skill_id", -1)
+                lvl = reward.get("level_id", 0)
+                if isinstance(sid, int) and sid >= 0:
+                    skn = loc.skill(sid) if loc else f"Sk{sid}"
+                    prefix = loc.level_skill(lvl - 1) if loc and isinstance(lvl, int) and lvl >= 1 else ""
+                    parts.append(f"{prefix}{skn}" if prefix else skn)
+            if "primary_skill" in reward:
+                psk = reward.get("primary_skill", "")
+                amt = reward.get("amount", 0)
+                letter = _PSKILL_LETTERS.get(psk, psk[:1].upper() if psk else "?")
+                parts.append(f"{letter}+{amt}" if amt else letter)
+            return " ".join(parts)
 
         for rec in mo.get("Провидцы", []):
-            # Mission
-            mtype = rec.get("mission_type")
-            mission = rec.get("mission", {}) or {}
-            if mtype is None or mtype == 0:
-                mission_str = "—" if mtype == 0 else str(mission)
-            else:
-                quest_id = QUEST_TYPE_TO_DICT_IDX.get(mtype, mtype - 1)
-                mission_str = _quest_name(quest_id) or str(mtype)
-                if "level" in mission:
-                    mission_str += f" {mission['level']}"
-                if "artifacts" in mission:
-                    arts = mission['artifacts']
-                    if isinstance(arts, list):
-                        art_names = [_art_name(a) or str(a) for a in arts if isinstance(a, int) and a >= 0]
-                        if art_names:
-                            mission_str += f" [{', '.join(art_names)}]"
-                if "monsters" in mission:
-                    mons = mission['monsters']
-                    if isinstance(mons, list):
-                        mon_parts = []
-                        for m in mons:
-                            if isinstance(m, dict):
-                                mid = m.get('monster_id', -1)
-                                cnt = m.get('count', 0)
-                                if mid >= 0:
-                                    mon_parts.append(f"{_mon_name(mid) or mid} x{cnt}")
-                            elif isinstance(m, (list, tuple)) and len(m) >= 2:
-                                mon_parts.append(f"{_mon_name(m[0]) or m[0]} x{m[1]}")
-                        if mon_parts:
-                            mission_str += f" [{', '.join(mon_parts)}]"
-                if "resources" in mission:
-                    res = mission['resources']
-                    if isinstance(res, dict):
-                        res_parts = []
-                        for rkey, rcount in res.items():
-                            if rcount:
-                                try:
-                                    ridx = ['Wood', 'Mercury', 'Ore', 'Sulfur', 'Crystal', 'Gems'].index(rkey)
-                                    rname = _mine_name(ridx) or rkey
-                                except (ValueError, IndexError):
-                                    rname = rkey
-                                res_parts.append(f"{rname} x{rcount}")
-                        if res_parts:
-                            mission_str += f" [{', '.join(res_parts)}]"
-            # Reward
-            rtype = rec.get("reward_type")
-            reward = rec.get("reward", {}) or {}
-            if rtype is None or rtype == 0:
-                reward_str = "—" if rtype == 0 else str(reward)
-            else:
-                reward_id = REWARD_TYPE_TO_DICT_IDX.get(rtype, rtype - 1)
-                reward_str = _reward_name(reward_id) or str(rtype)
-                if "experience" in reward:
-                    reward_str += f" {reward['experience']}"
-                if "mana" in reward:
-                    reward_str += f" {reward['mana']}"
-                if "morale" in reward:
-                    reward_str += f" {reward['morale']}"
-                if "luck" in reward:
-                    reward_str += f" {reward['luck']}"
-                if "amount" in reward:
-                    reward_str += f" {reward['amount']}"
-                if "artifact_id" in reward or "artifacts" in reward:
-                    aids = reward.get('artifacts', [reward.get('artifact_id', -1)])
-                    if isinstance(aids, list):
-                        art_names = [_art_name(a) or str(a) for a in aids if isinstance(a, int) and a >= 0]
-                        if art_names:
-                            reward_str += f" [{', '.join(art_names)}]"
-                if "spell_id" in reward or "spells" in reward:
-                    sids = reward.get('spells', [reward.get('spell_id', -1)])
-                    if isinstance(sids, list):
-                        spl_names = [_spl_name(s) or str(s) for s in sids if isinstance(s, int) and s >= 0]
-                        if spl_names:
-                            reward_str += f" [{', '.join(spl_names)}]"
-                if "monster_id" in reward or "monsters" in reward:
-                    mons = reward.get('monsters', [reward.get('monster_id', -1)])
-                    if isinstance(mons, list):
-                        mon_parts = []
-                        for m in mons:
-                            if isinstance(m, dict):
-                                mid = m.get('monster_id', -1)
-                                cnt = m.get('count', 0)
-                                if mid >= 0:
-                                    mon_parts.append(f"{_mon_name(mid) or mid} x{cnt}")
-                            elif isinstance(m, int) and m >= 0:
-                                mon_parts.append(_mon_name(m) or str(m))
-                        if mon_parts:
-                            reward_str += f" [{', '.join(mon_parts)}]"
-                if "resource" in reward and "amount" in reward:
-                    rt = reward['resource']
-                    reward_str += f" {rt} x{reward['amount']}"
-                if "resource_type" in reward and "amount" in reward:
-                    rt = reward['resource_type']
-                    rn = _mine_name(rt) if isinstance(rt, int) else str(rt)
-                    reward_str += f" {rn} x{reward['amount']}"
-                # Secondary skill (reward_type 7)
-                if "secondary_skill_id" in reward:
-                    sid = reward.get("secondary_skill_id", -1)
-                    lvl = reward.get("level_id", 0)
-                    if isinstance(sid, int) and sid >= 0:
-                        skn = _skl_name(sid) or str(sid)
-                        reward_str += f" {skn}"
-                        if isinstance(lvl, int) and lvl >= 0:
-                            lvl_name = loc.full_level_skill(lvl) if loc else None
-                            reward_str += f" ({lvl_name or 'L' + str(lvl)})"
-                # Primary skill (reward_type 6)
-                if "primary_skill" in reward:
-                    psk = reward.get("primary_skill", "")
-                    amt = reward.get("amount", 0)
-                    reward_str += f" {psk}"
-                    if amt:
-                        reward_str += f" +{amt}"
-            ws.append([_sanitize(rec.get("x")), _sanitize(rec.get("y")), _sanitize(rec.get("z")),
-                       "суша" if rec.get("locality", "суша") != "море" else "море",
-                       _sanitize(mission_str), _sanitize(reward_str), _sanitize(rec.get("deadline"))])
+            mission_str = _fmt_seer_mission(rec)
+            reward_str = _fmt_seer_reward(rec)
+            deadline = rec.get("deadline")
+            # Format deadline as PRT: concatenated digits "441"
+            if isinstance(deadline, (list, tuple)) and len(deadline) == 3:
+                deadline = f"{deadline[0]}{deadline[1]}{deadline[2]}"
+            elif isinstance(deadline, (list, dict, tuple)):
+                deadline = str(deadline)
+            ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
+                       rec.get("locality") if rec.get("locality") else None,
+                       mission_str, reward_str, deadline])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

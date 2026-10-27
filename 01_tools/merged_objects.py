@@ -1187,9 +1187,17 @@ def merge_seer_huts(tile_objects: List[Dict[str, Any]],
     tile_seer = [obj for obj in tile_objects if obj.get('type_id') == 83]
     post_seer = post_tile_content.get("seer_huts", [])
 
-    for i, ps in enumerate(post_seer):
-        ps = _to_dict(ps)
-        ts = tile_seer[i] if i < len(tile_seer) else {}
+    # PRT AnalysisContent sorts TblSeerHut by Num, then iterates in that order.
+    # post_seer[i] corresponds to the SeerHut with Num == i.
+    # OUR's tile scan stores `num` field per tile object. Match by num.
+    for ts in tile_seer:
+        num = ts.get("num")
+        if num is not None and 0 <= num < len(post_seer):
+            ps = _to_dict(post_seer[num])
+        else:
+            # Fallback: positional matching (if num missing)
+            i = tile_seer.index(ts)
+            ps = _to_dict(post_seer[i]) if i < len(post_seer) else {}
         seer_huts.append({
             "x": ts.get('x'),
             "y": ts.get('y'),
