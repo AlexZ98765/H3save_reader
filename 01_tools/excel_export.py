@@ -1816,7 +1816,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Все Заклы")
         ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана", "№"])
         if aggregate_all_spells:
-            for rec in aggregate_all_spells(parsed, localizer=loc, raw=raw):
+            for rec in aggregate_all_spells(parsed, localizer=loc):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("object"), rec.get("spell_name"),
                            rec.get("level"), rec.get("flag"),
@@ -1867,6 +1867,106 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            ])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
+        autosize_columns(ws)
+
+        # ── Грааль ──
+        # PRT GetColorContent (line 7670): reads Grail location + date from current_state.
+        # grail = "X.Y.Z" if found, "Нет" if not (0xFF).
+        # date = day + week + month (concatenated ASCII digit bytes).
+        ws = wb.create_sheet("Грааль")
+        ws.append(["Параметр", "Значение"])
+        for col_idx in range(1, 3):
+            ws.cell(row=1, column=col_idx).font = header_font
+            ws.cell(row=1, column=col_idx).alignment = Alignment(horizontal="center")
+
+        # Get current_state data from parsed blocks
+        _cs_data = {}
+        for b in (parsed.get("blocks") or []):
+            if isinstance(b, dict) and b.get("name") == "current_state":
+                for f in (b.get("fields") or []):
+                    if isinstance(f, dict):
+                        _cs_data[f["name"]] = f["value"]
+                break
+            elif hasattr(b, "name") and b.name == "current_state":
+                for f in (b.fields or []):
+                    _cs_data[f.name] = f.value
+                break
+
+        _gx = _cs_data.get("grail_x", 0xFF)
+        _gy = _cs_data.get("grail_y", 0xFF)
+        _gz = _cs_data.get("grail_z", 0xFF)
+        if isinstance(_gx, int) and _gx != 0xFF:
+            _grail_str = f"{_gx}.{_gy}.{_gz}"
+        else:
+            _grail_str = "Нет"
+
+        _day = _cs_data.get("day", 0)
+        _week = _cs_data.get("week", 0)
+        _month = _cs_data.get("month", 0)
+        _date_str = f"{_day}{_week}{_month}" if (_day or _week or _month) else "0"
+
+        ws.append(["Грааль", _grail_str])
+        ws.append(["Дата", _date_str])
+        ws.append(["X", _gx if isinstance(_gx, int) and _gx != 0xFF else None])
+        ws.append(["Y", _gy if isinstance(_gy, int) and _gy != 0xFF else None])
+        ws.append(["Z", _gz if isinstance(_gz, int) and _gz != 0xFF else None])
+        ws.append(["День", _day or None])
+        ws.append(["Неделя", _week or None])
+        ws.append(["Месяц", _month or None])
+        autosize_columns(ws)
+
+        # ── Входные файлы ──
+        # Lists all files used for parsing with descriptions.
+        ws = wb.create_sheet("Входные файлы")
+        ws.append(["№", "Файл", "Описание"])
+        for col_idx in range(1, 4):
+            ws.cell(row=1, column=col_idx).font = header_font
+            ws.cell(row=1, column=col_idx).alignment = Alignment(horizontal="center")
+
+        _input_files = [
+            ("Сохранение (.GM1)",
+             "Основной файл сохранения Heroes of Might and Magic 3. Содержит все данные игры: "
+             "героев, города, объекты карты, ресурсы, артефакты, события и т.д."),
+            ("Конфиг карты (save_map_config_*.json)",
+             "Конфигурация карты — результат Фазы 2 (save_config_builder). Содержит смещения "
+             "секций сейва (кластеры, герои, города, объекты), вычисленные из day-0 сейва."),
+            ("Map JSON (.h3m.json / .h3m.zip)",
+             "Парсинг карты .h3m — результат Фазы 1 (map_json_loader). Содержит координаты "
+             "всех объектов карты, типы объектов, спрайты и т.д."),
+            ("Локализация (localization_dictionary.json)",
+             "Многоязычный словарь имён объектов (22 секции × 4 языка). Источник для "
+             "синонимов и локализованных имён. Извлечён из Data/*.txt файлов PRT."),
+            ("Монстры (tbl_monsters_mapping.json)",
+             "Таблица TblMonsters из MainForm.cs: 145 монстров с name/level/hp/altar/town. "
+             "Используется для ∑ HP вычислений и metadata."),
+            ("Артефакты (tbl_art_mapping.json)",
+             "Таблица TblArt из MainForm.cs: 141 артефакт с name/class_id/relic_c_id. "
+             "Используется для имён артефактов, классов и релик-связей."),
+            ("Здания (tbl_building_mapping.json)",
+             "Таблица TblBuilding из MainForm.cs: 369 записей (type/byte/bit → building name). "
+             "Используется для декодирования построек в События-Таймеры."),
+            ("Идеология (tbl_ideology_mapping.json)",
+             "Таблица TblIdeology из MainForm.cs: 156 героев → ideology_id + class_id. "
+             "Используется для колонок Идеология и Класс на листе Герои."),
+            ("Уровни заклинаний (spell_levels.json)",
+             "Таблица TblSpell из MainForm.cs: 71 заклинание с level (1-5). "
+             "Используется для колонки Уровень на листе Заклинания."),
+            ("Порядок кодов объектов (object_code_order.json)",
+             "Таблица TblObject из MainForm.cs: 57 кодов объектов в позиционном порядке. "
+             "Используется для локализации имён объектов по type_id."),
+            ("Парсеры тайлов (artifact_tile_parsers.json, resource_tile_parsers.json, skill_tile_parsers.json)",
+             "Конфигурация парсеров тайл-уровня: извлечение artifact_id, resource, skill "
+             "из байтов тайла для каждого type_id."),
+            ("Конфиг банков (bank_artifact_config.json)",
+             "Конфигурация банков-артефактов: is_artifact_bank + default_slots per type_id."),
+            ("Словарь объектов (object_types_dictionary.json)",
+             "Универсальный словарь 2037 типов объектов из LazyLlama wiki. "
+             "Используется для enrichment листа All Objects."),
+        ]
+
+        for i, (fname, desc) in enumerate(_input_files):
+            ws.append([i + 1, fname, desc])
+
         autosize_columns(ws)
 
     # ----- Save -----
