@@ -1142,6 +1142,13 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
         the 61-byte record (color at offset 0, monster_ids at i*4+1, counts at
         i*4+29,30, X/Y/Z at 57..59, CanTake at 60)
     """
+    # Localized object name (PRT TblObject code 33 = "Гарнизон")
+    try:
+        from localizer import get_localizer
+        _loc = get_localizer()
+        garrison_name = _loc.object(33) if _loc else "Гарнизон"
+    except Exception:
+        garrison_name = "Гарнизон"
     garrisons = []
     tile_garrisons = [obj for obj in tile_objects if obj.get('type_id') == 33]
     post_garrisons = post_tile_content.get("garrisons", [])
@@ -1154,7 +1161,7 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
             "y": tg.get('y'),
             "z": tg.get('z'),
             "locality": "море" if tg.get('loc') == 8 else "суша",
-            "object": "Garrison",
+            "object": garrison_name,
             "anti_magic": tg.get('anti_magic', False),
             "address": pg.get("address"),
             "guard": _serialize_guard(pg.get("guard", [])),

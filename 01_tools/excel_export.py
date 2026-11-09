@@ -1898,7 +1898,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Опыт")
         ws.append(["X", "Y", "Z", "Район", "Объект", "Город", "Герой", "Флаг", "Монстр", "Артефакт", "Ресурс", "Охрана", "∑ HP", "Опыт", "∑ XP", "∑ XP+10%", "∑ XP+15%", "∑ XP+5%", "№", "Задание", "Заклинание"])
         if aggregate_all_experience:
-            for rec in aggregate_all_experience(parsed, localizer=loc):
+            for rec in aggregate_all_experience(parsed, localizer=loc, raw=raw):
                 xp = rec.get("xp_total") or 0
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("locality"),

@@ -166,17 +166,22 @@ def compute_guard_hp(guard_list) -> int:
 def hero_sum_hp(hero_dict: Dict[str, Any]) -> Optional[int]:
     """Compute ∑ HP for a hero from parsed_data["heroes_found"][i].
 
-    Returns None for non-active heroes (those with Place=None or "Запрещен"),
-    matching PRT MainForm.cs:7793 condition:
-        `if (!r_HeroesRow.IsPlaceNull() && r_HeroesRow.Place != aPlace[2] && text != "")`
+    Returns None for tavern heroes (those with Place=None or "Таверна"),
+    matching PRT GetAllExperience filter (MainForm.cs:6398):
+        `Place <> 'Таверна'`  (aPlace[1] = "Таверна")
+
+    NOTE: PRT INCLUDES banned heroes (Place="Запрещен") and prison heroes
+    (Place="X.Y.Z") — both have armies and HP that count toward XP.
+    The earlier comment "Place != aPlace[2]" was incorrect — that's from
+    a different PRT function (GetAllArtifacts) which excludes banned.
 
     Reads `army_types` and `army_counts` from hero's `fields` dict.
     """
     if not isinstance(hero_dict, dict):
         return None
     place = hero_dict.get("place")
-    # PRT: only show when Place is set AND != "Запрещен"
-    if not place or place == "Запрещен":
+    # PRT GetAllExperience: skip only tavern heroes (Place == "Таверна" or NULL)
+    if not place or place == "Таверна":
         return None
     f = hero_dict.get("fields", {}) or {}
     at = f.get("army_types", []) or []
@@ -301,35 +306,108 @@ def monster_sum_hp(monster_rec: Dict[str, Any]) -> Optional[int]:
 # PRT DEFAULT TblObject names (MainForm.cs:10717+). Used for Object column
 # in aggregator sheets to match PRT 0000.xlsx exactly.
 _PRT_OBJECT = {
-    26: "Событие",       # Event
-    34: "Герой",         # Hero
-    54: "Монстр",        # Monster
-    81: "Ученый",        # Scholar
-    83: "Хижина провидца",  # Seer Hut
-    98: "Городок",       # Town
-    100: "Камень знаний", # Learning Stone
+    5: "Артефакт",         # PRT TblObject Code '5'
+    17: "Жилище",          # Creature dwelling (generic, Code 17)
+    20: "Жилище",          # Special dwelling (Golem Factory / Conflux, Code 20)
+    26: "Событие",         # Event
+    33: "Гарнизон",        # PRT TblObject Code '33'
+    34: "Герой",           # Hero
+    53: "Заброшенная шахта",  # Mine (Code 53)
+    54: "Монстр",          # Monster
+    63: "Пирамида",        # Pyramid (Code 63)
+    81: "Ученый",          # Scholar
+    83: "Хижина Провидца",  # Seer Hut (capital P — matches localizer.object(83))
+    98: "Городок",         # Town
+    100: "Камень знаний",  # Learning Stone
     101: "Сундук с сокровищами",  # Treasure Chest
     113: "Хижина ведьмы",  # Witch Hut
 }
 
-def _guard_str_safe(guard) -> Optional[str]:
+# TblDwelling data (PRT MainForm.cs:10664-10707). Maps dwelling code →
+# (localized_name, default_monster_id). Used for dwelling XP rows in
+# aggregate_all_experience (matches PRT GetAllExperience line 6420-6485).
+PRT_TBL_DWELLING = {
+    1:  ("Утес чудищ", 96),
+    3:  ("Залы тьмы", 66),
+    4:  ("Свод драконов", 68),
+    5:  ("Тренировочная площадка", 10),
+    8:  ("Портал Славы", 12),
+    9:  ("Пещера циклопов", 94),
+    10: ("Покинутый дворец", 54),
+    13: ("Разлом элементалей земли", 113),
+    14: ("Огненное озеро", 52),
+    18: ("Алтарь желаний", 36),
+    23: ("Логово горгон", 102),
+    24: ("Утес драконов", 26),
+    28: ("Пруд гидр", 110),
+    32: ("Берлога мантикор", 80),
+    34: ("Лабиринт", 78),
+    35: ("Монастырь", 8),
+    36: ("Золотой павильон", 38),
+    40: ("Адская дыра", 50),
+    41: ("Пещера драконов", 82),
+    42: ("Гнездо на утесе", 92),
+    44: ("Заоблачный храм", 40),
+    45: ("Арка дендроидов", 22),
+    49: ("Гнездо вивернов", 108),
+    51: ("Опушка единорогов", 24),
+    52: ("Мавзолей", 64),
+    60: ("Алтарь мыслей", 120),
+    61: ("Погребальный костер", 130),
+    62: ("Ледяной утес", 132),
+    63: ("Кристаллическая пещера", 133),
+    64: ("Магический лес", 134),
+    65: ("Серная берлога", 135),
+    66: ("Ложбина чародеев", 136),
+    68: ("Опушка единорогов", 24),
+    70: ("Алтарь земли", 113),
+    79: ("Мост троллей", 144),
+    96: ("Фабрика големов", 116),
+    97: ("Сопряжение", 113),
+}
+
+def _guard_str_safe(guard, localizer=None) -> Optional[str]:
     """Format a guard list as 'Pikeman 5, Goblin 20' string.
     If guard is already a string, return it as-is.
     If guard is a list of {monster_id, count} dicts, format each.
+
+    DEDUPLICATES by monster_id, summing counts (PRT ItWas logic from
+    MainForm.cs:9033-9065 GetBankGuard). Example: 5 slots of Медуза with
+    count 6 each → "Медуза 30" (single entry, summed count).
+
+    When `localizer` is provided, uses localizer.monstr(mid) to get the
+    ru_sod localized name (matches PRT TblMonsters). Otherwise falls back
+    to get_monster_name() (tbl_monsters_mapping.json — may differ from PRT).
     """
     if not guard:
         return None
     if isinstance(guard, str):
         return guard
     if isinstance(guard, list):
-        parts = []
+        # Deduplicate by monster_id (PRT ItWas logic)
+        seen: dict = {}  # monster_id → total_count
+        order: list = []  # preserve first-seen order
         for g in guard:
             if isinstance(g, dict):
                 mid = g.get("monster_id", -1)
                 cnt = g.get("count", 0)
                 if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                    if mid in seen:
+                        seen[mid] += cnt
+                    else:
+                        seen[mid] = cnt
+                        order.append(mid)
+        parts = []
+        for mid in order:
+            cnt = seen[mid]
+            if localizer is not None:
+                try:
+                    mname = localizer.monstr(mid) or f"M{mid}"
+                except Exception:
                     mname = get_monster_name(mid) or f"M{mid}"
-                    parts.append(f"{mname} {cnt}")
+            else:
+                mname = get_monster_name(mid) or f"M{mid}"
+            parts.append(f"{mname} {cnt}")
         return ", ".join(parts) if parts else None
     return None
 
@@ -1324,7 +1402,7 @@ def aggregate_all_skills(parsed: Dict[str, Any], localizer=None) -> List[Dict[st
     return rows
 
 
-def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
+def aggregate_all_experience(parsed: Dict[str, Any], localizer=None, raw: Optional[bytes] = None) -> List[Dict[str, Any]]:
     """Aggregate ALL XP sources → "Опыт" sheet.
 
     Sources (matching PRT GetAllExperience, MainForm.cs:6400+):
@@ -1374,23 +1452,46 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
             })
 
     # ── 3. Events (experience field) ──
+    # PRT GetAllExperience line 6516-6550: uses r_EventBoxRow.Object (which is
+    # the actual localized event/box name — "Событие" for events, "Ящик Пандоры"
+    # for pandora boxes). NOT "Хижина провидца".
+    # PRT filter (line 6388): `Guard IS NOT NULL OR Experience IS NOT NULL`.
+    # So events with EITHER guard OR experience are included.
     for rec in mo.get("События_Ящики_Пандоры", []):
         xp = rec.get("experience")
-        if xp and xp > 0:
-            hp_val = event_box_sum_hp(rec) if event_box_sum_hp else None
-            total_xp = (hp_val or 0) + xp
-            rows.append({
-                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                "locality": rec.get("locality"),
-                "object": _PRT_OBJECT.get(83, "Хижина провидца"),
-                "town": None, "hero": None, "flag": None,
-                "monster": None, "artifact": None, "resource": None,
-                "guard": rec.get("guard"), "hp": hp_val,
-                "experience": xp, "xp_total": total_xp,
-            })
+        guard = rec.get("guard")
+        # PRT: include if has guard OR has experience
+        if not (guard or (xp and xp > 0)):
+            continue
+        hp_val = event_box_sum_hp(rec) if event_box_sum_hp else None
+        # PRT: XP = HP + Experience (whichever is set)
+        if hp_val and xp:
+            total_xp = hp_val + xp
+        elif hp_val:
+            total_xp = hp_val
+        elif xp:
+            total_xp = xp
+        else:
+            continue  # neither set — skip
+        rows.append({
+            "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+            "locality": rec.get("locality"),
+            "object": rec.get("object") or _PRT_OBJECT.get(26, "Событие"),
+            "town": None, "hero": None, "flag": None,
+            "monster": None, "artifact": None, "resource": None,
+            # PRT uses r_EventBoxRow.Guard directly (no dedup for events —
+            # they may have "Нага 3, Нага 3, Нага 3" with intentional duplicates)
+            "guard": guard if isinstance(guard, str) else _guard_str_safe(guard, localizer=localizer),
+            "hp": hp_val,
+            "experience": xp if xp and xp > 0 else None,
+            "xp_total": total_xp,
+        })
 
     # ── 4-8. Guarded tiles (Artifacts, Resources, Banks, Spells) ──
     # For each, HP = guard HP = XP
+    # PRT GetAllExperience also populates:
+    #   - Artifacts (Code '5'): Art = r_ArtRow.Name (artifact name in Артефакт column)
+    #   - Spells (incl. Pyramids): Spell = r_SpellRow.Spell (spell name in Заклинание column)
     for sheet_key, obj_name in [
         ("Артефакты", "Артефакт"),
         ("Ресурсы", "Ресурс"),
@@ -1404,18 +1505,47 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 "Банки": bank_sum_hp,
                 "Заклинания_Святилища": None,
             }.get(sheet_key)
-            hp_val = hp_func(rec) if hp_func else None
+            # Spells section: include Pyramids (shrine_type==63) which have
+            # hardcoded guard + HP from merge_shrines. Skip regular shrines
+            # (they have no guard → no XP).
+            if sheet_key == "Заклинания_Святилища":
+                if rec.get("shrine_type") == 63:  # Pyramid
+                    hp_val = rec.get("hp") or 3200
+                else:
+                    continue  # regular shrine: no guard, no XP
+            else:
+                hp_val = hp_func(rec) if hp_func else None
             if hp_val and hp_val > 0:
+                # For Artifacts: populate artifact name (PRT line 6561-6564)
+                # ONLY for regular artifacts (Object == "Артефакт", Code '5').
+                # Artifact-banks (Склеп, Ветхий Корабль, Утопия Драконов, etc.)
+                # have Object = bank name and PRT leaves Art column NULL.
+                _art_name_val = None
+                if sheet_key == "Артефакты":
+                    _obj_val = rec.get("object", "")
+                    if _obj_val == "Артефакт" or _obj_val == _PRT_OBJECT.get(5):
+                        _art_name_val = rec.get("artifact_name") or rec.get("artifact")
+                # For Spells/Pyramids: populate spell name (PRT line 6643)
+                _spell_name_val = None
+                if sheet_key == "Заклинания_Святилища":
+                    _sid = rec.get("spell_id")
+                    if localizer and isinstance(_sid, int) and _sid >= 0:
+                        try:
+                            _spell_name_val = localizer.spell(_sid)
+                        except Exception:
+                            _spell_name_val = None
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
                     "object": rec.get("object", obj_name),
                     "town": None, "hero": None, "flag": None,
-                    "monster": None, "artifact": rec.get("artifact"),
+                    "monster": None, "artifact": _art_name_val,
                     "resource": rec.get("resource"),
-                    "guard": _guard_str_safe(rec.get("guard")),
+                    "guard": _guard_str_safe(rec.get("guard"), localizer=localizer),
                     "hp": hp_val,
                     "experience": None, "xp_total": hp_val,
+                    # PRT GetAllExperience line 6643: r_AllExperienceRow13.Spell = r_SpellRow.Spell
+                    "spell": _spell_name_val,
                 })
 
     # ── 9. Monsters ──
@@ -1437,25 +1567,218 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 "experience": None, "xp_total": hp_val,
             })
 
+    # ── 9b. Dwellings (Code 17 + Code 20) ──
+    # PRT GetAllExperience line 6420-6485: scans dwelling section bytes for
+    # guarded dwellings. Each dwelling = 75 bytes. Emits XP row with:
+    #   Object = TblDwelling[dwelling_code].Name
+    #   Guard = "<monster_name> <count>"
+    #   HP = monster_hp × count
+    # Special hardcoded cases for Code 20:
+    #   j+1==1 → "Фабрика големов" (Code 96): "Gold Golem 9, Diamond Golem 6", HP=810
+    #   j+1==0 → "Сопряжение" (Code 97): "Magic Elemental 12", HP=480
+    # Reads section addresses from parsed.post_tile_sections.
+    _pts = parsed.get("post_tile_sections", {}) or {}
+    _dwelling_addr = _pts.get("dwelling", 0) or 0
+    _garrison_addr = _pts.get("garrison", 0) or 0
+    if _dwelling_addr and _garrison_addr and _garrison_addr > _dwelling_addr:
+        # Get raw bytes — passed as function parameter (preferred) or stashed
+        # in parsed dict under "_raw_bytes" (fallback).
+        _raw = raw if raw is not None else parsed.get("_raw_bytes")
+        if _raw and isinstance(_raw, (bytes, bytearray)):
+            _j = _dwelling_addr
+            _raw_len = len(_raw)
+            while _j < _garrison_addr and _j + 75 <= _raw_len:
+                _code = _raw[_j]
+                if _code == 17:
+                    # Standard guarded dwelling: check byte pattern
+                    # (matches PRT MainForm.cs:6425)
+                    _dw_code = _raw[_j + 1]
+                    _mon_id = _raw[_j + 2]
+                    _dw_entry = PRT_TBL_DWELLING.get(_dw_code)
+                    if (_dw_entry is not None
+                            and _dw_entry[1] == _mon_id
+                            and _raw[_j + 3] == 0xFF
+                            and _raw[_j + 4] == 0xFF
+                            and _raw[_j + 5] == 0xFF
+                            and 0 < _raw[_j + 6] < 5
+                            and _raw[_j + 6] * 3 == _raw[_j + 45]):
+                        _x = _raw[_j + 14]
+                        _y = _raw[_j + 15]
+                        _z = _raw[_j + 16]
+                        _cnt = _raw[_j + 45]
+                        _mname = (localizer.monstr(_mon_id) if localizer
+                                  else _dw_entry[0])
+                        # HP = monster_hp × count
+                        _mon_entry = _load_tbl_monsters().get(str(_mon_id))
+                        _mon_hp = (_mon_entry.get("hp", 0) if _mon_entry else 0) * _cnt
+                        rows.append({
+                            "x": _x, "y": _y, "z": _z,
+                            "locality": "суша",
+                            "object": _dw_entry[0],
+                            "town": None, "hero": None, "flag": None,
+                            "monster": None, "artifact": None, "resource": None,
+                            "guard": f"{_mname} {_cnt}",
+                            "hp": _mon_hp,
+                            "experience": None, "xp_total": _mon_hp,
+                        })
+                    _j += 74
+                elif _code == 20:
+                    _sub = _raw[_j + 1]
+                    if _sub == 1:
+                        # Golem Factory (Code 96): "Gold Golem 9, Diamond Golem 6", HP=810
+                        _x = _raw[_j + 14]
+                        _y = _raw[_j + 15]
+                        _z = _raw[_j + 16]
+                        _gold_golem = (localizer.monstr(116) if localizer
+                                       else "Золотой Голем")
+                        _diamond_golem = (localizer.monstr(117) if localizer
+                                          else "Алмазный Голем")
+                        rows.append({
+                            "x": _x, "y": _y, "z": _z,
+                            "locality": "суша",
+                            "object": PRT_TBL_DWELLING[96][0],  # "Фабрика големов"
+                            "town": None, "hero": None, "flag": None,
+                            "monster": None, "artifact": None, "resource": None,
+                            "guard": f"{_gold_golem} 9, {_diamond_golem} 6",
+                            "hp": 810,
+                            "experience": None, "xp_total": 810,
+                        })
+                        _j += 74
+                    elif _sub == 0:
+                        # Elemental Conflux (Code 97): "Magic Elemental 12", HP=480
+                        _x = _raw[_j + 14]
+                        _y = _raw[_j + 15]
+                        _z = _raw[_j + 16]
+                        _magic_elem = (localizer.monstr(113) if localizer
+                                       else "Элементаль Магии")
+                        rows.append({
+                            "x": _x, "y": _y, "z": _z,
+                            "locality": "суша",
+                            "object": PRT_TBL_DWELLING[97][0],  # "Сопряжение"
+                            "town": None, "hero": None, "flag": None,
+                            "monster": None, "artifact": None, "resource": None,
+                            "guard": f"{_magic_elem} 12",
+                            "hp": 480,
+                            "experience": None, "xp_total": 480,
+                        })
+                        _j += 74
+                    else:
+                        _j += 1
+                else:
+                    _j += 1
+
     # ── 10. Garrisons (guard HP = XP) ──
+    # PRT GetAllExperience line 6672-6697: Object = "Гарнизон" (Code 33),
+    # Color = r_GarrisonRow.Color (flag), Guard = r_GarrisonRow.Guard,
+    # HP = r_GarrisonRow.HP. PRT excludes human+allies, we include all
+    # (we don't have a "human" concept — and user wants all rows).
     for rec in mo.get("Гарнизоны", []):
         guard = rec.get("guard")
         if guard:
             hp_val = compute_guard_hp(guard)
             if hp_val and hp_val > 0:
+                # Color/flag: PRT sets Color from r_GarrisonRow.Color.
+                # merge_garrisons stores it in `color` field as int 0..7 (or -1).
+                _color_idx = rec.get("color", -1)
+                _flag = None
+                if isinstance(_color_idx, int) and 0 <= _color_idx < 8 and localizer:
+                    try:
+                        _flag = localizer.color(_color_idx)
+                    except Exception:
+                        _flag = None
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
-                    "object": rec.get("object", "Гарнизон"),
-                    "town": None, "hero": None, "flag": rec.get("flag"),
+                    "object": _PRT_OBJECT.get(33, "Гарнизон"),
+                    "town": None, "hero": None, "flag": _flag,
                     "monster": None, "artifact": None,
                     "resource": None,
-                    "guard": _guard_str_safe(guard),
+                    "guard": _guard_str_safe(guard, localizer=localizer),
                     "hp": hp_val,
                     "experience": None, "xp_total": hp_val,
                 })
 
     # ── 11. SeerHut XP rewards ──
+    # PRT GetAllExperience line 6653-6671: Object = "Хижина Провидца" (Code 83),
+    # Mission = r_SeerHutRow.Mission (Задание column), XP = parsed from reward.
+    # Note: _fmt_mission_str is defined inside aggregate_all_spells (separate
+    # scope), so we use a simplified inline formatter here for the mission string.
+    def _fmt_seer_mission_xp(rec):
+        mtype = rec.get("mission_type", 0)
+        mission = rec.get("mission", {}) or {}
+        if not mtype:
+            return None
+        if mtype == 1:
+            return f"{localizer.quest(0)} {mission.get('level', 0)}" if localizer else f"Достичь уровня {mission.get('level', 0)}"
+        elif mtype == 2:
+            ps = mission.get("primary_skills", {})
+            if isinstance(ps, dict) and ps:
+                _PSK = {"Attack": "A", "Defense": "D", "Power": "P", "Knowledge": "K"}
+                parts = [f"{_PSK.get(k, k[:1].upper())}{v}" for k, v in ps.items()]
+                return f"{localizer.quest(1)} {', '.join(parts)}" if localizer else f"Получить навык {', '.join(parts)}"
+            return localizer.quest(1) if localizer else "Получить навык"
+        elif mtype == 3:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            return f"{localizer.quest(7)} {hero_name}" if localizer else f"Победить героя {hero_name}"
+        elif mtype == 4:
+            mid = mission.get("monster_id", -1)
+            mx = mission.get("x", 0); my = mission.get("y", 0); mz = mission.get("bit", 0)
+            mname = localizer.monstr(mid) if localizer and mid >= 0 else f"M{mid}"
+            return f"{localizer.quest(2)} {mname} ({mx}.{my}.{mz})" if localizer else f"Победить монстра {mname} ({mx}.{my}.{mz})"
+        elif mtype == 5:
+            arts = mission.get("artifacts", [])
+            if isinstance(arts, list) and arts:
+                art_names = [localizer.art(a) if localizer and isinstance(a, int) and a >= 0 else str(a) for a in arts]
+                art_names = [n for n in art_names if n]
+                if art_names:
+                    return f"{localizer.quest(3)} {', '.join(art_names)}" if localizer else f"Принести артефакты {', '.join(art_names)}"
+            return localizer.quest(3) if localizer else "Принести артефакты"
+        elif mtype == 6:
+            mons = mission.get("monsters", [])
+            if isinstance(mons, list) and mons:
+                mon_parts = []
+                for m in mons:
+                    if isinstance(m, (list, tuple)) and len(m) >= 2:
+                        mid, cnt = m[0], m[1]
+                        mname = localizer.monstr(mid) if localizer and isinstance(mid, int) and mid >= 0 else f"M{mid}"
+                        mon_parts.append(f"{mname} {cnt}")
+                if mon_parts:
+                    return f"{localizer.quest(4)} {', '.join(mon_parts)}" if localizer else f"Принести монстров {', '.join(mon_parts)}"
+            return localizer.quest(4) if localizer else "Принести монстров"
+        elif mtype == 7:
+            res = mission.get("resources", {})
+            if isinstance(res, dict) and res:
+                _ARN = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+                _ARL = ["W", "M", "O", "S", "C", "G"]
+                res_parts = []
+                for rkey, rcount in res.items():
+                    if rcount:
+                        try:
+                            ridx = _ARN.index(rkey)
+                            res_parts.append(f"{_ARL[ridx]}{rcount}")
+                        except (ValueError, IndexError):
+                            if rkey == "Gold":
+                                res_parts.append(f"Золото {rcount}")
+                            else:
+                                res_parts.append(f"{rkey} {rcount}")
+                if res_parts:
+                    return f"{localizer.quest(5)} {', '.join(res_parts)}" if localizer else f"Принести ресурсы {', '.join(res_parts)}"
+            return localizer.quest(5) if localizer else "Принести ресурсы"
+        elif mtype == 8:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            return f"{localizer.quest(8)} {hero_name}" if localizer else f"Быть героем {hero_name}"
+        elif mtype == 9:
+            color_id = mission.get("color_id")
+            color_name = localizer.color(color_id) if localizer and color_id is not None else (mission.get("color") or "?")
+            return f"{localizer.quest(6)} {color_name}" if localizer else f"Иметь цвет флага {color_name}"
+        return None
+
     for rec in mo.get("Провидцы", []):
         reward = rec.get("reward", {})
         if isinstance(reward, dict) and "experience" in reward:
@@ -1464,22 +1787,34 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                     "locality": rec.get("locality"),
-                    "object": _PRT_OBJECT.get(83, "Хижина провидца"),  # PRT name for SeerHut
+                    "object": _PRT_OBJECT.get(83, "Хижина Провидца"),  # PRT name for SeerHut
                     "town": None, "hero": None, "flag": None,
                     "monster": None, "artifact": None, "resource": None,
                     "guard": None, "hp": None,
                     "experience": xp, "xp_total": xp,
+                    # PRT GetAllExperience line 6665: r_AllExperienceRow14.Mission = r_SeerHutRow.Mission
+                    "mission": _fmt_seer_mission_xp(rec),
                 })
 
     # ── 12. Heroes ──
-    for h in parsed.get("heroes_found", []):
+    # PRT GetAllExperience line 6698-6733: Object = "Герой" (Code 34),
+    # Hero = r_HeroesRow.Hero, Color = r_HeroesRow.Color, Monster = r_HeroesRow.Monster,
+    # HP = r_HeroesRow.HP, Experience = 500, XP = HP + 500, ID = r_HeroesRow.ID.
+    # PRT filter (line 6398): `Place <> 'Таверна'` — only tavern heroes excluded.
+    # Banned heroes (Place="Запрещен") ARE included if they have army+color.
+    # PRT also requires `Color IS NOT NULL AND Monster IS NOT NULL`.
+    for hero_idx, h in enumerate(parsed.get("heroes_found", [])):
         place = h.get("place")
-        if not place or place == "Запрещен":
+        # Skip tavern heroes (no place or place == "Таверна")
+        if not place or place == "Таверна":
+            continue
+        # Skip heroes without flag/color (PRT: Color IS NOT NULL)
+        if not h.get("flag"):
             continue
         hp_val = hero_sum_hp(h) if hero_sum_hp else None
         if hp_val and hp_val > 0:
             xp = hp_val + 500
-            # Parse X/Y/Z from place string
+            # Parse X/Y/Z from place string (matches PRT line 6707-6713)
             hx, hy, hz = None, None, None
             if isinstance(place, str) and "." in place:
                 parts = place.split(".")
@@ -1496,22 +1831,44 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 "monster": h.get("monster"), "artifact": None,
                 "resource": None, "guard": None, "hp": hp_val,
                 "experience": 500, "xp_total": xp,
+                "num": hero_idx,  # PRT: ID = r_HeroesRow.ID (hero index)
             })
 
-    # ── 11. Towns ──
+    # ── 13. Towns ──
+    # PRT GetAllExperience line 6734-6761: Object = "Городок" (Code 98),
+    # Town = r_TownRow.Name, Color = r_TownRow.Color, Guard = r_TownRow.Garrison,
+    # HP = r_TownRow.HP, Experience = 500, XP = HP + 500.
+    # PRT excludes human+allies, we include all.
     for t in parsed.get("towns_found", []):
         f = t.get("fields", {}) or {}
         hp_val = town_sum_hp(t) if town_sum_hp else None
         if hp_val and hp_val > 0:
             xp = hp_val + 500
+            # Build garrison string from army_types + army_counts (matches
+            # Города sheet logic and PRT GetTownContent line 7486-7500).
+            at = f.get("army_types", []) or []
+            ac = f.get("army_counts", []) or []
+            garrison_list = []
+            for mt, ct in zip(at, ac):
+                if isinstance(mt, int) and mt >= 0 and ct:
+                    garrison_list.append({"monster_id": mt, "count": ct})
+            garrison_str = _guard_str_safe(garrison_list, localizer=localizer)
+            # Flag/color from faction (0..7 → localized color name)
+            _faction = f.get("faction", -1)
+            _flag = None
+            if isinstance(_faction, int) and 0 <= _faction < 8 and localizer:
+                try:
+                    _flag = localizer.color(_faction)
+                except Exception:
+                    _flag = None
             rows.append({
                 "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
                 "locality": "суша",
                 "object": _PRT_OBJECT.get(98, "Городок"),  # PRT "Городок" for Town
                 "town": f.get("name"), "hero": None,
-                "flag": None,
+                "flag": _flag,
                 "monster": None, "artifact": None, "resource": None,
-                "guard": None, "hp": hp_val,
+                "guard": garrison_str, "hp": hp_val,
                 "experience": 500, "xp_total": xp,
             })
 
