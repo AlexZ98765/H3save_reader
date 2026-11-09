@@ -1403,12 +1403,38 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "hp": 3200,
             })
         # ---- Spell Scroll (93) — PRT SaveScroll adds to R_Spell ----
+        # Guard comes from ArtRes section (matched by art_res_num sort order
+        # in merge_all pre-pass). If scroll has art_guard, use it.
         elif type_id == 93:
             spell_id = obj.get('spell_id', 0)
             try:
                 spell_level = loc.spell_level(spell_id) if loc else 0
             except Exception:
                 spell_level = 0
+            # Guard from ArtRes (set by merge_all pre-pass)
+            _art_guard = obj.get('art_guard')
+            _art_hp = obj.get('art_guard_hp')
+            if _art_guard:
+                # Format guard string using localizer for monster names
+                # Guard items may be ArmySlot dataclass OR dict — handle both.
+                _parts = []
+                for g in _art_guard:
+                    if hasattr(g, 'monster_id'):
+                        mid, cnt = g.monster_id, g.count
+                    elif isinstance(g, dict):
+                        mid, cnt = g.get('monster_id', -1), g.get('count', 0)
+                    else:
+                        continue
+                    if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                        try:
+                            mname = loc.monstr(mid) if loc else f"M{mid}"
+                        except Exception:
+                            mname = f"M{mid}"
+                        _parts.append(f"{mname} {cnt}")
+                _guard_str = ", ".join(_parts) if _parts else None
+            else:
+                _guard_str = None
+                _art_hp = None
             out.append({
                 "x": obj.get('x'),
                 "y": obj.get('y'),
@@ -1418,8 +1444,8 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "shrine_type": 93,
                 "spell_id": spell_id,
                 "spell_level": spell_level,
-                "guard": None,
-                "hp": None,
+                "guard": _guard_str,
+                "hp": _art_hp,
             })
     return out
 
@@ -1961,8 +1987,19 @@ def merge_market(tile_objects: List[Dict[str, Any]],
     then Black Market rows (3 markets × 7 slots = 21).
     """
     # PRT DEFAULT arrays (matching PRT 0000.xlsx output via ObjNameDefault mode).
-    _BLACK_MARKET_NAME = "Черный рынок"
-    _ART_MERCHANTS_NAME = "Торговцы Артефактами"
+    # Use localizer for correct casing ("Черный Рынок" with capital Р).
+    if localizer:
+        try:
+            _BLACK_MARKET_NAME = localizer.object(7) or "Черный Рынок"
+        except Exception:
+            _BLACK_MARKET_NAME = "Черный Рынок"
+        try:
+            _ART_MERCHANTS_NAME = localizer.object(255) or "Торговцы Артефактами"
+        except Exception:
+            _ART_MERCHANTS_NAME = "Торговцы Артефактами"
+    else:
+        _BLACK_MARKET_NAME = "Черный Рынок"
+        _ART_MERCHANTS_NAME = "Торговцы Артефактами"
 
     # Lazy-load art_metadata helpers (used for class/relic/cost lookup by artifact_id).
     try:
@@ -2185,6 +2222,62 @@ def merge_all(tile_objects: List[Dict[str, Any]],
         raw: optional decompressed save bytes (used by merge_artifacts to
             extract artifact_id from tile bytes via PRT Save* logic)
     """
+    # ── Pre-pass: match ArtRes guards to guarded tile objects ──
+    # PRT AnalysisContent (MainForm.cs:6809): sorts TblArtRes by Num, then
+    # iterates ArtRes section records in order, calling ArtResContent for each.
+    # Each ArtResContent sets Guard+HP on the matching R_Art/R_Resource/R_Spell
+    # row (matched by X,Y,Z from TblArtRes).
+    #
+    # We replicate this by:
+    # 1. Collecting all guarded tile objects (has_guard=True) with art_res_num
+    # 2. Sorting by art_res_num (matches PRT's TblArtRes.Sort = "Num")
+    # 3. Matching 1:1 with art_res records (from post_tile_content["art_res"])
+    # 4. Storing guard data back on each tile object as 'art_guard' + 'art_hp'
+    #
+    # This allows merge_artifacts, merge_resources, and merge_shrines to
+    # access the correct guard for each guarded object.
+    _art_res_records = post_tile_content.get("art_res", []) if post_tile_content else []
+    if _art_res_records and tile_objects:
+        # Collect guarded objects (type 5=artifact, 79=resource, 93=scroll)
+        _guarded = []
+        for obj in tile_objects:
+            if obj.get('has_guard'):
+                _guarded.append(obj)
+        # Sort by art_res_num (PRT sorts TblArtRes by Num)
+        _guarded.sort(key=lambda o: o.get('art_res_num', 0))
+        # Match 1:1 with art_res records
+        for i, obj in enumerate(_guarded):
+            if i < len(_art_res_records):
+                ar = _art_res_records[i]
+                # ArtResContent is a dataclass — access .guard attribute.
+                # It may also be a dict (if serialized). Handle both.
+                if hasattr(ar, 'guard'):
+                    guard_list = ar.guard or []
+                elif isinstance(ar, dict):
+                    guard_list = ar.get('guard', [])
+                else:
+                    guard_list = []
+                if guard_list:
+                    # Compute HP from guard
+                    _hp = 0
+                    try:
+                        from art_metadata import get_monster_info
+                        for g in guard_list:
+                            if hasattr(g, 'monster_id'):
+                                mid, cnt = g.monster_id, g.count
+                            elif isinstance(g, dict):
+                                mid, cnt = g.get('monster_id', -1), g.get('count', 0)
+                            else:
+                                continue
+                            if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                                info = get_monster_info(mid)
+                                if info:
+                                    _hp += info.get('hp', 0) * cnt
+                    except Exception:
+                        pass
+                    obj['art_guard'] = guard_list
+                    obj['art_guard_hp'] = _hp if _hp > 0 else None
+
     return {
         "Артефакты": merge_artifacts(tile_objects, post_tile_content, obj_dict,
                                       localizer=localizer, raw=raw),

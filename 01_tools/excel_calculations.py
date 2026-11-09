@@ -490,7 +490,9 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
 
     # ── 2. Black Market (with X/Y/Z) ──
     for rec in mo.get("Рынки", []):
-        if rec.get("object") == "Черный рынок":
+        # Match both casings — "Черный Рынок" (localizer, capital Р) and
+        # "Черный рынок" (legacy fallback, lowercase р).
+        if rec.get("object") in ("Черный Рынок", "Черный рынок"):
             aid = rec.get("artifact_id", -1)
             if aid is not None and aid >= 0:
                 info = _art_info(aid)

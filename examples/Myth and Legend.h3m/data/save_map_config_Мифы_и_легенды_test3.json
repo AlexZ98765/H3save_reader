@@ -10,7 +10,7 @@
     "n_objects": 7068,
     "n_unique_coords": 6065,
     "n_towns": 21,
-    "n_heroes_total": 157,
+    "n_heroes_total": 156,
     "header_size": 964,
     "header_size_hex": "0x3C4",
     "map_filename": "Myth and Legend.h3m",
@@ -139,13 +139,12 @@
     }
   ],
   "hero_section": {
-    "start": 1596,
-    "start_hex": "0x63C",
+    "start": 1332124,
+    "start_hex": "0x14539C",
     "stride": 1094,
     "stride_hex": "0x446",
-    "count": 157,
+    "count": 156,
     "all_offsets": [
-      "0x63C",
       "0x14539C",
       "0x1457E2",
       "0x145C28",
@@ -194,20 +193,10 @@
       "0x1513EA",
       "0x151830",
       "0x151C76",
-      "0x1520BC"
+      "0x1520BC",
+      "0x152502"
     ],
     "blocks": [
-      {
-        "block_offset": 1596,
-        "block_offset_hex": "0x63C",
-        "name": "ь.",
-        "player": 0,
-        "level": 0,
-        "x": 1,
-        "y": 1,
-        "z": 256,
-        "is_active": true
-      },
       {
         "block_offset": 1332124,
         "block_offset_hex": "0x14539C",

@@ -744,13 +744,33 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
         # Our hero_section.blocks[0].block_offset points to ALT BLOCK start
         # (= PRT's map.Hero + 26), so we subtract 26 to get true hero block start.
         # We also add sum of extra_size across all heroes (variable stride).
-        first_hero_alt_off = hero_section.blocks[0].block_offset
-        hero_count = hero_section.count
-        true_hero_start = first_hero_alt_off - 26  # PRT's map.Hero
+        #
+        # IMPORTANT: PRT HeroCount is HARDCODED to 156 (MainForm.cs:999:
+        # `private int HeroCount = 156;`). It is NOT read from the save. So we
+        # use 156 as the standard SoD hero count, ignoring hero_section.count
+        # (which can include ghost false-positive matches from the regex in
+        # find_hero_blocks).
+        #
+        # Also skip GHOST hero blocks (regex false positives). Real heroes have
+        # z in {0, 1, -1} where -1 = 0xFFFF = hero not on map (banned/prison).
+        # Ghosts have z = 256 (0x0100) or other invalid values from regex
+        # matching hero_state bitmask data.
+        real_blocks = [blk for blk in hero_section.blocks
+                       if getattr(blk, 'z', None) in (0, 1, -1)]
+        if not real_blocks:
+            # Fallback: use all blocks if none have valid z
+            real_blocks = hero_section.blocks
+        first_real_hero_alt_off = real_blocks[0].block_offset
+        # PRT uses 156 fixed — match it.
+        hero_count = 156
+        # If we have more real blocks than 156, that's data — but PRT only
+        # iterates 156 slots, so the offset calc uses 156.
+        true_hero_start = first_real_hero_alt_off - 26  # PRT's map.Hero
         # Sum extra_size across all parsed heroes (each block has extra_size at
-        # block_offset - 4 = true_hero_block_start + 22)
+        # block_offset - 4 = true_hero_block_start + 22). For PRT, this is
+        # accumulated during ScanHeroesContent iteration.
         total_extra = 0
-        for blk in hero_section.blocks:
+        for blk in real_blocks:
             es_off = blk.block_offset - 4
             if 0 <= es_off and es_off + 2 <= len(raw):
                 import struct as _struct

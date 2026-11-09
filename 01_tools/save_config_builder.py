@@ -354,6 +354,29 @@ def _parse_hero_at(raw: bytes, name_pos: int, name: str) -> Optional[HeroBlockIn
     except struct.error:
         return None
 
+    # Validate coordinates — HoMM3 maps:
+    #   z: 0 (surface), 1 (underground), or -1 (= 0xFFFF u16 LE = hero not on
+    #      map — banned/prison hero with no location). Reject other z values
+    #      (e.g. z=256 from regex false positives in hero_state bitmask data).
+    #   x, y: 0..215 for active heroes, or -1 (= 0xFFFF) for banned/prison
+    #      heroes. Reject clearly invalid (e.g. x=1, y=1 from ghost matches
+    #      combined with bad z).
+    # The ghost at offset 1596 had z=256 (0x0100 — hero_state bytes 0x00, 0x01
+    # misinterpreted as u16 LE). Real heroes never have z=256.
+    if z not in (0, 1, -1):
+        return None
+    # If z is valid (0 or 1), x and y must be in map range.
+    # If z is -1 (no location), x and y are typically -1 too.
+    if z in (0, 1):
+        if not (0 <= x <= 215 and 0 <= y <= 215):
+            return None
+    else:  # z == -1
+        # Banned/prison hero: x, y may be -1 (0xFFFF) or in-map (prison location)
+        if not (x == -1 or 0 <= x <= 215):
+            return None
+        if not (y == -1 or 0 <= y <= 215):
+            return None
+
     return HeroBlockInfo(
         block_offset=block_offset,
         name_offset=name_pos,

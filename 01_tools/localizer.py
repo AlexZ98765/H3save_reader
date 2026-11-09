@@ -372,9 +372,25 @@ class Localizer:
         """Town/faction name by ID (0..8)."""
         return self.section('Town', idx)
 
+    # PRT aDoll array (MainForm.cs:11753-11756) — hardcoded, same for all
+    # languages. Our localization_dictionary.json has wrong names for slots
+    # 9-19 (e.g. "Разное" instead of "Разное1"). Use PRT's exact array.
+    _PRT_A_DOLL = [
+        "Голова", "Плечи", "Шея", "Правая рука", "Левая рука",
+        "Торс", "Правое кольцо", "Левое кольцо", "Ноги", "Разное1",
+        "Разное2", "Разное3", "Разное4", "", "", "", "", "", "Разное5", "Рюкзак"
+    ]
+
     def doll(self, idx: int) -> str:
-        """Hero doll slot (Head/Shoulders/Neck/...)."""
-        return self.section('Doll', idx)
+        """Hero doll slot name (Head/Shoulders/Neck/...).
+
+        Uses PRT's hardcoded aDoll array (MainForm.cs:11753) — same for all
+        languages. Slots 9-12 are "Разное1"-"Разное4", slot 18 is "Разное5",
+        slot 19 is "Рюкзак".
+        """
+        if isinstance(idx, int) and 0 <= idx < len(self._PRT_A_DOLL):
+            return self._PRT_A_DOLL[idx]
+        return ""
 
     def place(self, idx: int) -> str:
         """Hero place (Prison/Tavern/Disable/Town/Map)."""

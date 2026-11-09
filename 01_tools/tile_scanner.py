@@ -571,12 +571,23 @@ def _parse_artifact(raw, s, obj):
 
 
 def _parse_resource(raw, s, obj):
-    """Resource pile (SaveRes, line 10392)"""
+    """Resource pile (SaveRes, line 10392).
+
+    Per PRT MainForm.cs:10409: has_guard is set iff (raw[s+9] & 0x80) == 0x80.
+    When guarded, ArtRes Num = ((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3), Type=1.
+    """
     obj['resource_type'] = raw[s + 2] if s + 3 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'resource_type', s + 2, 1, "u8")
     # Resource amount is encoded in the tile data
     obj['amount'] = (raw[s + 7] << 8) + raw[s + 6] if s + 8 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'amount', s + 6, 2, "u16")
+    # Check if guarded — match PRT SaveRes logic (line 10409)
+    if s + 10 <= len(raw):
+        obj['has_guard'] = (raw[s + 9] & 0x80) == 0x80
+        obj['art_res_num'] = ((raw[s + 9] & 0x7F) << 8) + (raw[s + 8] >> 3)
+    else:
+        obj['has_guard'] = False
+        obj['art_res_num'] = 0
 
 
 def _parse_chest(raw, s, obj):
@@ -790,9 +801,24 @@ def _parse_scholar(raw, s, obj):
 
 
 def _parse_scroll(raw, s, obj):
-    """Spell Scroll (SaveScroll, line 10421)"""
+    """Spell Scroll (SaveScroll, line 10421).
+
+    Per PRT MainForm.cs:10433: has_guard is set iff (raw[s+9] & 0x80) == 0x80
+    (high bit of byte at offset s+9). When guarded, the ArtRes record's Num
+    field is computed as ((raw[s+9] & 0x7F) << 8) + (raw[s+8] >> 3).
+    Guard data is in the ArtRes post-tile section (not in the scroll's own bytes).
+    """
     obj['spell_id'] = raw[s + 6] if s + 7 <= len(raw) else 0
     _enrich_typed_field(raw, obj, 'spell_id', s + 6, 1, "u8")
+    # Check if guarded — match PRT SaveScroll logic (line 10433):
+    #   if ((decmp[s + 9] & 0x80) == 128) → guarded, add TblArtRes row with Type=2
+    if s + 10 <= len(raw):
+        obj['has_guard'] = (raw[s + 9] & 0x80) == 0x80
+        obj['art_res_num'] = ((raw[s + 9] & 0x7F) << 8) + (raw[s + 8] >> 3)
+    else:
+        obj['has_guard'] = False
+        obj['art_res_num'] = 0
+    _enrich_typed_field(raw, obj, 'has_guard', s + 9, 1, "bool")
 
 
 def _parse_refugee_camp(raw, s, obj):
