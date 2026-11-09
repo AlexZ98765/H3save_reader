@@ -1419,15 +1419,20 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None) -> List[Dic
                 })
 
     # ── 9. Monsters ──
+    # PRT GetAllExperience line 6630: Monster = r_MonstrRow.Name + " " + r_MonstrRow.Number
+    # (combines monster name with count, e.g. "Серебрянный Пегас 10")
     for rec in mo.get("Монстры", []):
         hp_val = monster_sum_hp(rec) if monster_sum_hp else None
         if hp_val and hp_val > 0:
+            _mname = rec.get("monster")
+            _mcount = rec.get("count")
+            _monster_str = f"{_mname} {_mcount}" if _mname and _mcount else _mname
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "locality": rec.get("locality"),
                 "object": _PRT_OBJECT.get(54, "Монстр"),
                 "town": None, "hero": None, "flag": None,
-                "monster": rec.get("monster"), "artifact": None,
+                "monster": _monster_str, "artifact": None,
                 "resource": None, "guard": None, "hp": hp_val,
                 "experience": None, "xp_total": hp_val,
             })
