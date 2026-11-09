@@ -2053,6 +2053,74 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
 
         autosize_columns(ws)
 
+        # ── Оглавление (Index) — FIRST sheet with hyperlinks to all sheets ──
+        # Created LAST so all other sheets exist; then moved to position 0.
+        ws_idx = wb.create_sheet("Оглавление")
+        ws_idx.append(["№", "Лист", "Описание"])
+        for col_idx in range(1, 4):
+            ws_idx.cell(row=1, column=col_idx).font = header_font
+            ws_idx.cell(row=1, column=col_idx).alignment = header_align
+            ws_idx.cell(row=1, column=col_idx).fill = header_fill
+
+        # Brief description per sheet (Russian)
+        _sheet_descriptions = {
+            "Оглавление":       "Этот лист — содержание со ссылками на все листы.",
+            "All Objects":      "Все объекты карты (плоский список, primary + overlays).",
+            "By Category":      "Объекты сгруппированы по 21 категории.",
+            "Summary":          "Сводка по типам/категориям.",
+            "Wiki Dictionary":  "Словарь 2037 типов объектов из LazyLlama wiki.",
+            "Артефакты":        "Артефакты на карте + банки-артефакты (Склеп, Ветхий Корабль, Утопия Драконов).",
+            "Монстры":          "Монстры на карте с количеством, настроением, артефактом, золотом.",
+            "Банки":            "Банки (тип 16): Склады Циклопов, Сокровищница Гномов, и т.п.",
+            "События и Ящики Пандоры": "События и ящики Пандоры с содержимым.",
+            "Ученые":           "Учёные (Scholars) — заклинания/навыки/первичные навыки.",
+            "Ресурсы":          "Ресурсы на карте (шахты, кладовые, ветряки).",
+            "Сундуки":          "Сундуки с сокровищами и морские сундуки.",
+            "Заклинания":       "Святыни (88/89/90), Пирамиды (63), Свитки (93).",
+            "Навыки":           "Хижины ведьм (113) и Университеты (104).",
+            "Лагеря Беженцев":  "Лагеря беженцев (78) — доступные монстры для найма.",
+            "Рынки":            "Рынки артефактов (Code 7/255) — 7 артефактов для покупки.",
+            "Провидцы":         "Хижины Провидца (83) — квесты с наградами.",
+            "Стражи Прохода":   "Стражи прохода (215) — условия открытия.",
+            "Тюрьмы":           "Тюрьмы (62) — запертые герои.",
+            "Объекты":          "Прочие объекты (-keymaster tents, monoliths, boats, dwellings).",
+            "Гарнизоны":        "Гарнизоны (33) — войска, не привязанные к городу.",
+            "Топология":        "Топология карты — монолиты, подземные врата.",
+            "События-Таймеры":   "Таймерные события (день/неделя/месяц).",
+            "Герои":            "Все 156 героев: уровень, опыт, армия, артефакты, навыки.",
+            "Города":           "Все 21 городов: тип, фракция, заклинания маггильдии, библиотека.",
+            "Все Арты":         "Сводный лист всех артефактов (герои + рынки + банки + хижины).",
+            "Все Заклы":        "Сводный лист всех заклинаний (события + святыни + герои + города + учёные + хижины).",
+            "Все Навыки":       "Сводный лист всех навыков (хижины ведьм + события + учёные + хижины).",
+            "Опыт":             "Сводный лист всех источников опыта (камни, сундуки, охрана, герои, города).",
+            "Общее":            "Общая информация: Грааль, дата, день/неделя/месяц.",
+            "Входные файлы":    "Список файлов, использованных для парсинга.",
+        }
+
+        # Iterate sheets (excluding Оглавление itself), create hyperlink rows.
+        _row_idx = 2
+        for sheet_name in wb.sheetnames:
+            if sheet_name == "Оглавление":
+                continue
+            _desc = _sheet_descriptions.get(sheet_name, "")
+            ws_idx.cell(row=_row_idx, column=1, value=_row_idx - 1)
+            # Hyperlink cell — internal link to sheet's A1
+            _link_cell = ws_idx.cell(row=_row_idx, column=2, value=sheet_name)
+            _link_cell.hyperlink = f"#'{sheet_name}'!A1"
+            _link_cell.font = Font(color="0563C1", underline="single", size=11)
+            ws_idx.cell(row=_row_idx, column=3, value=_desc)
+            _row_idx += 1
+
+        # Column widths
+        ws_idx.column_dimensions["A"].width = 5
+        ws_idx.column_dimensions["B"].width = 35
+        ws_idx.column_dimensions["C"].width = 80
+        ws_idx.freeze_panes = "A2"
+        ws_idx.auto_filter.ref = ws_idx.dimensions
+
+        # Move Оглавление to be the FIRST sheet (position 0)
+        wb.move_sheet("Оглавление", offset=-len(wb.sheetnames) + 1)
+
     # ----- Save -----
     wb.save(output_path)
     return output_path

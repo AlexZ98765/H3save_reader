@@ -1519,9 +1519,11 @@ class GM1ParserWindow(QMainWindow):
         self.raw_data = b""
         self.parsed_data = None
         self.map_data = None  # set when user loads a map JSON via "Load Map JSON…"
+        self.map_json_path = ""  # path to loaded .h3m.json / .h3m.zip
         self.map_config = None  # set when user loads a day-zero save
+        self.config_path = ""   # path to loaded save_map_config_*.json
         self.day_zero_raw = None  # decompressed day-zero save bytes
-        self.current_file = ""
+        self.current_file = ""    # path to loaded .GM1 save
 
         self._load_mapping()
         self._build_ui()
@@ -3338,7 +3340,18 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
             return
         try:
             self._set_loading("Создание Excel…")
-            export_objects_to_excel(self.parsed_data or {}, self.raw_data or b"", path,
+            # Inject actual file paths into parsed_data["file_info"] for the
+            # "Входные файлы" sheet (shows real paths the user loaded).
+            _pd = self.parsed_data or {}
+            if "file_info" not in _pd:
+                _pd["file_info"] = {}
+            if self.current_file:
+                _pd["file_info"]["save_path"] = self.current_file
+            if self.config_path:
+                _pd["file_info"]["config_path"] = self.config_path
+            if self.map_json_path:
+                _pd["file_info"]["map_json_path"] = self.map_json_path
+            export_objects_to_excel(_pd, self.raw_data or b"", path,
                                     objects_by_coord=self._load_objects_by_coord(),
                                     computed_offsets=self._load_objects_with_offsets(),
                                     language=selected_language)
@@ -3533,6 +3546,7 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
 
         # Store the loaded MapData
         self.map_data = md
+        self.map_json_path = path  # remember path for Входные файлы sheet
         # Invalidate cached object data so _load_objects_by_coord returns the new data
         self._cached_objects_by_coord = md.objects_by_coord
         # Clear old offsets — will be recomputed if a save is loaded
@@ -3656,6 +3670,7 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
 
         # Store config and day-zero raw data
         self.map_config = config
+        self.config_path = config_path  # remember path for Входные файлы sheet
         self.day_zero_raw = dz_raw
 
         # Also use the day-zero save as the current raw_data (so user can browse it)
@@ -3771,6 +3786,7 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
 
         # Store the loaded MapConfig
         self.map_config = config
+        self.config_path = path  # remember path for Входные файлы sheet
 
         # If no Map JSON loaded yet, build objects_by_coord from config
         # (config contains object_offsets → coord_int → save_offset mapping,

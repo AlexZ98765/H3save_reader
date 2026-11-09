@@ -734,13 +734,28 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
     # HeroState is right after hero blocks (= after last hero block + stride)
     current_state_parsed: Dict[str, Any] = {}
     if hero_section.blocks and hero_section.count > 0:
-        # HeroState = after last hero block (approx: last block + stride)
-        # More accurately: HeroState = first_hero_block + HeroCount * stride
-        # But HeroCount may differ from actual found blocks (some may be inactive)
-        # We use the formula: HeroState = first_hero_block + 156 * 1094
-        first_hero_off = hero_section.blocks[0].block_offset
+        # PRT GetCurrentState (MainForm.cs:7668) + ScanHeroesContent (line 9117):
+        #   map.Hero = ScanTownsContent(map.Town)  — true hero BLOCK start
+        #   map.HeroState = ScanHeroesContent(map.Hero) — iterates with variable
+        #       stride: s += (decmp[s+23]<<8) + decmp[s+22] + 1094
+        #       = u16 LE extra_size at offset +22 + 1094 base
+        #   map.CurrentState = map.HeroState + HeroCount * 2
+        #
+        # Our hero_section.blocks[0].block_offset points to ALT BLOCK start
+        # (= PRT's map.Hero + 26), so we subtract 26 to get true hero block start.
+        # We also add sum of extra_size across all heroes (variable stride).
+        first_hero_alt_off = hero_section.blocks[0].block_offset
         hero_count = hero_section.count
-        hero_state_off = first_hero_off + hero_count * HERO_STRIDE_SOD
+        true_hero_start = first_hero_alt_off - 26  # PRT's map.Hero
+        # Sum extra_size across all parsed heroes (each block has extra_size at
+        # block_offset - 4 = true_hero_block_start + 22)
+        total_extra = 0
+        for blk in hero_section.blocks:
+            es_off = blk.block_offset - 4
+            if 0 <= es_off and es_off + 2 <= len(raw):
+                import struct as _struct
+                total_extra += _struct.unpack("<H", raw[es_off:es_off+2])[0]
+        hero_state_off = true_hero_start + hero_count * HERO_STRIDE_SOD + total_extra
         current_state_off = hero_state_off + hero_count * 2
 
         if current_state_off + 50 < len(raw):
@@ -748,15 +763,16 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             current_state_parsed = {
                 "offset": current_state_off,
             }
-            # Grail location
+            # Grail location (PRT line 7673): byte[cs+2], byte[cs+4], byte[cs+6]
             current_state_parsed["grail_x"] = raw[current_state_off + cs["grail_x"]]
             current_state_parsed["grail_y"] = raw[current_state_off + cs["grail_y"]]
             current_state_parsed["grail_z"] = raw[current_state_off + cs["grail_z"]]
             current_state_parsed["has_grail"] = (current_state_parsed["grail_x"] != 0xFF)
 
             # Day / week / month — raw int values (NOT ASCII).
-            # PRT GetCurrentState reads these as raw bytes: decmp[cs+15]=day,
-            # decmp[cs+13]=week, decmp[cs+11]=month. For day-0 save all are 0.
+            # PRT GetCurrentState reads: decmp[cs+15]=day, decmp[cs+13]=week,
+            # decmp[cs+11]=month. For day-0 save (start of game) all are 1
+            # (day 1 of week 1 of month 1).
             current_state_parsed["day"] = raw[current_state_off + cs["day"]]
             current_state_parsed["week"] = raw[current_state_off + cs["week"]]
             current_state_parsed["month"] = raw[current_state_off + cs["month"]]
