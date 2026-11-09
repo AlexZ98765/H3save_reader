@@ -1542,19 +1542,29 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             spells_str = h.get("spell")
 
             # Monster: in JSON it's ALWAYS present (full dump).
-            # In Excel (report): only show if Place is set AND != "Запрещен"
+            # In Excel (report): show for heroes with Place set AND Place != "Запрещен"
             # (matches PRT MainForm.cs:7793 condition: !IsPlaceNull && Place != aPlace[2]
-            # where aPlace[2] = "Запрещен"). Heroes with Place = None (not on map,
-            # not in tavern) get NO monster/HP.
+            # where aPlace[2] = "Запрещен"). Tavern heroes (Place="Таверна") ARE shown.
+            # Heroes with Place=None (not on map, not in tavern) get NO monster/HP.
             monster_str = h.get("monster")
-            # ∑ HP: Excel-only — computed from army_types/counts via excel_calculations.
-            # Same filter as monster: only show for active heroes (Place set + != "Запрещен").
+            # ∑ HP: Excel-only — computed from army_types/counts.
+            # Same filter as monster: show for active heroes (Place set + != "Запрещен").
+            # Includes tavern heroes — PRT Герои sheet shows their army + HP.
             is_active = bool(place_str) and place_str != "Запрещен"
             if not is_active:
                 monster_str = None
                 hero_hp_val = None
             else:
-                hero_hp_val = hero_sum_hp(h) if hero_sum_hp else None
+                # Compute HP directly from army_types/counts (don't use
+                # hero_sum_hp which filters out tavern heroes for the Опыт sheet).
+                _hf = h.get("fields", {}) or {}
+                _at = _hf.get("army_types", []) or []
+                _ac = _hf.get("army_counts", []) or []
+                try:
+                    from excel_calculations import compute_army_hp
+                    hero_hp_val = compute_army_hp(_at, _ac) or None
+                except Exception:
+                    hero_hp_val = hero_sum_hp(h) if hero_sum_hp else None
 
             # Machine: from JSON
             machines_str = h.get("machine")
@@ -1919,28 +1929,31 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)
 
-        # ── Грааль ──
+        # ── Общее (was "Грааль") ──
         # PRT GetColorContent (line 7670): reads Grail location + date from current_state.
-        # grail = "X.Y.Z" if found, "Нет" if not (0xFF).
-        # date = day + week + month (concatenated ASCII digit bytes).
-        ws = wb.create_sheet("Грааль")
+        # grail = "X.Y.Z" if found (byte != 0xFF), "Нет" if not (0xFF).
+        # date = day.week.month (concatenated raw int bytes — PRT shows them as
+        # string concat: decmp[cs+15] + decmp[cs+13] + decmp[cs+11] = day+week+month).
+        ws = wb.create_sheet("Общее")
         ws.append(["Параметр", "Значение"])
         for col_idx in range(1, 3):
             ws.cell(row=1, column=col_idx).font = header_font
             ws.cell(row=1, column=col_idx).alignment = Alignment(horizontal="center")
 
-        # Get current_state data from parsed blocks
-        _cs_data = {}
-        for b in (parsed.get("blocks") or []):
-            if isinstance(b, dict) and b.get("name") == "current_state":
-                for f in (b.get("fields") or []):
-                    if isinstance(f, dict):
-                        _cs_data[f["name"]] = f["value"]
-                break
-            elif hasattr(b, "name") and b.name == "current_state":
-                for f in (b.fields or []):
-                    _cs_data[f.name] = f.value
-                break
+        # Get current_state data — prefer top-level current_state dict (set by
+        # save_parser), fall back to searching blocks[].
+        _cs_data = parsed.get("current_state") or {}
+        if not _cs_data:
+            for b in (parsed.get("blocks") or []):
+                if isinstance(b, dict) and b.get("name") == "current_state":
+                    for f in (b.get("fields") or []):
+                        if isinstance(f, dict):
+                            _cs_data[f["name"]] = f["value"]
+                    break
+                elif hasattr(b, "name") and b.name == "current_state":
+                    for f in (b.fields or []):
+                        _cs_data[f.name] = f.value
+                    break
 
         _gx = _cs_data.get("grail_x", 0xFF)
         _gy = _cs_data.get("grail_y", 0xFF)
@@ -1953,63 +1966,84 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         _day = _cs_data.get("day", 0)
         _week = _cs_data.get("week", 0)
         _month = _cs_data.get("month", 0)
-        _date_str = f"{_day}{_week}{_month}" if (_day or _week or _month) else "0"
+        # PRT: "Дата - " + day + week + month (string concat of int values)
+        _date_str = f"{_day}{_week}{_month}"
 
         ws.append(["Грааль", _grail_str])
         ws.append(["Дата", _date_str])
         ws.append(["X", _gx if isinstance(_gx, int) and _gx != 0xFF else None])
         ws.append(["Y", _gy if isinstance(_gy, int) and _gy != 0xFF else None])
         ws.append(["Z", _gz if isinstance(_gz, int) and _gz != 0xFF else None])
-        ws.append(["День", _day or None])
-        ws.append(["Неделя", _week or None])
-        ws.append(["Месяц", _month or None])
+        # Always display day/week/month values (even if 0) — user wants them filled.
+        ws.append(["День", _day if isinstance(_day, int) else None])
+        ws.append(["Неделя", _week if isinstance(_week, int) else None])
+        ws.append(["Месяц", _month if isinstance(_month, int) else None])
         autosize_columns(ws)
 
         # ── Входные файлы ──
         # Lists all files used for parsing with descriptions.
+        # File-specific paths come from parsed["file_info"] (set by caller).
+        # Format: list of (kind, actual_path_or_filename, description) tuples.
         ws = wb.create_sheet("Входные файлы")
         ws.append(["№", "Файл", "Описание"])
         for col_idx in range(1, 4):
             ws.cell(row=1, column=col_idx).font = header_font
             ws.cell(row=1, column=col_idx).alignment = Alignment(horizontal="center")
 
+        # file_info may contain: save_path, config_path, map_json_path,
+        # map_name. Caller populates these with actual paths used.
+        _fi = parsed.get("file_info") or {}
+
+        def _fmt_file(kind, default_label, desc, fi_key):
+            """Format file row: shows actual path if known, else just the label."""
+            actual = _fi.get(fi_key)
+            if actual:
+                # Show actual path + (kind) for clarity
+                return (f"{actual}", desc)
+            return (default_label, desc)
+
         _input_files = [
-            ("Сохранение (.GM1)",
+            _fmt_file("save", "Сохранение (.GM1)",
              "Основной файл сохранения Heroes of Might and Magic 3. Содержит все данные игры: "
-             "героев, города, объекты карты, ресурсы, артефакты, события и т.д."),
-            ("Конфиг карты (save_map_config_*.json)",
+             "героев, города, объекты карты, ресурсы, артефакты, события и т.д.",
+             "save_path"),
+            _fmt_file("config", "Конфиг карты (save_map_config_*.json)",
              "Конфигурация карты — результат Фазы 2 (save_config_builder). Содержит смещения "
-             "секций сейва (кластеры, герои, города, объекты), вычисленные из day-0 сейва."),
-            ("Map JSON (.h3m.json / .h3m.zip)",
+             "секций сейва (кластеры, герои, города, объекты), вычисленные из day-0 сейва.",
+             "config_path"),
+            _fmt_file("map_json", "Map JSON (.h3m.json / .h3m.zip)",
              "Парсинг карты .h3m — результат Фазы 1 (map_json_loader). Содержит координаты "
-             "всех объектов карты, типы объектов, спрайты и т.д."),
-            ("Локализация (localization_dictionary.json)",
+             "всех объектов карты, типы объектов, спрайты и т.д.",
+             "map_json_path"),
+            ("02_format_docs/localization_dictionary.json",
              "Многоязычный словарь имён объектов (22 секции × 4 языка). Источник для "
              "синонимов и локализованных имён. Извлечён из Data/*.txt файлов PRT."),
-            ("Монстры (tbl_monsters_mapping.json)",
+            ("02_format_docs/tbl_monsters_mapping.json",
              "Таблица TblMonsters из MainForm.cs: 145 монстров с name/level/hp/altar/town. "
              "Используется для ∑ HP вычислений и metadata."),
-            ("Артефакты (tbl_art_mapping.json)",
+            ("02_format_docs/tbl_art_mapping.json",
              "Таблица TblArt из MainForm.cs: 141 артефакт с name/class_id/relic_c_id. "
              "Используется для имён артефактов, классов и релик-связей."),
-            ("Здания (tbl_building_mapping.json)",
+            ("02_format_docs/tbl_building_mapping.json",
              "Таблица TblBuilding из MainForm.cs: 369 записей (type/byte/bit → building name). "
              "Используется для декодирования построек в События-Таймеры."),
-            ("Идеология (tbl_ideology_mapping.json)",
+            ("02_format_docs/tbl_ideology_mapping.json",
              "Таблица TblIdeology из MainForm.cs: 156 героев → ideology_id + class_id. "
              "Используется для колонок Идеология и Класс на листе Герои."),
-            ("Уровни заклинаний (spell_levels.json)",
+            ("02_format_docs/spell_levels.json",
              "Таблица TblSpell из MainForm.cs: 71 заклинание с level (1-5). "
              "Используется для колонки Уровень на листе Заклинания."),
-            ("Порядок кодов объектов (object_code_order.json)",
+            ("02_format_docs/object_code_order.json",
              "Таблица TblObject из MainForm.cs: 57 кодов объектов в позиционном порядке. "
              "Используется для локализации имён объектов по type_id."),
-            ("Парсеры тайлов (artifact_tile_parsers.json, resource_tile_parsers.json, skill_tile_parsers.json)",
+            ("02_format_docs/artifact_tile_parsers.json\n"
+             "02_format_docs/resource_tile_parsers.json\n"
+             "02_format_docs/skill_tile_parsers.json",
              "Конфигурация парсеров тайл-уровня: извлечение artifact_id, resource, skill "
              "из байтов тайла для каждого type_id."),
-            ("Конфиг банков (bank_artifact_config.json)",
+            ("02_format_docs/bank_artifact_config.json",
              "Конфигурация банков-артефактов: is_artifact_bank + default_slots per type_id."),
-            ("Словарь объектов (object_types_dictionary.json)",
+            ("03_object_mapping/object_types_dictionary.json",
              "Универсальный словарь 2037 типов объектов из LazyLlama wiki. "
              "Используется для enrichment листа All Objects."),
         ]

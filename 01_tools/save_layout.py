@@ -512,13 +512,18 @@ PLAYER_STATE_OFFSETS = {
 # Source: GetCurrentState (line 7668)
 # map.CurrentState = map.HeroState + HeroCount * 2
 # Offsets relative to map.CurrentState
+# PRT GetCurrentState (MainForm.cs:7668-7680):
+#   grail = decmp[cs+2] + "." + decmp[cs+4] + "." + decmp[cs+6]   (X.Y.Z)
+#   days = decmp[cs+15] + decmp[cs+13] + decmp[cs+11]              (day.week.month)
+# So byte at +15 = day, +13 = week, +11 = month (REVERSE order in the string).
+# Bytes are RAW INT values (1-7 for day, 1-4+ for week, 1+ for month), not ASCII.
 CURRENT_STATE_OFFSETS = {
     "grail_x":         2,    # u8 — Grail location X (0xFF = no grail)
     "grail_y":         4,    # u8 — Grail location Y
     "grail_z":         6,    # u8 — Grail location Z
-    "day":             11,   # u8 — current day (as ASCII digit byte)
-    "week":            13,   # u8 — current week (as ASCII digit byte)
-    "month":           15,   # u8 — current month (as ASCII digit byte)
+    "month":           11,   # u8 — current month (raw int, NOT ASCII)
+    "week":            13,   # u8 — current week (raw int, NOT ASCII)
+    "day":             15,   # u8 — current day (raw int, NOT ASCII)
     "art_merchants":   49,   # start of art merchants data (7 × 4 bytes)
 }
 

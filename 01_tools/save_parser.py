@@ -754,13 +754,12 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             current_state_parsed["grail_z"] = raw[current_state_off + cs["grail_z"]]
             current_state_parsed["has_grail"] = (current_state_parsed["grail_x"] != 0xFF)
 
-            # Day / week / month (stored as ASCII digit bytes)
-            day_byte = raw[current_state_off + cs["day"]]
-            week_byte = raw[current_state_off + cs["week"]]
-            month_byte = raw[current_state_off + cs["month"]]
-            current_state_parsed["day"] = day_byte - 0x30 if 0x30 <= day_byte <= 0x39 else day_byte
-            current_state_parsed["week"] = week_byte - 0x30 if 0x30 <= week_byte <= 0x39 else week_byte
-            current_state_parsed["month"] = month_byte - 0x30 if 0x30 <= month_byte <= 0x39 else month_byte
+            # Day / week / month — raw int values (NOT ASCII).
+            # PRT GetCurrentState reads these as raw bytes: decmp[cs+15]=day,
+            # decmp[cs+13]=week, decmp[cs+11]=month. For day-0 save all are 0.
+            current_state_parsed["day"] = raw[current_state_off + cs["day"]]
+            current_state_parsed["week"] = raw[current_state_off + cs["week"]]
+            current_state_parsed["month"] = raw[current_state_off + cs["month"]]
 
             cs_block = ParsedBlock(
                 name="current_state",
