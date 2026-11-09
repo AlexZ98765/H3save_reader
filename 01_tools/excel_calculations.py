@@ -668,18 +668,24 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
                     "place": None, "monster": None, "mission": mission_str,
                     "guard": None,
                 })
-        # Check if mission is to bring artifacts (mission_type=5)
+        # Check if mission is to bring artifacts (mission_type=5).
+        # These are NOT artifacts the seer hut gives — they are quest GOALS
+        # (artifacts the player must bring). Mark with "- " prefix so they're
+        # visually distinguishable from reward artifacts in the Все Арты sheet.
         mission = rec.get("mission", {})
         if isinstance(mission, dict) and "artifacts" in mission:
             for aid in mission.get("artifacts", []):
                 if isinstance(aid, int) and aid >= 0:
                     info = _art_info(aid)
+                    _art_name = info.get("name")
+                    if _art_name:
+                        _art_name = "- " + _art_name
                     rows.append({
                         "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                         "locality": rec.get("locality"),
                         "object": _seer_hut_name,
                         "slot": None,
-                        "artifact_name": info.get("name"),
+                        "artifact_name": _art_name,
                         "class_": info.get("class"),
                         "relic": info.get("relic"),
                         "hero": None, "doll_slot": None, "flag": None,
@@ -832,20 +838,110 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
             return _spell_rev.get(name.lower())
         return None
 
+    # Helper constants + mission formatter (duplicated from aggregate_all_artifacts
+    # because this is a separate function scope).
+    _A_RES_LETTERS = ["W", "M", "O", "S", "C", "G"]
+    _A_RES_NAMES = ["Wood", "Mercury", "Ore", "Sulfur", "Crystal", "Gems"]
+    _PSKILL_LETTERS = {"Attack": "A", "Defense": "D", "Power": "P", "Knowledge": "K"}
+
+    def _fmt_mission_str(rec):
+        """Format seer hut mission string (same logic as _fmt_seer_mission)."""
+        mtype = rec.get("mission_type", 0)
+        mission = rec.get("mission", {}) or {}
+        if not mtype:
+            return None
+        if mtype == 1:
+            return f"{localizer.quest(0)} {mission.get('level', 0)}" if localizer else f"Достичь уровня {mission.get('level', 0)}"
+        elif mtype == 2:
+            ps = mission.get("primary_skills", {})
+            if isinstance(ps, dict) and ps:
+                parts = [f"{_PSKILL_LETTERS.get(k, k[:1].upper())}{v}" for k, v in ps.items()]
+                return f"{localizer.quest(1)} {', '.join(parts)}" if localizer else f"Получить навык {', '.join(parts)}"
+            return localizer.quest(1) if localizer else "Получить навык"
+        elif mtype == 3:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            hero_place = hero.get("place") or ""
+            if hero_place and "." in str(hero_place):
+                return f"{localizer.quest(7)} {hero_name} ({hero_place})" if localizer else f"Победить героя {hero_name} ({hero_place})"
+            return f"{localizer.quest(7)} {hero_name}" if localizer else f"Победить героя {hero_name}"
+        elif mtype == 4:
+            mid = mission.get("monster_id", -1)
+            mx = mission.get("x", 0)
+            my = mission.get("y", 0)
+            mz = mission.get("bit", 0)
+            mname = localizer.monstr(mid) if localizer and mid >= 0 else f"M{mid}"
+            return f"{localizer.quest(2)} {mname} ({mx}.{my}.{mz})" if localizer else f"Победить монстра {mname} ({mx}.{my}.{mz})"
+        elif mtype == 5:
+            arts = mission.get("artifacts", [])
+            if isinstance(arts, list) and arts:
+                art_names = [localizer.art(a) if localizer and isinstance(a, int) and a >= 0 else str(a) for a in arts]
+                art_names = [n for n in art_names if n]
+                if art_names:
+                    return f"{localizer.quest(3)} {', '.join(art_names)}" if localizer else f"Принести артефакты {', '.join(art_names)}"
+            return localizer.quest(3) if localizer else "Принести артефакты"
+        elif mtype == 6:
+            mons = mission.get("monsters", [])
+            if isinstance(mons, list) and mons:
+                mon_parts = []
+                for m in mons:
+                    if isinstance(m, (list, tuple)) and len(m) >= 2:
+                        mid, cnt = m[0], m[1]
+                        mname = localizer.monstr(mid) if localizer and isinstance(mid, int) and mid >= 0 else f"M{mid}"
+                        mon_parts.append(f"{mname} {cnt}")
+                if mon_parts:
+                    return f"{localizer.quest(4)} {', '.join(mon_parts)}" if localizer else f"Принести монстров {', '.join(mon_parts)}"
+            return localizer.quest(4) if localizer else "Принести монстров"
+        elif mtype == 7:
+            res = mission.get("resources", {})
+            if isinstance(res, dict) and res:
+                res_parts = []
+                for rkey, rcount in res.items():
+                    if rcount:
+                        try:
+                            ridx = _A_RES_NAMES.index(rkey)
+                            res_parts.append(f"{_A_RES_LETTERS[ridx]}{rcount}")
+                        except (ValueError, IndexError):
+                            if rkey == "Gold":
+                                res_parts.append(f"Золото {rcount}")
+                            else:
+                                res_parts.append(f"{rkey} {rcount}")
+                if res_parts:
+                    return f"{localizer.quest(5)} {', '.join(res_parts)}" if localizer else f"Принести ресурсы {', '.join(res_parts)}"
+            return localizer.quest(5) if localizer else "Принести ресурсы"
+        elif mtype == 8:
+            hero_id = mission.get("hero_id", -1)
+            heroes_list = parsed.get("heroes_found", []) or []
+            hero = heroes_list[hero_id] if 0 <= hero_id < len(heroes_list) else {}
+            hero_name = hero.get("name", "") or f"H{hero_id}"
+            return f"{localizer.quest(8)} {hero_name}" if localizer else f"Быть героем {hero_name}"
+        elif mtype == 9:
+            color_id = mission.get("color_id")
+            color_name = localizer.color(color_id) if localizer and color_id is not None else (mission.get("color") or "?")
+            return f"{localizer.quest(6)} {color_name}" if localizer else f"Иметь цвет флага {color_name}"
+        return None
+
     # ── 1. Event/Pandora box spells ──
     for rec in mo.get("События_Ящики_Пандоры", []):
         spell_str = rec.get("spell")
         if spell_str:
+            # Look up spell level via reverse-lookup (spell_name → id → level)
+            _sid = _find_spell_id(spell_str)
             rows.append({
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "object": rec.get("object"),
                 "spell_name": spell_str,
-                "level": None, "flag": None, "town": None, "built": None,
+                "level": localizer.spell_level(_sid) if localizer and _sid is not None else None,
+                "flag": None, "town": None, "built": None,
                 "garrison": None, "hero": None, "place": None,
                 "mission": None, "guard": rec.get("guard"),
             })
 
     # ── 2. Shrine spells — use rec's localized object name ──
+    # Includes Shrines (88/89/90), Pyramids (63), and Scrolls (93).
+    # Pyramids carry hardcoded guard + HP from merge_shrines.
     for rec in mo.get("Заклинания_Святилища", []):
         sid = rec.get("spell_id")
         if sid is not None and sid >= 0:
@@ -856,15 +952,17 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
                 "level": rec.get("spell_level"),
                 "flag": None, "town": None, "built": None,
                 "garrison": None, "hero": None, "place": None,
-                "mission": None, "guard": None, "num": None,
+                "mission": None,
+                "guard": rec.get("guard"),
+                "num": None,
             })
 
     # ── 3. Hero spells — include ALL heroes, split spells per row, label Place ──
     #
     # NOTE on PRT bugs fixed here:
     #   1. PRT filter (MainForm.cs:7273) `Place <> 'Запрещен' OR Place IS NULL`
-    #      EXCLUDES banned heroes — their spells never reach R_AllSpell. We
-    #      include ALL heroes regardless of Place.
+    #      EXCLUDES banned heroes — their spells never reach R_AllSpell.
+    #      We apply the SAME filter to match PRT output exactly.
     #   2. PRT GetAllSpell line 7418: for heroes with X.Y.Z Place and no Color
     #      (prison-on-map heroes), PRT writes `Place = "Тюрьма"` for ALL such
     #      heroes, mislabeling any "escaped" hero placed on map AND listed in a
@@ -876,6 +974,10 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
     for hero_idx, h in enumerate(parsed.get("heroes_found", [])):
         spell_str = h.get("spell")
         if not spell_str:
+            continue
+        # PRT filter: skip banned heroes (Place == 'Запрещен')
+        place_raw = h.get("place")
+        if place_raw == "Запрещен":
             continue
         hero_name = h.get("name", "?")
         flag = h.get("flag")
@@ -956,16 +1058,23 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
 
         for level_idx, level_spells in enumerate(levels):
             if isinstance(level_spells, list):
-                for sid in level_spells:
+                for spell_idx, sid in enumerate(level_spells):
                     if sid is not None and sid >= 0:
                         built_str = "Да" if (built_byte >> level_idx) & 1 else None
+                        # PRT GetAllSpell line 7352-7355: Garrison is set ONLY
+                        # on the FIRST spell (num==0) of the FIRST level row
+                        # (which is the only row with Garrison non-null in
+                        # R_Town DataTable — all subsequent level rows have
+                        # Garrison=NULL due to SetGarrisonNull in GetTownSpell
+                        # copy logic).
+                        is_first_spell_of_first_level = (level_idx == 0 and spell_idx == 0)
                         rows.append({
                             "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
                             "object": _PRT_OBJECT.get(98, "Городок"),
                             "spell_name": _spl_name(sid) or str(sid),
                             "level": level_idx + 1,
                             "flag": flag, "town": town_name, "built": built_str,
-                            "garrison": garrison_str if level_idx == 0 else None,
+                            "garrison": garrison_str if is_first_spell_of_first_level else None,
                             "hero": None, "place": None,
                             "mission": None, "guard": None, "num": None,
                         })
@@ -978,12 +1087,16 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
                 "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
                 "object": _PRT_OBJECT.get(81, "Ученый"),
                 "spell_name": _spl_name(sid) or str(sid),
-                "level": None, "flag": None, "town": None, "built": None,
+                "level": localizer.spell_level(sid) if localizer else None,
+                "flag": None, "town": None, "built": None,
                 "garrison": None, "hero": None, "place": None,
-                "mission": None, "guard": None,
+                "mission": None, "guard": None, "num": None,
             })
 
     # ── 6. Seer Huts with spell reward ──
+    # PRT SeerHutContent: spell reward → R_Spell row with Object="Хижина Провидца"
+    # + mission string in Задание column + spell level from TblSpell
+    _seer_name = localizer.object(83) if localizer else "Хижина Провидца"
     for rec in mo.get("Провидцы", []):
         reward = rec.get("reward", {})
         if isinstance(reward, dict) and "spell_id" in reward:
@@ -991,11 +1104,13 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
             if sid is not None and sid >= 0:
                 rows.append({
                     "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                    "object": _PRT_OBJECT.get(81, "Ученый"),
+                    "object": _seer_name,
                     "spell_name": _spl_name(sid) or str(sid),
-                    "level": None, "flag": None, "town": None, "built": None,
+                    "level": localizer.spell_level(sid) if localizer else None,
+                    "flag": None, "town": None, "built": None,
                     "garrison": None, "hero": None, "place": None,
-                    "mission": rec.get("quest"), "guard": None,
+                    "mission": _fmt_mission_str(rec) if localizer else None,
+                    "guard": None, "num": None,
                 })
 
     return rows

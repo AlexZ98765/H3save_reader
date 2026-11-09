@@ -605,7 +605,7 @@ def parse_pass_guard_content(raw: bytes, s: int) -> Tuple[PassGuardContent, int]
     if t == 0:
         return rec, s + 1
     elif t == 1:
-        rec.mission = {"level": _u32(raw, s + 1)}
+        rec.mission = {"level": raw[s + 1]}
         s += 5
     elif t == 2:
         rec.mission = {"primary_skills": {A_PR_SKILL[i]: raw[s + i + 1]
@@ -1409,7 +1409,8 @@ class TownSpellPool:
 
 def parse_town_spell(raw: bytes, s: int, lvl: int,
                      library_built: bool = False,
-                     mg5_built: bool = False
+                     mg5_built: bool = False,
+                     library_available: bool = False
                      ) -> Tuple[TownSpellPool, int]:
     """Parse spells available in town's Magic Guild.
 
@@ -1425,23 +1426,43 @@ def parse_town_spell(raw: bytes, s: int, lvl: int,
       Level 4: 1 spell  (j=0)
     Total: 15 spell slots
 
-    For 6-level guild (Tower with Library, num4=1): adds 1 extra spell per level.
+    For Tower (lvl=6): num4=1 (outer loop bound 5+num4-i = 6-i) gives 6 slots
+    per level in the save file. But num5 (the inner filter `j < 5+num5-i`)
+    determines how many are actually displayed.
+
+    Library bonus spell inclusion (matches PRT GetTownSpell line 7549-7584):
+      - num5 starts at 1 for Tower (lvl==6)
+      - num5 stays 1 if Library status is built/available/timer (num3 != 0)
+      - num5 is set to 0 if Library status is "Нет" (num3 == 0) — bonus
+        spell is then DROPPED, only 5 spells shown per level
+
+    Parameters:
+      library_built:    byte[s-14] bit 6 set → Library is constructed
+      library_available: byte[s-6]  bit 6 set → Library is queued/available
+                         (only relevant for Tower; bonus applies same as built)
+      mg5_built:        (legacy) Mage Guild lvl 5 built flag — not used for
+                        spell count, only stored in record.
 
     Notes:
-    - Library check: `(decmp[num - 14] & 0x40) == 64` → library adds 1 spell per level
-    - Mage Guild lvl 5: `(decmp[num - 6] & 0x40) == 64`
-    - Built/Available flags at bytes (s-16) and (s-8)
+    - Library check: `(decmp[num - 14] & 0x40) == 64` → library built
+    - Library avail: `(decmp[num - 6]  & 0x40) == 64` → library available
+    - Built/Available flags at bytes (s-16) and (s-8) for per-level mage guild
     """
+    # num5 controls whether Library bonus spell is included.
+    # PRT: num5 = num4 initially (=1 for Tower), set to 0 only if num3==0
+    # (Library status is "Нет"). num3 != 0 when Library is built/available/timer.
+    lib_bonus = library_built or library_available
     rec = TownSpellPool(address=s, has_library=library_built,
                         has_mage_guild_level_5=mg5_built)
     # PRT: num2 = ((lvl == 6) ? 5 : lvl) — Tower (lvl=6) still has 5 levels,
     # but num4=1 means 1 extra spell per level (library adds 1 spell, not 1 level)
     actual_lvl = 5 if lvl == 6 else lvl
-    num4 = 1 if lvl == 6 else 0  # extra spell per level for Tower with Library
+    # Inner loop bound: 5 + num5 - i. num5 = 1 if (Tower AND lib_bonus), else 0
+    num5 = 1 if (lvl == 6 and lib_bonus) else 0
 
     for level_idx in range(actual_lvl):
-        # PRT: for (int j = 0; j < 5 + num4 - i; j++)
-        n_spells = 5 + num4 - level_idx
+        # PRT inner check: j < 5 + num5 - i
+        n_spells = 5 + num5 - level_idx
         spells = []
         for slot in range(n_spells):
             off = s + slot * 4
@@ -1455,7 +1476,7 @@ def parse_town_spell(raw: bytes, s: int, lvl: int,
             s += 24
 
     # No extra level 6 — PRT GetTownSpell for lvl=6 has num2=5 (5 levels only).
-    # The library adds +1 spell per level (handled by num4 above), not an extra level.
+    # The library adds +1 spell per level (handled by num5 above), not an extra level.
 
     return rec, s
 

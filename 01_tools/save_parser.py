@@ -475,13 +475,34 @@ def parse_town_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         # Spell section = block_offset + 71 + name_len + 113
         spell_section_offset = block_offset + 71 + name_len + 113
         lvl = TOWN_SPELL_POOL_DEPTH.get(fields["type"], 5)
-        spell_pool, _ = parse_town_spell(raw, spell_section_offset, lvl)
+        # PRT GetTownSpell (line 7550-7584): for Tower (lvl=6) the Library
+        # bonus spell is only included when Library status != "Нет", i.e.
+        # when Library is built OR available (queued) OR timer-scheduled.
+        #   library_built:     byte[sp-14] bit 6 → "Построено"
+        #   library_available: byte[sp-6]  bit 6 → "Доступно"
+        # (LibTimer is computed elsewhere; skipped here for simplicity.)
+        lib_built = False
+        lib_avail = False
+        if lvl == 6:
+            if (spell_section_offset - 14 >= 0
+                    and spell_section_offset - 14 < len(raw)
+                    and (raw[spell_section_offset - 14] & 0x40) == 0x40):
+                lib_built = True
+            if (spell_section_offset - 6 >= 0
+                    and spell_section_offset - 6 < len(raw)
+                    and (raw[spell_section_offset - 6] & 0x40) == 0x40):
+                lib_avail = True
+        spell_pool, _ = parse_town_spell(raw, spell_section_offset, lvl,
+                                         library_built=lib_built,
+                                         library_available=lib_avail)
         # spell_pool is TownSpellPool dataclass with .levels (list of lists)
         # Convert to dict for JSON
         fields["spell_pool"] = {
             "address": spell_pool.address,
             "has_library": spell_pool.has_library,
             "has_mage_guild_level_5": spell_pool.has_mage_guild_level_5,
+            "library_built": lib_built,
+            "library_available": lib_avail,
             "levels": spell_pool.levels,  # list of [spell_id, ...]
         }
     except Exception as e:

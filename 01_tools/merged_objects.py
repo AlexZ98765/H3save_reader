@@ -1342,9 +1342,11 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         loc = get_localizer()
         shrine_names = {88: loc.object(88), 89: loc.object(89), 90: loc.object(90)}
         pyramid_name = loc.object(63)  # "Пирамида"
+        scroll_name = loc.object(93)   # "Свиток с заклинанием"
     except Exception:
         shrine_names = {88: "Святыня", 89: "Святыня", 90: "Святыня"}
         pyramid_name = "Пирамида"
+        scroll_name = "Свиток с заклинанием"
 
     out = []
     for obj in tile_objects:
@@ -1392,6 +1394,25 @@ def merge_shrines(tile_objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "spell_level": spell_level,
                 "guard": "Золотой Голем 40, Алмазный Голем 20",
                 "hp": 3200,
+            })
+        # ---- Spell Scroll (93) — PRT SaveScroll adds to R_Spell ----
+        elif type_id == 93:
+            spell_id = obj.get('spell_id', 0)
+            try:
+                spell_level = loc.spell_level(spell_id) if loc else 0
+            except Exception:
+                spell_level = 0
+            out.append({
+                "x": obj.get('x'),
+                "y": obj.get('y'),
+                "z": obj.get('z'),
+                "locality": "море" if obj.get('loc') == 8 else "суша",
+                "object": scroll_name,
+                "shrine_type": 93,
+                "spell_id": spell_id,
+                "spell_level": spell_level,
+                "guard": None,
+                "hp": None,
             })
     return out
 

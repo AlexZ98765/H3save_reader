@@ -660,9 +660,15 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                         relic_name = get_artifact_name(relic_id, localizer=None)
                 except Exception:
                     pass
+            # PRT: Золото/Опыт cells are NULL when value is 0 (DataRow NULL
+            # vs. 0 distinction). Convert 0 → None so the comparison matches.
+            _gold = rec.get("gold")
+            _gold = _gold if _gold else None
+            _exp = rec.get("experience")
+            _exp = _exp if _exp else None
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                        "суша" if rec.get("locality", "суша") != "море" else "море",
-                       rec.get("object", "Сундук"), rec.get("gold"), rec.get("experience"),
+                       rec.get("object", "Сундук"), _gold, _exp,
                        _art_name(aid) if aid >= 0 else None,
                        _cls_name(aid) if aid >= 0 else None,
                        relic_name])
@@ -1600,12 +1606,19 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # else None. This indicates the town has at least one timed event that
         # changes buildings via byte[1] bitmask (which contains Mage Guild
         # levels and similar "magic-related" buildings).
+        #
+        # Also pre-compute LibTimer for Tower towns (PRT line 7027-7029, 7072):
+        #   num2 = OR of byte[2] of buildings array across all timed events
+        #          (only for townType=="2" / Tower)
+        #   LibTimer = (num2 & 4) >> 2  → bit 2 of num2 (Library scheduled)
         town_timer_links = parsed.get("town_timer_links", []) or []
         mage_timer_by_town: Dict[int, int] = {}  # town_id → MageTimer bitmask
+        lib_timer_by_town: Dict[int, int] = {}   # town_id → LibTimer (0 or 1)
         for link in town_timer_links:
             link_dict = link if isinstance(link, dict) else {}
             town_id = link_dict.get("town_id", 0)
             mage_timer = 0
+            lib_byte2 = 0  # OR of byte[2] (only Tower)
             for ev in link_dict.get("events", []):
                 ev_dict = ev if isinstance(ev, dict) else {}
                 # Check Apply — if null/zero, this event doesn't contribute
@@ -1620,10 +1633,18 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 if apply_tuple == (0, 0, 0):
                     continue
                 buildings = ev_dict.get("buildings", [])
-                if isinstance(buildings, (list, tuple)) and len(buildings) >= 2:
-                    # byte[1] is at index 1 (0-based) — Mage Guild levels etc.
-                    mage_timer |= int(buildings[1]) if buildings[1] else 0
+                if isinstance(buildings, (list, tuple)):
+                    if len(buildings) >= 2:
+                        # byte[1] is at index 1 (0-based) — Mage Guild levels etc.
+                        mage_timer |= int(buildings[1]) if buildings[1] else 0
+                    if len(buildings) >= 3:
+                        # byte[2] is at index 2 — for Tower contains Library bit
+                        lib_byte2 |= int(buildings[2]) if buildings[2] else 0
             mage_timer_by_town[town_id] = mage_timer
+            # LibTimer = bit 2 of byte[2] OR (PRT applies this only to Tower,
+            # but since lib_byte2 is 0 for non-Tower towns anyway — only Tower
+            # timers would set bit 2 — we can compute unconditionally).
+            lib_timer_by_town[town_id] = (lib_byte2 & 4) >> 2
 
         for town_idx, t in enumerate(parsed.get("towns_found", [])):
             f = t.get("fields", {})
@@ -1634,9 +1655,14 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             ttype = f.get("type", 0) or 0
             ttype_name = _town_name(ttype) or f.get("type_name") or str(ttype)
 
-            # Faction/color
+            # Faction/color: PRT GetTownContent line 7482-7485 sets Color only
+            # when `decmp[town+1] < 255` (i.e. faction byte is a real player
+            # color 0..7). For 255 (neutral) Color is left NULL.
             faction_id = f.get("faction", -1)
-            faction_name = _color_name(faction_id) if faction_id is not None and faction_id >= 0 else (f.get("faction_name") or "")
+            if faction_id is not None and 0 <= faction_id < 8:
+                faction_name = _color_name(faction_id)
+            else:
+                faction_name = None
 
             # Garrison: format as PRT "<name> <count>, ..." (with dedup, no "x" prefix)
             at = f.get("army_types", []) or []
@@ -1658,17 +1684,41 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             mage_timer = mage_timer_by_town.get(town_idx, 0)
             timer_str = "Да" if mage_timer else None
 
-            # Library: Tower (type=2) has Library by default → "Доступно"
-            # PRT GetTownSpell: num5=1 for Tower, Library defaults to "Доступно" (aStatus[0])
-            # unless bit 6 of (spell_off-14) is set → "Недоступно"
+            # Library: Tower (type=2) only. Matches PRT GetTownSpell (7550-7584):
+            #   bit 6 of byte[sp-14] → built     → "Построено"
+            #   bit 6 of byte[sp-6]  → available → "Доступно" (if not built)
+            #   LibTimer > 0                    → "Таймер"    (if not built/avail)
+            #   none of above                   → "Нет"      (and num5=0 → no bonus spell)
+            # When BOTH available and LibTimer are set → "Доступно, Таймер"
+            # aStatus = ["Нет", "Таймер", "Доступно", "Построено"]
             library_str = None
             sp_addr = sp.get("address", 0) if isinstance(sp, dict) else 0
             if ttype == 2:
-                if sp_addr and sp_addr - 14 >= 0 and sp_addr - 14 < len(raw):
-                    lib_byte = raw[sp_addr - 14]
-                    library_str = "Недоступно" if (lib_byte & 0x40) else "Доступно"
+                # Prefer pre-computed flags from save_parser (set during parse).
+                # Fallback: recompute from raw bytes if absent.
+                lib_built = sp.get("library_built", False) if isinstance(sp, dict) else False
+                lib_avail = sp.get("library_available", False) if isinstance(sp, dict) else False
+                if not (lib_built or lib_avail):
+                    if sp_addr and sp_addr - 14 >= 0 and sp_addr - 14 < len(raw):
+                        lib_built = (raw[sp_addr - 14] & 0x40) == 0x40
+                    if sp_addr and sp_addr - 6 >= 0 and sp_addr - 6 < len(raw):
+                        lib_avail = (raw[sp_addr - 6] & 0x40) == 0x40
+                # LibTimer from pre-computed lookup (bit 2 of byte[2] of timer
+                # buildings for Tower towns).
+                lib_timer = lib_timer_by_town.get(town_idx, 0)
+                # Status priority matches PRT: built > available > timer.
+                # When both available and timer set → "Доступно, Таймер".
+                if lib_built:
+                    library_str = "Построено"
+                elif lib_avail:
+                    if lib_timer > 0:
+                        library_str = "Доступно, Таймер"
+                    else:
+                        library_str = "Доступно"
+                elif lib_timer > 0:
+                    library_str = "Таймер"
                 else:
-                    library_str = "Доступно"  # default for Tower
+                    library_str = "Нет"
 
             # Read "Built" flags from byte at spell_off - 16
             # PRT: if (((decmp[num-16] >> i) & 1) > 0) row.Built = aReply[1] = "Да"
@@ -1816,7 +1866,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         ws = wb.create_sheet("Все Заклы")
         ws.append(["X", "Y", "Z", "Объект", "Заклинание", "Уровень", "Флаг", "Город", "Построен", "Гарнизон", "Герой", "Местоположение", "Задание", "Охрана", "№"])
         if aggregate_all_spells:
-            for rec in aggregate_all_spells(parsed, localizer=loc):
+            for rec in aggregate_all_spells(parsed, localizer=loc, raw=raw):
                 ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
                            rec.get("object"), rec.get("spell_name"),
                            rec.get("level"), rec.get("flag"),
