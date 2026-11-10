@@ -2123,6 +2123,13 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         # Move Оглавление to be the FIRST sheet (position 0)
         wb.move_sheet("Оглавление", offset=-len(wb.sheetnames) + 1)
 
+        _desired_order = list(_sheet_descriptions.keys())
+        _existing = list(wb.sheetnames)
+        _new_order = [s for s in _desired_order if s in _existing]
+        _extras = [s for s in _existing if s not in _desired_order]
+        _final_order = _new_order + _extras
+        if _final_order != _existing:
+            wb._sheets = [wb[name] for name in _final_order]
     # ----- Save -----
     wb.save(output_path)
     return output_path

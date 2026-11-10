@@ -2680,3 +2680,44 @@ Work Log:
 ## Files modified
 - `01_tools/excel_compare.py` — оптимизация сигнатур + disabled_sheets + новые секции в _Сводка + CLI --disable
 - `01_tools/gm1_parser.py` — новый класс SheetSelectionDialog + чекбокс в CompareDialog + проброс disabled_sheets в _on_compare
+
+
+---
+Task ID: SHEET-ORDER
+Agent: main
+Task: Исправить последовательность листов в Excel-выводе под заданный пользователем порядок.
+
+Work Log:
+
+## Контекст проблемы
+- `_sheet_descriptions` dict в excel_export.py хранит описания листов, но НЕ контролирует их фактический порядок в workbook.
+- Реальный порядок зависит от последовательности вызовов `wb.create_sheet(...)` — а они идут по логике построения листов, а не по желаемому визуальному порядку.
+- После создания "Оглавление" в конце делался `wb.move_sheet("Оглавление", offset=-N+1)` — только Оглавление переносилось в начало, остальное оставалось в порядке создания.
+
+## Желаемый порядок (по запросу пользователя)
+Оглавление → Входные файлы → All Objects → By Category → Summary → Wiki Dictionary → Общее → Артефакты → Монстры → Банки → ... → Все Навыки → Опыт
+
+Ключевые изменения vs старого порядка:
+- "Входные файлы" поднято с конца (поз. 31) на поз. 2 (сразу после Оглавления).
+- "Общее" поднято с поз. 30 на поз. 7 (сразу после Wiki Dictionary).
+
+## Реализация
+1. `_sheet_descriptions` dict переписан в желаемом порядке — это и источник описаний, и канонический список порядка.
+2. После `wb.move_sheet("Оглавление", ...)` добавлен финальный reorder-пас:
+   ```python
+   _desired_order = list(_sheet_descriptions.keys())
+   _existing = list(wb.sheetnames)
+   _new_order = [s for s in _desired_order if s in _existing]
+   _extras = [s for s in _existing if s not in _desired_order]
+   _final_order = _new_order + _extras
+   if _final_order != _existing:
+       wb._sheets = [wb[name] for name in _final_order]
+   ```
+3. Подход устойчив к отсутствующим листам (если какой-то лист не был создан из-за пустых данных) — он просто пропускается в `_new_order`. Любой sheet, не описанный в `_sheet_descriptions`, добавляется в конец в исходном порядке.
+
+## Тестирование
+- Юнит-тест: создан workbook со всеми 31 листами в произвольном порядке (имитация последовательности create_sheet). После применения reorder-логики итоговый порядок точно совпал с желаемым — 31/31, 0 mismatches.
+- Тест также проверяет случай когда "Оглавление" создано последним — корректно переносится в начало, остальные получают желаемый порядок.
+
+## Files modified
+- `01_tools/excel_export.py` — переупорядочен `_sheet_descriptions` dict + добавлен финальный reorder-пас после `move_sheet("Оглавление", ...)`.
