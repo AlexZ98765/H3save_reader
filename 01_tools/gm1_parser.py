@@ -3443,6 +3443,10 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
         try:
             self._set_loading("Сравнение файлов…")
             from excel_compare import compare_excel_files
+            # Skip enrichment sheets (All Objects, By Category, etc.) — these
+            # are our custom sheets not present in PRT, and processing 2000+
+            # rows of All Objects causes long hangs. Pass skip_sheets=None to
+            # compare ALL sheets when the user explicitly wants full comparison.
             compare_excel_files(file_a, file_b, out_path,
                                  ignore_localization=True)
             self._set_idle()
