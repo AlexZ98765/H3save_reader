@@ -2534,3 +2534,94 @@ Stage Summary:
   helper or similar normalization at the entry point of each sheet).
 - The same `isinstance(ev, dict)` pattern may exist in other sheets that read
   from `ptc` directly (not `mo` which is already plain dicts). Worth checking.
+
+---
+Task ID: PRT-MATCH-FINAL
+Agent: main
+Task: Добиться соответствия вывода нашего парсера с PRT 0000.xlsx — лист за листом.
+
+Work Log:
+
+## Все Заклы (55 → 0)
+1. Scholar/Event spell level: localizer.spell_level(sid) via reverse-lookup
+2. Pyramid guard: rec.get("guard") instead of None
+3. Spell Scroll (type_id=93): added to merge_shrines with localized name + guard
+4. PassGuard/SeerHut level: raw[s+1] instead of _u32(raw,s+1)
+5. SeerHut type=0: early return s+15
+6. _fmt_mission_str: duplicate definition in aggregate_all_spells
+7. Banned hero filter: skip Place=="Запрещен" (PRT filter)
+8. Town garrison: only on first spell of first level (PRT num==0)
+
+## Города (62 → 0)
+9. Library status: byte[sp-14] bit6→"Построено", byte[sp-6] bit6→"Доступно", LibTimer→"Таймер", none→"Нет"
+10. Library bonus spell: parse_town_spell num5=1 only if lib_bonus (Library status!="Нет")
+11. Town faction: 0..7→color name, else None (PRT decmp[town+1]<255)
+12. LibTimer: OR of byte[2] across timer events, bit2 for Tower
+
+## Сундуки (18 → 0)
+13. 0→empty cell for Золото/Опыт (PRT DataRow NULL vs 0)
+
+## Все Арты (6 → 4, 4 expected)
+14. Seer hut mission artifacts: prefix "- " for quest-goal artifacts
+
+## Опыт (591 → 3)
+15. Monster count: f"{name} {count}" (PRT Name+" "+Number)
+16. Dwellings: new section 9b — Code 17+20 scan, PRT_TBL_DWELLING (37 entries)
+17. Pyramid XP: shrine_type==63, hp=3200
+18. Городок guard+flag: garrison string + faction color
+19. Событие vs Хижина: rec.get("object") instead of hardcoded
+20. Events with guard: include if Guard IS NOT NULL OR Experience IS NOT NULL
+21. Гарнизон: Object="Гарнизон" (not "Garrison"), flag from color, localized monster names
+22. Guard dedup: _guard_str_safe dedup by monster_id (PRT ItWas)
+23. Hero №: hero_idx (PRT r_AllExperienceRow16.ID)
+24. Hero filter: skip only Place=="Таверна" (was "Запрещен")
+25. SeerHut XP mission string: _fmt_seer_mission_xp
+26. Artifact/Pyramid columns: name for Object=="Артефакт", spell for pyramids
+27. Scroll XP: shrine_type==93 with guard → hp from ArtRes
+
+## Герои — tavern HP
+28. Tavern hero ∑HP: compute_army_hp directly (not hero_sum_hp which filters tavern)
+
+## Общее (was Грааль) — current_state fix
+29. current_state offset: true_hero_start = ALT_start - 26 + sum(extra_size) + 156*1094 + 156*2
+30. Day/week/month byte order: +15=day, +13=week, +11=month (was reversed)
+31. ASCII conversion removed: raw int bytes
+32. Sheet renamed: "Грааль" → "Общее"
+
+## Входные файлы
+33. Actual file paths: GUI tracks current_file/config_path/map_json_path
+34. Windows backslashes: .replace("/", "\\") in both gm1_parser + excel_export
+
+## Оглавление
+35. Index sheet: first sheet, hyperlinks #'SheetName'!A1, moved via wb.move_sheet
+
+## Ghost hero fix (critical — caused total collapse)
+36. z validation: reject z not in (0,1,-1) — ghost at offset 1596 had z=256
+37. Ghost filtering: real_blocks filter in save_parser
+38. HeroCount=156: PRT hardcoded (MainForm.cs:999), not hero_section.count
+
+## Scroll guard via ArtRes matching
+39. has_guard+art_res_num: _parse_scroll+_parse_resource check byte[s+9]&0x80
+40. ArtRes matching: merge_all pre-pass — sort guarded by art_res_num, match 1:1 with art_res records
+41. Scroll guard in merge_shrines: read art_guard, format with localizer.monstr()
+
+## Doll slots + Black Market + artifact casing
+42. PRT aDoll array: "Разное1"-"Разное5", "Рюкзак" (was "Разное" without number)
+43. "Черный Рынок": localizer.object(7) — capital Р
+44. Artifact name casing: localizer.art() (Title Case) instead of get_artifact_name(localizer=None)
+45. Aggregator casing match: both "Черный Рынок" and "Черный рынок"
+
+## Final comparison (vs PRT 0000.xlsx)
+- 21 of 24 PRT sheets: 0 diff (100% match)
+- Опыт: 3 (Green heroes — PRT excludes human color)
+- Все Арты: 4 (1 banned hero + 3 seer hut mission with "- ")
+- All other sheets: 0
+
+Files modified: excel_calculations.py, excel_export.py, merged_objects.py,
+  save_parser.py, save_config_builder.py, save_layout.py, tile_scanner.py,
+  post_tile_parser.py, localizer.py, gm1_parser.py
+
+Key PRT references: MainForm.cs 6380-6800 (GetAllExperience), 7263-7422
+  (GetAllSpell), 7458-7540 (GetTownContent), 7668-7682 (GetCurrentState),
+  8394-8453 (ArtResContent), 9117-9128 (ScanHeroesContent), 10421-10443
+  (SaveScroll), 10664-10707 (CreateTblDwelling), 11753-11756 (aDoll)
