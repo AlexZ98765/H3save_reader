@@ -477,6 +477,33 @@ def find_town_blocks(raw: bytes,
     return TownSection(blocks=blocks)
 
 
+def _is_valid_town_name(name: str) -> bool:
+    """Check that a town name contains only printable characters.
+
+    Rejects names with control characters (bytes 0x00-0x08, 0x0B, 0x0C,
+    0x0E-0x1F) — these are exactly the characters openpyxl refuses to
+    write to worksheets (IllegalCharacterError). Real HoMM3 town names
+    use cp1251 printable chars (Latin + Cyrillic letters, digits,
+    spaces, dots, apostrophes, hyphens).
+
+    This filter is critical for coord-based town search: on large maps
+    (10000+ objects), 3-byte (x,y,z) coord patterns match many random
+    positions in the save. False-positive "towns" pass faction/type/
+    name_len validation but have garbage names with control chars.
+    """
+    if not name:
+        return False
+    for ch in name:
+        c = ord(ch)
+        # Allow tab (0x09), LF (0x0A), CR (0x0D) — though town names
+        # never actually contain these.
+        if c < 0x20 and c not in (0x09, 0x0A, 0x0D):
+            return False
+        if c == 0x7F:  # DEL
+            return False
+    return True
+
+
 def _parse_town_at(raw: bytes, block_start: int) -> Optional[TownBlockInfo]:
     """Parse a town block at the given offset.
     Returns None if validation fails."""
@@ -515,6 +542,13 @@ def _parse_town_at(raw: bytes, block_start: int) -> Optional[TownBlockInfo]:
         name = raw[name_start:name_end].decode("cp1251")
     except Exception:
         name = ""
+
+    # Filter false-positive coord matches: real town names are printable
+    # cp1251 strings. Garbage names containing control chars (0x00, 0x17,
+    # 0x02, etc.) are false positives from random byte patterns elsewhere
+    # in the save — reject them here so they don't reach openpyxl.
+    if not _is_valid_town_name(name):
+        return None
 
     return TownBlockInfo(
         block_offset=block_start,
@@ -642,6 +676,72 @@ def _recover_missing_towns(raw: bytes, town_section: TownSection,
     return TownSection(blocks=final_blocks)
 
 
+def _filter_to_stride_chain(town_section: TownSection) -> TownSection:
+    """Keep only the longest contiguous chain of towns satisfying the
+    stride law: stride = TOWN_RECORD_BASE_SIZE (382) + cp1251_len(prev_name).
+
+    The coord-based search in `find_town_blocks` finds MANY false-positive
+    "towns" on large maps (10614+ objects): any 3-byte (x,y,z) pattern in
+    the binary that happens to be followed by valid faction/type/name_len
+    bytes is accepted. Real towns in the save are CONTIGUOUS — each record
+    is exactly 382 + name_len bytes after the previous one. False positives
+    at random offsets break this stride.
+
+    Algorithm:
+      1. Sort candidate town blocks by offset.
+      2. Find the longest subsequence S[0..n] such that for each i > 0:
+         S[i].block_offset - S[i-1].block_offset ==
+            TOWN_RECORD_BASE_SIZE + cp1251_len(S[i-1].name)
+      3. Return a TownSection containing only S.
+
+    This is a classic longest-path-in-DAG problem: an edge i → j exists iff
+    blocks[j] satisfies the stride from blocks[i]. We solve it with DP
+    in O(n²) time (n is typically small, < 100).
+    """
+    blocks = sorted(town_section.blocks, key=lambda b: b.block_offset)
+    n = len(blocks)
+    if n <= 1:
+        return town_section
+
+    # Precompute cp1251 name lengths
+    name_lens = []
+    for b in blocks:
+        try:
+            name_lens.append(len(b.name.encode("cp1251")))
+        except Exception:
+            name_lens.append(0)
+
+    # dp[i] = length of longest chain ending at i
+    # parent[i] = previous index in chain (or -1 if chain starts at i)
+    dp = [1] * n
+    parent = [-1] * n
+    for i in range(n):
+        for j in range(i):
+            expected = TOWN_RECORD_BASE_SIZE + name_lens[j]
+            actual = blocks[i].block_offset - blocks[j].block_offset
+            if actual == expected and dp[j] + 1 > dp[i]:
+                dp[i] = dp[j] + 1
+                parent[i] = j
+
+    # Find the index with the longest chain
+    best_end = max(range(n), key=lambda i: dp[i])
+    if dp[best_end] == n:
+        # All blocks form a single chain — nothing to filter
+        return town_section
+
+    # Reconstruct chain
+    chain = []
+    cur = best_end
+    while cur != -1:
+        chain.append(blocks[cur])
+        cur = parent[cur]
+    chain.reverse()
+
+    # print(f"  ℹ stride-chain filter: {n} candidates → {len(chain)} real towns "
+    #       f"(dropped {n - len(chain)} false positives)")
+    return TownSection(blocks=chain)
+
+
 def _parse_town_at_offset(raw: bytes, block_offset: int) -> Optional[TownBlockInfo]:
     """Parse a town block at the given offset. Returns None if invalid."""
     if block_offset < 0 or block_offset + 80 > len(raw):
@@ -671,6 +771,9 @@ def _parse_town_at_offset(raw: bytes, block_offset: int) -> Optional[TownBlockIn
             name = raw[name_start:name_end].decode("cp1251")
         except Exception:
             name = ""
+        # Same name-validity filter as _parse_town_at — reject control chars.
+        if not _is_valid_town_name(name):
+            return None
         return TownBlockInfo(
             block_offset=block_offset,
             name_offset=name_start,
@@ -736,6 +839,13 @@ def build_map_config(map_data, day_zero_raw: bytes,
 
     town_section = find_town_blocks(day_zero_raw, header.header_size,
                                      town_coords, town_names)
+
+    # ── Stride-chain filter ──
+    # The coord-based search above finds many false-positive "towns" on
+    # large maps. Real towns form a contiguous chain where each record's
+    # offset is exactly (prev_offset + 382 + cp1251_len(prev_name)). Filter
+    # out candidates that don't fit any such chain.
+    town_section = _filter_to_stride_chain(town_section)
 
     # ----- Verify town strides (382 + name_len) -----
     # Each town record has total size = TOWN_RECORD_BASE_SIZE (382) + name_len_in_cp1251

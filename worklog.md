@@ -2721,3 +2721,78 @@ Work Log:
 
 ## Files modified
 - `01_tools/excel_export.py` — переупорядочен `_sheet_descriptions` dict + добавлен финальный reorder-пас после `move_sheet("Оглавление", ...)`.
+
+
+---
+Task ID: SHADOWS-TOWN-FIX
+Agent: main
+Task: Анализ декомпилированного исходника ProspectorRT — почему он падает на карте "Лесные Тени" (C-_Shadows_of_the_Forest RUS); исправить ошибку Excel-экспорта "Ìð cannot be used in worksheets".
+
+## Анализ PRT MainForm.cs
+
+### Алгоритм поиска городов в PRT (MainForm.cs строки 6159, 9189-9198, 7458-7540)
+PRT не ищет города по координатам (как делали мы). Вместо этого он ВЫЧИСЛЯЕТ старт секции городов по цепочке от map.Start:
+```
+map.Mine = ScanBottleSignContent(map.BottleSign);
+map.Dwelling = map.Mine + decmp[map.Mine] * 62 + 1;
+map.Garrison = map.Dwelling + decmp[map.Dwelling] * 75 + 2;
+map.UnknownVarReg = map.Garrison + decmp[map.Garrison] * 61 + 1;
+map.UnknownFixedReg = map.UnknownVarReg + decmp[map.UnknownVarReg] * 28 + 1;
+map.Color = map.UnknownFixedReg + 49;
+map.Town = map.Color + 1160;
+```
+Затем `ScanTownsContent(map.Town)`:
+- Читает 1-байтный count из `decmp[map.Town]`
+- Для каждого города: `s += decmp[s + 70] + 382` (382 фиксированных байта + длина имени)
+- В `GetTownContent` дополнительно: `town = town + 72 + decmp[town + 70] + 113; town += 197` (итого 382 + name_len на запись)
+
+### Почему PRT падает на этой карте
+PRT ДОВЕРЯЕТ каждому count-байту и каждой длине имени. Если на сложной карте (10614 объектов, 26 городов, нестандартные размеры секций) какой-то count-байт оказывается большим/искажённым:
+- `map.Color + 1160` даёт НЕВЕРНЫЙ адрес секции городов
+- Чтение 1-байтного count из мусора даёт огромное число
+- Цикл `for (int i = 0; i < num; i++)` вылетает за конец buffer → IndexOutOfRangeException
+- Или `decmp[s + 70]` читает длину имени = 200+, выход за buffer при копировании имени
+
+PRT не имеет никаких валидаций (faction ≤ 7, type ≤ 8, name_len ≤ 14) — любой мусор принимается как валидный город.
+
+### Почему наш парсер не падал, но давал мусор в Excel
+Наш `find_town_blocks` (save_config_builder.py) ищет города КООРДИНАТНО: для каждого (x,y,z) из map_data ищет 3-байтный needle в save и валидирует:
+- faction в 0..7 или 255
+- town_type в 0..8
+- name_len в 1..14 (u16 LE на смещении +69)
+- x, y, z в допустимых пределах
+
+На большой карте (1.45MB) 3-байтные паттерны (особенно (0,6,0), (8,92,0), (98,47,0) и т.п.) встречаются СОТНИ раз. Многие ложные совпадения проходят ВСЕ валидации:
+- false positive @ 0x2C872: faction=0, type=3, x=33, y=3, z=0, name_len=2, name='\x17\x00' (control chars)
+- false positive @ 0x10D08F: faction=6, type=3, name='\x00·\x02\x02'
+- 53 "города" в parsed.towns (вместо 26 реальных)
+
+Ложные имена содержат control chars (0x00, 0x17, 0x02, ...) → openpyxl `IllegalCharacterError: "Й  cannot be used in worksheets."` (cp1251 "Й" + 0x02 + пробел).
+
+## Реализованные исправления
+
+### Fix 1: Валидация имени города (save_config_builder.py)
+Новая функция `_is_valid_town_name(name)` — отвергает имена с control chars (0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F, 0x7F). Применена в `_parse_town_at` и `_parse_town_at_offset`. Это немедленно устраняет openpyxl-ошибку.
+
+### Fix 2: Stride-chain filter (save_config_builder.py)
+Новая функция `_filter_to_stride_chain(town_section)` — оставляет только самую длинную цепочку городов, удовлетворяющую закону stride = 382 + cp1251_len(prev_name):
+- Сортируем кандидатов по offset.
+- DP-алгоритм (O(n²)): для каждой пары (i, j) где i < j, проверяем `block_offset[j] - block_offset[i] == 382 + name_len[i]`; если да, продлеваем цепочку.
+- Возвращаем только самую длинную цепочку.
+- Реальные города всегда образуют одну сплошную цепочку (PRT layout гарантирует это).
+- Ложные совпадения в случайных местах break stride → автоматически отбрасываются.
+
+Применена в `build_map_config` (после `find_town_blocks`) и в `save_parser._adapt_config_to_current_save` (после повторного поиска городов для текущего сейва).
+
+## Результаты тестов
+- **Карта "Лесные Тени" (C-_Shadows_of_the_Forest RUS)**: 31 кандидат → 26 реальных городов (отброшено 5 false positives). Excel-экспорт OK (1.9MB, 31 лист).
+- **Карта "Myth and Legend"**: regression OK — 21 город (Кавала, Волос, ..., Летний Домик), 0 stride mismatches.
+- **excel_compare** (PRT vs OUR): 4.3s, без изменений.
+
+## Дополнительная диагностика
+- Warning "⚠ 2 town stride mismatches; attempting stride-based recovery..." — больше не появляется, т.к. stride-chain filter удаляет false positives ДО вызова `_verify_town_strides`.
+- Имена всех 26 реальных городов корректные: Диасамир, Морибунд, Крыло Демона, Темный Дворец, Дова Сэра, Уайтспайр, Антас, Риверс Гейт, Якта, Дрэгонбэйн, Сейлстоун, Маррест, Аванпост, Дредбург, Шахназан, Дворец Грехов, Иммола, Резалюм, Алолин, Лалаталос, Мфетас, Ниллабэл, Айя Таеси, Монд, Д. Вельзеса, Торговый Дом.
+
+## Files modified
+- `01_tools/save_config_builder.py` — `_is_valid_town_name`, добавлена валидация в `_parse_town_at`/`_parse_town_at_offset`; новая `_filter_to_stride_chain`; применена в `build_map_config`.
+- `01_tools/save_parser.py` — stride-chain filter применён в `_adapt_config_to_current_save` (повторный поиск городов для текущего сейва).

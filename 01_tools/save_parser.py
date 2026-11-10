@@ -535,7 +535,7 @@ def adapt_config_to_save(raw: bytes, config: MapConfig) -> Tuple[
       - For object clusters: reuse cluster_finder.find_all_object_clusters
         (the per-object offsets may have shifted between saves)
     """
-    from save_config_builder import find_hero_blocks, find_town_blocks
+    from save_config_builder import find_hero_blocks, find_town_blocks, _filter_to_stride_chain
 
     header = parse_header(raw)
     scan_start = header.header_size
@@ -550,6 +550,11 @@ def adapt_config_to_save(raw: bytes, config: MapConfig) -> Tuple[
         town_coords.append((tb.x, tb.y, tb.z))
         town_names.append(tb.name)
     town_section = find_town_blocks(raw, scan_start, town_coords, town_names)
+    # Apply the same stride-chain filter as in day-0 config building —
+    # without it, re-finding towns in a non-day-0 save produces many
+    # false positives on large maps (control-char names cause openpyxl
+    # IllegalCharacterError during Excel export).
+    town_section = _filter_to_stride_chain(town_section)
 
     # Object clusters
     coord_ints = set(int(ci) for ci in config.object_offsets.keys())
