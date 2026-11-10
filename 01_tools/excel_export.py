@@ -1995,11 +1995,13 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
         _fi = parsed.get("file_info") or {}
 
         def _fmt_file(kind, default_label, desc, fi_key):
-            """Format file row: shows actual path if known, else just the label."""
+            """Format file row: shows actual path if known, else just the label.
+            Normalizes slashes to Windows-style backslashes."""
             actual = _fi.get(fi_key)
             if actual:
-                # Show actual path + (kind) for clarity
-                return (f"{actual}", desc)
+                # Normalize to Windows-style backslashes
+                actual = actual.replace("/", "\\")
+                return (actual, desc)
             return (default_label, desc)
 
         _input_files = [

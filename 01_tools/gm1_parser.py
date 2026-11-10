@@ -3342,15 +3342,16 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
             self._set_loading("Создание Excel…")
             # Inject actual file paths into parsed_data["file_info"] for the
             # "Входные файлы" sheet (shows real paths the user loaded).
+            # Normalize to Windows-style backslashes for consistent display.
             _pd = self.parsed_data or {}
             if "file_info" not in _pd:
                 _pd["file_info"] = {}
             if self.current_file:
-                _pd["file_info"]["save_path"] = self.current_file
+                _pd["file_info"]["save_path"] = self.current_file.replace("/", "\\")
             if self.config_path:
-                _pd["file_info"]["config_path"] = self.config_path
+                _pd["file_info"]["config_path"] = self.config_path.replace("/", "\\")
             if self.map_json_path:
-                _pd["file_info"]["map_json_path"] = self.map_json_path
+                _pd["file_info"]["map_json_path"] = self.map_json_path.replace("/", "\\")
             export_objects_to_excel(_pd, self.raw_data or b"", path,
                                     objects_by_coord=self._load_objects_by_coord(),
                                     computed_offsets=self._load_objects_with_offsets(),

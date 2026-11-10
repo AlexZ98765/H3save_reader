@@ -1508,13 +1508,17 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None, raw: Option
                 "Заклинания_Святилища": None,
             }.get(sheet_key)
             # Spells section: include Pyramids (shrine_type==63) which have
-            # hardcoded guard + HP from merge_shrines. Skip regular shrines
-            # (they have no guard → no XP).
+            # hardcoded guard + HP, AND Scrolls (shrine_type==93) that have
+            # a guard (set via ArtRes matching in merge_all). Skip regular
+            # shrines (no guard → no XP).
             if sheet_key == "Заклинания_Святилища":
-                if rec.get("shrine_type") == 63:  # Pyramid
+                _st = rec.get("shrine_type")
+                if _st == 63:  # Pyramid — hardcoded guard + HP
                     hp_val = rec.get("hp") or 3200
+                elif _st == 93 and rec.get("guard"):  # Scroll with guard
+                    hp_val = rec.get("hp")
                 else:
-                    continue  # regular shrine: no guard, no XP
+                    continue  # regular shrine or scroll without guard: no XP
             else:
                 hp_val = hp_func(rec) if hp_func else None
             if hp_val and hp_val > 0:

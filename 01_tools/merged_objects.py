@@ -2022,13 +2022,24 @@ def merge_market(tile_objects: List[Dict[str, Any]],
         if get_artifact_name is None:
             return {}
         info = {}
-        info["name"] = get_artifact_name(aid, localizer=None)  # PRT-style capitalization
+        # Prefer localizer.art() for correct Title Case (PRT TblArt names).
+        # get_artifact_name(aid, localizer=None) returns lowercase names from
+        # tbl_art_mapping.json which don't match PRT output.
+        if localizer is not None:
+            _name = localizer.art(aid)
+            info["name"] = _name if _name else get_artifact_name(aid, localizer=None)
+        else:
+            info["name"] = get_artifact_name(aid, localizer=None)
         cls_id = get_artifact_class_id(aid)
         if localizer is not None:
             info["class"] = localizer.art_class(cls_id)
         relic_id = get_artifact_relic_c_id(aid)
         if relic_id is not None:
-            info["relic_c"] = get_artifact_name(relic_id, localizer=None)
+            if localizer is not None:
+                _rname = localizer.art(relic_id)
+                info["relic_c"] = _rname if _rname else get_artifact_name(relic_id, localizer=None)
+            else:
+                info["relic_c"] = get_artifact_name(relic_id, localizer=None)
         info["cost"] = get_artifact_cost(aid)
         return info
 
