@@ -2625,3 +2625,58 @@ Key PRT references: MainForm.cs 6380-6800 (GetAllExperience), 7263-7422
   (GetAllSpell), 7458-7540 (GetTownContent), 7668-7682 (GetCurrentState),
   8394-8453 (ArtResContent), 9117-9128 (ScanHeroesContent), 10421-10443
   (SaveScroll), 10664-10707 (CreateTblDwelling), 11753-11756 (aDoll)
+
+
+---
+Task ID: COMPARE-SHEET-SELECT
+Agent: main
+Task: Добавить в диалог сравнения файлов галочку "изменить список игнорируемых листов" с отдельным диалогом выбора листов; устранить зависание сравнения при двух наших файлах.
+
+Work Log:
+
+## Причина зависания (excel_compare.py)
+- `_compare_signature` пересчитывал сигнатуры `_row_signature` для каждой строки (4N вычислений на лист вместо 2N) — основной bottleneck.
+- На больших листах ("All Objects" 7000+ строк × 16 колонок) это давало ~30k лишних вызовов `_normalize_cell`, каждый из которых делал reverse-lookup по localization_dictionary.json.
+- GUI-поток выполнял `compare_excel_files` синхронно без `processEvents` внутри цикла → интерфейс зависал на 8-115 секунд.
+
+## Оптимизация excel_compare.py
+1. Сигнатуры строятся ОДИН раз в основном цикле (Counter + row_for_sig одновременно) — экономия ~2x.
+2. `_compare_signature` теперь принимает предвычисленный `row_for_sig` вместо `rows_a, rows_b, headers, sheet_name` — больше не делает redundant-вычисления.
+
+## Новый параметр disabled_sheets
+3. `compare_excel_files(..., disabled_sheets: Optional[set] = None)` — листы, явно отключённые пользователем.
+4. ВАЖНО: когда `disabled_sheets is not None`, дефолтный `_SKIP_SHEETS_DEFAULT` НЕ применяется — выбор пользователя полностью перекрывает дефолт. Иначе пользователь не смог бы включить лист из skip-default (например, "All Objects").
+5. CLI: добавлен флаг `--disable SHEET [SHEET ...]` для симуляции выбора пользователя.
+
+## _Сводка — новые секции
+6. "Сравнение отключено пользователем" — листы в обоих файлах, которые пользователь снял в диалоге.
+7. "Сравнение отключено (только в A)" — листы, которых нет в B.
+8. "Сравнение отключено (только в B)" — листы, которых нет в A.
+
+## Новый диалог SheetSelectionDialog (gm1_parser.py)
+9. Таблица 3 колонки: [чекбокс Сравнить] [Имя листа в A] [Имя листа в B].
+10. Заголовки колонок 2 и 3 — basename путей файлов A и B.
+11. Дефолтное состояние чекбоксов:
+    - Лист в обоих файлах И в `_SKIP_SHEETS_DEFAULT` → unchecked (но включён)
+    - Лист в обоих файлах И НЕ в skip-default → checked
+    - Лист только в одном файле → unchecked + disabled (Qt.NoItemFlags — чекбокс нельзя переключить)
+12. Кнопки быстрого действия: "Отметить все" / "Снять все" / "Инвертировать" — действуют только на toggleable строки.
+13. Имена листов только в одном файле показаны как "—" серым цветом.
+14. Порядок строк: сначала common-в-A-порядке, потом common-дополнительно-из-B, потом only-A, потом only-B.
+
+## CompareDialog — интеграция
+15. Новый `QCheckBox("Изменить список игнорируемых листов")` под группами File A / File B.
+16. Если галочка установлена — после нажатия Compare (до accept) открывается SheetSelectionDialog.
+17. При отмене SheetSelectionDialog CompareDialog НЕ закрывается — пользователь может вернуться.
+18. `disabled_sheets` = (common_sheets ∩ both_files) - selected_sheets → передаётся в `compare_excel_files`.
+19. `_on_compare` в `GM1ParserWindow` читает `dialog.disabled_sheets` и пробрасывает в `compare_excel_files(disabled_sheets=...)`.
+
+## Тестирование
+20. CLI test с `--disable "Герои" "Города"` против PRT файла: в _Сводка появились секции "Отключено пользователем" для этих листов, остальные 22 листа сравнились.
+21. Симуляция дефолтов SheetSelectionDialog (через Python-мок без Qt): 24 common-листа отмечены, 7 enrichment-листов (только в A) — unchecked+disabled. Корректно.
+22. Производительность: PRT vs OUR с дефолтными skip — 7.8s (было ~9s до оптимизации).
+23. Два OUR-файла с `disabled_sheets={'All Objects', 'Summary', 'Герои'}` — 7.8s, в выводе 3 листа как "Отключено пользователем".
+
+## Files modified
+- `01_tools/excel_compare.py` — оптимизация сигнатур + disabled_sheets + новые секции в _Сводка + CLI --disable
+- `01_tools/gm1_parser.py` — новый класс SheetSelectionDialog + чекбокс в CompareDialog + проброс disabled_sheets в _on_compare

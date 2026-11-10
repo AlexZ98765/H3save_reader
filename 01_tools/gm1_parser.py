@@ -1433,9 +1433,203 @@ def hex_dump(raw: bytes, start: int, length: int, prefix: str = "    ") -> str:
 # GUI (PySide6)
 # ============================================================================
 
+class SheetSelectionDialog(QDialog):
+    """Dialog for choosing which sheets to compare between two Excel files.
+
+    Shows a table with all sheets from both files:
+      Column 0: checkbox (compare = checked, ignore = unchecked)
+      Column 1: sheet name in file A
+      Column 2: sheet name in file B
+
+    Default state:
+      - sheets in _SKIP_SHEETS_DEFAULT → unchecked (ignored)
+      - other sheets present in BOTH files → checked (compared)
+      - sheets only in one file → unchecked + disabled (auto-ignored,
+        cannot be enabled because the other file doesn't have it)
+
+    User can check/uncheck any checkbox (except auto-disabled ones).
+
+    On accept, `selected_sheets` contains the set of sheet names the user
+    wants to compare. The caller computes `disabled_sheets` as
+    (common_sheets - selected_sheets).
+    """
+
+    def __init__(self, file_a: str, file_b: str, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Выбор листов для сравнения")
+        self.setModal(True)
+        self.resize(720, 600)
+
+        self.file_a = file_a
+        self.file_b = file_b
+        self.selected_sheets: set = set()
+
+        # Load sheet names from both files (read_only=True for speed — does
+        # not load cell data, just metadata).
+        try:
+            import openpyxl as _opx
+            wb_a = _opx.load_workbook(file_a, read_only=True)
+            sheets_a = list(wb_a.sheetnames)
+            wb_a.close()
+            wb_b = _opx.load_workbook(file_b, read_only=True)
+            sheets_b = list(wb_b.sheetnames)
+            wb_b.close()
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Ошибка",
+                f"Не удалось открыть файлы для чтения списка листов:\n{e}"
+            )
+            self._load_error = True
+            return
+        self._load_error = False
+
+        self._sheets_a_set = set(sheets_a)
+        self._sheets_b_set = set(sheets_b)
+
+        # Default-skip sheets from excel_compare (imported lazily here)
+        from excel_compare import _SKIP_SHEETS_DEFAULT
+        self._skip_default = set(_SKIP_SHEETS_DEFAULT)
+
+        # Build the union of all sheet names. Preserve a sensible order:
+        # first the sheets present in BOTH files (in A's order, then any
+        # extras in B's order), then sheets only in A, then only in B.
+        common_in_order = [s for s in sheets_a if s in self._sheets_b_set]
+        common_extras = [s for s in sheets_b
+                         if s in self._sheets_a_set and s not in common_in_order]
+        only_a = [s for s in sheets_a if s not in self._sheets_b_set]
+        only_b = [s for s in sheets_b if s not in self._sheets_a_set]
+        all_sheets = common_in_order + common_extras + only_a + only_b
+
+        layout = QVBoxLayout(self)
+
+        # Header with file names
+        name_a = os.path.basename(file_a)
+        name_b = os.path.basename(file_b)
+        info = QLabel(
+            f"<b>Файл A:</b> {name_a}<br>"
+            f"<b>Файл B:</b> {name_b}<br><br>"
+            "Отметьте листы для сравнения. Листы, которых нет в одном из "
+            "файлов, нельзя сравнить — галочка для них отключена."
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+
+        # Table widget
+        self.table = QTableWidget(len(all_sheets), 3)
+        self.table.setHorizontalHeaderLabels(["Сравнить", name_a, name_b])
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+
+        for row, sheet_name in enumerate(all_sheets):
+            in_a = sheet_name in self._sheets_a_set
+            in_b = sheet_name in self._sheets_b_set
+            in_both = in_a and in_b
+
+            # Checkbox item in column 0
+            chk_item = QTableWidgetItem()
+            chk_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            if in_both:
+                # Default: skip-default sheets unchecked, others checked
+                if sheet_name in self._skip_default:
+                    chk_item.setCheckState(Qt.Unchecked)
+                else:
+                    chk_item.setCheckState(Qt.Checked)
+            else:
+                # Auto-disabled: not in both files
+                chk_item.setCheckState(Qt.Unchecked)
+                # Remove the UserCheckable flag so the checkbox can't be toggled
+                chk_item.setFlags(Qt.NoItemFlags)
+            self.table.setItem(row, 0, chk_item)
+
+            # Sheet name in column 1 (file A side)
+            a_item = QTableWidgetItem(sheet_name if in_a else "—")
+            a_item.setFlags(Qt.ItemIsEnabled)
+            if not in_a:
+                a_item.setForeground(QColor("#999999"))
+            self.table.setItem(row, 1, a_item)
+
+            # Sheet name in column 2 (file B side)
+            b_item = QTableWidgetItem(sheet_name if in_b else "—")
+            b_item.setFlags(Qt.ItemIsEnabled)
+            if not in_b:
+                b_item.setForeground(QColor("#999999"))
+            self.table.setItem(row, 2, b_item)
+
+        layout.addWidget(self.table)
+
+        # Quick action buttons
+        quick_row = QHBoxLayout()
+        btn_all = QPushButton("Отметить все")
+        btn_all.clicked.connect(self._check_all)
+        btn_none = QPushButton("Снять все")
+        btn_none.clicked.connect(self._uncheck_all)
+        btn_invert = QPushButton("Инвертировать")
+        btn_invert.clicked.connect(self._invert)
+        quick_row.addWidget(btn_all)
+        quick_row.addWidget(btn_none)
+        quick_row.addWidget(btn_invert)
+        quick_row.addStretch()
+        layout.addLayout(quick_row)
+
+        # Standard OK/Cancel
+        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        btn_box.button(QDialogButtonBox.Ok).setText("Сравнить выбранные")
+        btn_box.accepted.connect(self._on_accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addWidget(btn_box)
+
+    def _iter_checkable_rows(self):
+        """Yield (row, item) for rows whose checkbox is toggleable."""
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, 0)
+            if item is None:
+                continue
+            # Only rows with the UserCheckable flag are toggleable
+            if item.flags() & Qt.ItemIsUserCheckable:
+                yield row, item
+
+    def _check_all(self):
+        for _, item in self._iter_checkable_rows():
+            item.setCheckState(Qt.Checked)
+
+    def _uncheck_all(self):
+        for _, item in self._iter_checkable_rows():
+            item.setCheckState(Qt.Unchecked)
+
+    def _invert(self):
+        for _, item in self._iter_checkable_rows():
+            item.setCheckState(
+                Qt.Checked if item.checkState() == Qt.Unchecked else Qt.Unchecked
+            )
+
+    def _on_accept(self):
+        selected = set()
+        for row, item in self._iter_checkable_rows():
+            if item.checkState() == Qt.Checked:
+                # The sheet name is in column 1 (file A) — same as column 2
+                # for in-both sheets. We pick column 1; it equals the
+                # canonical sheet name.
+                a_item = self.table.item(row, 1)
+                if a_item is not None and a_item.text() != "—":
+                    selected.add(a_item.text())
+                else:
+                    b_item = self.table.item(row, 2)
+                    if b_item is not None and b_item.text() != "—":
+                        selected.add(b_item.text())
+        self.selected_sheets = selected
+        self.accept()
+
+
 class CompareDialog(QDialog):
     """Dialog for comparing two Excel files. Has tabs (first = Excel),
-    two file path inputs with browse buttons, and a Compare button."""
+    two file path inputs with browse buttons, and a Compare button.
+
+    Includes a checkbox "Изменить список игнорируемых листов" — when
+    checked, the user is shown a SheetSelectionDialog before comparison
+    starts, where they can choose which sheets to compare.
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1445,6 +1639,9 @@ class CompareDialog(QDialog):
 
         self.file_a_path = ""
         self.file_b_path = ""
+        # Set of sheets the user explicitly disabled in SheetSelectionDialog.
+        # None = use default skip list only (no SheetSelectionDialog shown).
+        self.disabled_sheets: Optional[set] = None
 
         layout = QVBoxLayout(self)
 
@@ -1474,6 +1671,18 @@ class CompareDialog(QDialog):
         b_layout.addWidget(self.b_edit)
         b_layout.addWidget(b_btn)
         tab_layout.addWidget(b_group)
+
+        # Checkbox: modify the list of ignored sheets
+        self.skip_sheets_chk = QCheckBox(
+            "Изменить список игнорируемых листов"
+        )
+        self.skip_sheets_chk.setToolTip(
+            "Если включено — после нажатия Compare откроется диалог со\n"
+            "списком всех листов из обоих файлов. Вы сможете выбрать,\n"
+            "какие листы сравнивать, а какие игнорировать.\n"
+            "По умолчанию выключено — используются стандартные пропуски."
+        )
+        tab_layout.addWidget(self.skip_sheets_chk)
 
         # Info label
         info = QLabel(
@@ -1505,6 +1714,49 @@ class CompareDialog(QDialog):
     def _on_accept(self):
         self.file_a_path = self.a_edit.text()
         self.file_b_path = self.b_edit.text()
+
+        # If user wants to choose which sheets to compare, show the
+        # SheetSelectionDialog BEFORE accepting this dialog.
+        if self.skip_sheets_chk.isChecked():
+            if not self.file_a_path or not self.file_b_path:
+                QMessageBox.warning(
+                    self, "Внимание",
+                    "Сначала укажите пути к обоим файлам."
+                )
+                return
+            if not os.path.isfile(self.file_a_path):
+                QMessageBox.warning(self, "Внимание",
+                                    f"Файл A не найден:\n{self.file_a_path}")
+                return
+            if not os.path.isfile(self.file_b_path):
+                QMessageBox.warning(self, "Внимание",
+                                    f"Файл B не найден:\n{self.file_b_path}")
+                return
+
+            sel_dialog = SheetSelectionDialog(self.file_a_path, self.file_b_path, self)
+            if hasattr(sel_dialog, "_load_error") and sel_dialog._load_error:
+                return
+            if sel_dialog.exec() != QDialog.Accepted:
+                return  # user cancelled — don't close Compare dialog either
+
+            # Compute disabled_sheets = (sheets in both files) - (selected)
+            # The caller will pass this to compare_excel_files as
+            # `disabled_sheets`. Sheets only-in-one-file are auto-disabled
+            # by compare_excel_files itself (they cannot be compared).
+            try:
+                import openpyxl as _opx
+                wb_a = _opx.load_workbook(self.file_a_path, read_only=True)
+                sheets_a = set(wb_a.sheetnames)
+                wb_a.close()
+                wb_b = _opx.load_workbook(self.file_b_path, read_only=True)
+                sheets_b = set(wb_b.sheetnames)
+                wb_b.close()
+            except Exception:
+                sheets_a = set()
+                sheets_b = set()
+            common = sheets_a & sheets_b
+            self.disabled_sheets = common - sel_dialog.selected_sheets
+
         self.accept()
 
 
@@ -3445,10 +3697,16 @@ Map parsing JSON и Day-0 сейв — enrichment, не requirement."""
             from excel_compare import compare_excel_files
             # Skip enrichment sheets (All Objects, By Category, etc.) — these
             # are our custom sheets not present in PRT, and processing 2000+
-            # rows of All Objects causes long hangs. Pass skip_sheets=None to
-            # compare ALL sheets when the user explicitly wants full comparison.
+            # rows of All Objects causes long hangs.
+            #
+            # If the user opened the Sheet Selection dialog and chose to
+            # disable specific sheets, pass those via disabled_sheets so
+            # they're reported on _Сводка as "Сравнение отключено
+            # пользователем". None = use default skip list only.
+            disabled = dialog.disabled_sheets
             compare_excel_files(file_a, file_b, out_path,
-                                 ignore_localization=True)
+                                 ignore_localization=True,
+                                 disabled_sheets=disabled)
             self._set_idle()
             self.status.showMessage(f"Comparison saved: {out_path}")
             QMessageBox.information(

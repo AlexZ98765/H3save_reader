@@ -480,13 +480,24 @@ _SKIP_SHEETS_DEFAULT = {
 
 def compare_excel_files(file_a: str, file_b: str, output_path: str,
                         ignore_localization: bool = True,
-                        skip_sheets: Optional[set] = None) -> str:
+                        skip_sheets: Optional[set] = None,
+                        disabled_sheets: Optional[set] = None) -> str:
     """Compare two .xlsx files and save differences to output_path.
 
     When headers differ between A and B for a sheet:
       - Comparison is done using ONLY common columns (intersection of headers)
       - Header mismatch info is written at the top of the output sheet
       - _Сводка sheet lists which columns are A-only / B-only per sheet
+
+    Parameters
+    ----------
+    skip_sheets : set, optional
+        Internal default skip list (enrichment sheets that are not PRT
+        content). When None, falls back to `_SKIP_SHEETS_DEFAULT`.
+    disabled_sheets : set, optional
+        Sheets the USER explicitly chose to disable in the Sheet Selection
+        dialog. These are reported on _Сводка as "Сравнение отключено".
+        Sheets only present in one file are also reported here automatically.
 
     Returns the output_path on success.
     """
@@ -496,15 +507,37 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
     if "Sheet" in wb_out.sheetnames:
         del wb_out["Sheet"]
 
-    common_sheets = sorted(set(wb_a.sheetnames) & set(wb_b.sheetnames))
-    only_a = sorted(set(wb_a.sheetnames) - set(wb_b.sheetnames))
-    only_b = sorted(set(wb_b.sheetnames) - set(wb_a.sheetnames))
+    sheets_a = set(wb_a.sheetnames)
+    sheets_b = set(wb_b.sheetnames)
+    common_sheets = sorted(sheets_a & sheets_b)
+    only_a = sorted(sheets_a - sheets_b)
+    only_b = sorted(sheets_b - sheets_a)
 
-    # Filter out skip sheets (our custom enrichment sheets that are not PRT
-    # content). When comparing two of our own exports, these sheets are
-    # identical and processing them wastes time (All Objects = 2000+ rows).
-    _skip = skip_sheets if skip_sheets is not None else _SKIP_SHEETS_DEFAULT
-    common_sheets = [s for s in common_sheets if s not in _skip]
+    # The combined "skip" set = default skip + user-disabled + sheets missing
+    # in either file. Sheets missing in one file are auto-skipped (cannot
+    # be compared). We also report them on _Сводка so the user sees why.
+    #
+    # IMPORTANT: when `disabled_sheets` is provided (the user opened the
+    # SheetSelectionDialog and made explicit choices), the user's choices
+    # OVERRIDE the default skip list. Otherwise the user could not enable
+    # a sheet that's in _SKIP_SHEETS_DEFAULT (e.g. "All Objects") — it
+    # would still be silently skipped.
+    if disabled_sheets is not None:
+        # User took control — ignore the default skip list entirely.
+        _skip: set = set(skip_sheets) if skip_sheets is not None else set()
+        _disabled = set(disabled_sheets)
+    else:
+        _skip = set(skip_sheets) if skip_sheets is not None else set(_SKIP_SHEETS_DEFAULT)
+        _disabled = set()
+
+    # Auto-disabled: sheets missing in either file (reported separately)
+    auto_disabled = set(only_a) | set(only_b)
+
+    # Sheets we will actually compare
+    comparable_sheets = [
+        s for s in common_sheets
+        if s not in _skip and s not in _disabled
+    ]
 
     fill_a = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
     fill_b = PatternFill(start_color="D9EAD3", end_color="D9EAD3", fill_type="solid")
@@ -515,7 +548,7 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
     # summary_rows: (sheet_name, a_total, b_total, n_diffs, n_common, a_only_cols, b_only_cols)
     summary_rows: List[Tuple] = []
 
-    for sheet_name in common_sheets:
+    for sheet_name in comparable_sheets:
         ws_a = wb_a[sheet_name]
         ws_b = wb_b[sheet_name]
 
@@ -549,11 +582,25 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
             rows_b = [[row[i] if i < len(row) else None for i in b_indices] for row in raw_b]
             headers = common_headers
 
-        # Build signatures using column-aware normalization
-        sigs_a = Counter(_row_signature(r, sheet_name, headers) for r in rows_a)
-        sigs_b = Counter(_row_signature(r, sheet_name, headers) for r in rows_b)
+        # Build signatures ONCE for both Counter and row_for_sig map.
+        # Pre-compute (sig, row) pairs to avoid redundant normalization
+        # (4N signature calls per sheet → 2N here; ~2x speedup on large
+        # sheets like "All Objects" with 2000+ rows that previously hung).
+        sigs_a: Counter = Counter()
+        sigs_b: Counter = Counter()
+        row_for_sig: Dict[Tuple, List[Any]] = {}
+        for r in rows_a:
+            sig = _row_signature(r, sheet_name, headers)
+            sigs_a[sig] += 1
+            if sig not in row_for_sig:
+                row_for_sig[sig] = r
+        for r in rows_b:
+            sig = _row_signature(r, sheet_name, headers)
+            sigs_b[sig] += 1
+            if sig not in row_for_sig:
+                row_for_sig[sig] = r
 
-        diffs = _compare_signature(sigs_a, sigs_b, rows_a, rows_b, headers, sheet_name)
+        diffs = _compare_signature(sigs_a, sigs_b, row_for_sig)
 
         common_sigs = sigs_a & sigs_b
         n_common = sum(common_sigs.values())
@@ -643,10 +690,35 @@ def compare_excel_files(file_a: str, file_b: str, output_path: str,
             b_cols_str = ", ".join(b_cols) if b_cols else ""
             ws_sum.append([name, na, nb, nd, nc, a_cols_str, b_cols_str])
 
-        if only_a or only_b:
+        # ── Section: Сравнение отключено (user-disabled or auto-disabled) ──
+        # Show sheets that were excluded from comparison either because the
+        # user unchecked them in the Sheet Selection dialog, or because they
+        # only exist in one of the two files (cannot be compared).
+        user_disabled_sorted = sorted(s for s in _disabled if s in sheets_a and s in sheets_b)
+        if user_disabled_sorted:
             ws_sum.append([])
-            ws_sum.append(["Только в A:"] + only_a)
-            ws_sum.append(["Только в B:"] + only_b)
+            ws_sum.append(["Сравнение отключено пользователем:"])
+            ws_sum.cell(row=ws_sum.max_row, column=1).font = bold_font
+            ws_sum.cell(row=ws_sum.max_row, column=1).fill = fill_info
+            for name in user_disabled_sorted:
+                # Reason: in both files but user unchecked it
+                ws_sum.append([name, "", "", "", "", "", "Отключено пользователем"])
+
+        if only_a:
+            ws_sum.append([])
+            ws_sum.append(["Сравнение отключено (только в A):"])
+            ws_sum.cell(row=ws_sum.max_row, column=1).font = bold_font
+            ws_sum.cell(row=ws_sum.max_row, column=1).fill = fill_info
+            for name in only_a:
+                ws_sum.append([name, "", "", "", "", "", "Нет в B"])
+
+        if only_b:
+            ws_sum.append([])
+            ws_sum.append(["Сравнение отключено (только в B):"])
+            ws_sum.cell(row=ws_sum.max_row, column=1).font = bold_font
+            ws_sum.cell(row=ws_sum.max_row, column=1).fill = fill_info
+            for name in only_b:
+                ws_sum.append([name, "", "", "", "", "", "Нет в A"])
 
         _autosize(ws_sum)
         ws_sum.freeze_panes = f"A{hdr_row + 1}"
@@ -676,28 +748,16 @@ def _extract_rows(ws) -> List[List[Any]]:
 
 
 def _compare_signature(sigs_a: Counter, sigs_b: Counter,
-                       rows_a: List[List], rows_b: List[List],
-                       headers: List[str], sheet_name: str) -> List[Dict]:
+                       row_for_sig: Dict[Tuple, List[Any]]) -> List[Dict]:
     """Compare two row sets via signature-based multiset comparison.
 
     Returns list of diffs (A-only / B-only / A≠B with multiplicity mismatch).
     Preserves original row content for display (looks up by signature).
 
-    NOTE: sigs_a/sigs_b are already built from _row_signature — we reuse
-    those signatures here to avoid redundant normalization passes.
+    NOTE: sigs_a/sigs_b and row_for_sig are pre-built by the caller —
+    this function does NOT recompute signatures (avoiding 2N redundant
+    `_row_signature` calls per sheet).
     """
-    # Build signature → original row map (first occurrence wins for display)
-    # Reuse pre-computed signatures from the Counter construction
-    row_for_sig: Dict[Tuple, List[Any]] = {}
-    for r in rows_a:
-        sig = _row_signature(r, sheet_name, headers)
-        if sig not in row_for_sig:
-            row_for_sig[sig] = r
-    for r in rows_b:
-        sig = _row_signature(r, sheet_name, headers)
-        if sig not in row_for_sig:
-            row_for_sig[sig] = r
-
     only_a = sigs_a - sigs_b  # multiplicity diff
     only_b = sigs_b - sigs_a
     common_keys = set(sigs_a) & set(sigs_b)
@@ -765,12 +825,18 @@ if __name__ == "__main__":
                          "Summary, Wiki Dictionary, Оглавление, Общее, Входные файлы)")
     ap.add_argument("--skip", nargs="*", default=None,
                     help="Additional sheet names to skip (space-separated)")
+    ap.add_argument("--disable", nargs="*", default=None,
+                    help="Sheet names to disable comparison for (space-separated). "
+                         "Unlike --skip, these are reported on _Сводка as "
+                         "'Сравнение отключено пользователем'.")
     args = ap.parse_args()
 
     skip = None if args.no_skip else set(_SKIP_SHEETS_DEFAULT)
     if args.skip:
         skip = (skip or set()) | set(args.skip)
+    disabled = set(args.disable) if args.disable else None
 
     out = compare_excel_files(args.file_a, args.file_b, args.output,
-                              skip_sheets=skip)
+                              skip_sheets=skip,
+                              disabled_sheets=disabled)
     print(f"Comparison saved to: {out}")
