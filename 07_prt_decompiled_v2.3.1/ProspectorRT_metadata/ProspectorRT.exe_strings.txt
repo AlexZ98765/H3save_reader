@@ -1,4876 +1,3005 @@
-  ѓён
- UoѕњЄѕ©ќГTuЋпг‹-ЇG
- dЊKЬ¶е,Є
-  F]2
- ЅТ&й
- рЫтэ»<а б±
-!!М`™г;:ґ
-!$т:нЗ@’_‹#K
-!/Й9ч»з^R,чєIѕБyХљ
-!5!>!U!‚!­!Н!Я!с!ю!0"K"R"l"›"§"±"Ш"д"у"
-!X‘Xoі
-!¶ШЫ¬fs,КpБлВщЖ
-!ЭNLUѕЉт
-!њjЊвbG
-!ќNSЌ­Еb1
-"0ћtDn+
-"P¶хqD
-"ЕGL[њиык`TЌ|^ОnS
-#-эit
-#9#“#w$ѓ$Ќ$§$ё$Г$М$а$
-#Blob
-#Copyright © Stormbringer 2012-2021
-#F#K#P#U#Z#_#d#i#n#s#x#ѓ#Ф$E%J%I(4/
-#GUID
-#IDAT8O­’Яk’Q
-#Strings
-#X‘oµ
-#hՄQ#
-#€иBи"!/¤о
-$$method0x6000ad8-1
-$$method0x6000b49-1
-$$method0x6000b4a-1
-$$method0x6000b4b-1
-$09089335-7f0d-4c7d-be87-34442791019a
-$q¬UoыырnnВ»ё€у¶6Ш*+ї@¦7—
-$БЖЉ†HЌ#2А.РµqР
-%-%O%І%E&o&„&Љ&ў&Э&с&ч&э&
-%>p#yУ
-%X‘oЗ
-%ЕБ!y
-&%,ощьиг'њЯФ‘/W
-&HFѓ$ў
-&eс1jСеЬk”u>ЉYњљ–@ Ґu2
-&«Р№o
-&»n!)
-&Ю2&r–І
-&пnrџ
-&“Iш|э»¶··…p8
-&‡“З“G“Г'ч э
-','C'„'џ'і'м')(N(n(
-'8дЛІ­FtT–®`К
-'X‘Xo†
-'uЊQЙ‚’
-'®‚гЎ
-'Ћi?Aяяя
-'у›/Я„lwУ8Ё
-(4ќ(¦
-(DevExpress.Utils.ImageCollectionStreamer
-(System.Data.Design.TypedDataSetGenerator
-(s¬П/
-(Ў(§(»(Х(Э(г(й(т(ш(ю(
-(БD.I
-(ѕ^-‰
-)$р ‹(П¬1bЦµ25зД
-)<йб<ю
-)D)O)b)m)Ђ)•)Ё)Ѕ)О)Ы)ж)п)э)
-)IDAT8O}“}L”e
-)yјєф
-)Ћi?^яяя
-*!*)*1*A*N*џ*
-*(bR</EЈi—і
-*¤iJ$IBфzЅR°^Ї
-*¶rЃи
-*Цёb%0B9И‰ШНЉё>—P
-*ѕr°І
-+TrГж
-+_§дОXё
-+sРI§
-+Ћi?Aяяя
-+‘+М+K,n,»,О,х,
-+‘їKщД‹
-, rĲ
-,!rГж
-,/і‚+
--,r.ё
--Cj@Н4 ЈоgbЧЅЈ1HlQ4’
--E-‡-ќ-®-Ц-к-с-(.5.P.`.v.А.о.
--X‘@b
--X‘Z%
--Ћi?фюяя
--АЯ–6
--‚D7БK?A
--›06$л
-.:ѕS‘™}>
-.@ttQ
-.@ttб
-.N#¦dъєt
-.cctor
-.ctor
-.text
-.Й)ыn
-.цБЖЉ
-.щ@ЎЫ
-.—‹A* ‚д:
-.’Я2s
-/ rЃи
-/a/‚/’/Ў/Ё/¶/Л/С/д/,0n0‘0°0Ш0б0и0
-/c“@oB‚+ZГТѕЂЈC
-/hу\|УвБ.¶ќ––FJJ
-/С8ZБ–‹
-/ьЊuRўН*(И~gю
-0%0W0„0т0
-03,Ъ†¦юX
-0=Aф{
-0Ћi?Ўэяя
-1!rЃи
-10.0.0.0
-131X1g1l1z1Ќ1‘1Є1µ1Б1З1Т1Э1ю102G2X2b2s2|2‰2Џ2 2Ѕ2г2щ2
-1IDAT8Oќ’_HSQ
-1X‘Xot
-1]rЃи
-1]хjтI
-1~їя‘зy
-1І,Ў$љ
-1АбЦ)
-2.3.0.0
-2sкС¦4cdТЏ…X
-2ХrЃи
-2Щ«рjпКW4Еq•Ќ9Ўж~Y
-2ѕ†|6
-3'3O3c3k3‚3—3¦3 
-3System.Resources.Tools.StronglyTypedResourceBuilder
-3fPJ2—R•Z
-3дъ3|лL
-3•Dпз##±йп/qlВn
-4".+D
-4.0.0.0
-4;Їэп9сч§t
-4IDAT8O}“=Hrq
-4vЖiи€QЯ
-4¤пV3:џтAН•Г 
-4¶OУ9ћe(RВџ°щљ,sд‘xpщ}N
-4БK.щ
-58аЎЇић
-5j€«ЬМ9“
-5·8 V¦+аK±7@k`_Lѓнg"hu4ЁЙ‹ F#`UњЂe 
-5е^Gа".Хѕя|
-5жYFрB
-5яюяЏ@'>юф
-6@¶ц<VE|ЕЗяs
-6АyюУя+nюя?птяя/>яэ§Ю~
-6ЧђN%I/&H'гLЌї!•€І
-6зояа
-777P---h---h---h---h---h---h---h---h---h---h---h---h---h---h---h---h---h---h---h
-7IDAT8OН’ЅjВ`
-7eyЏб7
-7яяџwщя
-7ѓѓ0ЧФИЖТRќҐІRэ‰}€Б|WЧБoЪш~z
-7јш$Яѓ
-7ґ"*н"љFEtM‚CЁйй!2Ф
-7‘>.i
-7‘Б!Ў
-8*T:ж¤wД
-8NJА©dЊ
-8Tяяя
-8xaЂ\З-4
-8ЏћЌНMЬ
-8И93б
-9TЪ.уЭ@Uя
-9X‘Њ0
-9iфНМo>Iv~»7љнА
-9Ј”)~!Uh"[lВо
-9Д‹йKъЭИkM|к№yѕџпУ#ъ7hЈC¬
-:-яяяЮ
-:::dΐ
-:<юяяЮ
-:X‘Њ0
-:^яяяЮ
-:cр>;
-:dяяяЮ
-:d‘ђ!K†ЮD/¦‹K—"
-:jяяяЮ
-:rяяяЮ
-:xяяяЮ
-:®ѕµ7Ё13РZ^BG3РУLо
-:ЋщI)м«Ґ¤цlРуw€!ћ
-:Ќи,2
-:ЯџC4‡ћћ
-:ћыяяЮ
-;2г(Ъ
-;QЊМ¬а~чkVM;r—X
-;X‘Њ0
-;qпх‰
-;ЃаzO°ъ)aFБС•€оJДЕлпз
-;ќ!.Щ
-;ќ</Ѓ
-;ќ</ґ
-;ќY-№
-;ќП-©
-;ќє"Б
-;ќћ!1
-;ќ‹0q
-;ќ‹0Ѓ
-<4=аў%Л—о*
-<:|ъХ'
-<G€ўёtхtDўQD"
-<Module>
-<PrivateImplementationDetails>{7C4848C0-958D-47BE-BFC7-B8598163267E}
-<X‘љoУ
-<ZV·7…°Lґ
-<‰ЁёЃ
-=Ћi?qяяя
-=Ад-Б
-=‚юяя
->GQd3уСяw@НЛnьяЇЦv•°
->M<Їт_p@Ю
->Кu#нК
->зУЫg2ІнT!шпАЧ«јР
->ыCЯг‡Ґ®=XшД…®ќ
->ѕYЙїъЄ™NORъ®
->‰$г™°%Ъ…`
-?$фп"э·
-?)ЇеE
-?/яяя8k
-?6юяя
-?7яяя
-?8чяя
-?==a<
-?=яяя
-??яяя
-?Cшяя*
-?Dяяя
-?Fяяя
-?Kяяя
-?Pэяя
-?Qяяя
-?Yяяя
-?jяяя*
-?lяяя8S
-?mяяя
-?pяяя
-?qяяя
-?uяяя
-?vяяя
-?§эяя
-?ЅF*й
-?Ћi?kяяя
-?Й&Sъ
-?ЫЇЖk{
-?зЬу;їЯ7XИеrЅНо
-?йюяя*
-?чюяя
-?ьюяя
-?‰я \й#цїФC
-@-яяя
-@.reloc
-@Ћi?Жюяя
-ADVANCED
-AIR_MAGIC
-AQфV<НкI
-ARCHERY
-ARMORER
-ARTILLERY
-ATTACK
-ATцОг3
-Abort
-AcceptChanges
-Access
-Action
-Activate
-AddFile
-AddR_AllArtsRow
-AddR_AllExperienceRow
-AddR_AllSkillRow
-AddR_AllSpellRow
-AddR_AllTimerRow
-AddR_ArtRow
-AddR_BankRow
-AddR_CampRow
-AddR_ChestRow
-AddR_EventBoxRow
-AddR_GarrisonRow
-AddR_HeroesRow
-AddR_MarketRow
-AddR_MineRow
-AddR_MonstrRow
-AddR_ObjectRow
-AddR_PassGuardRow
-AddR_PrisonRow
-AddR_ResourceRow
-AddR_ScholarRow
-AddR_SeerHutRow
-AddR_SkillRow
-AddR_SpellRow
-AddR_TopologyRow
-AddR_TownRow
-AddRange
-AddStream
-Address
-AddressColumn
-Analyse HoMM 3  Starting Saves
-AnalysisContent
-AnalysisMonstrContent
-AnchorStyles
-AntiMagic
-AntiMagicColumn
-AppDomain
-AppearanceObject
-AppearanceOptions
-AppendNode
-Application
-ApplicationSettingsBase
-Apply
-ApplyColumn
-ArgumentNullException
-ArrObj
-ArrangedElementCollection
-Array
-ArrayList
-ArtClassSection
-ArtColumn
-ArtDollPlace1
-ArtDollPlace2
-ArtRes
-ArtResContent
-ArtSection
-Artefact
-ArtefactColumn
-Assembly
-AssemblyCompanyAttribute
-AssemblyConfigurationAttribute
-AssemblyCopyrightAttribute
-AssemblyCultureAttribute
-AssemblyDescriptionAttribute
-AssemblyFileVersionAttribute
-AssemblyName
-AssemblyProductAttribute
-AssemblyTitleAttribute
-AssemblyTrademarkAttribute
-AssemblyVersionAttribute
-AsyncCallback
-Attack
-AutoScaleMode
-AutoSizeMode
-Available
-AvailableColumn
-A»u!с
-AЋi?7яяя
-Aг”•о
-A‡швчцfђp[сє
-BALLISTICS
-BASIC
-BBFlag
-BK›ґE‹PC
-BankContent
-BarAndDockingController
-BarBaseButtonItem
-BarButtonItem
-BarButtonItemLink
-BarButtonStyle
-BarCanDockStyle
-BarCheckItem
-BarCustomContainerItem
-BarDockControl
-BarDockControls
-BarDockStyle
-BarEditItem
-BarItem
-BarItemAppearance
-BarItemLink
-BarItemLinkAlignment
-BarItemLinkCollection
-BarItemPaintStyle
-BarItemVisibility
-BarItems
-BarLinkContainerItem
-BarLinkUserDefines
-BarManager
-BarManagerProperties
-BarOptions
-BarShortcut
-BarStaticItem
-BarSubItem
-BarToolbarsListItem
-BaseButton
-BaseEdit
-BaseStyleControl
-BaseView
-BeginInit
-BeginInvoke
-BeginUnboundLoad
-BinaryReader
-Binder
-BindingControl
-BindingFlags
-BindingSource
-BitConverter
-BitField
-BlackMarket
-BookColumn
-Boolean
-Border3DStyle
-BorderStyle
-BorderStyles
-BottleSign
-Bpp0AAAЁT*
-BrowsableAttribute
-Building
-BuildingColumn
-Built
-BuiltColumn
-Button
-ButtonPredefines
-BЗ‚2ј
-CS_DROPSHADOW
-CalcHitInfo
-CanTake
-CanTakeColumn
-CancelEventArgs
-CancelEventHandler
-CentralDirImage
-ChangeObjName
-CheckEdit
-CheckViewName
-Class
-ClassColumn
-ClassID
-ClassIDColumn
-Clear
-ClearLinks
-Clipboard
-Clone
-Close
-CodeColumn
-CodePg
-CollapseAll
-Collect
-CollectionBase
-CollectionChangeAction
-CollectionChangeEventArgs
-CollectionChangeEventHandler
-Color
-ColorColumn
-ColorSection
-ColumnByFieldName
-ColumnIndexToName
-ColumnView
-ColumnViewAppearances
-ColumnViewOptionsBehavior
-ColumnViewOptionsFilter
-ColumnViewOptionsSelection
-ComVisibleAttribute
-Combine
-ComboBoxEdit
-ComboBoxItemCollection
-Comment
-CommonDialog
-CommonSetting
-CompareExchange
-Comparer
-CompilationRelaxationsAttribute
-CompilerGeneratedAttribute
-Component
-ComponentEditorContainer
-ComponentResourceManager
-CompressedSize
-Compression
-CompressionMode
-Concat
-Constraint
-ConstraintCollection
-Container
-ContainerControl
-Contains
-ContainsKey
-ContentAlignment
-Control
-ControlCollection
-Convert
-CopyToClipboard
-CostColumn
-Count
-Cq±z?%E§Џ‹“­
-Crc32
-CrcTable
-Create
-CreateArrayComplete
-CreateArraySoDEn
-CreateArraySoDRu
-CreateButton
-CreateDefaultArray
-CreateDefaultTable
-CreateDirectory
-CreateDocument
-CreateInstance
-CreateKey
-CreateMenu
-CreateParams
-CreatePopupMenu
-CreateStringTables
-CreateSubKey
-CreateTblArt
-CreateTblArtComplete
-CreateTblArtRes
-CreateTblArtSoDEn
-CreateTblArtSoDRu
-CreateTblBanks
-CreateTblBuilding
-CreateTblDwelling
-CreateTblDwellingComplete
-CreateTblDwellingSoDEn
-CreateTblDwellingSoDRu
-CreateTblEventBox
-CreateTblGarrison
-CreateTblIdeology
-CreateTblMarket
-CreateTblMonster
-CreateTblMonsterComplete
-CreateTblMonsterSoDEn
-CreateTblMonsterSoDRu
-CreateTblMonstr
-CreateTblObject
-CreateTblObjectComplete
-CreateTblObjectSoDEn
-CreateTblObjectSoDRu
-CreateTblPassGuard
-CreateTblSecondarySkill
-CreateTblSecondarySkillComplete
-CreateTblSecondarySkillSoDEn
-CreateTblSecondarySkillSoDRu
-CreateTblSeerHut
-CreateTblSpell
-CreateTblSpellComplete
-CreateTblSpellSoDEn
-CreateTblSpellSoDRu
-CreateTblUniver
-Create_PW
-Create_PW10
-Create_SW
-Culture
-CultureInfo
-CurrentState
-CurrentUser
-Cursor
-Cursors
-CЋi?Tяяя
-C‘НЊ‡яЯ~ыыOЇч&a
-D"‘MіСh„N§#]­VЎV«ЎT*i¬=7
-D+Nяo9фч'oС1т
-DBNull
-DEFENSE
-DIPLOMACY
-DUЉ+Ђе
-DXMenuCheckItem
-DXMenuItem
-DXMenuItemCollection
-DXSubMenuItem
-DataColumn
-DataColumnCollection
-DataFormats
-DataRelationCollection
-DataRow
-DataRowAction
-DataRowBuilder
-DataRowChangeEventArgs
-DataRowCollection
-DataRowView
-DataSet
-DataSet2
-DataTable
-DataTableCollection
-DataView
-DateTime
-DateTimeToDosTime
-DayColumn
-DbClear
-Deadline
-DeadlineColumn
-DebuggerNonUserCodeAttribute
-Decimal
-Decompress
-Default
-DefaultBoolean
-DefaultEncoding
-DefaultLookAndFeel
-DefaultMemberAttribute
-Defense
-Deflate
-DeflateStream
-Delegate
-Delete
-DeleteKey
-DeleteSubKeyTree
-Delta_Magic
-Delta_Wisdom
-DesignerCategoryAttribute
-DesignerSerializationVisibility
-DesignerSerializationVisibilityAttribute
-DetermineSchemaSerializationMode
-DevExpress.Data.v11.1
-DevExpress.LookAndFeel
-DevExpress.Printing.v11.1.Core
-DevExpress.RichEdit.v11.1.Core
-DevExpress.Skins
-DevExpress.UserSkins
-DevExpress.Utils
-DevExpress.Utils.ImageCollectionStreamer, DevExpress.Utils.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49aRjЉ›
-DevExpress.Utils.Menu
-DevExpress.Utils.v11.1
-DevExpress.XtraBars
-DevExpress.XtraBars.Helpers.Docking
-DevExpress.XtraBars.v11.1
-DevExpress.XtraEditors
-DevExpress.XtraEditors.Container
-DevExpress.XtraEditors.Controls
-DevExpress.XtraEditors.Mask
-DevExpress.XtraEditors.Repository
-DevExpress.XtraEditors.Repository.RepositoryItem, DevExpress.XtraEditors.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-DevExpress.XtraEditors.v11.1
-DevExpress.XtraGrid
-DevExpress.XtraGrid.Columns
-DevExpress.XtraGrid.GridControl, DevExpress.XtraGrid.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-DevExpress.XtraGrid.Menu
-DevExpress.XtraGrid.Repository
-DevExpress.XtraGrid.Views.Base
-DevExpress.XtraGrid.Views.Grid
-DevExpress.XtraGrid.Views.Grid.ViewInfo
-DevExpress.XtraGrid.v11.1
-DevExpress.XtraPrinting
-DevExpress.XtraPrinting.Control
-DevExpress.XtraPrinting.Preview
-DevExpress.XtraPrinting.v11.1
-DevExpress.XtraPrintingLinks
-DevExpress.XtraRichEdit
-DevExpress.XtraRichEdit.RichEditControl, DevExpress.XtraRichEdit.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-DevExpress.XtraRichEdit.v11.1
-DevExpress.XtraTab
-DevExpress.XtraTab.XtraTabControl, DevExpress.XtraEditors.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-DevExpress.XtraTreeList
-DevExpress.XtraTreeList.Columns
-DevExpress.XtraTreeList.Nodes
-DevExpress.XtraTreeList.TreeList, DevExpress.XtraTreeList.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-DevExpress.XtraTreeList.v11.1
-DialogResult
-Dictionary`2
-Directory
-DirectoryInfo
-Dispose
-DllImportAttribute
-DockStyle
-DollColumn
-DollSection
-DosTimeToDateTime
-DrawFocusRectStyle
-DrawLine
-DrawRectangle
-Dwelling
-DwellingSection
-DЋi?Iяяя
-Dзывее…Z­ЖГГ
-D’^t1p…`
-E*..Жb±PTTDaa!fі™ьь|ј^/Ж’
-E/-Ad­
-E= єБ~
-EAGLE_EYE
-EARTH_MAGIC
-EEё%3GB
-ESTATES
-ETaФ]ЈЬосщ—тю
-EXPERT
-E^C[6
-EditorBrowsableAttribute
-EditorBrowsableState
-EditorButton
-EditorButtonCollection
-EditorContainer
-Empty
-EnableVisualStyles
-EncodeUTF8
-Encoding
-EndInit
-EndInvoke
-EndUnboundLoad
-Enumerator
-Equals
-EventArgs
-EventBox
-EventBoxContent
-EventHandler
-Exception
-ExistingFiles
-Exists
-ExpandAll
-Experience
-ExperienceColumn
-ExportExcel
-ExportForm
-ExportForm_Load
-ExtractFile
-EzB‘ІLpШtd;
-E¤Pt·ЊЊхг<ЏЬд»m
-EЋi?Fяяя
-EИЅ+ёж^Ж•gKёд”pN
-F/aј†Џћў
-FIRE_MAGIC
-FIRST_AID
-FX‘ ~
-FX‘2А
-FieldInfo
-FileAccess
-FileDialog
-FileMode
-FileName
-FileOffset
-FileSize
-FileStream
-FilenameInZip
-Files
-FilterPopupMode
-FindAlly
-FindByXYZ
-FindForm
-FirstID
-Flush
-Focus
-FocusedRowChangedEventArgs
-FocusedRowChangedEventHandler
-FontDialog
-FontStyle
-ForceDeflating
-FormBorderStyle
-FormClosedEventArgs
-FormClosedEventHandler
-FormStartPosition
-FormWindowState
-Format
-FromArgb
-FullLevelSkillSection
-FЦЊм…жP9L
-Fѕ·¶“8НVНV›lТBїV»iQЏ
-G-ёяяЮы?яq‰Cµ!@Ъкзя
-G4ЏzYпК&‚ЎsD…[l
-GGsrMќеЮы4ч*
-GZipStream
-Garrison
-GarrisonColumn
-GarrisonContent
-GenItemClick
-GeneratedCodeAttribute
-GetAllSkill
-GetAllSpell
-GetAlliance
-GetArt
-GetArtMerchants
-GetAssemblies
-GetBankContent
-GetBankGuard
-GetBankMonster
-GetBankResource
-GetBoxes
-GetBuffer
-GetBytes
-GetColorContent
-GetCurrentState
-GetDataRow
-GetDirectoryName
-GetDollPlace
-GetEncoding
-GetEnumerator
-GetEventApply
-GetExperience
-GetExtension
-GetField
-GetFileInfo
-GetFileName
-GetFileOffset
-GetFocusedDataRow
-GetFont
-GetFontStyle
-GetFormat
-GetFullLvlSkill
-GetGarrisonContent
-GetHStartPoint
-GetHeroesContent
-GetLastWriteTime
-GetLength
-GetMapStart
-GetMarketContent
-GetMembers
-GetMonster
-GetName
-GetNewHero
-GetNewStruct
-GetNewWeights
-GetNextControl
-GetNextLevel
-GetNextNode
-GetObject
-GetPairSubterraneanGate
-GetPercent
-GetPopupContextMenu
-GetPrisonHero
-GetProcessID
-GetProcesses
-GetRandomFileName
-GetRegistryValue
-GetRow
-GetRowHandle
-GetRowType
-GetSSkillLevel
-GetSaveFile
-GetSchemaSerializable
-GetSelectedRows
-GetSenseRegion
-GetSerializationData
-GetSheetsName
-GetSkillOffer
-GetStart
-GetString
-GetTempFileName
-GetTempPath
-GetTimedEvents
-GetTimerApply
-GetTimerContent
-GetTimerRes
-GetTimerTown
-GetTownContent
-GetTownSpell
-GetTownType
-GetType
-GetTypeFromHandle
-GetTypedDataSetSchema
-GetTypedTableSchema
-GetUniverContent
-GetValue
-GetVerObjName
-GetViews
-Get_SR
-Gn¬ЎH`^ђ™5C`Є,#Q’0фѕҐаШ°
-GoldColumn
-Graphics
-GraphicsUnit
-GridChangeFont
-GridColumn
-GridColumnCollection
-GridColumnReadOnlyCollection
-GridControl
-GridControlViewCollection
-GridControl_DoubleClick
-GridHitInfo
-GridHitTest
-GridMenuItemClick
-GridOptionsBehavior
-GridOptionsNavigation
-GridOptionsSelection
-GridOptionsView
-GridRegistryExist
-GridView
-GridViewAppearances
-GridViewMenu
-GridView_KeyDown
-GridView_MouseDown
-GridView_PopupMenuShowing
-GridViewsDefaultLayout
-GroupControl
-GroupFooterShowMode
-Guard
-GuardColumn
-GuidAttribute
-GÖ;u
-Gз…o?OҐpАiѓ_[ЃЅ
-Gґxэђ
-HPColumn
-HStartPoint
-HashCodeProvider
-HashSize
-Hashtable
-HeaderOffset
-HeaderSize
-HelpKeywordAttribute
-HeroClass
-HeroClassSection
-HeroColumn
-HeroCount
-HeroOnObject
-HeroState
-HighlightedLinkChangedEventArgs
-HighlightedLinkChangedEventHandler
-HireColumn
-HitInfoType
-HЋi?^юяя
-HАУf6
-Hій¤{„
-Hў°7Љ|Тuy
-IAsyncResult
-IButtonControl
-ICollection
-ICollection`1
-IContainer
-IDAT8OН’[H“q
-IDColumn
-IDXMenuManager
-IDictionary`2
-IDisposable
-IEND®B`‚
-IEND®B`‚/
-IEND®B`‚1
-IEND®B`‚5
-IEND®B`‚F
-IEND®B`‚M
-IEND®B`‚R
-IEND®B`‚T
-IEND®B`‚o
-IEND®B`‚±
-IEND®B`‚Ѓ
-IEND®B`‚Џ
-IEND®B`‚А
-IEND®B`‚Б
-IEND®B`‚Н
-IEND®B`‚ё
-IEND®B`‚ї
-IEND®B`‚’
-IEND®B`‚‡
-IEND®B`‚•
-IEnumerable
-IEnumerable`1
-IEnumerator
-IEnumerator`1
-III$&&
-IList`1
-INTELLIGENCE
-IPopup
-IPrintable
-ISupportInitialize
-IconData
-IconSize
-Ideology
-IdeologyColumn
-IdeologySection
-IeҐmАD
-Image
-ImageCollectionStreamer
-ImageSize
-Increase
-IncreaseColumn
-IndexOf
-InitClass
-InitGridAndViews
-InitMembers
-InitOracle
-InitVars
-InitializeArray
-InitializeComponent
-InitializeDerivedDataSet
-InsertAt
-Int32
-Interlocked
-InternalDataCollectionBase
-InvalidCastException
-InvalidDataException
-InvalidOperationException
-Invoke
-InvokeMember
-IsAddressNull
-IsAlly
-IsAntiMagicNull
-IsApplyNull
-IsArtNull
-IsArtefactNull
-IsAvailableNull
-IsBinarySerialized
-IsBookNull
-IsBuildingNull
-IsBuiltNull
-IsCanTakeNull
-IsChecked
-IsClassIDNull
-IsClassNull
-IsCodeNull
-IsColorNull
-IsCostNull
-IsDayNull
-IsDeadlineNull
-IsDollNull
-IsEquals
-IsExperienceNull
-IsGarrisonNull
-IsGoldNull
-IsGuardNull
-IsHPNull
-IsHeroNull
-IsHeroTavern
-IsHireNull
-IsIDNull
-IsIdeologyNull
-IsIncreaseNull
-IsLastMagicNull
-IsLastWisdomNull
-IsLevelNull
-IsLibTimerNull
-IsLibraryNull
-IsLocalityNull
-IsLuckNull
-IsMPNull
-IsMachineNull
-IsMageTimerNull
-IsManaNull
-IsMissionNull
-IsMonsterNull
-IsMoodNull
-IsMoraleNull
-IsNameNull
-IsNull
-IsNullOrEmpty
-IsNumberNull
-IsObject
-IsObjectNull
-IsPairNull
-IsPaymentNull
-IsPlaceNull
-IsPrimarySkillNull
-IsRepeatNull
-IsResourceNull
-IsRewardNull
-IsSecondarySkillNull
-IsSkillNull
-IsSlotNull
-IsSpellNull
-IsTimerNull
-IsTownNull
-IsTreeNumberNull
-IsTypeNull
-IsXNull
-IsXP10Null
-IsXP15Null
-IsXP5Null
-IsXPNull
-IsYNull
-IsZNull
-Is_Relic_CNull
-ItWas
-ItemClickEventArgs
-ItemClickEventHandler
-I»{!A
-IЋi?еюяя
-I“Pжќ@
-J@чМ‘^PmњE,) 
-JX±`aй
-Jx”GЂ–ЧB
-JЉ®sQ
-JХћCС Эuѓ°
-JҐRl<
-J՞#=
-K"щ0м
-KMicrosoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator
-KNOWLEDGE
-Ke HWРLyы
-KeyEventArgs
-KeyEventHandler
-Knowledge
-K™Ъy#ђ¶ѕЙBзAИ
-LEADERSHIP
-LEARNING
-LHРАPИЛЛы_DD
-LLL4‚¤
-LMOracle
-LMOracle.SkillTreeAPI.dll
-LMOracleCopy
-LMOracleFree
-LMOracleSave
-LOGISTICS
-Label
-LabelControl
-LabelControlAppearanceObject
-LastIndexOf
-LastMagic
-LastMagicColumn
-LastWisdom
-LastWisdomColumn
-Last_Magic
-Last_Wisdom
-LayoutKind
-LeftSkill
-Level
-LevelColumn
-LevelSkill
-LevelSkillSection
-LevelUp
-LevelUpA
-LfˢL
-LibTimer
-LibTimerColumn
-Library
-LibraryColumn
-LineStyle
-LinearGradientMode
-LinkBase
-LinkBehavior
-LinkCollection
-LinkLabel
-LinkLabelLinkClickedEventArgs
-LinkLabelLinkClickedEventHandler
-LinkPersistInfo
-LinksInfo
-List`1
-LoadDll
-LoadFactor
-LoadFrom
-LoadLibrary
-Locality
-LocalityColumn
-LocalitySection
-Lo»!-oб€*ЊЄЭМЯрЇЯК+ЧАмЕ
-LuckColumn
-LЉЈXн
-LН!This program cannot be run in DOS mode.
-LЧ°IFЕкO
-Lъ“bsPДV®<>рT
-MPColumn
-MYSTICISM
-Machine
-MachineColumn
-MageTimer
-MageTimerColumn
-MainForm
-MainForm_Load
-MainForm_LocationChanged
-MainForm_SizeChanged
-MakeDisable
-MakeNodeVisible
-MakeRowVisible
-ManaColumn
-MapName
-MapRegion
-MapSide
-MapSize
-MapTimedEvent
-MapTimedEvents
-MapTownsTimedEvents
-MappingType
-Margins
-MarketContent
-MarshalAsAttribute
-MaskProperties
-MaxLevel
-MemberInfo
-MemberTypes
-MemoryStream
-MenuHandlerGrid
-MenuHandlerRecent
-Merge
-MessageBox
-MessageBoxButtons
-MessageBoxIcon
-Method
-Microsoft.Win32
-MinLevel
-MineSection
-MissingSchemaAction
-Mission
-MissionColumn
-ModifyArtTbl
-ModifyArtTblClass
-ModifyArtTblRelic
-ModifyTime
-Monster
-MonsterColumn
-Monstr
-MonstrContent
-MonstrSection
-MoodColumn
-Morale
-MoraleColumn
-Motions
-MouseButtons
-MouseEventArgs
-MouseEventHandler
-MoveNext
-MulticastDelegate
-MyFile
-MyFont
-MyForm
-MyInit
-MyManager
-MyName
-M±C[*
-MЛ#ЕB<»Ь©%Њ”r
-Mю'Т<НiMзЊдl¶
-M‚ЮАd
-NAVIGATION
-NECROMANCY
-NameColumn
-NameForm
-NewR_AllArtsRow
-NewR_AllExperienceRow
-NewR_AllSkillRow
-NewR_AllSpellRow
-NewR_AllTimerRow
-NewR_ArtRow
-NewR_BankRow
-NewR_CampRow
-NewR_ChestRow
-NewR_EventBoxRow
-NewR_GarrisonRow
-NewR_HeroesRow
-NewR_MarketRow
-NewR_MineRow
-NewR_MonstrRow
-NewR_ObjectRow
-NewR_PassGuardRow
-NewR_PrisonRow
-NewR_ResourceRow
-NewR_ScholarRow
-NewR_SeerHutRow
-NewR_SkillRow
-NewR_SpellRow
-NewR_TopologyRow
-NewR_TownRow
-NewRow
-NewRowFromBuilder
-NormalizedFilename
-NumAlly
-Number
-NumberColumn
-N№амbШvі
-O>2ђ(x Зн
-OFFENSE
-Obj2Form
-ObjContent
-ObjNameComplete
-ObjNameDefault
-ObjNameFromFile
-ObjNameSoDEn
-ObjNameSoDRu
-Object
-ObjectColumn
-ObjectContent
-ObjectNameForm
-ObjectNameForm_Load
-ObjectNumber
-ObjectSection
-Oll,СССDEE
-OnRowChanged
-OnRowChanging
-OnRowDeleted
-OnRowDeleting
-OneWayMonolith
-OpenFileDialog
-OpenLink
-OpenProcess
-OpenSubKey
-Option
-OptionsColumn
-OptionsColumnFilter
-OptionsLayoutBase
-OutAttribute
-Owм±f&»Н­Ъ
-OЖт11
-Oґгшэ$ІъDд©йOЌа
-P1‘і4€c
-PADPADPґ
-PATHFINDING
-PROSPECTORRT.EXE
-PWWчLЮЭгЖшu
-P\cHЬаuч
-Padding
-PageAppearance
-PaintEventArgs
-PaintEventHandler
-PairColumn
-PanelControl
-PaperKind
-Parse
-PassGuard
-PassGuardContent
-PassGuardContent2
-Payment
-PaymentColumn
-PerformLayout
-PictureBox
-Place
-PlaceColumn
-PlaceSection
-Point
-PointToScreen
-PopupControl
-PopupCreateGrid
-PopupMenu
-PopupMenuShowingEventArgs
-PopupMenuShowingEventHandler
-PqGЉтЉ
-PreviewBar
-Primary
-PrimarySkill
-PrimarySkillColumn
-PrintBarManager
-PrintControl
-PrintForm
-PrintPreviewBarCheckItem
-PrintPreviewBarItem
-PrintPreviewRepositoryItemComboBox
-PrintPreviewStaticItem
-PrintPreviewSubItem
-PrintableComponentLink
-PrintableComponentLinkBase
-PrintingSystem
-PrintingSystemBase
-PrintingSystemCommand
-ProcName
-Process
-ProcessStartInfo
-Program
-ProgressBarEditItem
-PropertyCollection
-ProspectorRT
-ProspectorRT.ExportForm.resources
-ProspectorRT.MainForm.resources
-ProspectorRT.ObjectNameForm.resources
-ProspectorRT.PrintForm.resources
-ProspectorRT.Properties
-ProspectorRT.Properties.Resources.resources
-ProspectorRT.ShowForm.resources
-ProspectorRT.SkillTreeForm.resources
-ProspectorRT.exe
-ProspectorRT.exe.licenses
-ProspectorRT.frmAbout.resources
-ProspectorRT.myToolTip.resources
-P±Іq)1ІЪl6
-PФ[ЙUЛeь
-PмP(Дg’Япgx:ќrљЌЌ
-Pѕd-Ѓ
-QSystem.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a
-QuestSection
-QЕ1хЏqџѕ|Gк7ђИ
-QС BI“
-Qепш8
-Qшgїс–
-QќAРdс
-RAMBBWeights
-RAMHero
-RAMWeights
-RESISTANCE
-RIDAT8O­’;hZQ
-R_AllArts
-R_AllArtsDataTable
-R_AllArtsRow
-R_AllArtsRowChangeEvent
-R_AllArtsRowChangeEventHandler
-R_AllArtsRowChanged
-R_AllArtsRowChanging
-R_AllArtsRowDeleted
-R_AllArtsRowDeleting
-R_AllExperience
-R_AllExperienceDataTable
-R_AllExperienceRow
-R_AllExperienceRowChangeEvent
-R_AllExperienceRowChangeEventHandler
-R_AllExperienceRowChanged
-R_AllExperienceRowChanging
-R_AllExperienceRowDeleted
-R_AllExperienceRowDeleting
-R_AllSkill
-R_AllSkillDataTable
-R_AllSkillRow
-R_AllSkillRowChangeEvent
-R_AllSkillRowChangeEventHandler
-R_AllSkillRowChanged
-R_AllSkillRowChanging
-R_AllSkillRowDeleted
-R_AllSkillRowDeleting
-R_AllSpell
-R_AllSpellDataTable
-R_AllSpellRow
-R_AllSpellRowChangeEvent
-R_AllSpellRowChangeEventHandler
-R_AllSpellRowChanged
-R_AllSpellRowChanging
-R_AllSpellRowDeleted
-R_AllSpellRowDeleting
-R_AllTimer
-R_AllTimerDataTable
-R_AllTimerRow
-R_AllTimerRowChangeEvent
-R_AllTimerRowChangeEventHandler
-R_AllTimerRowChanged
-R_AllTimerRowChanging
-R_AllTimerRowDeleted
-R_AllTimerRowDeleting
-R_Art
-R_ArtDataTable
-R_ArtRow
-R_ArtRowChangeEvent
-R_ArtRowChangeEventHandler
-R_ArtRowChanged
-R_ArtRowChanging
-R_ArtRowDeleted
-R_ArtRowDeleting
-R_Bank
-R_BankDataTable
-R_BankRow
-R_BankRowChangeEvent
-R_BankRowChangeEventHandler
-R_BankRowChanged
-R_BankRowChanging
-R_BankRowDeleted
-R_BankRowDeleting
-R_Camp
-R_CampDataTable
-R_CampRow
-R_CampRowChangeEvent
-R_CampRowChangeEventHandler
-R_CampRowChanged
-R_CampRowChanging
-R_CampRowDeleted
-R_CampRowDeleting
-R_Chest
-R_ChestDataTable
-R_ChestRow
-R_ChestRowChangeEvent
-R_ChestRowChangeEventHandler
-R_ChestRowChanged
-R_ChestRowChanging
-R_ChestRowDeleted
-R_ChestRowDeleting
-R_EventBox
-R_EventBoxDataTable
-R_EventBoxRow
-R_EventBoxRowChangeEvent
-R_EventBoxRowChangeEventHandler
-R_EventBoxRowChanged
-R_EventBoxRowChanging
-R_EventBoxRowDeleted
-R_EventBoxRowDeleting
-R_Garrison
-R_GarrisonDataTable
-R_GarrisonRow
-R_GarrisonRowChangeEvent
-R_GarrisonRowChangeEventHandler
-R_GarrisonRowChanged
-R_GarrisonRowChanging
-R_GarrisonRowDeleted
-R_GarrisonRowDeleting
-R_Heroes
-R_HeroesDataTable
-R_HeroesRow
-R_HeroesRowChangeEvent
-R_HeroesRowChangeEventHandler
-R_HeroesRowChanged
-R_HeroesRowChanging
-R_HeroesRowDeleted
-R_HeroesRowDeleting
-R_Market
-R_MarketDataTable
-R_MarketRow
-R_MarketRowChangeEvent
-R_MarketRowChangeEventHandler
-R_MarketRowChanged
-R_MarketRowChanging
-R_MarketRowDeleted
-R_MarketRowDeleting
-R_Mine
-R_MineDataTable
-R_MineRow
-R_MineRowChangeEvent
-R_MineRowChangeEventHandler
-R_MineRowChanged
-R_MineRowChanging
-R_MineRowDeleted
-R_MineRowDeleting
-R_Monstr
-R_MonstrDataTable
-R_MonstrRow
-R_MonstrRowChangeEvent
-R_MonstrRowChangeEventHandler
-R_MonstrRowChanged
-R_MonstrRowChanging
-R_MonstrRowDeleted
-R_MonstrRowDeleting
-R_Object
-R_ObjectDataTable
-R_ObjectRow
-R_ObjectRowChangeEvent
-R_ObjectRowChangeEventHandler
-R_ObjectRowChanged
-R_ObjectRowChanging
-R_ObjectRowDeleted
-R_ObjectRowDeleting
-R_PassGuard
-R_PassGuardDataTable
-R_PassGuardRow
-R_PassGuardRowChangeEvent
-R_PassGuardRowChangeEventHandler
-R_PassGuardRowChanged
-R_PassGuardRowChanging
-R_PassGuardRowDeleted
-R_PassGuardRowDeleting
-R_Prison
-R_PrisonDataTable
-R_PrisonRow
-R_PrisonRowChangeEvent
-R_PrisonRowChangeEventHandler
-R_PrisonRowChanged
-R_PrisonRowChanging
-R_PrisonRowDeleted
-R_PrisonRowDeleting
-R_Resource
-R_ResourceDataTable
-R_ResourceRow
-R_ResourceRowChangeEvent
-R_ResourceRowChangeEventHandler
-R_ResourceRowChanged
-R_ResourceRowChanging
-R_ResourceRowDeleted
-R_ResourceRowDeleting
-R_Scholar
-R_ScholarDataTable
-R_ScholarRow
-R_ScholarRowChangeEvent
-R_ScholarRowChangeEventHandler
-R_ScholarRowChanged
-R_ScholarRowChanging
-R_ScholarRowDeleted
-R_ScholarRowDeleting
-R_SeerHut
-R_SeerHutDataTable
-R_SeerHutRow
-R_SeerHutRowChangeEvent
-R_SeerHutRowChangeEventHandler
-R_SeerHutRowChanged
-R_SeerHutRowChanging
-R_SeerHutRowDeleted
-R_SeerHutRowDeleting
-R_Skill
-R_SkillDataTable
-R_SkillRow
-R_SkillRowChangeEvent
-R_SkillRowChangeEventHandler
-R_SkillRowChanged
-R_SkillRowChanging
-R_SkillRowDeleted
-R_SkillRowDeleting
-R_Spell
-R_SpellDataTable
-R_SpellRow
-R_SpellRowChangeEvent
-R_SpellRowChangeEventHandler
-R_SpellRowChanged
-R_SpellRowChanging
-R_SpellRowDeleted
-R_SpellRowDeleting
-R_Topology
-R_TopologyDataTable
-R_TopologyRow
-R_TopologyRowChangeEvent
-R_TopologyRowChangeEventHandler
-R_TopologyRowChanged
-R_TopologyRowChanging
-R_TopologyRowDeleted
-R_TopologyRowDeleting
-R_Town
-R_TownDataTable
-R_TownRow
-R_TownRowChangeEvent
-R_TownRowChangeEventHandler
-R_TownRowChanged
-R_TownRowChanging
-R_TownRowDeleted
-R_TownRowDeleting
-R`¦Ч‡
-RadioGroup
-RadioGroupItem
-RadioGroupItemCollection
-ReadAllBytes
-ReadAllLines
-ReadByte
-ReadCentralDir
-ReadFileInfo
-ReadInt32
-ReadLine
-ReadOnlyCollectionBase
-ReadUInt16
-ReadUInt32
-ReadXml
-ReadXmlSchema
-ReadXmlSerializable
-Rectangle
-ReferenceEquals
-RegisterAssembly
-Registry
-RegistryKey
-RegistryKeyExist
-Relations
-Remove
-RemoveAt
-RemoveEntries
-RemoveR_AllArtsRow
-RemoveR_AllExperienceRow
-RemoveR_AllSkillRow
-RemoveR_AllSpellRow
-RemoveR_AllTimerRow
-RemoveR_ArtRow
-RemoveR_BankRow
-RemoveR_CampRow
-RemoveR_ChestRow
-RemoveR_EventBoxRow
-RemoveR_GarrisonRow
-RemoveR_HeroesRow
-RemoveR_MarketRow
-RemoveR_MineRow
-RemoveR_MonstrRow
-RemoveR_ObjectRow
-RemoveR_PassGuardRow
-RemoveR_PrisonRow
-RemoveR_ResourceRow
-RemoveR_ScholarRow
-RemoveR_SeerHutRow
-RemoveR_SkillRow
-RemoveR_SpellRow
-RemoveR_TopologyRow
-RemoveR_TownRow
-RemoveRecentFile
-Repeat
-RepeatColumn
-Replace
-ReplaceName
-ReplySection
-RepositoryItem
-RepositoryItemButtonEdit
-RepositoryItemCheckEdit
-RepositoryItemCollection
-RepositoryItemComboBox
-RepositoryItemProgressBar
-RepositoryItemRadioGroup
-RepositoryItemSpinEdit
-RepositoryItemTextEdit
-RepositoryItemTrackBar
-RepositoryItemZoomTrackBar
-Reset
-Resource
-ResourceColumn
-ResourceManager
-Resources
-RestoreItemDown
-RestoreLayout
-RestoreLayoutFromRegistry
-RestoreLayoutFromStream
-RestoreLayoutFromXml
-ResumeLayout
-Reward
-RewardColumn
-RewardSection
-RichEditAppearance
-RichEditControl
-RichEditViewType
-Right
-Round
-RowColumnToPosition
-RowHandle
-RowIndexToName
-RuntimeCompatibilityAttribute
-RuntimeFieldHandle
-RuntimeHelpers
-RuntimeTypeHandle
-RсаБ ‡8v¬Ђц‰
-SCHOLAR
-SCOUTING
-SIDAT8OќЏkHSa
-SORCERY
-SPELL_POWER
-SPTEnable
-STAThreadAttribute
-SaveArt
-SaveBanks
-SaveBox
-SaveCamp
-SaveCampfire
-SaveChest
-SaveEvent
-SaveFileDialog
-SaveFloatsam
-SaveGarrison
-SaveHero
-SaveHovel
-SaveLayoutToRegistry
-SaveLayoutToStream
-SaveLayoutToXml
-SaveLearningStone
-SaveMarket
-SaveMine
-SaveMonolith
-SaveMonster
-SaveMysticalGarden
-SaveName
-SaveObject
-SavePassDuard
-SavePrison
-SavePyramid
-SaveRecent
-SaveRes
-SaveScholar
-SaveScroll
-SaveSeaChest
-SaveSeerHut
-SaveShrine
-SaveSkeleton
-SaveSurvivor
-SaveTent
-SaveTomb
-SaveTopologyObj
-SaveUniver
-SaveWagon
-SaveWindmill
-SaveWitchHut
-SaveXML
-ScanArtResContent
-ScanBankContent
-ScanBottleSignContent
-ScanComplete
-ScanCompleteProc
-ScanContent
-ScanError
-ScanErrorProc
-ScanEventBoxContent
-ScanHeroesContent
-ScanMap
-ScanMapTimedEvents
-ScanMaps
-ScanMonolithWhirlpool
-ScanMonstrContent
-ScanObjectContent
-ScanPassGuardContent
-ScanSave
-ScanSeerHutContent
-ScanStatus
-ScanTownsContent
-ScanTownsTimedEvents
-Scanner
-SchemaChanged
-SchemaSerializationMode
-Schemas
-ScrollThumbStyle
-Secondary
-SecondarySkill
-SecondarySkillColumn
-SectionProcArray
-SectionProcTable
-SeekOrigin
-SeerHut
-SeerHutContent
-SeerHutContent2
-Select
-SelectRow
-SerializableAttribute
-SerializationInfo
-SetAddressNull
-SetAntiMagicNull
-SetApplyNull
-SetArtNull
-SetArtefactNull
-SetAvailableNull
-SetBookNull
-SetBuildingNull
-SetBuiltNull
-SetCanTakeNull
-SetClassIDNull
-SetClassNull
-SetCodeNull
-SetColorNull
-SetCompatibleTextRenderingDefault
-SetCostNull
-SetCreationTime
-SetData
-SetDayNull
-SetDeadlineNull
-SetDollNull
-SetExperienceNull
-SetFocusedRow
-SetFont
-SetGarrisonNull
-SetGoldNull
-SetGuardNull
-SetHPNull
-SetHeroNull
-SetHireNull
-SetIDNull
-SetIdeologyNull
-SetIncreaseNull
-SetLabelCange
-SetLabelStatus
-SetLastMagicNull
-SetLastWisdomNull
-SetLastWriteTime
-SetLength
-SetLevelNull
-SetLibTimerNull
-SetLibraryNull
-SetLocalityNull
-SetLuckNull
-SetMPNull
-SetMachineNull
-SetMageTimerNull
-SetManaNull
-SetMissionNull
-SetMonsterNull
-SetMoodNull
-SetMoraleNull
-SetNameNull
-SetNumberNull
-SetObjectNull
-SetPairNull
-SetPaymentNull
-SetPlaceNull
-SetPopupContextMenu
-SetPrimarySkillNull
-SetRegistryValue
-SetRepeatNull
-SetResourceNull
-SetRewardNull
-SetSecondarySkillNull
-SetSkillNull
-SetSlotNull
-SetSpellNull
-SetTimerNull
-SetTownNull
-SetTreeNumberNull
-SetTypeNull
-SetValue
-SetXNull
-SetXP10Null
-SetXP15Null
-SetXP5Null
-SetXPNull
-SetYNull
-SetZNull
-Set_Relic_CNull
-Settings
-SettingsBase
-SheetsName
-ShouldSerializeR_AllArts
-ShouldSerializeR_AllExperience
-ShouldSerializeR_AllSkill
-ShouldSerializeR_AllSpell
-ShouldSerializeR_AllTimer
-ShouldSerializeR_Art
-ShouldSerializeR_Bank
-ShouldSerializeR_Camp
-ShouldSerializeR_Chest
-ShouldSerializeR_EventBox
-ShouldSerializeR_Garrison
-ShouldSerializeR_Heroes
-ShouldSerializeR_Market
-ShouldSerializeR_Mine
-ShouldSerializeR_Monstr
-ShouldSerializeR_Object
-ShouldSerializeR_PassGuard
-ShouldSerializeR_Prison
-ShouldSerializeR_Resource
-ShouldSerializeR_Scholar
-ShouldSerializeR_SeerHut
-ShouldSerializeR_Skill
-ShouldSerializeR_Spell
-ShouldSerializeR_Topology
-ShouldSerializeR_Town
-ShouldSerializeRelations
-ShouldSerializeTables
-ShowCell
-ShowDialog
-ShowForm
-ShowPopup
-ShowSkillTree
-ShowSkillTreeA
-ShowWithoutActivation
-SimpleButton
-Single
-SizeF
-Skill
-SkillColumn
-SkillCount
-SkillExcept
-SkillOffer
-SkillSection
-SkillTreeForm
-SkillTreeForm_FormClosed
-SkillTreeForm_Load
-SkillTreeForm_Shown
-SkinLib
-SkinManager
-SkinProject1
-SlotColumn
-Spell
-SpellColumn
-SpellPower
-SpellSection
-Split
-Start
-StartMap
-StatusSection
-StatusStrip
-Store
-Stream
-StreamReader
-StreamingContext
-String
-StringAlignment
-StringFormat
-StringReader
-StringSplitOptions
-StrongTypingException
-StructLayoutAttribute
-SubTerGate
-SubTerGatePair
-Substring
-SumAlly
-SuspendLayout
-Synchronized
-System
-System.CodeDom.Compiler
-System.Collections
-System.Collections.Generic
-System.Collections.Hashtable
-System.Collections.IComparer$System.Collections.IHashCodeProvider
-System.ComponentModel
-System.ComponentModel.Design
-System.Configuration
-System.Data
-System.Diagnostics
-System.Drawing
-System.Drawing.Bitmap
-System.Drawing.Drawing2D
-System.Drawing.Icon
-System.Drawing.Printing
-System.Drawing.Size
-System.Globalization
-System.IO
-System.IO.Compression
-System.Reflection
-System.Resources
-System.Runtime.CompilerServices
-System.Runtime.InteropServices
-System.Runtime.Serialization
-System.Text
-System.Threading
-System.Windows.Forms
-System.Windows.Forms.Layout
-System.Xml
-System.Xml.Schema
-System.Xml.Serialization
-SystemColors
-Sµ,|«baўњ
-SВx-‰
-Sн­†°·w 
-T "Ht`
-T*Ч®]»ЮвЖK±ЖnwшK:Гђ
-TACTICS
-THero
-TSecondary
-TSkillExcept
-TSkillOffer
-TWeights
-Tables
-TblArt
-TblArtComplete
-TblArtRes
-TblArtSoDEn
-TblArtSoDRu
-TblBanks
-TblBuilding
-TblDwelling
-TblDwellingComplete
-TblDwellingSoDEn
-TblDwellingSoDRu
-TblEventBox
-TblGarrison
-TblIdeology
-TblMarket
-TblMonsters
-TblMonstersComplete
-TblMonstersSoDEn
-TblMonstersSoDRu
-TblMonstr
-TblObj
-TblObject
-TblObjectComplete
-TblObjectSoDEn
-TblObjectSoDRu
-TblPassGuard
-TblSecondarySkill
-TblSecondarySkillComplete
-TblSecondarySkillSoDEn
-TblSecondarySkillSoDRu
-TblSeerHut
-TblSpell
-TblSpellComplete
-TblSpellSoDEn
-TblSpellSoDRu
-TblUniver
-Teams
-Template
-TentSection
-TextBox
-TextBoxBase
-TextEdit
-TextEditStyles
-TextImageRelation
-TextOptions
-TextReader
-Thread
-ThreadPriority
-ThreadStart
-Timer
-TimerColumn
-ToString
-ToUInt16
-ToUInt32
-ToUpper
-ToolStrip
-ToolStripItem
-ToolStripItemCollection
-ToolStripItemDisplayStyle
-ToolStripLabel
-ToolStripStatusLabel
-ToolTipController
-ToolTipControllerBeforeShowEventHandler
-ToolTipControllerShowEventArgs
-ToolTipType
-ToolboxItemAttribute
-TownColumn
-TownSection
-TownsTimedEvent
-TownsTimedEvents
-TrEулЉб
-TreeList
-TreeListAppearanceCollection
-TreeListColumn
-TreeListColumnCollection
-TreeListHitInfo
-TreeListNode
-TreeListNodes
-TreeListOptionsBehavior
-TreeListOptionsColumn
-TreeListOptionsMenu
-TreeNumber
-TreeNumberColumn
-TryGetValue
-TryParse
-TwoWayMonolith
-TypeColumn
-UBў(вt:
-UInt32
-U]F]*
-UniqueConstraint
-Univer
-UniverContent
-UnknownFixedReg
-UnknownVarReg
-UnmanagedType
-UnselectRow
-UpdateCrcAndSizes
-UserLookAndFeel
-U©ЋЉXG©VGAЁгоRV-иѕ
-V;†зЅ
-ValidationEventHandler
-Value
-ValueType
-Values
-Version
-VertAlignment
-ViewRepositoryCollection
-V«тV;ьС$Ъ
-V®НNю
-VЂ#cн
-VЂ'bФ
-VЂ+cн
-VЂ1bн
-VЂ6cн
-VЂ=bн
-VЂ@cн
-VЂEbн
-VЂEco
-VЂKco
-VЂObн
-VЂTco
-VЂXbн
-VЂYђ&
-VЂbbн
-VЂmbн
-VЂxbн
-VЂ®bн
-VЂµђ&
-VЂ¶bн
-VЂЈbн
-VЂЋbн
-VЂБbн
-VЂЛbн
-VЂЧbн
-VЂгbн
-VЂлbн
-VЂуbн
-VЂэbн
-VЂ‰bн
-VЂ™bн
-V•¶Ox
-WATER_MAGIC
-WISDOM
-Weights
-Whirlpool
-WordWrap
-WrapNonExceptionThrows
-Write
-WriteAllBytes
-WriteAttributeString
-WriteCentralDirRecord
-WriteContentTypes
-WriteDocPropsApp
-WriteElementString
-WriteEndElement
-WriteEndRecord
-WriteLocalHeader
-WriteStartDocument
-WriteStartElement
-WriteStringTable
-WriteWorkBook
-WriteWorksheet
-WriteWorksheetData
-WriteXlRels
-WriteXmlSchema
-W®#RЁ#”“±‘–а‰‹иґ{!КЂ 
-WЁ(ѓ#Ш®жь›
-WГvѓ4hoЄV"'”ИЯЬv
-XColumn
-XP10Column
-XP15Column
-XP5Column
-XPColumn
-XiIi/яА®ЗоЖШН®v5Ё
-XmlReadMode
-XmlReader
-XmlRootAttribute
-XmlSchema
-XmlSchemaAny
-XmlSchemaAttribute
-XmlSchemaComplexType
-XmlSchemaContentProcessing
-XmlSchemaGroupBase
-XmlSchemaObject
-XmlSchemaObjectCollection
-XmlSchemaParticle
-XmlSchemaProviderAttribute
-XmlSchemaSequence
-XmlSchemaSet
-XmlTextReader
-XmlTextWriter
-XmlWriter
-XtraTabControl
-XtraTabPage
-XtraTabPageCollection
-X©E\¶я!э
-XЁЄЉx<ЮyС"
-X‘X F
-X‘X,!
-X‘XoЦ
-X‘Xo„
-X‘XЃ№
-X‘XЊ№
-X‘љ(.
-X‘љo_
-X‘љoН
-X‘љoС
-X‘љoЧ
-YColumn
-YW]и]P
-Z Þ&
-Z?hяяя
-ZColumn
-ZIDAT8O­‘ЭKSq
-ZX ЯY
-ZXZX}й
-ZX‘ я
-ZX‘,L
-ZX‘,P
-ZX‘Xћ
-ZX‘fТX
-ZX‘o–
-ZX‘Њ0
-ZipFileEntry
-ZipFileStream
-ZipStorer
-ZoomBarEditItem
-ZoomTrackBarEditItem
-ZБp.‰
-Zу8шh#ыКЧbjiжѓBУ4џљHЅ
-Z‰¬w.
-Z›ѓх™4XЗг°Т}
-[4ЁX#°€µJЙR?Ш‡ъ
-[DevExpress.Utils.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-[·nM[тж±†Іч
-[ДЖcPЛD
-[Фќ>фѓПЃ
-[эђВ*©љP€‹8V4D‹љ€М
-[֠z#
-[—3TПg0ј€/
-[№ЩЌmЪѓSЏцд{yЦT¶OтЮјпујП#ыoРvџЬ2ж§МC
-\yL­еq
-\¶¶Bџќ}`((шkВNf°ПбЂ8:
-\ИZ3P 
-\шёЮ1
-\ёЌ`6
-\›ўћѕoбIё‰ЗЎ
-]ц;ґзЮpЈЦЊ.g1uэҐ”wџ'22’°°0BBBИhфC§УqХґ—шЧj¶И
-^&2eДКs
-^)ІйоК¬
-^5m\СuYL":CЃTўqVи€њ:N
-^Bh‰‡{¬
-^KҐ К8ѕ"VKҐа|=пуМj©
-^UТ<‘JSЧmз¶
-^YЃ—ЪwЮР
-^q'vёЦNѕЁЖц<
-^ЫIlЗ“6Ыm
-_?џзЭ­­
-_CodePg
-_CorExeMain
-_MaxLevel
-_PW10
-_Path
-_Q&Ћ®Ѓµp
-_Relic_C
-_Relic_CColumn
-_TblSecondarySkill
-_Version
-_]ъЕ5Ь‡uЬсFЃј?D}вн4И±
-__StaticArrayInitTypeSize=6
-_aLevelSkill
-_access
-_columnRelic_C
-_comment
-_fOwner
-_filename
-_filenameInZip
-_headerOffset
-_method
-_modTime
-_offset
-_pathname
-_rels/.relsPK
-_rels/.relsЌ’ПJ
-_rels/PK
-_schemaSerializationMode
-_size
-_source
-_stream
-_zfes
-_№Ќ`6
-`'™З577Џ#GтpиP.ц
-`.rsrc
-`_ўїzSJРUѕ
-`r»ЅШі'
-`tНC/шЎuОahx
-`±XH3аБ{q
-`Иџсa[n‡№я$Ж›.AZ
-a+Ръ1ѕЪЏъ
-a<‚б‡a8ј!ШЖ
-aAlliance
-aArtClass
-aColor
-aDoll
-aExistColor
-aFoundColor
-aFullLvlSkill
-aGrid
-aGuard
-aHeroClass
-aHeroID
-aIDAT8OЕ“Йk“A
-aIdeology
-aLevelSkill
-aLocality
-aMine
-aMonstrID
-aObjectID
-aPlace
-aPrSkill
-aReply
-aResource
-aReward
-aSPTdecmp
-aStatus
-aTavernGuest
-aTent
-aTown
-action
-add_BeforePopup
-add_BeforeShow
-add_CheckedChanged
-add_Click
-add_CloseUp
-add_CollectionChanged
-add_DoubleClick
-add_EditValueChanged
-add_FocusedRowChanged
-add_FormClosed
-add_HighlightedLinkChanged
-add_ItemClick
-add_KeyDown
-add_LinkClicked
-add_Load
-add_LocationChanged
-add_MouseDown
-add_MouseHover
-add_MouseMove
-add_MouseUp
-add_Paint
-add_Popup
-add_PopupMenuShowing
-add_R_AllArtsRowChanged
-add_R_AllArtsRowChanging
-add_R_AllArtsRowDeleted
-add_R_AllArtsRowDeleting
-add_R_AllExperienceRowChanged
-add_R_AllExperienceRowChanging
-add_R_AllExperienceRowDeleted
-add_R_AllExperienceRowDeleting
-add_R_AllSkillRowChanged
-add_R_AllSkillRowChanging
-add_R_AllSkillRowDeleted
-add_R_AllSkillRowDeleting
-add_R_AllSpellRowChanged
-add_R_AllSpellRowChanging
-add_R_AllSpellRowDeleted
-add_R_AllSpellRowDeleting
-add_R_AllTimerRowChanged
-add_R_AllTimerRowChanging
-add_R_AllTimerRowDeleted
-add_R_AllTimerRowDeleting
-add_R_ArtRowChanged
-add_R_ArtRowChanging
-add_R_ArtRowDeleted
-add_R_ArtRowDeleting
-add_R_BankRowChanged
-add_R_BankRowChanging
-add_R_BankRowDeleted
-add_R_BankRowDeleting
-add_R_CampRowChanged
-add_R_CampRowChanging
-add_R_CampRowDeleted
-add_R_CampRowDeleting
-add_R_ChestRowChanged
-add_R_ChestRowChanging
-add_R_ChestRowDeleted
-add_R_ChestRowDeleting
-add_R_EventBoxRowChanged
-add_R_EventBoxRowChanging
-add_R_EventBoxRowDeleted
-add_R_EventBoxRowDeleting
-add_R_GarrisonRowChanged
-add_R_GarrisonRowChanging
-add_R_GarrisonRowDeleted
-add_R_GarrisonRowDeleting
-add_R_HeroesRowChanged
-add_R_HeroesRowChanging
-add_R_HeroesRowDeleted
-add_R_HeroesRowDeleting
-add_R_MarketRowChanged
-add_R_MarketRowChanging
-add_R_MarketRowDeleted
-add_R_MarketRowDeleting
-add_R_MineRowChanged
-add_R_MineRowChanging
-add_R_MineRowDeleted
-add_R_MineRowDeleting
-add_R_MonstrRowChanged
-add_R_MonstrRowChanging
-add_R_MonstrRowDeleted
-add_R_MonstrRowDeleting
-add_R_ObjectRowChanged
-add_R_ObjectRowChanging
-add_R_ObjectRowDeleted
-add_R_ObjectRowDeleting
-add_R_PassGuardRowChanged
-add_R_PassGuardRowChanging
-add_R_PassGuardRowDeleted
-add_R_PassGuardRowDeleting
-add_R_PrisonRowChanged
-add_R_PrisonRowChanging
-add_R_PrisonRowDeleted
-add_R_PrisonRowDeleting
-add_R_ResourceRowChanged
-add_R_ResourceRowChanging
-add_R_ResourceRowDeleted
-add_R_ResourceRowDeleting
-add_R_ScholarRowChanged
-add_R_ScholarRowChanging
-add_R_ScholarRowDeleted
-add_R_ScholarRowDeleting
-add_R_SeerHutRowChanged
-add_R_SeerHutRowChanging
-add_R_SeerHutRowDeleted
-add_R_SeerHutRowDeleting
-add_R_SkillRowChanged
-add_R_SkillRowChanging
-add_R_SkillRowDeleted
-add_R_SkillRowDeleting
-add_R_SpellRowChanged
-add_R_SpellRowChanging
-add_R_SpellRowDeleted
-add_R_SpellRowDeleting
-add_R_TopologyRowChanged
-add_R_TopologyRowChanging
-add_R_TopologyRowDeleted
-add_R_TopologyRowDeleting
-add_R_TownRowChanged
-add_R_TownRowChanging
-add_R_TownRowDeleted
-add_R_TownRowDeleting
-add_SelectedIndexChanged
-add_Shown
-add_SizeChanged
-add_Tick
-aВ!)ИюwЖl"Ц
-aГZ/A
-b#™И\KчызD4:
-b'k0)a6Вazи>МєbАЩLЖю
-b6еЮя™
-bButtonClear
-bButtonClear_ItemClick
-bButtonOpen
-bEо‡ЕNo,HјЎ
-bIDAT8OќЌ?H
-bInheritHandle
-bWWt[ге^ЛI[«ћNЪ*AК‹«-
-barAndDockingController2
-barButtonItem1
-barDockControl1
-barDockControl2
-barDockControl3
-barDockControl4
-barDockControlBottom
-barDockControlLeft
-barDockControlRight
-barDockControlTop
-barManager1
-barManager1_HighlightedLinkChanged
-barManager2
-barStaticItem1
-barSubItem1
-barSubItem3
-barToolbarsListItem1
-biDepth
-biDepth_EditValueChanged
-biRecent
-biRecent_EditValueChanged
-bsInit
-bsiVerOracle
-btnAdd
-btnAdd_Click
-btnCancel
-btnCancel_Click
-btnClear
-btnClear_Click
-btnCollapseAll
-btnCollapseAll_ItemClick
-btnExpandAll
-btnExpandAll_ItemClick
-btnOK
-btnOK_Click
-btnPath
-btnPath_Click
-btnTemplateInit
-btnTemplate_ItemClick
-builder
-bвЧ ЉЁ€еGџцјќуvн•к}аВџызwћзћs®д7Y,
-cDћзD–e„$IҐ`»ЭТ°mЫX.—0M
-cIDAT8OcА
-cM‡@kR1 Ы„є|.6Я
-cQ`”д¤
-callback
-cbCodePg
-chi32EN
-chi32EN_CheckedChanged
-chi40EN
-chi40EN_CheckedChanged
-chi40RU
-chi40RU_CheckedChanged
-chiFree
-chiFree_CheckedChanged
-chiStart
-chiStart_CheckedChanged
-colAntiMagic
-colApply
-colApply2
-colArt
-colArt1
-colArt2
-colArt21
-colArt3
-colArt4
-colArtefact
-colArtefact1
-colAvailable
-colBook
-colBook1
-colBuilding
-colBuilt
-colBuilt1
-colCanTake
-colClass
-colClass1
-colClass2
-colClass3
-colColor
-colColor1
-colColor13
-colColor2
-colColor21
-colColor3
-colColor4
-colColor5
-colCost
-colDay
-colDeadline
-colDeadline1
-colDoll
-colExperience
-colExperience1
-colExperience2
-colExperience3
-colGarrison
-colGarrison1
-colGold
-colGold1
-colGold13
-colGold2
-colGold3
-colGold4
-colGold5
-colGuard
-colGuard1
-colGuard2
-colGuard3
-colGuard4
-colGuard5
-colGuard6
-colGuard7
-colGuard8
-colGuard9
-colHP1
-colHP10
-colHP11
-colHP2
-colHP21
-colHP3
-colHP4
-colHP5
-colHP6
-colHP7
-colHP8
-colHP9
-colHero
-colHero1
-colHero2
-colHero3
-colHero4
-colHeroClass
-colHire
-colID
-colID1
-colID2
-colID3
-colIdeology
-colIncrease
-colLevel
-colLevel1
-colLevel13
-colLevel2
-colLevel3
-colLevel4
-colLevel9
-colLibrary
-colLocality
-colLocality1
-colLocality10
-colLocality11
-colLocality12
-colLocality13
-colLocality14
-colLocality15
-colLocality16
-colLocality17
-colLocality18
-colLocality19
-colLocality2
-colLocality3
-colLocality4
-colLocality5
-colLocality6
-colLocality7
-colLocality8
-colLocality9
-colLuck
-colMP
-colMP1
-colMachine
-colMachine1
-colMana
-colMission
-colMission1
-colMission2
-colMission3
-colMission4
-colMission5
-colMonster
-colMonster1
-colMonster2
-colMonster3
-colMonster4
-colMonster5
-colMonster6
-colMonster7
-colMood
-colMorale
-colName
-colName1
-colName2
-colName3
-colName4
-colNumber
-colNumber1
-colObject
-colObject1
-colObject10
-colObject11
-colObject12
-colObject13
-colObject14
-colObject2
-colObject3
-colObject4
-colObject5
-colObject6
-colObject7
-colObject8
-colObject9
-colPair
-colPayment
-colPlace
-colPlace1
-colPlace2
-colPlace3
-colPrimarySkill
-colPrimarySkill1
-colPrimarySkill2
-colPrimarySkill3
-colRelicC
-colRelicC6
-colRepeat
-colRepeat1
-colResource
-colResource1
-colResource2
-colResource21
-colResource3
-colResource4
-colResource5
-colReward
-colSSkill
-colSecondarySkill
-colSecondarySkill1
-colSecondarySkill2
-colSecondarySkill3
-colSkill
-colSkill1
-colSlot
-colSlot1
-colSlot13
-colSlot2
-colSlot3
-colSpell
-colSpell1
-colSpell2
-colSpell21
-colSpell3
-colSpell4
-colSpell5
-colSpell6
-colTimer
-colTown
-colTown21
-colType
-colType1
-colType2
-colX1
-colX10
-colX11
-colX12
-colX13
-colX14
-colX15
-colX16
-colX17
-colX18
-colX19
-colX2
-colX20
-colX21
-colX3
-colX4
-colX5
-colX6
-colX7
-colX8
-colX9
-colXP
-colXP1
-colXP2
-colXP3
-colY1
-colY10
-colY11
-colY12
-colY13
-colY14
-colY15
-colY16
-colY17
-colY18
-colY19
-colY2
-colY20
-colY21
-colY3
-colY4
-colY5
-colY6
-colY7
-colY8
-colY9
-colZ1
-colZ10
-colZ11
-colZ12
-colZ13
-colZ14
-colZ15
-colZ16
-colZ17
-colZ18
-colZ19
-colZ2
-colZ20
-colZ21
-colZ3
-colZ4
-colZ5
-colZ6
-colZ7
-colZ8
-colZ9
-color
-column
-columnAddress
-columnAntiMagic
-columnApply
-columnArt
-columnArtefact
-columnAvailable
-columnBook
-columnBuilding
-columnBuilt
-columnCanTake
-columnClass
-columnClassID
-columnCode
-columnColor
-columnCost
-columnDay
-columnDeadline
-columnDoll
-columnExperience
-columnGarrison
-columnGold
-columnGuard
-columnHP
-columnHero
-columnHire
-columnID
-columnIdeology
-columnIncrease
-columnIndex
-columnLastMagic
-columnLastWisdom
-columnLevel
-columnLibTimer
-columnLibrary
-columnLocality
-columnLuck
-columnMP
-columnMachine
-columnMageTimer
-columnMana
-columnMission
-columnMonster
-columnMood
-columnMorale
-columnName
-columnNumber
-columnObject
-columnPair
-columnPayment
-columnPlace
-columnPrimarySkill
-columnRepeat
-columnResource
-columnReward
-columnSecondarySkill
-columnSkill
-columnSlot
-columnSpell
-columnTimer
-columnTown
-columnTreeNumber
-columnType
-columnX
-columnXP
-columnXP10
-columnXP15
-columnXP5
-columnY
-columnZ
-components
-context
-count
-c}ЖїГа+T2
-c¦ГµHСy·
-c·YЧяo~ф
-cЄV«ЁT*(—Л(•J¬ЎЩlвfћBЈС@.—ѓБ`Xx
-c†њљ ЖЇЌ)>Ч'ШЯЯ§
-d(3·ЪRъP­єц
-d4юґжіаKiцЬ›Е:Х›
-dblHitInfo
-decmp
-defaultInstance
-defaultLookAndFeel1
-disposing
-docProps/PK
-docProps/core.xmlPK
-docProps/core.xml…’QKГ0
-dropShadow
-dsResult
-dwAccess
-dwProcessId
-d}?&Uй:gi
-d»µ2a
-d»З!™
-dІЧ}e=+
-dАЩe-ј
-dЗO·‰X[-
-dУhkk“
-dяэ·}яюЖЊяяО—яяХЎяяЬ«яягіяяз№яяйЅяялїяюкѕяюиєяюгµяюЭ­яюШҐяюР›яиЇ‡яеЭЭяШООяпппяпппятттяXXXb
-ep«‰ж‰*N[џ“[ЯЮ»pуЩ
-errorExistFile
-errorMapVer
-errorObjectName
-errorScaner
-errorTemplateTable
-euґH¬тґ
-eventAction
-eventRow
-evьK™д%gжэ>АHнК&џ›F0““&ў‰охУЄ`ПФS•Jъўик1р1
-e·I·:
-eг¬кpІ9zБtш
-eў€„D·]
-e™ҐP6Kу
-fLoadForm
-fOwner
-fRowFlag
-fStopFlag
-fSystem.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3aBj›љ
-fSystem.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3aХЅ©ђdLCi
-fname
-frmAbout
-frmMain
-fv%;_3FР)Ё+Јф·Oц
-fz:>†‘@‘L
-f«юҐ$г
-fЋ¦ЦЄ†Ю
-fЗ§2б
-fѕЌ`:
-f‘Џ§9©1‹э
-g:ц›dЇ€ДаE¦cIXБЌ—рHб@«1
-gView
-get_ASCII
-get_Action
-get_Activator
-get_Address
-get_AddressColumn
-get_AllowCellMerge
-get_AntiMagic
-get_AntiMagicColumn
-get_Appearance
-get_Apply
-get_ApplyColumn
-get_Art
-get_ArtColumn
-get_Artefact
-get_ArtefactColumn
-get_Assembly
-get_Attributes
-get_Available
-get_AvailableColumn
-get_Bars
-get_Black
-get_Book
-get_BookColumn
-get_Bounds
-get_Building
-get_BuildingColumn
-get_Built
-get_BuiltColumn
-get_Button
-get_Buttons
-get_CanSeek
-get_CanTake
-get_CanTakeColumn
-get_CanWrite
-get_Caption
-get_CaseSensitive
-get_Checked
-get_Class
-get_ClassColumn
-get_ClassID
-get_ClassIDColumn
-get_ClassStyle
-get_ClientRectangle
-get_Code
-get_CodeColumn
-get_Color
-get_ColorColumn
-get_Column
-get_ColumnAutoWidth
-get_Columns
-get_Constraints
-get_Control
-get_ControlText
-get_Controls
-get_Cost
-get_CostColumn
-get_Count
-get_CreateParams
-get_Culture
-get_Current
-get_CurrentDomain
-get_CurrentThread
-get_DataRowCount
-get_DataSet
-get_DataSetName
-get_DataSource
-get_Day
-get_DayColumn
-get_Deadline
-get_DeadlineColumn
-get_Default
-get_DefaultView
-get_DockControls
-get_Doll
-get_DollColumn
-get_Down
-get_DropDownControl
-get_EditValue
-get_Enabled
-get_EndOfStream
-get_EnforceConstraints
-get_ExecutablePath
-get_Experience
-get_ExperienceColumn
-get_ExtendedProperties
-get_FieldName
-get_FieldType
-get_FileName
-get_FilterPanel
-get_FilterPopupMode
-get_FocusedCell
-get_FocusedColumn
-get_FocusedRow
-get_FocusedRowHandle
-get_FocusedValue
-get_FocusedView
-get_Font
-get_FooterPanel
-get_Form
-get_FullLayout
-get_Garrison
-get_GarrisonColumn
-get_Gold
-get_GoldColumn
-get_Graphics
-get_GridControl
-get_GroupFooter
-get_GroupFooterShowMode
-get_GroupPanel
-get_GroupRow
-get_Guard
-get_GuardColumn
-get_HP
-get_HPColumn
-get_Header
-get_HeaderPanel
-get_Height
-get_Hero
-get_HeroColumn
-get_HideSelectionRow
-get_Hint
-get_Hire
-get_HireColumn
-get_HitInfo
-get_HitInfoType
-get_HitTest
-get_Hour
-get_ID
-get_IDColumn
-get_IPopup
-get_Id
-get_Ideology
-get_IdeologyColumn
-get_InColumnPanel
-get_InGroupPanel
-get_Increase
-get_IncreaseColumn
-get_Item
-get_ItemArray
-get_ItemLinks
-get_Items
-get_KeyCode
-get_LastMagic
-get_LastMagicColumn
-get_LastWisdom
-get_LastWisdomColumn
-get_Length
-get_Level
-get_LevelColumn
-get_LibTimer
-get_LibTimerColumn
-get_Library
-get_LibraryColumn
-get_Link
-get_Links
-get_LinksPersistInfo
-get_Locale
-get_Locality
-get_LocalityColumn
-get_Location
-get_LookAndFeel
-get_Luck
-get_LuckColumn
-get_MP
-get_MPColumn
-get_Machine
-get_MachineColumn
-get_MageTimer
-get_MageTimerColumn
-get_MainWindowTitle
-get_Mana
-get_ManaColumn
-get_Manager
-get_Mask
-get_MemberType
-get_Menu
-get_MenuManager
-get_Message
-get_MinimumCapacity
-get_Minute
-get_Mission
-get_MissionColumn
-get_Monster
-get_MonsterColumn
-get_Month
-get_Mood
-get_MoodColumn
-get_Morale
-get_MoraleColumn
-get_Name
-get_NameColumn
-get_Namespace
-get_Nodes
-get_Number
-get_NumberColumn
-get_Object
-get_ObjectColumn
-get_Options
-get_OptionsBar
-get_OptionsBehavior
-get_OptionsColumn
-get_OptionsFilter
-get_OptionsMenu
-get_OptionsNavigation
-get_OptionsSelection
-get_OptionsView
-get_Pair
-get_PairColumn
-get_ParentNode
-get_Payment
-get_PaymentColumn
-get_Place
-get_PlaceColumn
-get_PopupOwnerRectangle
-get_Position
-get_Prefix
-get_PrevFocusedRowHandle
-get_PrimarySkill
-get_PrimarySkillColumn
-get_ProductName
-get_Properties
-get_PropertiesBar
-get_R_AllArts
-get_R_AllExperience
-get_R_AllSkill
-get_R_AllSpell
-get_R_AllTimer
-get_R_Art
-get_R_Bank
-get_R_Camp
-get_R_Chest
-get_R_EventBox
-get_R_Garrison
-get_R_Heroes
-get_R_Market
-get_R_Mine
-get_R_Monstr
-get_R_Object
-get_R_PassGuard
-get_R_Prison
-get_R_Resource
-get_R_Scholar
-get_R_SeerHut
-get_R_Skill
-get_R_Spell
-get_R_Topology
-get_R_Town
-get_ReflectedType
-get_Relations
-get_Repeat
-get_RepeatColumn
-get_RepositoryItems
-get_Resource
-get_ResourceColumn
-get_ResourceManager
-get_Reward
-get_RewardColumn
-get_Row
-get_RowCount
-get_Rows
-get_SchemaSerializationMode
-get_Second
-get_SecondarySkill
-get_SecondarySkillColumn
-get_SelectedIndex
-get_SelectedRow
-get_ShowFooter
-get_ShowWithoutActivation
-get_Size
-get_SizeInPoints
-get_Skill
-get_SkillColumn
-get_Slot
-get_SlotColumn
-get_Source
-get_Spell
-get_SpellColumn
-get_StartupPath
-get_Style
-get_SyncRoot
-get_TabPages
-get_Table
-get_TableName
-get_Tables
-get_Tag
-get_TargetNamespace
-get_Template
-get_Text
-get_TextOptions
-get_Timer
-get_TimerColumn
-get_ToolTip
-get_Town
-get_TownColumn
-get_Transparent
-get_TreeNumber
-get_TreeNumberColumn
-get_Type
-get_TypeColumn
-get_UTF8
-get_ViewCollection
-get_Views
-get_Visible
-get_VisibleColumns
-get_WaitCursor
-get_White
-get_Width
-get_WindowState
-get_X
-get_XColumn
-get_XP
-get_XP10
-get_XP10Column
-get_XP15
-get_XP15Column
-get_XP5
-get_XP5Column
-get_XPColumn
-get_Y
-get_YColumn
-get_Year
-get_Z
-get_ZColumn
-get__Relic_C
-get__Relic_CColumn
-get_iCodePage
-get_iVersion
-get_prospector
-get_sPath
-grail
-grdAllArts
-grdAllSkill
-grdAllSpell
-grdAllTimer
-grdArt
-grdBank
-grdCamp
-grdChest
-grdEventBox
-grdExperience
-grdGarrison
-grdHero
-grdMarket
-grdMonster
-grdObject
-grdPassGuard
-grdPrison
-grdResource
-grdScholar
-grdSeerHut
-grdSkill
-grdSpell
-grdTopology
-grdTown
-gridColumn1
-gridColumn2
-grpControl
-guard
-g~>.УТ°
-gЋ°«no¶Ї<PКC±н|T™вў†6%я€
-gМшн)#~ќЎЗ
-gПKШRЧќб'1З‘]єp
-hProcess
-hSystem.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3aPADPADд†й]
-hTeam
-height
-hitInfo
-hj’!+«
-human
-h¤П:§€*zM7M"
-h±C[*
-hжpСц
-iCodePage
-iVersion
-index
-initTable
-input
-ioп‡DТЉ®®nZ
-isStandardWeights
-iu\љ!ќ0ЁС’†
-iµ у–
-iюшуяя5·яя_xхяяйзяя—¬9KШ
-j05ЗeжыюћCЮче[їЕyz>ЯзyѕїЯбѕЛ>4¤
-j=2яяяЮ
-j^vгя
-jµzC©Tbyyщ
-jі5;P4?ВgП5DјЧ«I”?7T
-jљb"Z–ОSОZS
-kernel32.dll
-kkkикк’3X]]Ейй)vvv°јјЊ©©)
-kuҐчcХ·+
-k F]2
-kДБ/Y
-k‹Йqі'|
-l#ffffffт?Z
-l#НМММММр?Z
-l#љ™™™™™с?Z
-lIDATXG­–{lSч
-lSystem.Resources.ResourceReader, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089#System.Resources.RuntimeResourceSet
-label1
-label1_MouseHover
-label1_MouseMove
-label1_Paint
-labelControl1
-labelControl10
-labelControl11
-labelControl13
-labelControl2
-labelControl3
-labelControl4
-labelControl5
-labelControl6
-labelControl7
-linkLabel1
-linkLabel1_LinkClicked
-linkLabel2
-linkLabel2_LinkClicked
-lllАb±@ЇЧі
-lookupTable
-lqttd
-lНvв/™
-lлщЊ¶k+И
-lҐLҐ*
-m_SoftwareKey
-maxlvl
-messageExcel
-method
-mfile
-mnuButtonHelp
-mscoree.dll
-mscorlib
-myFile
-myName
-myPath
-myThread
-myToolTip
-myToolTip_Load
-mу*НS>К4ж
-n'Сї• 
-nodeP
-ntoolt
-n«#"‰
-n«-1Ў
-oGGxЭЩЃkn
-oIDAT8O­“ЯKZa
-oMqлЩЗ…
-object
-okButton
-op_Equality
-op_Inequality
-openFileDialog1
-output
-oЗ®2№
-oЧґa)Ю
-p?¦И5„ЩщЂ‚sч•Uї<;И
-pYкuлЦЅIћЯ\ґ^ЊU
-panelControl1
-pictureBox1
-popupMenu1
-popupMenu_CloseUp
-ppmFile
-ppmFile_BeforePopup
-ppmFile_CloseUp
-pr&‹гЏУ8:э
-previewBar1
-previewBar2
-previewBar3
-printBarManager1
-printControl1
-printPreviewBarCheckItem1
-printPreviewBarCheckItem10
-printPreviewBarCheckItem11
-printPreviewBarCheckItem12
-printPreviewBarCheckItem13
-printPreviewBarCheckItem14
-printPreviewBarCheckItem15
-printPreviewBarCheckItem16
-printPreviewBarCheckItem17
-printPreviewBarCheckItem2
-printPreviewBarCheckItem3
-printPreviewBarCheckItem4
-printPreviewBarCheckItem5
-printPreviewBarCheckItem6
-printPreviewBarCheckItem7
-printPreviewBarCheckItem8
-printPreviewBarCheckItem9
-printPreviewBarItem1
-printPreviewBarItem10
-printPreviewBarItem11
-printPreviewBarItem12
-printPreviewBarItem13
-printPreviewBarItem14
-printPreviewBarItem15
-printPreviewBarItem16
-printPreviewBarItem17
-printPreviewBarItem18
-printPreviewBarItem19
-printPreviewBarItem2
-printPreviewBarItem20
-printPreviewBarItem21
-printPreviewBarItem22
-printPreviewBarItem23
-printPreviewBarItem24
-printPreviewBarItem25
-printPreviewBarItem26
-printPreviewBarItem27
-printPreviewBarItem28
-printPreviewBarItem3
-printPreviewBarItem4
-printPreviewBarItem5
-printPreviewBarItem6
-printPreviewBarItem7
-printPreviewBarItem8
-printPreviewBarItem9
-printPreviewRepositoryItemComboBox1
-printPreviewStaticItem1
-printPreviewStaticItem2
-printPreviewSubItem1
-printPreviewSubItem2
-printPreviewSubItem3
-printPreviewSubItem4
-printingSystem1
-progressBarEditItem1
-prospector
-pБюЌюосxаr№ИЬh4`µZa2™HЧлu‚пї
-pЩµ„|>їi
-pёl‚М}Ш[дЕО
-pёУf6
-p™ШqгБ
-qsssњЗгib¤
-qЁЧ©Z
-qд\.‡t:Ќd2‰ЛЛKћРВВ
-q“Нf3f±EЧ‹‹‹o®
-rAllArtsBindingSource
-rAllExperienceBindingSource
-rAllSkillBindingSource
-rAllSpellBindingSource
-rAllTimerBindingSource
-rBankBindingSource
-rBindingSource
-rCampBindingSource
-rChestBindingSource
-rEventBoxBindingSource
-rGarrisonBindingSource
-rHeroesBindingSource
-rMarketBindingSource
-rMonstrBindingSource
-rObjectBindingSource
-rPassGuardBindingSource
-rPrisonBindingSource
-rResourceBindingSource
-rScholarBindingSource
-rSeerHutBindingSource
-rSkillBindingSource
-rSpellBindingSource
-rTopologyBindingSource
-rTownBindingSource
-reCell
-reCell_KeyDown
-reader
-remove_R_AllArtsRowChanged
-remove_R_AllArtsRowChanging
-remove_R_AllArtsRowDeleted
-remove_R_AllArtsRowDeleting
-remove_R_AllExperienceRowChanged
-remove_R_AllExperienceRowChanging
-remove_R_AllExperienceRowDeleted
-remove_R_AllExperienceRowDeleting
-remove_R_AllSkillRowChanged
-remove_R_AllSkillRowChanging
-remove_R_AllSkillRowDeleted
-remove_R_AllSkillRowDeleting
-remove_R_AllSpellRowChanged
-remove_R_AllSpellRowChanging
-remove_R_AllSpellRowDeleted
-remove_R_AllSpellRowDeleting
-remove_R_AllTimerRowChanged
-remove_R_AllTimerRowChanging
-remove_R_AllTimerRowDeleted
-remove_R_AllTimerRowDeleting
-remove_R_ArtRowChanged
-remove_R_ArtRowChanging
-remove_R_ArtRowDeleted
-remove_R_ArtRowDeleting
-remove_R_BankRowChanged
-remove_R_BankRowChanging
-remove_R_BankRowDeleted
-remove_R_BankRowDeleting
-remove_R_CampRowChanged
-remove_R_CampRowChanging
-remove_R_CampRowDeleted
-remove_R_CampRowDeleting
-remove_R_ChestRowChanged
-remove_R_ChestRowChanging
-remove_R_ChestRowDeleted
-remove_R_ChestRowDeleting
-remove_R_EventBoxRowChanged
-remove_R_EventBoxRowChanging
-remove_R_EventBoxRowDeleted
-remove_R_EventBoxRowDeleting
-remove_R_GarrisonRowChanged
-remove_R_GarrisonRowChanging
-remove_R_GarrisonRowDeleted
-remove_R_GarrisonRowDeleting
-remove_R_HeroesRowChanged
-remove_R_HeroesRowChanging
-remove_R_HeroesRowDeleted
-remove_R_HeroesRowDeleting
-remove_R_MarketRowChanged
-remove_R_MarketRowChanging
-remove_R_MarketRowDeleted
-remove_R_MarketRowDeleting
-remove_R_MineRowChanged
-remove_R_MineRowChanging
-remove_R_MineRowDeleted
-remove_R_MineRowDeleting
-remove_R_MonstrRowChanged
-remove_R_MonstrRowChanging
-remove_R_MonstrRowDeleted
-remove_R_MonstrRowDeleting
-remove_R_ObjectRowChanged
-remove_R_ObjectRowChanging
-remove_R_ObjectRowDeleted
-remove_R_ObjectRowDeleting
-remove_R_PassGuardRowChanged
-remove_R_PassGuardRowChanging
-remove_R_PassGuardRowDeleted
-remove_R_PassGuardRowDeleting
-remove_R_PrisonRowChanged
-remove_R_PrisonRowChanging
-remove_R_PrisonRowDeleted
-remove_R_PrisonRowDeleting
-remove_R_ResourceRowChanged
-remove_R_ResourceRowChanging
-remove_R_ResourceRowDeleted
-remove_R_ResourceRowDeleting
-remove_R_ScholarRowChanged
-remove_R_ScholarRowChanging
-remove_R_ScholarRowDeleted
-remove_R_ScholarRowDeleting
-remove_R_SeerHutRowChanged
-remove_R_SeerHutRowChanging
-remove_R_SeerHutRowDeleted
-remove_R_SeerHutRowDeleting
-remove_R_SkillRowChanged
-remove_R_SkillRowChanging
-remove_R_SkillRowDeleted
-remove_R_SkillRowDeleting
-remove_R_SpellRowChanged
-remove_R_SpellRowChanging
-remove_R_SpellRowDeleted
-remove_R_SpellRowDeleting
-remove_R_TopologyRowChanged
-remove_R_TopologyRowChanging
-remove_R_TopologyRowDeleted
-remove_R_TopologyRowDeleting
-remove_R_TownRowChanged
-remove_R_TownRowChanging
-remove_R_TownRowDeleted
-remove_R_TownRowDeleting
-repositoryItemProgressBar1
-repositoryItemSpinEdit1
-repositoryItemSpinEdit2
-repositoryItemZoomTrackBar1
-resourceCulture
-resourceMan
-result
-rgObjectName
-rgObjectName_SelectedIndexChanged
-rowIndex
-rs!ђЃ‹Іx oіZ
-rsлhгjВН›
-rЄ‰”<.НгєХ–tD‚=рw¦Ѓ¬яЌ№К
-rБшВ…
-rЬxпЛ
-r№|ўЧлѓњн
-s%(RОЈgZ„К/В
-s1ґd0 ®Z2’u§s|¤€ШсЅ}Фg#±ЌAпZєє<*
-s9aйRZ<
-sBegin
-sChoose
-sError
-sFile
-sNMБgµB
-sPath
-sReady
-sStart
-sStop
-saveFileDialog1
-sender
-set_AcceptButton
-set_ActAsDropDown
-set_ActiveViewType
-set_AddExtension
-set_Address
-set_Alignment
-set_AllowCellMerge
-set_AllowCustomization
-set_AllowDBNull
-set_AllowEdit
-set_AllowFocused
-set_AllowHtmlText
-set_AllowIncrementalSearch
-set_AllowLinkLighting
-set_AllowMove
-set_AllowMoveToCustomizationForm
-set_AllowQuickCustomization
-set_Anchor
-set_AntiMagic
-set_Apply
-set_Art
-set_Artefact
-set_AutoComplete
-set_AutoHeight
-set_AutoPopDelay
-set_AutoScaleDimensions
-set_AutoScaleMode
-set_AutoSize
-set_AutoSizeMode
-set_Available
-set_BackColor
-set_BackColor2
-set_BarName
-set_BeginGroup
-set_Book
-set_Border
-set_BorderStyle
-set_Building
-set_Built
-set_ButtonStyle
-set_CanDockStyle
-set_CanTake
-set_CancelButton
-set_Caption
-set_CaseSensitive
-set_CausesValidation
-set_Checked
-set_Class
-set_ClassID
-set_ClassStyle
-set_ClientSize
-set_Code
-set_Color
-set_ColumnAutoWidth
-set_Command
-set_Component
-set_ControlBox
-set_Controller
-set_Cost
-set_Culture
-set_Current
-set_CurrentCulture
-set_CurrentUICulture
-set_CustomizationFormBounds
-set_DataMember
-set_DataSetName
-set_DataSource
-set_Day
-set_Deadline
-set_DialogResult
-set_DisableClose
-set_DisableCustomization
-set_DisplayStyle
-set_Dock
-set_DockCol
-set_DockRow
-set_DockStyle
-set_Doll
-set_Down
-set_DrawDragBorder
-set_DropDownControl
-set_DropDownRows
-set_Edit
-set_EditHeight
-set_EditMask
-set_EditValue
-set_Editable
-set_EnableColumnMenu
-set_EnableFooterMenu
-set_Enabled
-set_EnforceConstraints
-set_ErrorImage
-set_Experience
-set_FieldName
-set_FileName
-set_Filter
-set_FilterPopupMode
-set_FixedValue
-set_FloatLocation
-set_FocusRectStyle
-set_FocusedRowHandle
-set_Font
-set_ForeColor
-set_Form
-set_FormBorderStyle
-set_Garrison
-set_Gold
-set_GradientMode
-set_GridControl
-set_GroupFooterShowMode
-set_GroupIndex
-set_GroupPanelText
-set_Guard
-set_HP
-set_Hero
-set_Hint
-set_Hire
-set_ID
-set_Icon
-set_Id
-set_Ideology
-set_Image
-set_ImageIndex
-set_ImageStream
-set_Increase
-set_InitialDirectory
-set_InitialImage
-set_Interval
-set_IsBackground
-set_IsFloatValue
-set_IsLink
-set_IsMetric
-set_Item
-set_ItemArray
-set_ItemShortcut
-set_KeyFieldName
-set_LastMagic
-set_LastWisdom
-set_LeftIndent
-set_Level
-set_LibTimer
-set_Library
-set_LinkBehavior
-set_LinkColor
-set_LinkVisited
-set_Locale
-set_Locality
-set_Location
-set_Luck
-set_MP
-set_Machine
-set_MageTimer
-set_MainMenu
-set_MainView
-set_Mana
-set_Manager
-set_Margins
-set_MaxItemId
-set_MaxLevel
-set_MaxOccurs
-set_MaxValue
-set_MaximizeBox
-set_Maximum
-set_MaximumSize
-set_MenuManager
-set_MinOccurs
-set_MinValue
-set_MinimizeBox
-set_MinimumCapacity
-set_MinimumSize
-set_Mission
-set_Monster
-set_Mood
-set_Morale
-set_MultiLine
-set_MultiSelect
-set_Name
-set_Namespace
-set_Number
-set_Object
-set_Owner
-set_PW
-set_PW10
-set_Padding
-set_Pair
-set_PaperKind
-set_ParentFieldName
-set_Particle
-set_Payment
-set_Place
-set_Position
-set_Prefix
-set_PreviewBar
-set_PrimaryKey
-set_PrimarySkill
-set_PrintControl
-set_PrintingSystem
-set_Priority
-set_ProcessContents
-set_Range
-set_ReadOnly
-set_Repeat
-set_Resource
-set_Reward
-set_RightIndent
-set_RotateWhenVertical
-set_SR
-set_SW
-set_SchemaSerializationMode
-set_ScrollThumbStyle
-set_SecondarySkill
-set_SelectedIndex
-set_SelectedTabPage
-set_ShortcutKeyDisplayString
-set_ShowBeak
-set_ShowFooter
-set_ShowGroupPanel
-set_ShowIcon
-set_ShowInCustomizationForm
-set_ShowInTaskbar
-set_Size
-set_Skill
-set_SkinName
-set_Slot
-set_Sort
-set_Spell
-set_Spring
-set_StartPosition
-set_StatusBar
-set_SupportMultiDottedExtensions
-set_TabIndex
-set_TabStop
-set_TableName
-set_Tag
-set_TblSecondarySkill
-set_Text
-set_TextAlign
-set_TextAlignment
-set_TextEditStyle
-set_TextImageRelation
-set_Timer
-set_ToolTip
-set_ToolTipController
-set_ToolTipType
-set_TooltipFont
-set_TopMost
-set_Town
-set_TransparentEditors
-set_TreeLineStyle
-set_TreeNumber
-set_Type
-set_UseBackColor
-set_UseDefaultLookAndFeel
-set_UseFont
-set_UseForeColor
-set_UseNewCustomFilterDialog
-set_UseParentBackground
-set_UseTabKey
-set_UseTextOptions
-set_UseWholeRow
-set_Version
-set_Visibility
-set_Visible
-set_VisibleIndex
-set_Width
-set_WindowState
-set_WordWrap
-set_X
-set_XP
-set_XP10
-set_XP15
-set_XP5
-set_Y
-set_Z
-set__Relic_C
-set_aLevelSkill
-set_fOwner
-set_iCodePage
-set_iVersion
-set_sPath
-start
-statusStrip1
-strSheetsName
-stringTable
-s±LҐ*
-sµжqnksџЯ¶§яж
-t:ќ`µZЎХjїТ|Д^w:ќ
-tabAllArts
-tabAllSkill
-tabAllSpell
-tabAllTimer
-tabArt
-tabBank
-tabBoxEvent
-tabCamp
-tabChest
-tabControl
-tabExperience
-tabGarrison
-tabHero
-tabMarket
-tabMonster
-tabObject
-tabPassGuard
-tabPrison
-tabResource
-tabScholar
-tabSeerHut
-tabSkill
-tabSpell
-tabTopology
-tabTown
-table
-tableR_AllArts
-tableR_AllExperience
-tableR_AllSkill
-tableR_AllSpell
-tableR_AllTimer
-tableR_Art
-tableR_Bank
-tableR_Camp
-tableR_Chest
-tableR_EventBox
-tableR_Garrison
-tableR_Heroes
-tableR_Market
-tableR_Mine
-tableR_Monstr
-tableR_Object
-tableR_PassGuard
-tableR_Prison
-tableR_Resource
-tableR_Scholar
-tableR_SeerHut
-tableR_Skill
-tableR_Spell
-tableR_Topology
-tableR_Town
-tblTE
-tePath
-teams
-textBox1
-timer1
-timer1_Tick
-timer2
-timer2_Tick
-titleExistFile
-titleMapVer
-tnМЌKщЅЩ2*
-toolStripStatusLabel1
-toolStripStatusLabel3
-toolTipController1
-toolTipController1_BeforeShow
-treeSkill
-treeSkill_KeyDown
-treeSkill_MouseDown
-treeSkill_MouseUp
-tsAbout
-tsAbout_ItemClick
-tsButtonExcel
-tsButtonExcel_ItemClick
-tsButtonFile
-tsButtonFile_ItemClick
-tsButtonHelp
-tsButtonHelp_ItemClick
-tsButtonOT
-tsButtonOT_ItemClick
-tsButtonObjectName
-tsButtonObjectName_ItemClick
-tsButtonRefresh
-tsButtonRefresh_ItemClick
-tsButtonSPT
-tsButtonSPT_ItemClick
-tsButtonStart
-tsButtonStart_ItemClick
-tsButtonStop
-tsButtonStop_ItemClick
-tsExpotr_Popup
-tsLabelGrail
-tsLabelLink
-tsLabelLink_Click
-tsLabelStatusL
-tsMenuService
-tsMenuService_Popup
-tz&ѓ Хй
-tЅэ,q
-tуF›‹kиe)C—]N$
-t„'идWђЅYЮљсH“ЬРWЫt€
-u:ЭГффt»ф:ГdіЩ
-u<"ҐЋж†
-u]7G¤Т
-ub,ћM‘нNqыщ—…
-u¬(пX:«a^ЄbV¬АН—`~яНтy
-u­Ю3&*И~Пн5фЩZI«
-uЖш1±
-uї]їB
-uґќgњ|/Пљ.уIЮ›чyћч}
-v2.0.50727
-v2Щўлo
-value
-value__
-visible
-vs.data.DataSet
-vwAllArts
-vwAllSkill
-vwAllSpell
-vwAllTimer
-vwArt
-vwBank
-vwCamp
-vwChest
-vwEventBox
-vwExperience
-vwGarrison
-vwHero
-vwMarket
-vwMonster
-vwObject
-vwPassGuard
-vwPrison
-vwResource
-vwScholar
-vwSeerHut
-vwSkill
-vwSpell
-vwTopology
-vwTown
-vwwСЯЯ
-vЊНcЫХ9lґэЌ±з+ФњJҐђH$Ё±Ын"
-vКзЧ›C[їД
-v‡b Y'
-width
-wp\ќб 7¶5$J‚FD
-writer
-wЌЉаxљІ`
-wкёЂj@Шм;яЯ
-wхrЬЬЬ€6h”p€aQыOг–ЁљH]fK
-x'ГЧKшо№µzmЋП@>Јбо
-x>ОЏпњчеUҐХЊђ\5DвS+§
-xl/PK
-xl/styles.xmlPK
-xl/styles.xmlҐ“ПjЬ0
-xl/theme/PK
-xl/theme/theme1.xmlPK
-xl/theme/theme1.xmlнYMЏЫD
-x{$Ать
-xЌsЦвBkО
-xА™ЩПTdfЅ^
-xЗЫ2Ў
-yr*­:‰›”б-2*
-yǰ$⌭I
-yб–7йUЮаІ
-z0<ЅЊ
-zoomBarEditItem1
-zoomTrackBarEditItem1
-z»Б!i
-zКШEЈЧ—
-zґiґF
-{-Бэ¦v^рр]
-{_3Ы›µБЇІафюtъ9Њ†R8a¦Mд_Р
-{вj'эFaП
-{и;мѕQG¶ј»Ѓ@
-{–э&їОВч
-| bн‡яP&
-| jГзяP&
-|_П;њX-•‚cМсqМkщ'xћWVU
-|Њ¶IЈС‰ФпЗоn
-|Хз+qMhЅ\ия'љ'~l¦
-|чѓ>lxOЉj©›
-}ZЊsчcИ“&p›КЮH
-}«K4=A
-}Ї/–еѕPЅуAЭ]–СХѓєЫl
-~?MhЅ];ю‘cЩf
-~DevExpress.XtraBars.BarManager, DevExpress.XtraBars.v11.1, Version=11.1.11.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a
-~j<ёЉD:ѓ#
-~ѕ=јІ
-~ћ>„џм
- WPП,и~jSЄЇС
-   RІІІіІІІіІІІіІІІіІІІіІІІіІІІіІІІіІІІі†††›
- ЯпЈZ­Вбpњ
-¤RйяяО••
-¤¶РЊЊ
-¤ЩtТ=т
-¤ёд*‚э~џ
-¤ў=ШzSћ
-¤›цїK±УфО%Су:Б–te†c
-¦Гъ.‘
-¦їVъ`¬:€ћ•Ж‰ЬOя§‰Ъ`zЭ4
-¦„е(¤)К
-§'B89¶…оС єF
-§4=6Ћк¶т*ѓ…«lc)eіQL”џщ,чЫYыВ:\о
-§ЖN§ѓ`0
-§УIc±d·±эъk
-©4љ&«\mиa­Ћ9ш7ЏДЪ
-©IDAT8O­ЋЫ+ѓq
-©Tкбсxz®јвОЛ$z?h4/h”
-©j(†[
-©ДPБ“tжЕљ
-©ЮгЂ"†‘ЫQмќ€`чш
-©у…“!¤
-«".U4+ВІђw4№І¦ѕm
-«,(o¦4
-«n·‹N§ѓv»ЌБ`АЉЩ/
-«yМ%зTсд”ЪО5q±bDl(
-«Хє"@}э
-¬)ПЈ:е
-¬,¬zоtВlЛ:Ѓ4ЫСKs^(НМy
-¬6ыў¬6БB2[¬‚Щl
-¬NЎc€Јфэ6%±ь
-¬V+X–…Еb
-¬V«M*3ЫЫЫ6·Ы-,,,
-¬r9НiЦљ—iЗјФВФЭrо<mЗM“ЖЁ~рг}xyя
-¬ +†¦'р>р
-¬Њ»CЩ&«Сh„^ЇЗFRЂнe\-°/d
-¬БЌ`6
-¬к•T4¬ М€
-­!¬3ѓY*ТB° …щЯL
-­V+v2"L&
-­VKљҐJҐ‚BЎ@ҐRЎСvЙЯрЂS†OTdЧЖжdљ%;
-®T*(—Лp»Э°Ын {ѓБрs1є¬ХjЁV«888`gQ
-®АTєzй
-®лb·ЫaіЩАq
-®ћЃ“'АuзEї}
-®ћнй_
-°*”­=OШ
-°NAiћ„Ь4
-°_к€ќЬ@ЎPИ
-°iУ¦?oЬёqы‹
-°§ЗНЃ`Ѕ#р&Ыз
-°Д¶(T‘Nv1kiZ)h¬Їш~їb’ЦзэzоН-VТЎ…юа;ЬяяЬп;‡ГџъWццць›››°Z­X__ЯеЪ
-°їeњЫп
-°јГ"Q
-°њ±мН—pFчvьѓБ}qсЦќy
-°ќ|7щer49D7
-°™сряЫo
-±Z\(џC
-±¶‘LJ`ќ6PД%Ь
-±Зл2с
-µ0Хє¤GыJOt™
-µU0#м
-µи5nж$Н;З
-µ№€ыЇѕЮ-(—ЛѕBЎРI&“D
-¶+)s9^Ю&ГwЮ•ўj%
-¶UЄяя
-¶tИj8Л-tяз]cS'ЫоЅЯ®
-¶Г}/)
-¶ЦCxW—“
-¶Щa|ї
-¶†С®Ќ °5
-·(ВЦФ„3:нј№
-·HиїЛ»пто[™w“Ѕ|Љl›%X3еђ«љѓ•‹ж
-».Xn—°µnГnMyf YіМ»m9V­ЂПуЇ–рk­VЛY+а«
-»IDAT8Oc
-»—'Vy4o,Jµ~ђіШ—аЫ9”jПnпГДpи
-ЁX9‚г
-Ё{<‡uГW@)EЪ6$ЉЉwб
-ЁЅ'-I
-ЁХ'ў™*T;,в¶EDбђ€sх>
-Ёґ\!lЂJл•я2х
-Ёґ\БP$Zqъ
-Ђ-©3gJqт|-NHвИQ‰(1€Ёv
-Ђq'zА2ҐM
-ЂАЯ–6
-ЂЧ;…+WЄрeЮ=dµыqgDDыё
-ЂыzZ¶R;
-Ђѕj+ЗЌѕ
-ЂҐТ|ьј
-Ђ•зI=
-Ѓ0°>/pЏћ-®UУ
-Ѓ6ѓД-
-Ѓm8hБvlq[њvg#'©WЉfn,u3–p
-Ѓ¶Ьлхюd;ЙEl^№±q9Ѓ5ХA>ЁуuХ‰ЊvЉґ
-ЃЁiц%
-ЃњЌЇяg­{с?mхіяЙЛџьЏ[ьи?>q
-Ѓ„ІЌ#}е«лk
-Є<рй—‡
-Є=°?cГТ
-ЄB@Цїc$=PaN
-Єb:PБc_
-ЄsСєs
-Єч ЧмЖЮЩF{yЃ„
-Єѕr-‰
-Є’«х\э=“·yѓцСv¤$sр­1
-ЅDг^|
-ЅXD^P
-Ѕ\===ШІeЛтC)
-Ѕ^Џ’БF
-Ѕi‘сС›¦емvgбkя
-ЅРl–)Z
-І!шVУ)к…њ.|«›pj‹•ДЦљ
-ІYКdЇ»J4
-І\>:ћxAт€
-Іbт\]Б
-ІjЌИЁ
-Ї"Љ—aEЧјbЛНi¬cП
-Ї¶ўЦWтЖъЉnбѕ(
-ЇАp] 
-ЇЧ‹йtЉV«ҐґЩlў^ЇЈV«a8
-Їюя?эьяя}§юя
-Ї‚ xx
-Ї€BцЛЫ—|
-Ј4–Ф°†
-ЈСњ-$3ђ
-ЈХgыЭьѕџзы<ЏдїA;
-Јф0Й«±Ї
-Јґ+€ЦЎ
-ЉР-=УУщ
-Њ(‚єиў.єЁ‹ "ЉhТbk
-Њ*^G=
-Њ4^Ц}Ѓ
-ЊhҐ2Ы
-Њ¬µщЌТ
-ЊИr1¦С
-ЊЙб$Є0ІjЅXЄleх¦IЊЇ
-ЊјOВRo(ґнlь 
-Ћ(Нуъъnњ:U„ґуCH'уПЙ<»-F&
-ЋFЈбАoэ„††ІЯЩЗ¶“
-ЋgO#ц†ў?&*•DюгP„f;Хax:mДЋ!
-Ћi2®*
-Ћi2Ё*
-Ћi2А(
-Ћi2Е(
-Ћi2З*
-Ћi2Ф~‹
-Ћi2Щr
-Ћi2ќ*
-Ћi?6яяя
-Ћi?7яяя
-Ћi?Cяяя
-Ћi?Hяяя
-Ћi?Iяяя8$
-Ћi?Wюяя
-Ћi?Wяяя
-Ћi?[юяя
-Ћi?_яяя
-Ћi?aяяя*
-Ћi?eяяя
-Ћi?xяяя
-Ћi?{яяя
-Ћi?Ѓьяя
-Ћi?Љэяя
-Ћi?Уюяя
-Ћi?дюяя
-Ћi?јюяя
-Ћij(щ
-ЋiТ}…
-Ћјf"с
-Ћ„ЙyЅ^”Лe‘С
-Ќ4КRТ¶)“\
-ЌAfѓL
-ЌFCJГ&<==№Ь
-ЌFрщ|
-ЌFфz=:ќЋффtRSSINNжђ
-ЌJ/zф“x ќ@sЇ
-Ќ_)+Ґ°
-Ќd№¦%ZЋьE’D/
-Ќћеr9мппѓЋ1<<ЬdP*•ђЙdDуссс3
-ЎёЌ`6
-Ў›6—DђІ¤¦•А}
-Џ'8АшшдЈMjEЂ”9“BЎГоЭЩшd_>Jеa4[i­Џ
-ЏAе"ћзб>њу?
-ЏM«›knЬз
-Џ}}8--Е~bўNЃЩ›ЩµЯON ЋЊАЦЩ
-ЏЈP( џПгфф
-ЏЏЏИd2P«Хђ
-ЏЗC3Ч-
-ЏЗiНюяb
-ЏЗ““/,
-ЏСяYѕ
-ЏЪЉЮвЉітQ
-ЏЭnя`6›wЧЦЦь:ќ
-ЏбяKѕъяЌЯюяГщяя„йяя"Єнэ
-Џееe,--
-Џ‰y'є'
-АHH|Ќ•ѕGїЗёYЃc&~
-АIDAT8OҐ’[H“q
-АQСФnІHЉS±+b°1Ў
-АfЖЈяP&й
-АБ±.Й
-БІ@#нЋЃ9™‚/u§ў>\жP¦Ц“Ђ>
-БЕЙЕ)B„@†Ш
-БМ-›‰]ћR-­,yщ–*V·
-БЧЧW<??гкк
-БђXX›
-Б•^м%»Б/}
-ВP.~°ҐСeх–FЧя ј©Юе
-Вs’«„±Ъf^4ШС
-ВЕф’Aк|т 
-Вб0BЎђRYD—
-Г00™L0
-ГRБDУ°’Џa®_0зDL-ЎНСu“OB7%€Й+
-ГTЦгmh…
-ГYq7#¤Ќ€
-Гe°e*
-Г¦ЂAћ
-ГІDнъW±€i‹
-ГХ-°ЄWгв
-ГЦЬ%и
-ГЭяяЯ|эыПtт=
-ГўЎgфAoљ
-Г№†|6
-Д ¶лМлpщ
-Д.~шя
-ДOІ%i Ж
-Д°ґ°*
-ДЏw«рГ
-ДЗу2i
-Д№§ЙЏ[°®№
-Е_ђё©p
-ЕЕЕсииияииияииияииияииияииияииияииияииияииияииияииияииияииияииияииияииияииияИИИя………П
-ЕЗy.l»&аo—‡сЧ,;¶њ·в
-ЕХGnф<уН„В5ll
-ЕжKя'ќщыілДяяьЕ'H7
-Е›‚†D^ГИ~†^`чЯcМw‡QO
-Ж!+оя_Seя
-Ж=Эpмu‘БNу
-ЖN<'1
-Ж^м@sџE‡‰в¦uљ‡xu[l№шд[А9!s¬!pЙ
-ЖtXце+U,Ќљ\Яd,ДДPЏи;/kЅ:і
-ЖЖЖ !&
-ЖП„МK(¦&
-ЖЧi2wpJ
-Жп¦“ЁQ!“Pb
-Жп…ѕѓРЅсоТ†6ШО!°PH ђ-фЄµЖ¶@
-Жт,ЏH
-Жы—,Ѕ°
-ЖїїЕі
-Ж‰ъUш¤ьЈ ъцєvїМ
-З'ґЃ„¦©ьQMљ4iн¤iRЕґiZСФ©ТЄiУД¦Ќ©љPWUЎЇQ
-З8п8vьцэоь~‰
-З=0µ#
-З·°e*
-ЗЊ§РpТ`Ејдг€д}‘СЂ—Ќ6ЛЌюЮ
-ЗЋе#нx+ЋЧ…p‘М
-ЗЗЗp№\ШЩЩБцц6њN'¶¶¶X1Aд±±ІІr=Ђ¤NBЎ
-ЗЗЗУЬЫЪЯЫЪЩЯЫЪЩЯЪЩЩЯЪЩШЯЩШЧЯЩЧЧЯШЧЦЯШЧЦЯШЦЦЯЧЦХЯЧХХЯЦХФЯЦФУЯХФУЯХУТЯФУТЯУТСЯУССЯТСРЯТСРЯТРПЯСПОЯРПОЯРОНЯРОНЯММЛбlllB
-ЗЗМ_Kbг
-ЗК-Д•™‰№ЧCDQ
-ЗПя`°’,(—…qIо$,€$СёkrWІ°P
-ЗпC™&d=х Ѕ$
-ЗшЬН'…
-ЗэG‚Ё((
-И8xE:
-И@`о‰ЫtЬѓ
-ИO#o7L /й
-ИO„і‹2ѕ^ЯбэЕOё^ѕBwwwE„d®
-Иd2?W^qч ‡б„Жщ€Fчы
-ИЂ@"‘`ii
-ИДэ/ј
-Иє.!с
-ИјњъаЋQ„„ъ “КЮCЅАФEЧ-tЏБ”
-К<ьd;ЎIYт¬М+§ќgHx22*V
-Кx5ЉO
-К§>Ф=vЈжЃ
-Ке2JҐ
-Л2Ђвв»(+“ эє
-ЛЂjНюNЄЇшhёоЈюЄ—
-ЛЎї?y‹Ћ
-ЛХ§SCZhоЦy
-Л‰”<O5ќжНчЩё
-М+ЃeY
-М7м=ХцЦgЌј№µЃ€€
-Мf3L&
-МЁpялъјєЏч-
-МППcnnЋл
-Миґ•ивЬTУТКЖNJ®|ИUФ=аЛ
-Мѕ‚-‰
-М†*№хЛ
-НDN3,§|’ЭkвAIcї¤±Oи•Dv
-НZVцхf
-Нtњ=ј3њXw№
-НВ•бЂ™Rо~
-НЭvШн
-Н— 0Д
-Н— 0ґ
-О;Дql'v
-ОK[яВєblЪ"‡„3УRwЊ[µG№qб
-Оy`a7
-ОАVN*Ы
-ОНуyПч<Пч9/у_•L&mллл‚Уй
-ОЯgeо/2
-Оеrq[[[MЊФiFЌ ‰+Kќi
-П(ЖІљ
-ПГg0А»»
-РЫ«Eee
-РоєЃўH±щТяIgююм:ся?
-Р‰/ѕьEБёДЭz.Ј
-Р‹ЏAi’°6
-СIDAT8O­ЋЯ/[q
-СВD/‰
-СРРrкСЕпйСДпиТЕпгБ­пЯ№ЎпЭµ›пЪ±•пШ­ЏпХЁ‰пТ¤‚пР |пН›vпЛ—oпє®¤Ў
-СССzцццяцццяІќќяµ’…ящкПяяэояусняураяжЦїяК·ІяК»»яЮЭЭяаааяђђђ—
-СССzшшшяшшшяьььяА®®яњЂ}яГ±ЄяНїјяГ°­яј©Ёя·¤¤яЅ««я{¶Щя[ ИШ
-СФ1э4"вё®(/ЃЌ
-СфЪ©1з
-Т+ђ%8р?л'9
-Т@–fЁа
-ТІмІs
-ТТТzхххяХММяҐ|qяьП©яязЗяячЯяшхбяхнФяуЪєяиѕћяОѕЅяаЫЫярппяИИИ±
-ТьсзяяknяяїркяяУПяя/Ys–4
-УIDAT8O­ЋЯ/[q
-УУУzуууяµўўяС”rяьД™яюЦ±яядГяяйКяъЯїяшР«яуєЏяЭѕЇяШССяуууяИИИ±
-УУУсшшшяшшшяшшшяшшшяшшшяяяяячххя¤ЉЉя“ttя—yxя­’€яТВґяибЦяупкямзгяЭУКяГ°ЁяЅЁ¦яЖґґя©ђђя»¦¦яЦЙЙяИ··яМВДя_­бяTЊ±в
-УУУсшшшяшшшяшшшяшшшяшшшяяяяяяяяяяяяяОББяђppяљ||я ……я¤ЉЉяЁЏЏя®––яґћћяёЈЈя«’’яёЄЄяВґґяЖёёя­––я¬—™я\›ЛяkТця!©мю
-УУУсщщщящщщящщщящщщящщщяяяяяяяяяяяяядааядЮЮяКЅЅя°њњяЈ‹‹я¤ЉЉя«““яјЄЄяЧММяхууяФФФякккяоооя±ЎЈяKЂ°яrЖпяГщяя„йяя"Єнэ
-УУУсъъъяъъъяъъъяъъъяъъъяяяяярсуяхффяфууяуттяуттяфууящщщяъъъяъъъяъъъяъъъяъъъяФФФяжжжяйййяS~Єя
-УУУсыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяФФФяЮЮЮя†††П
-УУУсыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяФФФядддяаааяVn‡а
-УбюЕJ•E•№h
-У—ьCҐ
-Ф2рьЪТn
-Ф>r“nСё Б
-ФgwзYn†?
-Фp8ДЙЙ
-ФФФсцццяцццяцццяцццяццця§ЏЏя•vvяҐ}pящЧ¶яяйКяяцЫяяьзяургяусйяускяургяупЪяуйОянЦ·яМЇњяХИИяї¬¬яКјјяАїїяДДДяДДДяВВВяQQQ`
-ФФФсчччячччячччячччячччящшшя—zzя–wwяќ{sякТёяячЮяурЭяусзяусряусряусияурЮяпеНяГ«џяПААя¶ЎЎяТГГяЩООяяяяяяяяящщщяЋЋЋН
-ФіЦ/Q
-ХХХzяяяя»§§яЯ—jяэБ‰яяХЎяяа±яяж·яяе¶яюЬ«яюРљяйЕ®явЭЭяррряЗЗЗ±
-ХХХсфффяфффяфффяжввяЋooяћrfяъ·‡яьГ—яэНҐяяЦІяяЯЅяязЗяянПяълОяълОяъиЛящвВяцЦґяуЙҐясї—япґ‰яФЄ•яЭТТяТИИятссяфффяуууяXXXb
-ХХХсфффяхххяхххяхххяљ~~я”uuяЫў~яэЙџяюФ®яяЯЅяяиКяясХяячЮяыцЮящфЬяхнУяугИяуЫјяуСЇятЗЎяоє”яФВїяДІІяЯЩЩялййяхххяфффяXXXb
-ХХХсхххяхххяхххяхххяТИИяЋmmя™qiячЗЎяяЩµяяеЕяярУяящбяшхбяфтбяурЯяупЫяумУяугЗяуШёяуМЁяН­ћяЩННяЗ№№ябЬЬямййяхххяфффяXXXb
-ХхЬsU-џ«ФsЇk:
-ХђD уѕэючян·ї(
-ХќNЊЋN їЯшИ|ff†
-Х†ЋТ§Ћ·
-ЦYf/9уд;’лЈаzf#шЉ‰ћa
-ЦЦЦzяяяяУЖЖяНџ…яюУћяядµяяоЕяясНяясМяюмБяыЧЁяЭКЕялккяооояЗЗЗ±
-ЦЦЦzяяяяъщщя»¤Јязї™яюнДяяфФяячЯяяцЭяюпНяиПјягЬЬяпппямммяЖЖЖ±
-ЦЦЦсуууяуууяуууяКЅЅя™||я»~bящ±
-ЦЦЦсфффящщщяэээяБ°°яќЃЃяР€`яч©uящІ‚яъ»ЋяьД™яэКўяюР©яюФ®яяЦ±яъТ­ящПЄящЛ¤яшЖќяцї”яш»Љяьё~яуЄtяаЦЦяНѕѕятттятттяуууяXXXb
-ЦтrёПО`*,„P\Њ»ъzиггеЅиh-З
-Цьэпї
-ЦээeОT[+№¦§сѕ°Ђ
-Цѕъ.‰
-Ц“iп—ШS
-Ч&Ёктqґу
-ЧIDAT8O­ЏЭORa
-ЧЗЅшj}‚П
-ЧЧЧzяяяяяяяяплляЕІ°яЯЖіяоЪГяхжЦяоЭОядТИяеЭЭяюээяяяяяяяяяЖЖЖ±
-Чкэ?D
-Ш(%dх…g;пsОp
-Шn·JеыСh„@ @Tм
-ШЄЄ`Уhа№№QЦЬ‚
-ШШШzючфяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяЕГБ±
-ШШШzяяяяяяяяяяяяыъъябШШяЮФФяЮУУяжЮЮярммяцццяфффяуууяяяяяЖЖЖ±
-ШШШсяяяяяяяяяяяяЩООяЄ’’яј
-ШШШсяяяяяяяяяяяячххяЎ……я­€Ђяыё
-ШЭLHТє}{ѓ єPл
-ШЭШП2“C
-ШўЛ¶щмяАй·юыNѕюЯіяК
-ШҐk1ч“†ш–
-Ш““!&&ВAЧзГГa
-Щ и‰-;ц
-ЩPЧі1уЖ
-Щ]C[*
-ЩmJiБ:к
-Щ~}„†§3X-Ѓ"ћ§иџ+qІ'ЙС¶0wѕ,
-ЩШЧzчГ©яцМµяуЕ«яйЎwяе›lяб”aяЭЊVяЩ…KяФ}@яРu5яМn*яИg
-ЩЩЩсяяяяяяяяяяяяяяяямжжяЄ’’я¶—‘ясјЊяюа°яяйјяяпЗяятОяяуФяяхЩяяцЫяяцЪяяфЦяютСяюрКяьЮІяЫѕ°ягЪЪяаЪЪянннянннянннясссяXXXb
-ЩЩЩсяяяяяяяяяяяяяяяяяяяяМЅЅяї¬¬яё–ЌятЙќяюнВяясНяяуФяяцЬяяшвяящеяящгяячЮяюфЧяыдѕяЮѕ«якггяХККясссяоооямммямммясссяXXXb
-Щп+уdРс•ф
-Щп.v§kт=ЙПw)
-Щ‚„+!бЉ+v6‰‰З_&‰Kпі
-Ъ?іZz8щ
-ЪZ7ЉZKЎ€UK7«ёФhТЪЦ.©mљµi–&i“~щт}3
-ЪЖл9уl
-ЪО(‚•M±
-ЪЪЪсяяяяяяяяяяяяяяяяяяяяяяяяяяяяРГГяЅ©©яХЗЗяМ±ЁяЦµ яжЙІялУВякСБябДµяЫАµядЫЫяЯХХяЧММясссяуууятттятттяпппякккяррряXXXb
-ЪЪЪсяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяоккяЖµµяЖґґяЪППяЬССяЭТТяаЦЦявШШяШННяФЗЗяиггяхххяфффяфффяуууятттясссякккяррряXXXb
-Ы<\·Ю/e›з
-ЫЫЫсэркяьрйяьпияьозяынеяъмдяъмдяълвящлбящкаяшйЯячзЭяцжЬяхеЪяфдШяувЧятбХясЯУярЮСяпЭРяоЫОянЪМямЩЛялЧЙяйЦЗяиФЕяпидяXXXb
-ЫЫЫсяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяюююяэээяшццяеЭЭяЬТТяЬТТяЮХХяиббячххяшшчяцццяцццяхххяфффяуууятттятттяннняррряXXXb
-ЫЫЫсяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяюююяэээяяяяяяяяяяяяяяяяяяяяящщшяшшшячччяцццяхххяхххяфффяуууятттяррряррряXXXb
-Ыґ¦°X°І
-ЬA›с9`ХБ1&G@
-ЬPа¤Ќ
-Ьn7йfі
-Ьnw†5эЋГб ыэ>zЅ
-ЬГ‹/I
-ЬЪЪсч№љячЙ±яфїЎяцРєяфИЇятД©якўyяи tяжњnяд™iяв•cяа‘^яЮЋXяЬЉRяЪ†MяЧ‚GяХ~BяУ{<яСw6яПs1яНo+яЛl&яЙh яЗd
-ЬЫЪсчє›яшСјяує›яыиЮяс»њяхП№якўxяиЎvяжќpядљkяв–eяа’`яЮЏZяЬ‹TяЪ‡OяШѓIяЦЂDяФ|>яТx9яРt3яОq.яМm(яКj#яИf
-ЬЬЬ`ggg>Нюю>Г¤ггг™лщщ9Гooo8<<Дхх5^^^ Сh0л6БФm‡Г1
-Э +§{}
-ЭRxRR
-Эe°e6
-ЭЗ.3щ
-ЭЗC3б
-ЭЗI3б
-ЭЗ]3Б
-Ю"v7Y
-Ю+lе+Ч#ґyM2
-Ю6±юEАЯ
-ЮiWЅр\|рэћчyЮпSэ
-ЮД~‚s€¶
-ЮФжўЇj+
-Юј¬"!
-Ю—–р2;‹з‰
-Ю№дДЫ
-Я73й”ш>)*Ию`ЕzF…~КZ
-ЯElЁЄШЁMхґ
-Яe‡†”ЏЫЕ
-Яч<Язућзњ#ыoqwо
-аQuest
-а‘a я
-б3‘iI’„ 
-бХяя§џяяїпФяяП?яя/Ys
-вaN\юеа
-г%xDЃ
-г0)c(
-г7Ї%Ыћ|,мѕ
-гk%фІхйяДZe,Н$бeоою
-гrOЖаљЊbd"
-гЛ9Њ~Кб
-геКЬ'J
-гсxИ:t‰=ї
-гїд-Б
-г‰·бЉфыnю_tэпП™
-дБ"ПуХP
-дРjµz•J5п?
-дщСЏПЏ
-еMЊD"8==…L&ы'ѕDт
-еlБ—W
-еyЬ4|Ґўу¦)]
-еЕ-1Ь
-ерќMА
-жSjAЗ 
-ж`псЫёgЋт
-жЕяя'њщяїэИЯџ0Н `<с6a
-жћ#0Й„0J
-ж†Љaќ‰„e,
-з¤И/|FЎv
-зМЯїэ¶у°ЦЕЩUфА
-здАUQ
-зн5%^№PЖVЅд‚
-зыщэОбPЪЧ?СРЗBУ3
-зј†(YҐ(™енИВb
-з…Ї4?›уЏЩl6Г`0ђ®ХjРh4ґі}“oyАYЛ
-и+дГaQ
-иIDAT8OНђ;‹
-иL#hў
-иадV4
-ииPЎ¦¦
-ихzbcc‰ЉЉ"""‚л-ыIlрB“к*Шћk"(§
-ичЭьїиъЯџ3/юя?бМяяВe§H
-иєгЗq‡
-и€TД4`^®
-йҐLҐ2
-к±Y”ХцЎ»[ѓТТ{ґюu|Ё=~Љb«,;;[Ѕ~эъџ.yуXЈЧлэм8х¤ШXОМј…фф«8ьY
-кнWI3ДfжЈя
-к“‚љ[
-лF€ўЊ
-л±C[*
-ллл©­­Ґ¦¦†ЄЄ*мv;6›Ќ‰‰
-ляЏ·qНїxS#¦
-мv;l6
-мv;ъj
-м§З!Ч™±зь(ЉО}Da#ѓќg†P yЏ|х
-м·Вmшr№
-мАDQD<
-мХХ0QКП4H¦МL
-мннс™dіЩрююОПЦЦ
-мљA@ґв4a
-нaЦ4@ґЗч{д®2
-нeШ|qх6‰тЗ«*lzЫZЊD¤
-нэ_Р~У…Г}«
-нѓVNЕ1ђ‹Ј¦1ЂК
-о[”Ё“mл›tил
-о]C[*
-о^ѓAП>Л{пы~ЯППц
-оЯW@ЪЈ‚».
-очЫђЯ1ж~AKЧ+jШ·Ђp\Аf
-пIDAT8Oc
-пN.o‘>їЗ›Пu
-пtWAh^+
-пічч{>ЮЅ
-пџЧапЕ
-рyе“Ђ  
-рzЅ¤[­
-рЈ]JјІ]Ћп}(Cќl
-рТиNAЧ
-рыэфэД
-рё9УфффК
-рѕ—-‘
-с#‘I$*6*єe(
-с4ZњЮ°уqлХ
-сDЅIВx*i+ЛS
-с\ЊIџщЪ2њE
-сxњг–J%
-сЅ7-I
-сДd0Ь
-сЖK‰-Н§
-сЯ†eэ
-тIЩЮ>АіNiU
-тK/ТЅщшE
-т}уCѕs?а[ч=v6Ь!*ы¤
-тБдIcvIAц
-тєџџјAiіА¶TЄoї3Зэ
-т”ШY¶+
-у6”]гФ_Sl±эIОЏ7ШlнeSe/
-уUµЁ6м
-уnЋњ–уњE•)kц±ReQe
-уС–ЙБЫ{ћy®ЂЉ
-уб*fИъД_ЖЈo%<t
-уэИyй
-уёйtљЅ™ЧлЕккк„іН1
-уђљL\к4
-у„ПѕямпЇпЎї
-у€“’zЛЯ
-фIDAT8Oc
-фIDAT8Oe“Л+ta
-фqФЂ—7Ъ=\ы3–Т?qJ‰тgО
-фz=t:
-ф±LҐ*
-фыoэџtояя®c
-ф„\”МииhMЈСФъъъxт<•°Иззз3Z­¶ЦЫЫ[S«Х<YіМяA
-хEp­+„М¶
-хВЕ(ЏЫЖxO'»Ѕ
-хєO!!
-цIDAT8Oc
-цQО=o)
-цl9ШйП~CN©гЦdT.Ц(
-ц¦xXкCр0siш»Х‰„kЎ`—
-цз„v·¶vnsОї’т/г:ќN»c'ё9
-цґ†3™
-ц…dШtЙ°
-ч°ѕь*
-чџF]2
-чґnMIБvXШ2ЗТ~Z]…OЇЗeo/lЌЌрЬЮ*АЫгЈRL
-ш¦‚с@&ЁЈнS
-ш°[ЕмV
-шЕљ1Ў
-шс?}ПусѕјЊ-K#O
-щO‚¬J»T
-щfя№ёё$ЎZ!`cЅ3\ЃiЧ№яj5ЗP°iч9ёьмlЈяllljP­
-щщF‹xроАЏaаygж}ж
-ъ}mX;Ѕ8„њ““ѓЙd";;›¬¬,
-ъ¬!2Ь
-ъ¬}#™
-ъјЋ#!
-ъ†F]:
-ыk"4Ёhйц
-ыnўгy
-ыНX¶ЇџуGфiР%э¬2+взpш}шs|:ю:ь;>
-ыњ|T€‰Й
-ь'Dўїqs
-ь):Gx
-ьdњђ0
-ьЉcТіЃWF+E¬т
-ьПsвэџfЗі
-ьа:O@аVCФТЛ“
-ьыfэб3g
-эa—ѕy—оY‡зБ2ќ“6VWHQ­VявЗ
-эpE9fЮ™
-э~џ¶u»]t:
-эЦББA;iуЎX,"џПѓОЫЩЩ‰ЃЃ
-ю1C0S0ЛO `¶џ9‚з
-юFФ< W
-ю\й\2
-юІ†|6
-юИKшОKи{›T
-юО/_®Dyy
-юв:f©М5ФH
-ющяяУП
-юё†|6
-я9П{Jћ!ћ‹_юЯpчяя7_яю3ќ|ЏtCњз?эївжяяу.яяявуЯ
-я9П{ЉЎШoйkВ
-яCЙ{›¤ѓбBЫЃКћ
-яБ·.©
-яУој6ъЗњ
-явГ«яXXXb
-явГЄяXXXb
-ягЕ®яXXX`
-яйхЮ$Э
-яъ»ЌяьДљяюН¦яюХ°яяЬёяябѕяягВяъЮЅяъЬєяъЧґяъС¬ящЙЎяфј’яп®Ѓяг¦ЂяаЦЦяОВВяуууяуууяуууяXXXb
-яыoЕНяяз]юя_Ўс"a
-яюЛ•яяФ яяЬ«яядµяякЅяяоДяярИяярЙяюпЗяюпЕяюмАяюж№яюЯЇяэУЎяЬіќягЪЪядЯЯяпппяпппятттяXXXb
-яяя8g
-яяяъл
-яяџpжя
-яяџpжяяц#
-яјҐ“±
-я—рЃАг
-ёG[Њіnіr
-ёxЦЃ'3рvТ[Шщ–Q~ВЙv
-ёУi‡Н6JЇЕЕKОљ/Ґ
-ёЫ‘F@@
-ёЭІ‰>ЕH
-ёўаьV
-ёџ‡чh@$єNцС6
-ђC®655Едд¤"ЋЏЏгущXmigЇs€wv9e`Ў
-ђсљ5k0
-ђ№оея_
-ѓ$,o&DТЗ
-ѓI'a2ЇЩ#
-ѓWЅ#l
-ѓdіЩ`Ѕ^+]­VX.—X,
-ѓБаOнг)]ёp
-ѓДЕ/™
-ѓКН@А€1Z†‰k%ґеІЊю -
-ѓѓV^ю
-ѓѕk-‰
-єf¦f6
-єє–НННТQE…|X^.›кк$kSУ2ЯЮ®эЬцSЋсqхIOЏЋJvОМаic
-ѕ&ЃрЎЂ!я
-ѕVВ7¬zmЈRАЧ2јSЦїµСnЧ
-ѕБ№›рЙ±Юя­666¦HЈЈЈ
-ѕвгя№
-і`&з-D.M‘––ї,o¦
-іh•хї
-іlйќ>]‚m
-і®C[2
-іЙяВ"Є{
-іііrЅI{{{#ЎPH€D"XYYБММЊ !fssS жрщ|0™L‚Сh
-іїа1¦і
-ї9iВ›З
-їA©TЦDHф7
-їIDAT8O}ђiHTa
-їЏO1y
-їЕпэ°®мІ
-їЯOєЭnГбp 
-їЯЇ@,Лb2™Ђa
-їыЬЊ·2ЊшХQ=e®ҐМ5xmЏљ2
-ј jГзяP&y tН‡яю+Ю’o
-јLц·вi9Ђэt!ію1f„:ЏЇГYї
-ј^/ЄOј
-јЅу<%
-јууёииЂЈҐ
-јїдНcЌНжр
-јјИ"Y
-љ2С”Q…бJ!M®·obЗ?pЮoHYб
-љA@ҐхК
-љ©Ы]эaч?\щФ¬W)
-љ® щ­
-љЈ€‚†
-љќЧючњшыSє
-љґ9Ёv^ыDЯёИ;‹SAцA№Ki°–уґч*
-њ'8W•q{1Ј
-њH$Ш™а`08
-њN'Оћ=«IыЕ·їhЫс­Дr€ћ§ ЦИd2їПзГ‹ђBЎ F=ЈY»v-пцМН/ЅУѕsm|5
-њN'єЭ.*•
-њp¬Г—”аЋ‰XЋ
-њл‡(|kLЮа}Ы
-њїВ-i
-ћ;Ќ-•Jaqq
-ћuY…”жЃЂЮс$,
-ћГФh/nЮйH
-ћЕqMНгЉ‚#Y\Ґzpэ,
-ћћ¦‹iАкJ;ё‚
-ќ;Wlњ№.O
-ќY8$Ќ}
-ќ]]вlkекуdОv4ѕv^мjіјEНЬЕ&о•яЁвэ; {
-ќгщ#,5¦6ђХя Pь
-ќзtРРРzщщщящщщяяяяяяяяячффяНААяМААябЪЪяшччяЮЮЮяXЊ·яѓЧщя{Эъя
-ќуяKѕъяЊЯюяВщяя
-ќуяKѕъяЊЯюяВщяя„йяя
-ќуяKѕъяЊЯюяВщяя„йяя"Єнэ
-ќуяKѕъяЊЯюяГщяя„йяя"Єнэ
-ќђRЊHыељ
-ќј^0I
-ќј^0Ь
-ќј¬"™
-ќјЊ3™
-ў±?€–Б ®Kfpфц8
-ў»єЁ$ђ
-ўЌ‡$$
-ўН!™ЏзэћyзќЙ…‹w
-ўС("‘
-ўзG‡З
-џR†ЎEНЗ¤ж]Ќ
-џfb(i±¤
-џx2”pш,і?Ґ
-џ§—по—,
-џМ~vvvu
-ҐE\ќm)
-Ґ®A"##)qЮe»г&K
-Ґл¦n(Ах5,YY0У©
-Ґш{Ќшм·y]»
-Ґ“Йb‰
-Ґ™$Ќ9Gљfћ#ВD:hБ4ЦF1Г­ТХЩЁ&iхЭыћќ
-ґZ-¬V«аr№r*цЇСh~
-ґЩlLMMqМиГеЦPј3жў
-ґЫmґZ-4›НRPдхнЂ”
-ґо‡г%
-ӽ--a
-۟F]2
-– °_р
-– Ј_л
-– щ_&
-– ї_ц
-–(F[\i•ащ
-–>Дѕв1м*
-–®-Ь|Ў…®)Ѓ$Щ
-—F±vx8Тю€ЉЦ!К[
-—ЋZРЎад
-—Д»Ц–?Ъ…ЩСfЅeCтKVлkYy¤†™Ш/й
-—Си„Ле#Ј0
-—ХєМЈЗЧhmmҐ
-—ёЧ„kЁ
-‘-)~r
-‘@€‚ё 
-‘PCйtЪ
-’{Ђ{6
-’¦1&Тёёюю{
-’Б¦.Й
-’уhћЁВ”·
-’ї]ї&
-’‡Ќ`2
-‚U<Асп
-‚aњ‹qм
-‚e2QЙЕБhL*gµ.љR)
-‚Б`»ґU0Ї
-“ЉЕ"ј^/>‘y‘3Б¤““
-“Ќ"RiLџ¦ёэ“3С
-“Й„Z­†T*Е*™L"‘H 
-““іhnоCSS
-”ЕrhYЙ
-”У”йџЌ%ЙM«
-”х'QIжuФ
-„6ф¤љT[ї
-„P‚ўA*и/ЌЌAsc
-„R0џП1›Н л:FЈ
-„®щрЯ
-„Гa„B!,,,p
-„Гъ.I
-„єm@ Vy
-†0»І…жћiNKЏ'>b
-†RЇV7^
-†g” ¦
-†§$:‡
-†Ѕ‘о..
-†Г!eЎPЂ$I¤OПжсіЪѓ%јј5d"PB±XД`0 МеrИd2ичыф}вI
-†ц€ђ”‡MГ>k
-†ї»-©
-†–Т`*
-‡K%@:a
-‡ГЃ«к=
-‡Ш‰У°.JPмЊШО5
-‡‘H$DѓЙЙЙG
-‡‹k||ju
-•}Б8±е~цњІ(¶
-•­bћЄIЁjйг
-•З¤“ЗДJ
-•п=:ј
-•ьlV!‡Џ
-…L¦з¦¬
-…L§|AИ–љЪщ
-…§hЃ Ё
-…ЃЊьЛІџљљўJNтлз
-…фЭАњ‘
-…хiT-шч§Сь
-‰DGЕЋ
-‰Б–.Q
-‰Б–.‰
-‰бM7э`8‚0
-‰т' -n
-‰х‹“ЇЄ
-‹.FTPY¤±–Ви
-‹4yб=Н9Пs>>Ня——_жxQас<Пбйз
-‹«†…’Бїа°хЪ(VЫd™Kѕ
-‹®Б±c›k
-‹°Щl4g›ГL
-‹†Л лїcґо’Ц][Ђ)MС=Іъ
-›4$СnяЮґЫє‰
-›Њ,Rяї"ЂСhд
-›ЊОV‹Еuf„ІјМkg1°Кх
-›Нv* V!џПЈT*)?ЙЈКB№тrЫн¶2Y*•‚Эn
-›™Џюї
-€un†(\|
-€ЕbxRб ніП€•~Г
-€ЗЫ2q
-€Т9иМсЉgґepaQfbєб
-€њінLу#ш
-€„.чh8l
-№*“T-Б
-№IDAT8Oc
-№±ѕmfd
-№І04“Ќ¤+h¤љЖ‡
-№Ќѓіoе№KАјzЂш,•п
-№ЭpБлюg!
-№ѕx-q
-№їЙ-№
-™3dMпBс$Ш“
-™X*(,
-™YDЧ8
-™Е¬w6
-™ФьР6
-™Ч·=ѕ
-™зя‰Ээя{Эъя
-™зя‰Ээя{ЭъяРРРzыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяыыыяЫЫЫяQ{ Ц
-™м7Ґ 
-™їОМЩџіX
-™№Ќ`6
-™™™ddd Хj)m
-귰e6
-긍`6
-꽀{6
-`6
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319
+Strings heap contents
+00: ""
+01: "colHP10"
+09: "get_XP10"
+12: "set_XP10"
+1b: "columnXP10"
+26: "Create_PW10"
+32: "set_PW10"
+3b: "colX10"
+42: "colY10"
+49: "colZ10"
+50: "ce10"
+55: "labelControl10"
+64: "printPreviewBarCheckItem10"
+7f: "printPreviewBarItem10"
+95: "colObject10"
+a1: "colLocality10"
+af: "colX20"
+b6: "colY20"
+bd: "colZ20"
+c4: "ce20"
+c9: "printPreviewBarItem20"
+df: "ce0"
+e3: "DevExpress.Data.v11.1"
+f9: "DevExpress.XtraGrid.v11.1"
+113: "DevExpress.XtraPrinting.v11.1"
+131: "DevExpress.Utils.v11.1"
+148: "DevExpress.XtraBars.v11.1"
+162: "DevExpress.XtraEditors.v11.1"
+17f: "DevExpress.XtraRichEdit.v11.1"
+19d: "DevExpress.XtraTreeList.v11.1"
+1bb: "D38F1F4A152CEB94D7366FB851BD64D0C557CD57A0486E57BFB5926A910D5111"
+1fc: "colHP11"
+204: "colX11"
+20b: "colY11"
+212: "colZ11"
+219: "ce11"
+21e: "labelControl11"
+22d: "printPreviewBarCheckItem11"
+248: "printPreviewBarItem11"
+25e: "colObject11"
+26a: "colLocality11"
+278: "colHP21"
+280: "colX21"
+287: "colY21"
+28e: "colZ21"
+295: "colResource21"
+2a3: "colSpell21"
+2ae: "printPreviewBarItem21"
+2c4: "colTown21"
+2ce: "colColor21"
+2d9: "colArt21"
+2e2: "colID1"
+2e9: "colHP1"
+2f0: "colMP1"
+2f7: "colXP1"
+2fe: "colX1"
+304: "colY1"
+30a: "colZ1"
+310: "IEnumerable`1"
+31e: "ICollection`1"
+32c: "IEnumerator`1"
+33a: "IList`1"
+342: "colGold1"
+34b: "colGuard1"
+355: "ArtDollPlace1"
+363: "colPlace1"
+36d: "colExperience1"
+37c: "colResource1"
+389: "colName1"
+392: "colMachine1"
+39e: "colDeadline1"
+3ab: "colType1"
+3b4: "saveFileDialog1"
+3c4: "openFileDialog1"
+3d4: "colBook1"
+3dd: "linkLabel1"
+3e8: "toolStripStatusLabel1"
+3fe: "label1"
+405: "defaultLookAndFeel1"
+419: "colLevel1"
+423: "colSpell1"
+42d: "colSkill1"
+437: "colSecondarySkill1"
+44a: "colPrimarySkill1"
+45b: "barDockControl1"
+46b: "labelControl1"
+479: "panelControl1"
+487: "printControl1"
+495: "barSubItem1"
+4a1: "printPreviewSubItem1"
+4b6: "barStaticItem1"
+4c5: "printPreviewStaticItem1"
+4dd: "printPreviewBarCheckItem1"
+4f7: "barButtonItem1"
+506: "printPreviewBarItem1"
+51b: "zoomTrackBarEditItem1"
+531: "zoomBarEditItem1"
+542: "progressBarEditItem1"
+557: "barToolbarsListItem1"
+56c: "printingSystem1"
+57c: "gridColumn1"
+588: "colMission1"
+594: "colGarrison1"
+5a1: "colHero1"
+5aa: "statusStrip1"
+5b7: "repositoryItemZoomTrackBar1"
+5d3: "repositoryItemProgressBar1"
+5ee: "previewBar1"
+5fa: "colNumber1"
+605: "printBarManager1"
+616: "barManager1"
+622: "toolTipController1"
+635: "timer1"
+63c: "colMonster1"
+648: "colColor1"
+652: "colClass1"
+65c: "colRepeat1"
+667: "colArtefact1"
+674: "colObject1"
+67f: "SkinProject1"
+68c: "repositoryItemSpinEdit1"
+6a4: "colBuilt1"
+6ae: "colSlot1"
+6b7: "colArt1"
+6bf: "popupMenu1"
+6ca: "pictureBox1"
+6d6: "printPreviewRepositoryItemComboBox1"
+6fa: "textBox1"
+703: "colLocality1"
+710: "colX12"
+717: "colY12"
+71e: "colZ12"
+725: "ce12"
+72a: "printPreviewBarCheckItem12"
+745: "printPreviewBarItem12"
+75b: "colObject12"
+767: "colLocality12"
+775: "ce22"
+77a: "printPreviewBarItem22"
+790: "Crc32"
+796: "Microsoft.Win32"
+7a6: "ReadUInt32"
+7b1: "ToUInt32"
+7ba: "ReadInt32"
+7c4: "ToInt32"
+7cc: "colID2"
+7d3: "colHP2"
+7da: "colXP2"
+7e1: "colX2"
+7e7: "colY2"
+7ed: "colZ2"
+7f3: "IDictionary`2"
+801: "colGold2"
+80a: "colGuard2"
+814: "ArtDollPlace2"
+822: "colPlace2"
+82c: "colExperience2"
+83b: "colResource2"
+848: "colName2"
+851: "colType2"
+85a: "linkLabel2"
+865: "colLevel2"
+86f: "colSpell2"
+879: "colSecondarySkill2"
+88c: "colPrimarySkill2"
+89d: "barDockControl2"
+8ad: "labelControl2"
+8bb: "printPreviewSubItem2"
+8d0: "printPreviewStaticItem2"
+8e8: "printPreviewBarCheckItem2"
+902: "printPreviewBarItem2"
+917: "gridColumn2"
+923: "colMission2"
+92f: "colHero2"
+938: "previewBar2"
+944: "bar2"
+949: "barManager2"
+955: "barAndDockingController2"
+96e: "timer2"
+975: "colMonster2"
+981: "set_BackColor2"
+990: "colColor2"
+99a: "colClass2"
+9a4: "colObject2"
+9af: "DataSet2"
+9b8: "repositoryItemSpinEdit2"
+9d0: "PassGuardContent2"
+9e2: "SeerHutContent2"
+9f2: "colSlot2"
+9fb: "colArt2"
+a03: "colApply2"
+a0d: "colLocality2"
+a1a: "colX13"
+a21: "colY13"
+a28: "colZ13"
+a2f: "colGold13"
+a39: "ce13"
+a3e: "colLevel13"
+a49: "labelControl13"
+a58: "printPreviewBarCheckItem13"
+a73: "printPreviewBarItem13"
+a89: "colColor13"
+a94: "colObject13"
+aa0: "colSlot13"
+aaa: "colLocality13"
+ab8: "ce23"
+abd: "printPreviewBarItem23"
+ad3: "colID3"
+ada: "colHP3"
+ae1: "colXP3"
+ae8: "colX3"
+aee: "colY3"
+af4: "colZ3"
+afa: "colGold3"
+b03: "colGuard3"
+b0d: "colPlace3"
+b17: "colExperience3"
+b26: "colResource3"
+b33: "colName3"
+b3c: "toolStripStatusLabel3"
+b52: "colLevel3"
+b5c: "colSpell3"
+b66: "colSecondarySkill3"
+b79: "colPrimarySkill3"
+b8a: "barDockControl3"
+b9a: "labelControl3"
+ba8: "barSubItem3"
+bb4: "printPreviewSubItem3"
+bc9: "printPreviewBarCheckItem3"
+be3: "printPreviewBarItem3"
+bf8: "colMission3"
+c04: "colHero3"
+c0d: "previewBar3"
+c19: "colMonster3"
+c25: "colColor3"
+c2f: "colClass3"
+c39: "colObject3"
+c44: "colSlot3"
+c4d: "colArt3"
+c55: "colLocality3"
+c62: "colX14"
+c69: "colY14"
+c70: "colZ14"
+c77: "ce14"
+c7c: "printPreviewBarCheckItem14"
+c97: "printPreviewBarItem14"
+cad: "colObject14"
+cb9: "colLocality14"
+cc7: "printPreviewBarItem24"
+cdd: "colHP4"
+ce4: "colX4"
+cea: "colY4"
+cf0: "colZ4"
+cf6: "colGold4"
+cff: "colGuard4"
+d09: "colResource4"
+d16: "colName4"
+d1f: "colLevel4"
+d29: "colSpell4"
+d33: "barDockControl4"
+d43: "labelControl4"
+d51: "printPreviewSubItem4"
+d66: "printPreviewBarCheckItem4"
+d80: "printPreviewBarItem4"
+d95: "colMission4"
+da1: "colHero4"
+daa: "colMonster4"
+db6: "colColor4"
+dc0: "colObject4"
+dcb: "colArt4"
+dd3: "colLocality4"
+de0: "get_XP15"
+de9: "set_XP15"
+df2: "columnXP15"
+dfd: "colX15"
+e04: "colY15"
+e0b: "colZ15"
+e12: "ce15"
+e17: "printPreviewBarCheckItem15"
+e32: "printPreviewBarItem15"
+e48: "colLocality15"
+e56: "printPreviewBarItem25"
+e6c: "colHP5"
+e73: "get_XP5"
+e7b: "set_XP5"
+e83: "columnXP5"
+e8d: "colX5"
+e93: "colY5"
+e99: "colZ5"
+e9f: "colGold5"
+ea8: "colGuard5"
+eb2: "colResource5"
+ebf: "colSpell5"
+ec9: "labelControl5"
+ed7: "printPreviewBarCheckItem5"
+ef1: "printPreviewBarItem5"
+f06: "colMission5"
+f12: "colMonster5"
+f1e: "colColor5"
+f28: "colObject5"
+f33: "colLocality5"
+f40: "colX16"
+f47: "colY16"
+f4e: "colZ16"
+f55: "ce16"
+f5a: "printPreviewBarCheckItem16"
+f75: "printPreviewBarItem16"
+f8b: "ReadUInt16"
+f96: "ToUInt16"
+f9f: "colLocality16"
+fad: "printPreviewBarItem26"
+fc3: "__StaticArrayInitTypeSize=6"
+fdf: "colRelicC6"
+fea: "colHP6"
+ff1: "colX6"
+ff7: "colY6"
+ffd: "colZ6"
+1003: "colGuard6"
+100d: "ce6"
+1011: "colSpell6"
+101b: "labelControl6"
+1029: "printPreviewBarCheckItem6"
+1043: "printPreviewBarItem6"
+1058: "colMonster6"
+1064: "colObject6"
+106f: "colLocality6"
+107c: "colX17"
+1083: "colY17"
+108a: "colZ17"
+1091: "ce17"
+1096: "printPreviewBarCheckItem17"
+10b1: "printPreviewBarItem17"
+10c7: "colLocality17"
+10d5: "4644D25C296EA1EDD5CA2B89F2032ACB2831E8D6D2BB65F379E56AE3E993AD27"
+1116: "printPreviewBarItem27"
+112c: "colHP7"
+1133: "colX7"
+1139: "colY7"
+113f: "colZ7"
+1145: "colGuard7"
+114f: "ce7"
+1153: "labelControl7"
+1161: "printPreviewBarCheckItem7"
+117b: "printPreviewBarItem7"
+1190: "colMonster7"
+119c: "colObject7"
+11a7: "colLocality7"
+11b4: "colX18"
+11bb: "colY18"
+11c2: "colZ18"
+11c9: "ce18"
+11ce: "printPreviewBarItem18"
+11e4: "colLocality18"
+11f2: "printPreviewBarItem28"
+1208: "get_UTF8"
+1211: "EncodeUTF8"
+121c: "colHP8"
+1223: "colX8"
+1229: "colY8"
+122f: "colZ8"
+1235: "colGuard8"
+123f: "ce8"
+1243: "printPreviewBarCheckItem8"
+125d: "printPreviewBarItem8"
+1272: "colObject8"
+127d: "colLocality8"
+128a: "colX19"
+1291: "colY19"
+1298: "colZ19"
+129f: "ce19"
+12a4: "printPreviewBarItem19"
+12ba: "colLocality19"
+12c8: "colHP9"
+12cf: "colX9"
+12d5: "colY9"
+12db: "colZ9"
+12e1: "colGuard9"
+12eb: "ce9"
+12ef: "colLevel9"
+12f9: "printPreviewBarCheckItem9"
+1313: "printPreviewBarItem9"
+1328: "colObject9"
+1333: "colLocality9"
+1340: "<Module>"
+1349: "<PrivateImplementationDetails>"
+1368: "ShowSkillTreeA"
+1377: "LevelUpA"
+1380: "GC"
+1383: "FIRE_MAGIC"
+138e: "EARTH_MAGIC"
+139a: "WATER_MAGIC"
+13a6: "AIR_MAGIC"
+13b0: "BASIC"
+13b6: "get__Relic_C"
+13c3: "set__Relic_C"
+13d0: "_columnRelic_C"
+13df: "colRelicC"
+13e9: "System.Drawing.Drawing2D"
+1402: "ADVANCED"
+140b: "FIRST_AID"
+1415: "get_ID"
+141c: "set_ID"
+1423: "colID"
+1429: "columnID"
+1432: "aHeroID"
+143a: "aMonstrID"
+1444: "get_ClassID"
+1450: "set_ClassID"
+145c: "columnClassID"
+146a: "GetProcessID"
+1477: "aObjectID"
+1481: "FirstID"
+1489: "RESISTANCE"
+1494: "INTELLIGENCE"
+14a1: "KNOWLEDGE"
+14ab: "NONE"
+14b0: "DEFENSE"
+14b8: "OFFENSE"
+14c0: "tblTE"
+14c6: "EAGLE_EYE"
+14d0: "F18366628A466F286AC60A27D59CADD5FD347730C9D55E04CE70FFDA96CB236F"
+1511: "SizeF"
+1517: "PATHFINDING"
+1523: "LEARNING"
+152c: "SCOUTING"
+1535: "get_ASCII"
+153f: "ATTACK"
+1546: "LUCK"
+154b: "btnOK"
+1551: "SaveXML"
+1559: "tsLabelStatusL"
+1568: "WISDOM"
+156f: "MYSTICISM"
+1579: "chi40EN"
+1581: "chi32EN"
+1589: "NAVIGATION"
+1594: "System.IO"
+159e: "get_HP"
+15a5: "set_HP"
+15ac: "columnHP"
+15b5: "LEADERSHIP"
+15c0: "get_MP"
+15c7: "set_MP"
+15ce: "colMP"
+15d4: "columnMP"
+15dd: "get_XP"
+15e4: "set_XP"
+15eb: "colXP"
+15f1: "columnXP"
+15fa: "nodeP"
+1600: "SCHOLAR"
+1608: "ARMORER"
+1610: "SPELL_POWER"
+161c: "hFR"
+1620: "Get_SR"
+1627: "set_SR"
+162e: "TACTICS"
+1636: "LOGISTICS"
+1640: "BALLISTICS"
+164b: "hDS"
+164f: "ESTATES"
+1657: "hBT"
+165b: "tsButtonOT"
+1666: "tsButtonSPT"
+1672: "EXPERT"
+1679: "ProspectorRT"
+1686: "chi40RU"
+168e: "CS_DROPSHADOW"
+169c: "Create_PW"
+16a6: "set_PW"
+16ad: "Create_SW"
+16b7: "set_SW"
+16be: "get_X"
+16c4: "set_X"
+16ca: "colX"
+16cf: "columnX"
+16d7: "DIPLOMACY"
+16e1: "NECROMANCY"
+16ec: "SORCERY"
+16f4: "ARCHERY"
+16fc: "ARTILLERY"
+1706: "get_Y"
+170c: "set_Y"
+1712: "colY"
+1717: "columnY"
+171f: "FindByXYZ"
+1729: "get_Z"
+172f: "set_Z"
+1735: "colZ"
+173a: "columnZ"
+1742: "value__"
+174a: "System.Xml.Schema"
+175c: "GetTypedTableSchema"
+1770: "ReadXmlSchema"
+177e: "WriteXmlSchema"
+178d: "GetTypedDataSetSchema"
+17a3: "get_Mana"
+17ac: "set_Mana"
+17b5: "colMana"
+17bd: "columnMana"
+17c8: "System.Data"
+17d4: "GetSerializationData"
+17e9: "SetData"
+17f1: "WriteWorksheetData"
+1804: "DevExpress.XtraTab"
+1817: "FromArgb"
+1820: "SkinLib"
+1828: "mscorlib"
+1831: "SaveTomb"
+183a: "rb"
+183d: "Delta_Magic"
+1849: "Last_Magic"
+1854: "get_AntiMagic"
+1862: "set_AntiMagic"
+1870: "colAntiMagic"
+187d: "columnAntiMagic"
+188d: "get_LastMagic"
+189b: "set_LastMagic"
+18a9: "columnLastMagic"
+18b9: "ModifyArtTblRelic"
+18cb: "System.Collections.Generic"
+18e6: "set_IsMetric"
+18f3: "plc"
+18f7: "loc"
+18fb: "ScanCompleteProc"
+190c: "ScanErrorProc"
+191a: "get_Id"
+1921: "set_Id"
+1928: "set_MaxItemId"
+1936: "dwProcessId"
+1942: "Read"
+1947: "get_CurrentThread"
+1959: "myThread"
+1962: "add_Load"
+196b: "SkillTreeForm_Load"
+197e: "ObjectNameForm_Load"
+1992: "MainForm_Load"
+19a0: "ExportForm_Load"
+19b0: "myToolTip_Load"
+19bf: "EndUnboundLoad"
+19ce: "BeginUnboundLoad"
+19df: "btnAdd"
+19e6: "Seed"
+19eb: "SchemaChanged"
+19f9: "chi40EN_CheckedChanged"
+1a10: "chi32EN_CheckedChanged"
+1a27: "chi40RU_CheckedChanged"
+1a3e: "add_CheckedChanged"
+1a51: "chiFree_CheckedChanged"
+1a68: "chiStart_CheckedChanged"
+1a80: "add_EditValueChanged"
+1a95: "biDepth_EditValueChanged"
+1aae: "biRecent_EditValueChanged"
+1ac8: "add_SizeChanged"
+1ad8: "MainForm_SizeChanged"
+1aed: "barManager1_HighlightedLinkChanged"
+1b10: "add_HighlightedLinkChanged"
+1b2b: "add_LocationChanged"
+1b3f: "MainForm_LocationChanged"
+1b58: "add_CollectionChanged"
+1b6e: "add_FocusedRowChanged"
+1b84: "add_R_PassGuardRowChanged"
+1b9e: "remove_R_PassGuardRowChanged"
+1bbb: "add_R_AllExperienceRowChanged"
+1bd9: "remove_R_AllExperienceRowChanged"
+1bfa: "add_R_ResourceRowChanged"
+1c13: "remove_R_ResourceRowChanged"
+1c2f: "add_R_MineRowChanged"
+1c44: "remove_R_MineRowChanged"
+1c5c: "add_R_BankRowChanged"
+1c71: "remove_R_BankRowChanged"
+1c89: "add_R_SpellRowChanged"
+1c9f: "remove_R_SpellRowChanged"
+1cb8: "add_R_AllSpellRowChanged"
+1cd1: "remove_R_AllSpellRowChanged"
+1ced: "add_R_SkillRowChanged"
+1d03: "remove_R_SkillRowChanged"
+1d1c: "add_R_AllSkillRowChanged"
+1d35: "remove_R_AllSkillRowChanged"
+1d51: "OnRowChanged"
+1d5e: "add_R_PrisonRowChanged"
+1d75: "remove_R_PrisonRowChanged"
+1d8f: "add_R_GarrisonRowChanged"
+1da8: "remove_R_GarrisonRowChanged"
+1dc4: "add_R_TownRowChanged"
+1dd9: "remove_R_TownRowChanged"
+1df1: "add_R_CampRowChanged"
+1e06: "remove_R_CampRowChanged"
+1e1e: "add_R_ScholarRowChanged"
+1e36: "remove_R_ScholarRowChanged"
+1e51: "add_R_AllTimerRowChanged"
+1e6a: "remove_R_AllTimerRowChanged"
+1e86: "add_R_MonstrRowChanged"
+1e9d: "remove_R_MonstrRowChanged"
+1eb7: "add_R_HeroesRowChanged"
+1ece: "remove_R_HeroesRowChanged"
+1ee8: "add_R_AllArtsRowChanged"
+1f00: "remove_R_AllArtsRowChanged"
+1f1b: "add_R_ObjectRowChanged"
+1f32: "remove_R_ObjectRowChanged"
+1f4c: "add_R_MarketRowChanged"
+1f63: "remove_R_MarketRowChanged"
+1f7d: "add_R_ArtRowChanged"
+1f91: "remove_R_ArtRowChanged"
+1fa8: "add_R_ChestRowChanged"
+1fbe: "remove_R_ChestRowChanged"
+1fd7: "add_R_SeerHutRowChanged"
+1fef: "remove_R_SeerHutRowChanged"
+200a: "add_R_EventBoxRowChanged"
+2023: "remove_R_EventBoxRowChanged"
+203f: "add_R_TopologyRowChanged"
+2058: "remove_R_TopologyRowChanged"
+2074: "add_SelectedIndexChanged"
+208d: "rgObjectName_SelectedIndexChanged"
+20af: "get_Checked"
+20bb: "set_Checked"
+20c7: "IsChecked"
+20d1: "linkLabel1_LinkClicked"
+20e8: "linkLabel2_LinkClicked"
+20ff: "add_LinkClicked"
+210f: "Interlocked"
+211b: "get_Enabled"
+2127: "set_Enabled"
+2133: "add_FormClosed"
+2142: "SkillTreeForm_FormClosed"
+215b: "set_AllowFocused"
+216c: "add_R_PassGuardRowDeleted"
+2186: "remove_R_PassGuardRowDeleted"
+21a3: "add_R_AllExperienceRowDeleted"
+21c1: "remove_R_AllExperienceRowDeleted"
+21e2: "add_R_ResourceRowDeleted"
+21fb: "remove_R_ResourceRowDeleted"
+2217: "add_R_MineRowDeleted"
+222c: "remove_R_MineRowDeleted"
+2244: "add_R_BankRowDeleted"
+2259: "remove_R_BankRowDeleted"
+2271: "add_R_SpellRowDeleted"
+2287: "remove_R_SpellRowDeleted"
+22a0: "add_R_AllSpellRowDeleted"
+22b9: "remove_R_AllSpellRowDeleted"
+22d5: "add_R_SkillRowDeleted"
+22eb: "remove_R_SkillRowDeleted"
+2304: "add_R_AllSkillRowDeleted"
+231d: "remove_R_AllSkillRowDeleted"
+2339: "OnRowDeleted"
+2346: "add_R_PrisonRowDeleted"
+235d: "remove_R_PrisonRowDeleted"
+2377: "add_R_GarrisonRowDeleted"
+2390: "remove_R_GarrisonRowDeleted"
+23ac: "add_R_TownRowDeleted"
+23c1: "remove_R_TownRowDeleted"
+23d9: "add_R_CampRowDeleted"
+23ee: "remove_R_CampRowDeleted"
+2406: "add_R_ScholarRowDeleted"
+241e: "remove_R_ScholarRowDeleted"
+2439: "add_R_AllTimerRowDeleted"
+2452: "remove_R_AllTimerRowDeleted"
+246e: "add_R_MonstrRowDeleted"
+2485: "remove_R_MonstrRowDeleted"
+249f: "add_R_HeroesRowDeleted"
+24b6: "remove_R_HeroesRowDeleted"
+24d0: "add_R_AllArtsRowDeleted"
+24e8: "remove_R_AllArtsRowDeleted"
+2503: "add_R_ObjectRowDeleted"
+251a: "remove_R_ObjectRowDeleted"
+2534: "add_R_MarketRowDeleted"
+254b: "remove_R_MarketRowDeleted"
+2565: "add_R_ArtRowDeleted"
+2579: "remove_R_ArtRowDeleted"
+2590: "add_R_ChestRowDeleted"
+25a6: "remove_R_ChestRowDeleted"
+25bf: "add_R_SeerHutRowDeleted"
+25d7: "remove_R_SeerHutRowDeleted"
+25f2: "add_R_EventBoxRowDeleted"
+260b: "remove_R_EventBoxRowDeleted"
+2627: "add_R_TopologyRowDeleted"
+2640: "remove_R_TopologyRowDeleted"
+265c: "set_LinkVisited"
+266c: "IsBinarySerialized"
+267f: "Synchronized"
+268c: "SavePyramid"
+2698: "DevExpress.XtraGrid.Views.Grid"
+26b7: "DevExpress.XtraGrid"
+26cb: "PopupCreateGrid"
+26db: "MenuHandlerGrid"
+26eb: "grid"
+26f0: "GetField"
+26f9: "BitField"
+2702: "get_Gold"
+270b: "set_Gold"
+2714: "colGold"
+271c: "columnGold"
+2727: "gold"
+272c: "Rand"
+2731: "set_Command"
+273d: "PrintingSystemCommand"
+2753: "Find"
+2758: "set_PaperKind"
+2766: "get_Second"
+2771: "Round"
+2777: "set_IsBackground"
+2788: "set_UseParentBackground"
+27a0: "lastScanMethod"
+27af: "_method"
+27b7: "get_Mood"
+27c0: "set_Mood"
+27c9: "colMood"
+27d1: "columnMood"
+27dc: "CopyToClipboard"
+27ec: "SavePassDuard"
+27fa: "get_Guard"
+2804: "set_Guard"
+280e: "aGuard"
+2815: "GetBankGuard"
+2822: "colGuard"
+282b: "columnGuard"
+2837: "get_R_PassGuard"
+2847: "tableR_PassGuard"
+2858: "ShouldSerializeR_PassGuard"
+2873: "tabPassGuard"
+2880: "grdPassGuard"
+288d: "CreateTblPassGuard"
+28a0: "vwPassGuard"
+28ac: "guard"
+28b2: "get_Reward"
+28bd: "set_Reward"
+28c8: "aReward"
+28d0: "colReward"
+28da: "columnReward"
+28e7: "WriteEndRecord"
+28f6: "WriteCentralDirRecord"
+290c: "get_Place"
+2916: "set_Place"
+2920: "aPlace"
+2927: "GetDollPlace"
+2934: "colPlace"
+293d: "columnPlace"
+2949: "Replace"
+2951: "get_Namespace"
+295f: "set_Namespace"
+296d: "get_TargetNamespace"
+2981: "get_StackTrace"
+2990: "tsMenuService"
+299e: "aAlliance"
+29a8: "GetAlliance"
+29b4: "get_Appearance"
+29c3: "PageAppearance"
+29d2: "BarItemAppearance"
+29e4: "RichEditAppearance"
+29f7: "CreateInstance"
+2a06: "defaultInstance"
+2a16: "get_Experience"
+2a25: "set_Experience"
+2a34: "tabExperience"
+2a42: "grdExperience"
+2a50: "get_R_AllExperience"
+2a64: "tableR_AllExperience"
+2a79: "ShouldSerializeR_AllExperience"
+2a98: "colExperience"
+2aa6: "columnExperience"
+2ab7: "GetExperience"
+2ac5: "vwExperience"
+2ad2: "XmlSchemaSequence"
+2ae4: "get_Source"
+2aef: "get_DataSource"
+2afe: "set_DataSource"
+2b0d: "rPassGuardBindingSource"
+2b25: "rAllExperienceBindingSource"
+2b41: "rResourceBindingSource"
+2b58: "rBankBindingSource"
+2b6b: "rAllSpellBindingSource"
+2b82: "rSpellBindingSource"
+2b96: "rAllSkillBindingSource"
+2bad: "rSkillBindingSource"
+2bc1: "rPrisonBindingSource"
+2bd6: "rGarrisonBindingSource"
+2bed: "rTownBindingSource"
+2c00: "rCampBindingSource"
+2c13: "rScholarBindingSource"
+2c29: "rAllTimerBindingSource"
+2c40: "rMonstrBindingSource"
+2c55: "rHeroesBindingSource"
+2c6a: "rAllArtsBindingSource"
+2c80: "rObjectBindingSource"
+2c95: "rMarketBindingSource"
+2caa: "rChestBindingSource"
+2cbe: "rSeerHutBindingSource"
+2cd4: "rEventBoxBindingSource"
+2ceb: "rTopologyBindingSource"
+2d02: "_source"
+2d0a: "get_R_Resource"
+2d19: "tableR_Resource"
+2d29: "ShouldSerializeR_Resource"
+2d43: "get_Resource"
+2d50: "set_Resource"
+2d5d: "aResource"
+2d67: "tabResource"
+2d73: "grdResource"
+2d7f: "GetBankResource"
+2d8f: "colResource"
+2d9b: "columnResource"
+2daa: "vwResource"
+2db5: "Hide"
+2dba: "MapSide"
+2dc2: "get_Code"
+2dcb: "set_Code"
+2dd4: "columnCode"
+2ddf: "get_KeyCode"
+2deb: "XmlReadMode"
+2df7: "set_AutoScaleMode"
+2e09: "FileMode"
+2e12: "set_AutoSizeMode"
+2e23: "CompressionMode"
+2e33: "get_SchemaSerializationMode"
+2e4f: "set_SchemaSerializationMode"
+2e6b: "DetermineSchemaSerializationMode"
+2e8c: "_schemaSerializationMode"
+2ea5: "get_FilterPopupMode"
+2eb9: "set_FilterPopupMode"
+2ecd: "set_GradientMode"
+2ede: "LinearGradientMode"
+2ef1: "get_GroupFooterShowMode"
+2f09: "set_GroupFooterShowMode"
+2f21: "AppendNode"
+2f2c: "get_ParentNode"
+2f3b: "TreeListNode"
+2f48: "GetNextNode"
+2f54: "code"
+2f59: "LMOracleFree"
+2f66: "chiFree"
+2f6e: "ShowSkillTree"
+2f7c: "DeleteSubKeyTree"
+2f8d: "_zfe"
+2f92: "XtraTabPage"
+2f9e: "set_SelectedTabPage"
+2fb2: "get_iCodePage"
+2fc0: "set_iCodePage"
+2fce: "set_Image"
+2fd8: "set_InitialImage"
+2fe9: "CentralDirImage"
+2ff9: "set_ErrorImage"
+3008: "get_Message"
+3014: "Knowledge"
+301e: "SetLabelCange"
+302c: "set_Range"
+3036: "AddRange"
+303f: "CompareExchange"
+304f: "get_AllowCellMerge"
+3062: "set_AllowCellMerge"
+3075: "get_CanTake"
+3081: "set_CanTake"
+308d: "colCanTake"
+3098: "columnCanTake"
+30a6: "EndInvoke"
+30b0: "BeginInvoke"
+30bc: "get_Locale"
+30c7: "set_Locale"
+30d2: "get_Morale"
+30dd: "set_Morale"
+30e8: "colMorale"
+30f2: "columnMorale"
+30ff: "get_Table"
+3109: "R_PassGuardDataTable"
+311e: "R_AllExperienceDataTable"
+3137: "R_ResourceDataTable"
+314b: "R_MineDataTable"
+315b: "R_BankDataTable"
+316b: "R_SpellDataTable"
+317c: "R_AllSpellDataTable"
+3190: "R_SkillDataTable"
+31a1: "R_AllSkillDataTable"
+31b5: "R_PrisonDataTable"
+31c7: "R_GarrisonDataTable"
+31db: "R_TownDataTable"
+31eb: "R_CampDataTable"
+31fb: "R_ScholarDataTable"
+320e: "R_AllTimerDataTable"
+3222: "R_MonstrDataTable"
+3234: "R_HeroesDataTable"
+3246: "R_AllArtsDataTable"
+3259: "R_ObjectDataTable"
+326b: "R_MarketDataTable"
+327d: "R_ArtDataTable"
+328c: "R_ChestDataTable"
+329d: "R_SeerHutDataTable"
+32b0: "R_EventBoxDataTable"
+32c4: "R_TopologyDataTable"
+32d8: "SectionProcTable"
+32e9: "CrcTable"
+32f2: "errorTemplateTable"
+3305: "WriteStringTable"
+3316: "stringTable"
+3322: "lookupTable"
+332e: "initTable"
+3338: "CreateDefaultTable"
+334b: "get_Available"
+3359: "set_Available"
+3367: "colAvailable"
+3374: "columnAvailable"
+3384: "SPTEnable"
+338e: "IEnumerable"
+339a: "MakeDisable"
+33a6: "IDisposable"
+33b2: "Hashtable"
+33bc: "set_Editable"
+33c9: "IPrintable"
+33d4: "GetSchemaSerializable"
+33ea: "ReadXmlSerializable"
+33fe: "get_Visible"
+340a: "set_Visible"
+3416: "MakeNodeVisible"
+3426: "MakeRowVisible"
+3435: "visible"
+343d: "LMOracle"
+3446: "bsiVerOracle"
+3453: "InitOracle"
+345e: "set_Particle"
+346b: "XmlSchemaParticle"
+347d: "RuntimeFieldHandle"
+3490: "RuntimeTypeHandle"
+34a2: "GetTypeFromHandle"
+34b4: "bInheritHandle"
+34c3: "get_FocusedRowHandle"
+34d8: "set_FocusedRowHandle"
+34ed: "get_PrevFocusedRowHandle"
+3506: "GetRowHandle"
+3513: "get_PopupOwnerRectangle"
+352b: "get_ClientRectangle"
+353f: "DrawRectangle"
+354d: "Single"
+3554: "AddFile"
+355c: "GetSaveFile"
+3568: "ObjNameFromFile"
+3578: "ppmFile"
+3580: "tsButtonFile"
+358d: "sFile"
+3593: "ExtractFile"
+359f: "RemoveRecentFile"
+35b0: "titleExistFile"
+35bf: "errorExistFile"
+35ce: "MyFile"
+35d5: "myFile"
+35dc: "mfile"
+35e2: "get_MainWindowTitle"
+35f6: "Border3DStyle"
+3604: "get_Style"
+360e: "set_ScrollThumbStyle"
+3623: "set_TreeLineStyle"
+3635: "set_DockStyle"
+3643: "set_CanDockStyle"
+3654: "BarCanDockStyle"
+3664: "BarDockStyle"
+3671: "set_ButtonStyle"
+3681: "BarButtonStyle"
+3690: "set_BorderStyle"
+36a0: "set_FormBorderStyle"
+36b4: "get_ClassStyle"
+36c3: "set_ClassStyle"
+36d2: "set_FocusRectStyle"
+36e5: "DrawFocusRectStyle"
+36f8: "set_TextEditStyle"
+370a: "BarItemPaintStyle"
+371c: "GetFontStyle"
+3729: "set_DisplayStyle"
+373a: "ToolStripItemDisplayStyle"
+3754: "get_Name"
+375d: "set_Name"
+3766: "ProcName"
+376f: "get_FieldName"
+377d: "set_FieldName"
+378b: "set_ParentFieldName"
+379f: "ColumnByFieldName"
+37b1: "set_KeyFieldName"
+37c2: "methodName"
+37cd: "ReplaceName"
+37d9: "get_TableName"
+37e7: "set_TableName"
+37f5: "get_FileName"
+3802: "set_FileName"
+380f: "GetRandomFileName"
+3821: "GetTempFileName"
+3831: "GetFileName"
+383d: "SaveName"
+3846: "ChangeObjName"
+3854: "GetVerObjName"
+3862: "spellName"
+386c: "get_FullName"
+3879: "colName"
+3881: "set_SkinName"
+388e: "columnName"
+3899: "ColumnIndexToName"
+38ab: "RowIndexToName"
+38ba: "MapName"
+38c2: "set_BarName"
+38ce: "strSheetsName"
+38dc: "GetSheetsName"
+38ea: "rgObjectName"
+38f7: "tsButtonObjectName"
+390a: "errorObjectName"
+391a: "get_ProductName"
+392a: "GetName"
+3932: "get_DataSetName"
+3942: "set_DataSetName"
+3952: "CheckViewName"
+3960: "MyName"
+3967: "AssemblyName"
+3974: "myName"
+397b: "GetDirectoryName"
+398c: "NormalizedFilename"
+399f: "_filename"
+39a9: "fname"
+39af: "_pathname"
+39b9: "_modTime"
+39c2: "DosTimeToDateTime"
+39d4: "GetLastWriteTime"
+39e5: "SetLastWriteTime"
+39f6: "SetCreationTime"
+3a06: "DateTimeToDosTime"
+3a18: "ModifyTime"
+3a23: "One"
+3a27: "ReadLine"
+3a30: "AppendLine"
+3a3b: "set_MultiLine"
+3a49: "DrawLine"
+3a52: "get_R_Mine"
+3a5d: "tableR_Mine"
+3a69: "ShouldSerializeR_Mine"
+3a7f: "aMine"
+3a85: "SaveMine"
+3a8e: "Combine"
+3a96: "get_Machine"
+3aa2: "set_Machine"
+3aae: "colMachine"
+3ab9: "columnMachine"
+3ac7: "get_Deadline"
+3ad4: "set_Deadline"
+3ae1: "colDeadline"
+3aed: "columnDeadline"
+3afc: "SaveShrine"
+3b07: "Clone"
+3b0d: "SaveLearningStone"
+3b1f: "get_Type"
+3b28: "set_Type"
+3b31: "get_ReflectedType"
+3b43: "get_FieldType"
+3b51: "ValueType"
+3b5b: "MappingType"
+3b67: "colType"
+3b6f: "columnType"
+3b7a: "GetTownType"
+3b86: "get_HitInfoType"
+3b96: "set_ToolTipType"
+3ba6: "get_MemberType"
+3bb5: "GetType"
+3bbd: "set_ActiveViewType"
+3bd0: "RichEditViewType"
+3be1: "GetRowType"
+3bec: "XmlSchemaComplexType"
+3c01: "type"
+3c06: "get_Hire"
+3c0f: "set_Hire"
+3c18: "colHire"
+3c20: "columnHire"
+3c2b: "SaveCampfire"
+3c38: "DevExpress.Printing.v11.1.Core"
+3c57: "DevExpress.RichEdit.v11.1.Core"
+3c76: "Store"
+3c7c: "set_CurrentUICulture"
+3c91: "get_Culture"
+3c9d: "set_Culture"
+3ca9: "resourceCulture"
+3cb9: "set_CurrentCulture"
+3ccc: "DevExpress.XtraGrid.Views.Base"
+3ceb: "PrintableComponentLinkBase"
+3d06: "PrintingSystemBase"
+3d19: "InternalDataCollectionBase"
+3d34: "ReadOnlyCollectionBase"
+3d4b: "XmlSchemaGroupBase"
+3d5e: "ApplicationSettingsBase"
+3d76: "OptionsLayoutBase"
+3d88: "TextBoxBase"
+3d94: "get_Increase"
+3da1: "set_Increase"
+3dae: "colIncrease"
+3dba: "columnIncrease"
+3dc9: "Defense"
+3dd1: "set_DisableClose"
+3de2: "sChoose"
+3dea: "Dispose"
+3df2: "TryParse"
+3dfb: "GetPairSubterraneanGate"
+3e13: "SubTerGate"
+3e1e: "Create"
+3e25: "MulticastDelegate"
+3e37: "Deflate"
+3e3f: "get_Template"
+3e4c: "DebuggerBrowsableState"
+3e63: "EditorBrowsableState"
+3e78: "HeroState"
+3e82: "GetCurrentState"
+3e92: "get_WindowState"
+3ea2: "set_WindowState"
+3eb2: "FormWindowState"
+3ec2: "Activate"
+3ecb: "Delete"
+3ed2: "ObjNameComplete"
+3ee2: "CreateTblDwellingComplete"
+3efc: "CreateTblSpellComplete"
+3f13: "CreateTblSecondarySkillComplete"
+3f33: "ScanComplete"
+3f40: "set_AutoComplete"
+3f51: "CreateTblMonsterComplete"
+3f6a: "TblMonstersComplete"
+3f7e: "CreateTblObjectComplete"
+3f96: "CreateTblArtComplete"
+3fab: "CreateArrayComplete"
+3fbf: "get_White"
+3fc9: "get_CanWrite"
+3fd6: "XmlSchemaAttribute"
+3fe9: "STAThreadAttribute"
+3ffc: "CompilerGeneratedAttribute"
+4017: "GuidAttribute"
+4025: "HelpKeywordAttribute"
+403a: "GeneratedCodeAttribute"
+4051: "DebuggerNonUserCodeAttribute"
+406e: "DebuggableAttribute"
+4082: "DebuggerBrowsableAttribute"
+409d: "EditorBrowsableAttribute"
+40b6: "ComVisibleAttribute"
+40ca: "AssemblyTitleAttribute"
+40e1: "AssemblyTrademarkAttribute"
+40fc: "ToolboxItemAttribute"
+4111: "AssemblyFileVersionAttribute"
+412e: "AssemblyConfigurationAttribute"
+414d: "AssemblyDescriptionAttribute"
+416a: "DefaultMemberAttribute"
+4181: "XmlSchemaProviderAttribute"
+419c: "CompilationRelaxationsAttribute"
+41bc: "AssemblyProductAttribute"
+41d5: "AssemblyCopyrightAttribute"
+41f0: "XmlRootAttribute"
+4201: "AssemblyCompanyAttribute"
+421a: "DesignerCategoryAttribute"
+4234: "DesignerSerializationVisibilityAttribute"
+425d: "RuntimeCompatibilityAttribute"
+427b: "get_Minute"
+4286: "ReadByte"
+428f: "get_FocusedValue"
+42a0: "set_FixedValue"
+42af: "set_MinValue"
+42bc: "set_IsFloatValue"
+42cd: "GetValue"
+42d6: "SetValue"
+42df: "get_EditValue"
+42ed: "set_EditValue"
+42fb: "set_MaxValue"
+4308: "GetRegistryValue"
+4319: "SetRegistryValue"
+432a: "value"
+4330: "LMOracleSave"
+433d: "ScanSave"
+4346: "get_CaseSensitive"
+4358: "set_CaseSensitive"
+436a: "label1_MouseMove"
+437b: "add_MouseMove"
+4389: "set_AllowMove"
+4397: "Remove"
+439e: "ProspectorRT.exe"
+43af: "get_Size"
+43b8: "set_Size"
+43c1: "CompressedSize"
+43d0: "FileSize"
+43d9: "set_MinimumSize"
+43e9: "set_MaximumSize"
+43f9: "set_AutoSize"
+4406: "MapSize"
+440e: "HeaderSize"
+4419: "set_ClientSize"
+4428: "ISupportInitialize"
+443b: "_size"
+4441: "LastIndexOf"
+444d: "_CodePg"
+4455: "cbCodePg"
+445e: "get_Tag"
+4466: "set_Tag"
+446e: "BBFlag"
+4475: "fStopFlag"
+447f: "fRowFlag"
+4488: "tag"
+448c: "UnknownFixedReg"
+449c: "UnknownVarReg"
+44aa: "System.Threading"
+44bb: "set_Padding"
+44c7: "get_Building"
+44d4: "set_Building"
+44e1: "CreateTblBuilding"
+44f3: "colBuilding"
+44ff: "columnBuilding"
+450e: "GetEncoding"
+451a: "DefaultEncoding"
+452a: "add_R_PassGuardRowChanging"
+4545: "remove_R_PassGuardRowChanging"
+4563: "add_R_AllExperienceRowChanging"
+4582: "remove_R_AllExperienceRowChanging"
+45a4: "add_R_ResourceRowChanging"
+45be: "remove_R_ResourceRowChanging"
+45db: "add_R_MineRowChanging"
+45f1: "remove_R_MineRowChanging"
+460a: "add_R_BankRowChanging"
+4620: "remove_R_BankRowChanging"
+4639: "add_R_SpellRowChanging"
+4650: "remove_R_SpellRowChanging"
+466a: "add_R_AllSpellRowChanging"
+4684: "remove_R_AllSpellRowChanging"
+46a1: "add_R_SkillRowChanging"
+46b8: "remove_R_SkillRowChanging"
+46d2: "add_R_AllSkillRowChanging"
+46ec: "remove_R_AllSkillRowChanging"
+4709: "OnRowChanging"
+4717: "add_R_PrisonRowChanging"
+472f: "remove_R_PrisonRowChanging"
+474a: "add_R_GarrisonRowChanging"
+4764: "remove_R_GarrisonRowChanging"
+4781: "add_R_TownRowChanging"
+4797: "remove_R_TownRowChanging"
+47b0: "add_R_CampRowChanging"
+47c6: "remove_R_CampRowChanging"
+47df: "add_R_ScholarRowChanging"
+47f8: "remove_R_ScholarRowChanging"
+4814: "add_R_AllTimerRowChanging"
+482e: "remove_R_AllTimerRowChanging"
+484b: "add_R_MonstrRowChanging"
+4863: "remove_R_MonstrRowChanging"
+487e: "add_R_HeroesRowChanging"
+4896: "remove_R_HeroesRowChanging"
+48b1: "add_R_AllArtsRowChanging"
+48ca: "remove_R_AllArtsRowChanging"
+48e6: "add_R_ObjectRowChanging"
+48fe: "remove_R_ObjectRowChanging"
+4919: "add_R_MarketRowChanging"
+4931: "remove_R_MarketRowChanging"
+494c: "add_R_ArtRowChanging"
+4961: "remove_R_ArtRowChanging"
+4979: "add_R_ChestRowChanging"
+4990: "remove_R_ChestRowChanging"
+49aa: "add_R_SeerHutRowChanging"
+49c3: "remove_R_SeerHutRowChanging"
+49df: "add_R_EventBoxRowChanging"
+49f9: "remove_R_EventBoxRowChanging"
+4a16: "add_R_TopologyRowChanging"
+4a30: "remove_R_TopologyRowChanging"
+4a4d: "DevExpress.XtraBars.Helpers.Docking"
+4a71: "CreateTblDwelling"
+4a83: "set_Spring"
+4a8e: "WriteAttributeString"
+4aa3: "ToString"
+4aac: "GetString"
+4ab6: "WriteElementString"
+4ac9: "set_ShortcutKeyDisplayString"
+4ae6: "Substring"
+4af0: "disposing"
+4afa: "XmlSchemaContentProcessing"
+4b15: "ForceDeflating"
+4b24: "add_R_PassGuardRowDeleting"
+4b3f: "remove_R_PassGuardRowDeleting"
+4b5d: "add_R_AllExperienceRowDeleting"
+4b7c: "remove_R_AllExperienceRowDeleting"
+4b9e: "add_R_ResourceRowDeleting"
+4bb8: "remove_R_ResourceRowDeleting"
+4bd5: "add_R_MineRowDeleting"
+4beb: "remove_R_MineRowDeleting"
+4c04: "add_R_BankRowDeleting"
+4c1a: "remove_R_BankRowDeleting"
+4c33: "add_R_SpellRowDeleting"
+4c4a: "remove_R_SpellRowDeleting"
+4c64: "add_R_AllSpellRowDeleting"
+4c7e: "remove_R_AllSpellRowDeleting"
+4c9b: "add_R_SkillRowDeleting"
+4cb2: "remove_R_SkillRowDeleting"
+4ccc: "add_R_AllSkillRowDeleting"
+4ce6: "remove_R_AllSkillRowDeleting"
+4d03: "OnRowDeleting"
+4d11: "add_R_PrisonRowDeleting"
+4d29: "remove_R_PrisonRowDeleting"
+4d44: "add_R_GarrisonRowDeleting"
+4d5e: "remove_R_GarrisonRowDeleting"
+4d7b: "add_R_TownRowDeleting"
+4d91: "remove_R_TownRowDeleting"
+4daa: "add_R_CampRowDeleting"
+4dc0: "remove_R_CampRowDeleting"
+4dd9: "add_R_ScholarRowDeleting"
+4df2: "remove_R_ScholarRowDeleting"
+4e0e: "add_R_AllTimerRowDeleting"
+4e28: "remove_R_AllTimerRowDeleting"
+4e45: "add_R_MonstrRowDeleting"
+4e5d: "remove_R_MonstrRowDeleting"
+4e78: "add_R_HeroesRowDeleting"
+4e90: "remove_R_HeroesRowDeleting"
+4eab: "add_R_AllArtsRowDeleting"
+4ec4: "remove_R_AllArtsRowDeleting"
+4ee0: "add_R_ObjectRowDeleting"
+4ef8: "remove_R_ObjectRowDeleting"
+4f13: "add_R_MarketRowDeleting"
+4f2b: "remove_R_MarketRowDeleting"
+4f46: "add_R_ArtRowDeleting"
+4f5b: "remove_R_ArtRowDeleting"
+4f73: "add_R_ChestRowDeleting"
+4f8a: "remove_R_ChestRowDeleting"
+4fa4: "add_R_SeerHutRowDeleting"
+4fbd: "remove_R_SeerHutRowDeleting"
+4fd9: "add_R_EventBoxRowDeleting"
+4ff3: "remove_R_EventBoxRowDeleting"
+5010: "add_R_TopologyRowDeleting"
+502a: "remove_R_TopologyRowDeleting"
+5047: "set_AllowLinkLighting"
+505d: "System.Drawing.Printing"
+5075: "DevExpress.XtraPrinting"
+508d: "CommonSetting"
+509b: "System.Drawing"
+50aa: "add_PopupMenuShowing"
+50bf: "GridView_PopupMenuShowing"
+50d9: "WriteDebugLog"
+50e7: "SaveFileDialog"
+50f6: "OpenFileDialog"
+5105: "CommonDialog"
+5112: "set_UseNewCustomFilterDialog"
+512f: "FontDialog"
+513a: "ShowDialog"
+5145: "set_AllowIncrementalSearch"
+5160: "ComputeStringHash"
+5172: "tsButtonRefresh"
+5182: "Flush"
+5188: "Math"
+518d: "_Path"
+5193: "get_ExecutablePath"
+51a6: "tePath"
+51ad: "btnPath"
+51b5: "GetTempPath"
+51c1: "get_StartupPath"
+51d1: "get_sPath"
+51db: "set_sPath"
+51e5: "myPath"
+51ec: "path"
+51f1: "get_Width"
+51fb: "set_Width"
+5205: "get_ColumnAutoWidth"
+5219: "set_ColumnAutoWidth"
+522d: "get_Length"
+5238: "GetLength"
+5242: "SetLength"
+524c: "SaveMonolith"
+5259: "OneWayMonolith"
+5268: "TwoWayMonolith"
+5277: "get_Month"
+5281: "biDepth"
+5289: "TblObj"
+5290: "ArrObj"
+5297: "SaveTopologyObj"
+52a7: "set_ShowBeak"
+52b4: "AsyncCallback"
+52c2: "callback"
+52cb: "get_Black"
+52d5: "Attack"
+52dc: "timer1_Tick"
+52e8: "timer2_Tick"
+52f4: "add_Tick"
+52fd: "btnOK_Click"
+5309: "btnAdd_Click"
+5316: "add_Click"
+5320: "btnPath_Click"
+532e: "tsLabelLink_Click"
+5340: "btnCancel_Click"
+5350: "btnClear_Click"
+535f: "add_DoubleClick"
+536f: "GridControl_DoubleClick"
+5387: "tsButtonOT_ItemClick"
+539c: "tsButtonSPT_ItemClick"
+53b2: "add_ItemClick"
+53c0: "tsButtonFile_ItemClick"
+53d7: "tsButtonObjectName_ItemClick"
+53f4: "btnTemplate_ItemClick"
+540a: "tsButtonRefresh_ItemClick"
+5424: "tsButtonExcel_ItemClick"
+543c: "btnExpandAll_ItemClick"
+5453: "btnCollapseAll_ItemClick"
+546c: "tsButtonHelp_ItemClick"
+5483: "tsButtonStop_ItemClick"
+549a: "bButtonClear_ItemClick"
+54b1: "tsButtonStart_ItemClick"
+54c9: "tsAbout_ItemClick"
+54db: "GenItemClick"
+54e8: "GridMenuItemClick"
+54fa: "set_Dock"
+5503: "get_Luck"
+550c: "set_Luck"
+5515: "colLuck"
+551d: "columnLuck"
+5528: "get_CanSeek"
+5534: "get_R_Bank"
+553f: "tableR_Bank"
+554b: "ShouldSerializeR_Bank"
+5561: "tabBank"
+5569: "grdBank"
+5571: "vwBank"
+5578: "get_Link"
+5581: "tsLabelLink"
+558d: "BarButtonItemLink"
+559f: "BarItemLink"
+55ab: "OpenLink"
+55b4: "set_IsLink"
+55bf: "PrintableComponentLink"
+55d6: "get_Book"
+55df: "set_Book"
+55e8: "WriteWorkBook"
+55f6: "colBook"
+55fe: "columnBook"
+5609: "DevExpress.XtraEditors.Mask"
+5625: "get_Mask"
+562e: "set_EditMask"
+563b: "set_RotateWhenVertical"
+5652: "Decimal"
+565a: "set_Interval"
+5667: "ModifyArtTbl"
+5674: "tbl"
+5678: "LinkLabel"
+5682: "ToolStripLabel"
+5691: "ToolStripStatusLabel"
+56a6: "btnCancel"
+56b0: "messageExcel"
+56bd: "tsButtonExcel"
+56cb: "ExportExcel"
+56d7: "System.ComponentModel"
+56ed: "DevExpress.LookAndFeel"
+5704: "get_LookAndFeel"
+5714: "UserLookAndFeel"
+5724: "set_UseDefaultLookAndFeel"
+573e: "get_InColumnPanel"
+5750: "get_GroupPanel"
+575f: "get_InGroupPanel"
+5770: "set_ShowGroupPanel"
+5783: "get_HeaderPanel"
+5793: "get_FilterPanel"
+57a3: "get_FooterPanel"
+57b3: "get_Level"
+57bd: "set_Level"
+57c7: "GetSSkillLevel"
+57d6: "colLevel"
+57df: "MinLevel"
+57e8: "columnLevel"
+57f4: "GetNextLevel"
+5801: "set_MaxLevel"
+580e: "SaveHovel"
+5818: "tsLabelGrail"
+5825: "grail"
+582b: "skl"
+582f: "btnExpandAll"
+583c: "btnCollapseAll"
+584b: "LoadDll"
+5853: "kernel32.dll"
+5860: "LMOracle.SkillTreeAPI.dll"
+587a: "get_FocusedCell"
+588a: "reCell"
+5891: "ShowCell"
+589a: "get_R_Spell"
+58a6: "tableR_Spell"
+58b3: "ShouldSerializeR_Spell"
+58ca: "get_Spell"
+58d4: "set_Spell"
+58de: "tabSpell"
+58e7: "grdSpell"
+58f0: "CreateTblSpell"
+58ff: "get_R_AllSpell"
+590e: "tableR_AllSpell"
+591e: "ShouldSerializeR_AllSpell"
+5938: "tabAllSpell"
+5944: "grdAllSpell"
+5950: "GetAllSpell"
+595c: "vwAllSpell"
+5967: "colSpell"
+5970: "columnSpell"
+597c: "GetTownSpell"
+5989: "vwSpell"
+5991: "colSSkill"
+599b: "get_R_Skill"
+59a7: "tableR_Skill"
+59b4: "ShouldSerializeR_Skill"
+59cb: "get_Skill"
+59d5: "set_Skill"
+59df: "tabSkill"
+59e8: "grdSkill"
+59f1: "treeSkill"
+59fb: "set_aLevelSkill"
+5a0b: "get_R_AllSkill"
+5a1a: "tableR_AllSkill"
+5a2a: "ShouldSerializeR_AllSkill"
+5a44: "tabAllSkill"
+5a50: "grdAllSkill"
+5a5c: "GetAllSkill"
+5a68: "vwAllSkill"
+5a73: "colSkill"
+5a7c: "aFullLvlSkill"
+5a8a: "GetFullLvlSkill"
+5a9a: "columnSkill"
+5aa6: "aPrSkill"
+5aaf: "LeftSkill"
+5ab9: "vwSkill"
+5ac1: "get_SecondarySkill"
+5ad4: "set_SecondarySkill"
+5ae7: "set_TblSecondarySkill"
+5afd: "CreateTblSecondarySkill"
+5b15: "colSecondarySkill"
+5b27: "columnSecondarySkill"
+5b3c: "get_PrimarySkill"
+5b4d: "set_PrimarySkill"
+5b5e: "colPrimarySkill"
+5b6e: "columnPrimarySkill"
+5b81: "SaveWindmill"
+5b8e: "get_Doll"
+5b97: "set_Doll"
+5ba0: "aDoll"
+5ba6: "colDoll"
+5bae: "columnDoll"
+5bb9: "SaveScroll"
+5bc4: "IsXP10Null"
+5bcf: "SetXP10Null"
+5bdb: "IsXP15Null"
+5be6: "SetXP15Null"
+5bf2: "IsXP5Null"
+5bfc: "SetXP5Null"
+5c07: "set_AllowDBNull"
+5c17: "Is_Relic_CNull"
+5c26: "Set_Relic_CNull"
+5c36: "IsIDNull"
+5c3f: "IsClassIDNull"
+5c4d: "SetClassIDNull"
+5c5c: "SetIDNull"
+5c66: "IsHPNull"
+5c6f: "SetHPNull"
+5c79: "IsMPNull"
+5c82: "SetMPNull"
+5c8c: "IsXPNull"
+5c95: "SetXPNull"
+5c9f: "IsXNull"
+5ca7: "SetXNull"
+5cb0: "IsYNull"
+5cb8: "SetYNull"
+5cc1: "IsZNull"
+5cc9: "SetZNull"
+5cd2: "IsManaNull"
+5cdd: "SetManaNull"
+5ce9: "IsAntiMagicNull"
+5cf9: "SetAntiMagicNull"
+5d0a: "IsLastMagicNull"
+5d1a: "SetLastMagicNull"
+5d2b: "IsGoldNull"
+5d36: "SetGoldNull"
+5d42: "IsMoodNull"
+5d4d: "SetMoodNull"
+5d59: "IsGuardNull"
+5d65: "SetGuardNull"
+5d72: "IsRewardNull"
+5d7f: "SetRewardNull"
+5d8d: "IsPlaceNull"
+5d99: "SetPlaceNull"
+5da6: "IsExperienceNull"
+5db7: "SetExperienceNull"
+5dc9: "IsResourceNull"
+5dd8: "SetResourceNull"
+5de8: "IsCodeNull"
+5df3: "SetCodeNull"
+5dff: "IsCanTakeNull"
+5e0d: "SetCanTakeNull"
+5e1c: "IsMoraleNull"
+5e29: "SetMoraleNull"
+5e37: "IsAvailableNull"
+5e47: "SetAvailableNull"
+5e58: "IsNameNull"
+5e63: "SetNameNull"
+5e6f: "IsMachineNull"
+5e7d: "SetMachineNull"
+5e8c: "IsDeadlineNull"
+5e9b: "SetDeadlineNull"
+5eab: "IsTypeNull"
+5eb6: "SetTypeNull"
+5ec2: "IsHireNull"
+5ecd: "SetHireNull"
+5ed9: "IsIncreaseNull"
+5ee8: "SetIncreaseNull"
+5ef8: "IsBuildingNull"
+5f07: "SetBuildingNull"
+5f17: "IsLuckNull"
+5f22: "SetLuckNull"
+5f2e: "IsBookNull"
+5f39: "SetBookNull"
+5f45: "IsLevelNull"
+5f51: "SetLevelNull"
+5f5e: "IsSpellNull"
+5f6a: "SetSpellNull"
+5f77: "IsSkillNull"
+5f83: "SetSkillNull"
+5f90: "IsSecondarySkillNull"
+5fa5: "SetSecondarySkillNull"
+5fbb: "IsPrimarySkillNull"
+5fce: "SetPrimarySkillNull"
+5fe2: "IsDollNull"
+5fed: "SetDollNull"
+5ff9: "IsLastWisdomNull"
+600a: "SetLastWisdomNull"
+601c: "IsMissionNull"
+602a: "SetMissionNull"
+6039: "IsGarrisonNull"
+6048: "SetGarrisonNull"
+6058: "IsTownNull"
+6063: "SetTownNull"
+606f: "IsHeroNull"
+607a: "SetHeroNull"
+6086: "IsTreeNumberNull"
+6097: "SetTreeNumberNull"
+60a9: "IsNumberNull"
+60b6: "SetNumberNull"
+60c4: "IsLibTimerNull"
+60d3: "SetLibTimerNull"
+60e3: "IsMageTimerNull"
+60f3: "SetMageTimerNull"
+6104: "IsTimerNull"
+6110: "SetTimerNull"
+611d: "IsMonsterNull"
+612b: "SetMonsterNull"
+613a: "IsPairNull"
+6145: "SetPairNull"
+6151: "IsColorNull"
+615d: "SetColorNull"
+616a: "IsNull"
+6171: "IsClassNull"
+617d: "SetClassNull"
+618a: "IsAddressNull"
+6198: "SetAddressNull"
+61a7: "IsRepeatNull"
+61b4: "SetRepeatNull"
+61c2: "IsArtefactNull"
+61d1: "SetArtefactNull"
+61e1: "IsObjectNull"
+61ee: "SetObjectNull"
+61fc: "IsBuiltNull"
+6208: "SetBuiltNull"
+6215: "IsPaymentNull"
+6223: "SetPaymentNull"
+6232: "IsSlotNull"
+623d: "SetSlotNull"
+6249: "IsArtNull"
+6253: "SetArtNull"
+625e: "IsCostNull"
+6269: "SetCostNull"
+6275: "IsDayNull"
+627f: "SetDayNull"
+628a: "IsIdeologyNull"
+6299: "SetIdeologyNull"
+62a9: "IsApplyNull"
+62b5: "SetApplyNull"
+62c2: "IsLibraryNull"
+62d0: "SetLibraryNull"
+62df: "IsLocalityNull"
+62ee: "SetLocalityNull"
+62fe: "System.Xml"
+6309: "ReadXml"
+6311: "RestoreLayoutFromXml"
+6326: "SaveLayoutToXml"
+6336: "set_DockCol"
+6342: "ScanMonolithWhirlpool"
+6358: "DevExpress.XtraPrinting.Control"
+6378: "get_Control"
+6384: "XtraTabControl"
+6393: "tabControl"
+639e: "get_GridControl"
+63ae: "set_GridControl"
+63be: "BaseStyleControl"
+63cf: "BindingControl"
+63de: "BarDockControl"
+63ed: "LabelControl"
+63fa: "PanelControl"
+6407: "IButtonControl"
+6416: "get_DropDownControl"
+642a: "set_DropDownControl"
+643e: "grpControl"
+6449: "GroupControl"
+6456: "PopupControl"
+6463: "ContainerControl"
+6474: "RichEditControl"
+6484: "set_PrintControl"
+6495: "GetNextControl"
+64a4: "pl"
+64a7: "sUrl"
+64ac: "ctrl"
+64b1: "fstl"
+64b6: "maxlvl"
+64bd: "hTeam"
+64c3: "AddStream"
+64cd: "set_ImageStream"
+64dd: "ZipFileStream"
+64eb: "DeflateStream"
+64f9: "get_EndOfStream"
+6509: "RestoreLayoutFromStream"
+6521: "SaveLayoutToStream"
+6534: "GZipStream"
+653f: "MemoryStream"
+654c: "_stream"
+6554: "Program"
+655c: "SaveFloatsam"
+6569: "get_Item"
+6572: "set_Item"
+657b: "BarSubItem"
+6586: "PrintPreviewSubItem"
+659a: "BarStaticItem"
+65a8: "PrintPreviewStaticItem"
+65bf: "PrintPreviewBarCheckItem"
+65d8: "DXMenuCheckItem"
+65e8: "BarBaseButtonItem"
+65fa: "BarButtonItem"
+6608: "ToolStripItem"
+6616: "RadioGroupItem"
+6625: "PrintPreviewBarItem"
+6639: "BarLinkContainerItem"
+664e: "BarCustomContainerItem"
+6665: "ZoomTrackBarEditItem"
+667a: "ZoomBarEditItem"
+668a: "ProgressBarEditItem"
+669e: "BarToolbarsListItem"
+66b2: "DXMenuItem"
+66bd: "DXSubMenuItem"
+66cb: "RepositoryItem"
+66da: "item"
+66df: "set_PrintingSystem"
+66f2: "Trim"
+66f7: "Delta_Wisdom"
+6704: "Last_Wisdom"
+6710: "get_LastWisdom"
+671f: "set_LastWisdom"
+672e: "columnLastWisdom"
+673f: "LoadFrom"
+6748: "barDockControlBottom"
+675d: "pm"
+6760: "frm"
+6764: "Obj2Form"
+676d: "get_Form"
+6776: "set_Form"
+677f: "fLoadForm"
+6789: "FindForm"
+6792: "SkillTreeForm"
+67a0: "ObjectNameForm"
+67af: "MainForm"
+67b8: "set_ShowInCustomizationForm"
+67d4: "set_AllowMoveToCustomizationForm"
+67f5: "PrintForm"
+67ff: "ExportForm"
+680a: "ShowForm"
+6813: "MyForm"
+681a: "asm"
+681e: "set_Maximum"
+682a: "Enum"
+682f: "ObjNameSoDEn"
+683c: "CreateTblDwellingSoDEn"
+6853: "CreateTblSpellSoDEn"
+6867: "CreateTblSecondarySkillSoDEn"
+6884: "CreateTblMonsterSoDEn"
+689a: "TblMonstersSoDEn"
+68ab: "CreateTblObjectSoDEn"
+68c0: "CreateTblArtSoDEn"
+68d2: "CreateArraySoDEn"
+68e3: "resourceMan"
+68ef: "DefaultBoolean"
+68fe: "human"
+6904: "Pen"
+6908: "SaveMysticalGarden"
+691b: "PointToScreen"
+6929: "bButtonOpen"
+6935: "fn"
+6938: "BottleSign"
+6943: "set_TextAlign"
+6951: "System.ComponentModel.Design"
+696e: "Min"
+6972: "frmMain"
+697a: "AppDomain"
+6984: "get_CurrentDomain"
+6996: "sBegin"
+699d: "SeekOrigin"
+69a8: "min"
+69ac: "get_XP10Column"
+69bb: "get_XP15Column"
+69ca: "get_XP5Column"
+69d8: "get__Relic_CColumn"
+69eb: "get_IDColumn"
+69f8: "get_ClassIDColumn"
+6a0a: "get_HPColumn"
+6a17: "get_MPColumn"
+6a24: "get_XPColumn"
+6a31: "get_XColumn"
+6a3d: "get_YColumn"
+6a49: "get_ZColumn"
+6a55: "get_Column"
+6a60: "get_ManaColumn"
+6a6f: "DataColumn"
+6a7a: "get_AntiMagicColumn"
+6a8e: "get_LastMagicColumn"
+6aa2: "get_FocusedColumn"
+6ab4: "GridColumn"
+6abf: "get_GoldColumn"
+6ace: "get_MoodColumn"
+6add: "get_GuardColumn"
+6aed: "get_RewardColumn"
+6afe: "get_PlaceColumn"
+6b0e: "get_ExperienceColumn"
+6b23: "get_ResourceColumn"
+6b36: "get_CodeColumn"
+6b45: "get_CanTakeColumn"
+6b57: "get_MoraleColumn"
+6b68: "get_AvailableColumn"
+6b7c: "get_NameColumn"
+6b8b: "get_MachineColumn"
+6b9d: "get_DeadlineColumn"
+6bb0: "get_TypeColumn"
+6bbf: "get_HireColumn"
+6bce: "get_IncreaseColumn"
+6be1: "get_BuildingColumn"
+6bf4: "get_LuckColumn"
+6c03: "get_BookColumn"
+6c12: "get_LevelColumn"
+6c22: "get_SpellColumn"
+6c32: "get_SkillColumn"
+6c42: "get_SecondarySkillColumn"
+6c5b: "get_PrimarySkillColumn"
+6c72: "get_DollColumn"
+6c81: "get_LastWisdomColumn"
+6c96: "get_MissionColumn"
+6ca8: "get_GarrisonColumn"
+6cbb: "get_TownColumn"
+6cca: "get_HeroColumn"
+6cd9: "get_NumberColumn"
+6cea: "get_TreeNumberColumn"
+6cff: "get_TimerColumn"
+6d0f: "get_LibTimerColumn"
+6d22: "get_MageTimerColumn"
+6d36: "get_MonsterColumn"
+6d48: "get_PairColumn"
+6d57: "get_ColorColumn"
+6d67: "get_OptionsColumn"
+6d79: "TreeListOptionsColumn"
+6d8f: "get_ClassColumn"
+6d9f: "get_AddressColumn"
+6db1: "get_RepeatColumn"
+6dc2: "get_ArtefactColumn"
+6dd5: "get_ObjectColumn"
+6de6: "get_BuiltColumn"
+6df6: "get_PaymentColumn"
+6e08: "get_SlotColumn"
+6e17: "get_ArtColumn"
+6e25: "TreeListColumn"
+6e34: "get_CostColumn"
+6e43: "get_DayColumn"
+6e51: "get_IdeologyColumn"
+6e64: "get_ApplyColumn"
+6e74: "get_LibraryColumn"
+6e86: "get_LocalityColumn"
+6e99: "column"
+6ea0: "set_Icon"
+6ea9: "set_ShowIcon"
+6eb6: "MessageBoxIcon"
+6ec5: "SaveWagon"
+6ecf: "GetSenseRegion"
+6ede: "MapRegion"
+6ee8: "set_AddExtension"
+6ef9: "GetExtension"
+6f06: "set_Version"
+6f12: "get_iVersion"
+6f1f: "set_iVersion"
+6f2c: "System.IO.Compression"
+6f42: "get_Mission"
+6f4e: "set_Mission"
+6f5a: "colMission"
+6f65: "columnMission"
+6f73: "Application"
+6f7f: "get_Location"
+6f8c: "set_Location"
+6f99: "set_FloatLocation"
+6fab: "set_CausesValidation"
+6fc0: "get_OptionsNavigation"
+6fd6: "GridOptionsNavigation"
+6fec: "set_TextImageRelation"
+7002: "System.Configuration"
+7017: "get_ShowWithoutActivation"
+7031: "System.Globalization"
+7046: "System.Runtime.Serialization"
+7063: "System.Xml.Serialization"
+707c: "set_DisableCustomization"
+7095: "set_AllowQuickCustomization"
+70b1: "set_AllowCustomization"
+70c8: "get_Action"
+70d3: "MissingSchemaAction"
+70e7: "CollectionChangeAction"
+70fe: "eventAction"
+710a: "DataRowAction"
+7118: "action"
+711f: "RewardSection"
+712d: "PlaceSection"
+713a: "MineSection"
+7146: "DwellingSection"
+7156: "SpellSection"
+7163: "FullLevelSkillSection"
+7179: "DollSection"
+7185: "FindTownSection"
+7195: "ColorSection"
+71a2: "MonstrSection"
+71b0: "HeroClassSection"
+71c1: "ArtClassSection"
+71d1: "StatusSection"
+71df: "ObjectSection"
+71ed: "TentSection"
+71f9: "ArtSection"
+7204: "QuestSection"
+7211: "IdeologySection"
+7221: "ReplySection"
+722e: "LocalitySection"
+723e: "get_OptionsSelection"
+7253: "GridOptionsSelection"
+7268: "ColumnViewOptionsSelection"
+7283: "System.Reflection"
+7295: "ICollection"
+72a1: "TreeListAppearanceCollection"
+72be: "XtraTabPageCollection"
+72d4: "DataTableCollection"
+72e8: "BarItemLinkCollection"
+72fe: "ControlCollection"
+7310: "ToolStripItemCollection"
+7328: "RadioGroupItemCollection"
+7341: "DXMenuItemCollection"
+7356: "ComboBoxItemCollection"
+736d: "RepositoryItemCollection"
+7386: "DataColumnCollection"
+739b: "GridColumnCollection"
+73b0: "TreeListColumnCollection"
+73c9: "DataRelationCollection"
+73e0: "EditorButtonCollection"
+73f7: "XmlSchemaObjectCollection"
+7411: "ArrangedElementCollection"
+742b: "ConstraintCollection"
+7440: "get_ViewCollection"
+7453: "GridControlViewCollection"
+746d: "DataRowCollection"
+747f: "GridColumnReadOnlyCollection"
+749c: "ViewRepositoryCollection"
+74b5: "PropertyCollection"
+74c8: "get_Position"
+74d5: "set_Position"
+74e2: "RowColumnToPosition"
+74f6: "set_StartPosition"
+7508: "FormStartPosition"
+751a: "Option"
+7521: "get_Caption"
+752d: "set_Caption"
+7539: "InvalidDataException"
+754e: "StrongTypingException"
+7564: "ArgumentNullException"
+757a: "InvalidOperationException"
+7594: "InvalidCastException"
+75a9: "get_R_Prison"
+75b6: "tableR_Prison"
+75c4: "ShouldSerializeR_Prison"
+75dc: "tabPrison"
+75e6: "grdPrison"
+75f0: "SavePrison"
+75fb: "vwPrison"
+7604: "get_R_Garrison"
+7613: "tableR_Garrison"
+7623: "ShouldSerializeR_Garrison"
+763d: "get_Garrison"
+764a: "set_Garrison"
+7657: "tabGarrison"
+7663: "grdGarrison"
+766f: "SaveGarrison"
+767c: "CreateTblGarrison"
+768e: "colGarrison"
+769a: "columnGarrison"
+76a9: "vwGarrison"
+76b4: "SaveSkeleton"
+76c1: "get_Button"
+76cc: "SimpleButton"
+76d9: "BaseButton"
+76e4: "CreateButton"
+76f1: "okButton"
+76fa: "set_CancelButton"
+770b: "EditorButton"
+7718: "set_AcceptButton"
+7729: "IsHeroTavern"
+7736: "Chrn"
+773b: "Run"
+773f: "get_Down"
+7748: "set_Down"
+7751: "add_MouseDown"
+775f: "treeSkill_MouseDown"
+7773: "GridView_MouseDown"
+7786: "RestoreItemDown"
+7796: "set_ActAsDropDown"
+77a8: "add_KeyDown"
+77b4: "reCell_KeyDown"
+77c3: "treeSkill_KeyDown"
+77d5: "GridView_KeyDown"
+77e6: "get_R_Town"
+77f1: "tableR_Town"
+77fd: "ShouldSerializeR_Town"
+7813: "get_Town"
+781c: "set_Town"
+7825: "aTown"
+782b: "tabTown"
+7833: "grdTown"
+783b: "colTown"
+7843: "columnTown"
+784e: "GetTimerTown"
+785b: "vwTown"
+7862: "add_Shown"
+786c: "SkillTreeForm_Shown"
+7880: "FieldInfo"
+788a: "ReadFileInfo"
+7897: "GetFileInfo"
+78a3: "CultureInfo"
+78af: "SerializationInfo"
+78c1: "MemberInfo"
+78cc: "LinksInfo"
+78d6: "get_HitInfo"
+78e2: "CalcHitInfo"
+78ee: "GridHitInfo"
+78fa: "dblHitInfo"
+7905: "TreeListHitInfo"
+7915: "hitInfo"
+791d: "ProcessStartInfo"
+792e: "LinkPersistInfo"
+793e: "get_LinksPersistInfo"
+7953: "DevExpress.XtraGrid.Views.Grid.ViewInfo"
+797b: "DirectoryInfo"
+7989: "info"
+798e: "RAMHero"
+7996: "THero"
+799c: "get_Hero"
+79a5: "set_Hero"
+79ae: "tabHero"
+79b6: "grdHero"
+79be: "SaveHero"
+79c7: "colHero"
+79cf: "columnHero"
+79da: "GetPrisonHero"
+79e8: "GetNewHero"
+79f3: "vwHero"
+79fa: "Zero"
+79ff: "hero"
+7a04: "add_CloseUp"
+7a10: "ppmFile_CloseUp"
+7a20: "popupMenu_CloseUp"
+7a32: "add_MouseUp"
+7a3e: "treeSkill_MouseUp"
+7a50: "LevelUp"
+7a58: "ScanMap"
+7a60: "StartMap"
+7a69: "map"
+7a6d: "set_WordWrap"
+7a7a: "cp"
+7a7d: "hp"
+7a80: "get_ToolTip"
+7a8c: "set_ToolTip"
+7a98: "myToolTip"
+7aa2: "FilenameInZip"
+7ab0: "_filenameInZip"
+7abf: "ToolStrip"
+7ac9: "StatusStrip"
+7ad5: "_zip"
+7ada: "tsButtonHelp"
+7ae7: "mnuButtonHelp"
+7af5: "get_R_Camp"
+7b00: "tableR_Camp"
+7b0c: "ShouldSerializeR_Camp"
+7b22: "tabCamp"
+7b2a: "grdCamp"
+7b32: "SaveCamp"
+7b3b: "vwCamp"
+7b42: "aSPTdecmp"
+7b4c: "barDockControlTop"
+7b5e: "set_TabStop"
+7b6a: "tsButtonStop"
+7b77: "sStop"
+7b7d: "WriteDocPropsApp"
+7b8e: "set_BeginGroup"
+7b9d: "RepositoryItemRadioGroup"
+7bb6: "get_IPopup"
+7bc1: "add_Popup"
+7bcb: "tsMenuService_Popup"
+7bdf: "tsExpotr_Popup"
+7bee: "add_BeforePopup"
+7bfe: "ppmFile_BeforePopup"
+7c12: "ShowPopup"
+7c1c: "RepositoryItemTrackBar"
+7c33: "RepositoryItemZoomTrackBar"
+7c4e: "get_PropertiesBar"
+7c60: "get_OptionsBar"
+7c6f: "RepositoryItemProgressBar"
+7c89: "set_StatusBar"
+7c97: "set_PreviewBar"
+7ca6: "set_ShowInTaskbar"
+7cb8: "get_Year"
+7cc1: "DbClear"
+7cc9: "bButtonClear"
+7cd6: "btnClear"
+7cdf: "IsPrintableTownChar"
+7cf3: "get_R_Scholar"
+7d01: "tableR_Scholar"
+7d10: "ShouldSerializeR_Scholar"
+7d29: "tabScholar"
+7d34: "grdScholar"
+7d3f: "SaveScholar"
+7d4b: "vwScholar"
+7d55: "_Ver"
+7d5a: "titleMapVer"
+7d66: "errorMapVer"
+7d72: "set_DataMember"
+7d81: "InvokeMember"
+7d8e: "get_Number"
+7d99: "set_Number"
+7da4: "get_TreeNumber"
+7db3: "set_TreeNumber"
+7dc2: "columnTreeNumber"
+7dd3: "colNumber"
+7ddd: "columnNumber"
+7dea: "ObjectNumber"
+7df7: "get_Header"
+7e02: "WriteLocalHeader"
+7e13: "StringReader"
+7e20: "XmlReader"
+7e2a: "StreamReader"
+7e37: "XmlTextReader"
+7e45: "BinaryReader"
+7e52: "reader"
+7e59: "StringBuilder"
+7e67: "NewRowFromBuilder"
+7e79: "DataRowBuilder"
+7e88: "builder"
+7e90: "sender"
+7e97: "Binder"
+7e9e: "set_Border"
+7ea9: "set_DrawDragBorder"
+7ebc: "TSkillOffer"
+7ec8: "GetSkillOffer"
+7ed6: "GetBuffer"
+7ee0: "get_Manager"
+7eec: "set_Manager"
+7ef8: "get_ResourceManager"
+7f0c: "ComponentResourceManager"
+7f25: "SkinManager"
+7f31: "PrintBarManager"
+7f41: "IDXMenuManager"
+7f50: "get_MenuManager"
+7f60: "set_MenuManager"
+7f70: "MyManager"
+7f7a: "HighlightedLinkChangedEventHandler"
+7f9d: "FocusedRowChangedEventHandler"
+7fbb: "LinkLabelLinkClickedEventHandler"
+7fdc: "FormClosedEventHandler"
+7ff3: "CollectionChangeEventHandler"
+8010: "R_PassGuardRowChangeEventHandler"
+8031: "R_AllExperienceRowChangeEventHandler"
+8056: "R_ResourceRowChangeEventHandler"
+8076: "R_MineRowChangeEventHandler"
+8092: "R_BankRowChangeEventHandler"
+80ae: "R_SpellRowChangeEventHandler"
+80cb: "R_AllSpellRowChangeEventHandler"
+80eb: "R_SkillRowChangeEventHandler"
+8108: "R_AllSkillRowChangeEventHandler"
+8128: "R_PrisonRowChangeEventHandler"
+8146: "R_GarrisonRowChangeEventHandler"
+8166: "R_TownRowChangeEventHandler"
+8182: "R_CampRowChangeEventHandler"
+819e: "R_ScholarRowChangeEventHandler"
+81bd: "R_AllTimerRowChangeEventHandler"
+81dd: "R_MonstrRowChangeEventHandler"
+81fb: "R_HeroesRowChangeEventHandler"
+8219: "R_AllArtsRowChangeEventHandler"
+8238: "R_ObjectRowChangeEventHandler"
+8256: "R_MarketRowChangeEventHandler"
+8274: "R_ArtRowChangeEventHandler"
+828f: "R_ChestRowChangeEventHandler"
+82ac: "R_SeerHutRowChangeEventHandler"
+82cb: "R_EventBoxRowChangeEventHandler"
+82eb: "R_TopologyRowChangeEventHandler"
+830b: "MouseEventHandler"
+831d: "PopupMenuShowingEventHandler"
+833a: "ItemClickEventHandler"
+8350: "CancelEventHandler"
+8363: "ValidationEventHandler"
+837a: "PaintEventHandler"
+838c: "ToolTipControllerBeforeShowEventHandler"
+83b4: "KeyEventHandler"
+83c4: "System.CodeDom.Compiler"
+83dc: "set_Controller"
+83eb: "BarAndDockingController"
+8403: "set_ToolTipController"
+8419: "ImageCollectionStreamer"
+8431: "get_Timer"
+843b: "set_Timer"
+8445: "get_LibTimer"
+8452: "set_LibTimer"
+845f: "columnLibTimer"
+846e: "get_MageTimer"
+847c: "set_MageTimer"
+848a: "columnMageTimer"
+849a: "get_R_AllTimer"
+84a9: "tableR_AllTimer"
+84b9: "ShouldSerializeR_AllTimer"
+84d3: "tabAllTimer"
+84df: "grdAllTimer"
+84eb: "vwAllTimer"
+84f6: "colTimer"
+84ff: "columnTimer"
+850b: "errorScaner"
+8517: "DevExpress.XtraEditors.Container"
+8538: "IContainer"
+8543: "ComponentEditorContainer"
+855c: "Scanner"
+8564: "set_Owner"
+856e: "set_fOwner"
+8579: "ToUpper"
+8581: "ZipStorer"
+858b: "CurrentUser"
+8597: "XmlWriter"
+85a1: "XmlTextWriter"
+85af: "writer"
+85b6: "set_Filter"
+85c1: "OptionsColumnFilter"
+85d5: "get_OptionsFilter"
+85e7: "ColumnViewOptionsFilter"
+85ff: "get_GroupFooter"
+860f: "get_ShowFooter"
+861e: "set_ShowFooter"
+862d: "BitConverter"
+863a: "get_Monster"
+8646: "set_Monster"
+8652: "tabMonster"
+865d: "grdMonster"
+8668: "SaveMonster"
+8674: "GetBankMonster"
+8683: "CreateTblMonster"
+8694: "colMonster"
+869f: "columnMonster"
+86ad: "GetMonster"
+86b8: "vwMonster"
+86c2: "SaveUniver"
+86cd: "CreateTblUniver"
+86dd: "label1_MouseHover"
+86ef: "add_MouseHover"
+86fe: "SpellPower"
+8709: "ReadCentralDir"
+8718: "get_Pair"
+8721: "set_Pair"
+872a: "SubTerGatePair"
+8739: "colPair"
+8741: "columnPair"
+874c: "set_Anchor"
+8757: "set_LinkBehavior"
+8768: "get_OptionsBehavior"
+877c: "GridOptionsBehavior"
+8790: "TreeListOptionsBehavior"
+87a8: "ColumnViewOptionsBehavior"
+87c2: "get_Color"
+87cc: "set_Color"
+87d6: "aColor"
+87dd: "aFoundColor"
+87e9: "set_ForeColor"
+87f7: "set_UseForeColor"
+8808: "set_BackColor"
+8816: "set_UseBackColor"
+8827: "set_LinkColor"
+8835: "colColor"
+883e: "columnColor"
+884a: "aExistColor"
+8856: "color"
+885c: "lastScanError"
+886a: "sError"
+8871: "get_WaitCursor"
+8880: "TownNameValidator"
+8892: "IEnumerator"
+889e: "GetEnumerator"
+88ac: "get_Activator"
+88ba: ".ctor"
+88c0: ".cctor"
+88c7: "get_prospector"
+88d6: "SaveSurvivor"
+88e3: "fstr"
+88e8: "get_R_Monstr"
+88f5: "tableR_Monstr"
+8903: "ShouldSerializeR_Monstr"
+891b: "CreateTblMonstr"
+892b: "get_Hour"
+8934: "ItWas"
+893a: "Schemas"
+8942: "get_Graphics"
+894f: "System.Diagnostics"
+8962: "get_Bounds"
+896d: "set_CustomizationFormBounds"
+8989: "SaveRes"
+8991: "GetTimerRes"
+899d: "CreateTblArtRes"
+89ad: "System.Runtime.InteropServices"
+89cc: "System.Runtime.CompilerServices"
+89ec: "GridViewAppearances"
+8a00: "ColumnViewAppearances"
+8a16: "System.Resources"
+8a27: "ProspectorRT.SkillTreeForm.resources"
+8a4c: "ProspectorRT.ObjectNameForm.resources"
+8a72: "ProspectorRT.MainForm.resources"
+8a92: "ProspectorRT.PrintForm.resources"
+8ab3: "ProspectorRT.ExportForm.resources"
+8ad5: "ProspectorRT.ShowForm.resources"
+8af5: "ProspectorRT.myToolTip.resources"
+8b16: "ProspectorRT.Properties.Resources.resources"
+8b42: "ProspectorRT.frmAbout.resources"
+8b62: "DebuggingModes"
+8b71: "DevExpress.XtraTreeList.Nodes"
+8b8f: "get_Nodes"
+8b99: "TreeListNodes"
+8ba7: "_zfes"
+8bad: "get_TabPages"
+8bba: "AcceptChanges"
+8bc8: "GetAssemblies"
+8bd6: "RemoveEntries"
+8be4: "ProspectorRT.Properties"
+8bfc: "get_Properties"
+8c0b: "get_ExtendedProperties"
+8c22: "MaskProperties"
+8c31: "BarManagerProperties"
+8c46: "get_Tables"
+8c51: "ShouldSerializeTables"
+8c67: "CreateStringTables"
+8c7a: "ExistingFiles"
+8c88: "EnableVisualStyles"
+8c9b: "BorderStyles"
+8ca8: "AnchorStyles"
+8cb5: "TextEditStyles"
+8cc4: "ReadAllLines"
+8cd1: "BarLinkUserDefines"
+8ce4: "ButtonPredefines"
+8cf5: "get_R_Heroes"
+8d02: "tableR_Heroes"
+8d10: "ShouldSerializeR_Heroes"
+8d28: "MemberTypes"
+8d34: "WriteContentTypes"
+8d46: "ProspectorRT.exe.licenses"
+8d60: "GetProcesses"
+8d6d: "get_Attributes"
+8d7c: "ReadAllBytes"
+8d89: "WriteAllBytes"
+8d97: "GetBytes"
+8da0: "GetBoxes"
+8da9: "UpdateCrcAndSizes"
+8dbb: "BindingFlags"
+8dc8: "Settings"
+8dd1: "HighlightedLinkChangedEventArgs"
+8df1: "FocusedRowChangedEventArgs"
+8e0c: "LinkLabelLinkClickedEventArgs"
+8e2a: "FormClosedEventArgs"
+8e3e: "CollectionChangeEventArgs"
+8e58: "DataRowChangeEventArgs"
+8e6f: "MouseEventArgs"
+8e7e: "PopupMenuShowingEventArgs"
+8e98: "ItemClickEventArgs"
+8eab: "CancelEventArgs"
+8ebb: "PaintEventArgs"
+8eca: "ToolTipControllerShowEventArgs"
+8ee9: "KeyEventArgs"
+8ef6: "args"
+8efb: "SaveBanks"
+8f05: "CreateTblBanks"
+8f14: "get_Links"
+8f1e: "DevExpress.XtraPrintingLinks"
+8f3b: "get_ItemLinks"
+8f49: "ClearLinks"
+8f54: "IsEquals"
+8f5d: "WriteXlRels"
+8f69: "DevExpress.Utils"
+8f7a: "DevExpress.XtraEditors.Controls"
+8f9a: "get_Controls"
+8fa7: "get_DockControls"
+8fb8: "BarDockControls"
+8fc8: "Teams"
+8fce: "teams"
+8fd4: "get_CreateParams"
+8fe5: "get_Items"
+8fef: "BarItems"
+8ff8: "get_RepositoryItems"
+900c: "System.Windows.Forms"
+9021: "Contains"
+902a: "set_Margins"
+9036: "DevExpress.Skins"
+9047: "DevExpress.UserSkins"
+905c: "DevExpress.XtraGrid.Columns"
+9078: "DevExpress.XtraTreeList.Columns"
+9098: "get_Columns"
+90a4: "get_VisibleColumns"
+90b7: "set_AutoScaleDimensions"
+90cf: "set_SupportMultiDottedExtensions"
+90f0: "get_Relations"
+90fe: "ShouldSerializeRelations"
+9117: "System.Collections"
+912a: "Motions"
+9132: "get_Options"
+913e: "AppearanceOptions"
+9150: "BarOptions"
+915b: "StringSplitOptions"
+916e: "get_TextOptions"
+917e: "set_UseTextOptions"
+9191: "get_Buttons"
+919d: "MouseButtons"
+91aa: "MessageBoxButtons"
+91bc: "pos"
+91c0: "ScanMaps"
+91c9: "get_Bars"
+91d2: "DevExpress.XtraBars"
+91e6: "InitVars"
+91ef: "get_Chars"
+91f9: "GetMembers"
+9204: "InitMembers"
+9210: "RuntimeHelpers"
+921f: "TblMonsters"
+922b: "SystemColors"
+9238: "Cursors"
+9240: "DevExpress.XtraEditors"
+9257: "set_TransparentEditors"
+926e: "strs"
+9273: "set_MinOccurs"
+9281: "set_MaxOccurs"
+928f: "get_Class"
+9299: "set_Class"
+92a3: "ModifyArtTblClass"
+92b5: "colClass"
+92be: "columnClass"
+92ca: "aHeroClass"
+92d5: "colHeroClass"
+92e2: "InitClass"
+92ec: "aArtClass"
+92f6: "FileAccess"
+9301: "dwAccess"
+930a: "_access"
+9312: "hProcess"
+931b: "OpenProcess"
+9327: "get_Address"
+9333: "set_Address"
+933f: "columnAddress"
+934d: "Decompress"
+9358: "DataFormats"
+9364: "RAMBBWeights"
+9371: "RAMWeights"
+937c: "TWeights"
+9385: "isStandardWeights"
+9397: "GetNewWeights"
+93a5: "GetArtMerchants"
+93b5: "components"
+93c0: "set_ProcessContents"
+93d4: "ScanMapTimedEvents"
+93e7: "ScanTownsTimedEvents"
+93fc: "MapTownsTimedEvents"
+9410: "GetTimedEvents"
+941f: "get_Constraints"
+942f: "get_EnforceConstraints"
+9446: "set_EnforceConstraints"
+945d: "get_SizeInPoints"
+946e: "get_R_AllArts"
+947c: "tableR_AllArts"
+948b: "ShouldSerializeR_AllArts"
+94a4: "tabAllArts"
+94af: "grdAllArts"
+94ba: "vwAllArts"
+94c4: "Exists"
+94cb: "Focus"
+94d1: "aStatus"
+94d9: "SetLabelStatus"
+94e8: "ScanStatus"
+94f3: "get_Views"
+94fd: "InitGridAndViews"
+950e: "GetViews"
+9517: "get_Rows"
+9520: "GetSelectedRows"
+9530: "set_DropDownRows"
+9541: "vws"
+9545: "xs"
+9548: "days"
+954d: "Keys"
+9552: "RemoveAt"
+955b: "InsertAt"
+9564: "Concat"
+956b: "get_Repeat"
+9576: "set_Repeat"
+9581: "colRepeat"
+958b: "columnRepeat"
+9598: "StringFormat"
+95a5: "GetFormat"
+95af: "get_Artefact"
+95bc: "set_Artefact"
+95c9: "colArtefact"
+95d5: "columnArtefact"
+95e4: "get_R_Object"
+95f1: "tableR_Object"
+95ff: "ShouldSerializeR_Object"
+9617: "get_Object"
+9622: "set_Object"
+962d: "XmlSchemaObject"
+963d: "tabObject"
+9647: "grdObject"
+9651: "LabelControlAppearanceObject"
+966e: "SaveObject"
+9679: "CreateTblObject"
+9689: "colObject"
+9693: "HeroOnObject"
+96a0: "columnObject"
+96ad: "IsObject"
+96b6: "GetObject"
+96c0: "vwObject"
+96c9: "object"
+96d0: "set_MultiSelect"
+96e0: "Collect"
+96e8: "GetNewStruct"
+96f5: "_dt"
+96f9: "Get"
+96fd: "XmlSchemaSet"
+970a: "get_DataSet"
+9716: "InitializeDerivedDataSet"
+972f: "WriteWorksheet"
+973e: "get_R_Market"
+974b: "tableR_Market"
+9759: "ShouldSerializeR_Market"
+9771: "tabMarket"
+977b: "grdMarket"
+9785: "SaveMarket"
+9790: "BlackMarket"
+979c: "CreateTblMarket"
+97ac: "vwMarket"
+97b5: "Reset"
+97bb: "GetFileOffset"
+97c9: "HeaderOffset"
+97d6: "_headerOffset"
+97e4: "_offset"
+97ec: "barDockControlLeft"
+97ff: "barDockControlRight"
+9813: "get_Height"
+981e: "set_AutoHeight"
+982d: "set_EditHeight"
+983c: "set_Edit"
+9845: "BaseEdit"
+984e: "DevExpress.XtraRichEdit"
+9866: "RepositoryItemCheckEdit"
+987e: "RepositoryItemSpinEdit"
+9895: "RepositoryItemButtonEdit"
+98ae: "RepositoryItemTextEdit"
+98c5: "set_AllowEdit"
+98d3: "ComboBoxEdit"
+98e0: "Split"
+98e6: "EndInit"
+98ee: "btnTemplateInit"
+98fe: "BeginInit"
+9908: "bsInit"
+990f: "MyInit"
+9916: "GraphicsUnit"
+9923: "get_Built"
+992d: "set_Built"
+9937: "colBuilt"
+9940: "columnBuilt"
+994c: "ntoolt"
+9953: "get_Default"
+995f: "ObjNameDefault"
+996e: "SetCompatibleTextRenderingDefault"
+9990: "IAsyncResult"
+999d: "set_DialogResult"
+99ae: "dsResult"
+99b7: "result"
+99be: "cnt"
+99c2: "aTent"
+99c8: "SaveTent"
+99d1: "SaveRecent"
+99dc: "biRecent"
+99e5: "MenuHandlerRecent"
+99f7: "GetPercent"
+9a02: "set_LeftIndent"
+9a11: "set_RightIndent"
+9a21: "WriteEndElement"
+9a31: "WriteStartElement"
+9a43: "Comment"
+9a4b: "_comment"
+9a54: "set_Alignment"
+9a62: "StringAlignment"
+9a72: "BarItemLinkAlignment"
+9a87: "ContentAlignment"
+9a98: "VertAlignment"
+9aa6: "set_TextAlignment"
+9ab8: "CreateDocument"
+9ac7: "WriteStartDocument"
+9ada: "get_Payment"
+9ae6: "set_Payment"
+9af2: "colPayment"
+9afd: "columnPayment"
+9b0b: "set_Component"
+9b19: "InitializeComponent"
+9b2d: "get_Transparent"
+9b3d: "get_Current"
+9b49: "set_Current"
+9b55: "ScanPassGuardContent"
+9b6a: "ObjContent"
+9b75: "ScanBankContent"
+9b85: "GetBankContent"
+9b94: "ScanContent"
+9ba0: "ScanBottleSignContent"
+9bb6: "GetGarrisonContent"
+9bc9: "GetTownContent"
+9bd8: "GetTimerContent"
+9be8: "GetUniverContent"
+9bf9: "GetColorContent"
+9c09: "ScanMonstrContent"
+9c1b: "AnalysisMonstrContent"
+9c31: "ScanArtResContent"
+9c43: "ScanHeroesContent"
+9c55: "GetHeroesContent"
+9c66: "AnalysisContent"
+9c76: "ScanTownsContent"
+9c87: "ScanObjectContent"
+9c99: "GetMarketContent"
+9caa: "ScanSeerHutContent"
+9cbd: "ScanEventBoxContent"
+9cd1: "MapTimedEvent"
+9cdf: "TownsTimedEvent"
+9cef: "R_PassGuardRowChangeEvent"
+9d09: "R_AllExperienceRowChangeEvent"
+9d27: "R_ResourceRowChangeEvent"
+9d40: "R_MineRowChangeEvent"
+9d55: "R_BankRowChangeEvent"
+9d6a: "R_SpellRowChangeEvent"
+9d80: "R_AllSpellRowChangeEvent"
+9d99: "R_SkillRowChangeEvent"
+9daf: "R_AllSkillRowChangeEvent"
+9dc8: "R_PrisonRowChangeEvent"
+9ddf: "R_GarrisonRowChangeEvent"
+9df8: "R_TownRowChangeEvent"
+9e0d: "R_CampRowChangeEvent"
+9e22: "R_ScholarRowChangeEvent"
+9e3a: "R_AllTimerRowChangeEvent"
+9e53: "R_MonstrRowChangeEvent"
+9e6a: "R_HeroesRowChangeEvent"
+9e81: "R_AllArtsRowChangeEvent"
+9e99: "R_ObjectRowChangeEvent"
+9eb0: "R_MarketRowChangeEvent"
+9ec7: "R_ArtRowChangeEvent"
+9edb: "R_ChestRowChangeEvent"
+9ef1: "R_SeerHutRowChangeEvent"
+9f09: "R_EventBoxRowChangeEvent"
+9f22: "R_TopologyRowChangeEvent"
+9f3b: "SaveEvent"
+9f45: "tabBoxEvent"
+9f51: "fnt"
+9f55: "get_Hint"
+9f5e: "set_Hint"
+9f67: "label1_Paint"
+9f74: "add_Paint"
+9f7e: "UniqueConstraint"
+9f8f: "GetHStartPoint"
+9f9e: "get_Font"
+9fa7: "set_Font"
+9fb0: "GridChangeFont"
+9fbf: "set_UseFont"
+9fcb: "set_TooltipFont"
+9fdb: "GetFont"
+9fe3: "SetFont"
+9feb: "MyFont"
+9ff2: "get_Count"
+9ffc: "SkillCount"
+a007: "HeroCount"
+a011: "get_RowCount"
+a01e: "get_DataRowCount"
+a02f: "count"
+a035: "get_Slot"
+a03e: "set_Slot"
+a047: "SafeSpellSlot"
+a055: "colSlot"
+a05d: "columnSlot"
+a068: "get_SyncRoot"
+a075: "TSkillExcept"
+a082: "spt"
+a086: "get_R_Art"
+a090: "tableR_Art"
+a09b: "ShouldSerializeR_Art"
+a0b0: "get_Art"
+a0b8: "set_Art"
+a0c0: "tabArt"
+a0c7: "grdArt"
+a0ce: "SaveArt"
+a0d6: "CreateTblArt"
+a0e3: "colArt"
+a0ea: "columnArt"
+a0f4: "GetArt"
+a0fb: "vwArt"
+a101: "ThreadStart"
+a10d: "chiStart"
+a116: "scanStart"
+a120: "tsButtonStart"
+a12e: "GetMapStart"
+a13a: "sStart"
+a141: "GetStart"
+a14a: "start"
+a150: "Convert"
+a158: "set_Sort"
+a161: "Abort"
+a167: "get_HitTest"
+a173: "GridHitTest"
+a17f: "get_R_Chest"
+a18b: "tableR_Chest"
+a198: "ShouldSerializeR_Chest"
+a1af: "SaveSeaChest"
+a1bc: "tabChest"
+a1c5: "grdChest"
+a1ce: "SaveChest"
+a1d8: "vwChest"
+a1e0: "aTavernGuest"
+a1ed: "аQuest"
+a1f5: "DevExpress.XtraTreeList"
+a20d: "ArrayList"
+a217: "RegistryKeyExist"
+a228: "GridRegistryExist"
+a23a: "get_Cost"
+a243: "set_Cost"
+a24c: "colCost"
+a254: "columnCost"
+a25f: "set_TopMost"
+a26b: "SaveWitchHut"
+a278: "get_R_SeerHut"
+a286: "tableR_SeerHut"
+a295: "ShouldSerializeR_SeerHut"
+a2ae: "tabSeerHut"
+a2b9: "grdSeerHut"
+a2c4: "SaveSeerHut"
+a2d0: "CreateTblSeerHut"
+a2e1: "vwSeerHut"
+a2eb: "set_ItemShortcut"
+a2fc: "BarShortcut"
+a308: "frmAbout"
+a311: "tsAbout"
+a319: "System.Windows.Forms.Layout"
+a335: "SuspendLayout"
+a343: "ResumeLayout"
+a350: "RestoreLayout"
+a35e: "get_FullLayout"
+a36d: "PerformLayout"
+a37b: "GridViewsDefaultLayout"
+a392: "input"
+a398: "output"
+a39f: "MoveNext"
+a3a8: "System.Text"
+a3b4: "get_Text"
+a3bd: "set_Text"
+a3c6: "set_GroupPanelText"
+a3d9: "WriteAllText"
+a3e6: "set_AllowHtmlText"
+a3f8: "get_ControlText"
+a408: "StreamingContext"
+a419: "context"
+a421: "ObjNameSoDRu"
+a42e: "CreateTblDwellingSoDRu"
+a445: "CreateTblSpellSoDRu"
+a459: "CreateTblSecondarySkillSoDRu"
+a476: "CreateTblMonsterSoDRu"
+a48c: "TblMonstersSoDRu"
+a49d: "CreateTblObjectSoDRu"
+a4b2: "CreateTblArtSoDRu"
+a4c4: "CreateArraySoDRu"
+a4d5: "DevExpress.XtraGrid.Menu"
+a4ee: "DevExpress.Utils.Menu"
+a504: "get_Menu"
+a50d: "CreateMenu"
+a518: "set_MainMenu"
+a525: "set_EnableColumnMenu"
+a53a: "CreatePopupMenu"
+a54a: "set_EnableFooterMenu"
+a55f: "get_OptionsMenu"
+a56f: "TreeListOptionsMenu"
+a583: "GetPopupContextMenu"
+a597: "SetPopupContextMenu"
+a5ab: "GridViewMenu"
+a5b8: "DataView"
+a5c1: "get_FocusedView"
+a5d1: "GridView"
+a5da: "BaseView"
+a5e3: "gView"
+a5e9: "set_MainView"
+a5f6: "ColumnView"
+a601: "get_OptionsView"
+a611: "GridOptionsView"
+a621: "get_DefaultView"
+a631: "DataRowView"
+a63d: "DevExpress.XtraPrinting.Preview"
+a65d: "get_Now"
+a665: "get_Row"
+a66d: "GetFocusedDataRow"
+a67f: "GetDataRow"
+a68a: "get_FocusedRow"
+a699: "SetFocusedRow"
+a6a7: "get_SelectedRow"
+a6b7: "AddR_PassGuardRow"
+a6c9: "RemoveR_PassGuardRow"
+a6de: "NewR_PassGuardRow"
+a6f0: "AddR_AllExperienceRow"
+a706: "RemoveR_AllExperienceRow"
+a71f: "NewR_AllExperienceRow"
+a735: "AddR_ResourceRow"
+a746: "RemoveR_ResourceRow"
+a75a: "NewR_ResourceRow"
+a76b: "set_UseWholeRow"
+a77b: "AddR_MineRow"
+a788: "RemoveR_MineRow"
+a798: "NewR_MineRow"
+a7a5: "set_DockRow"
+a7b1: "AddR_BankRow"
+a7be: "RemoveR_BankRow"
+a7ce: "NewR_BankRow"
+a7db: "AddR_SpellRow"
+a7e9: "RemoveR_SpellRow"
+a7fa: "NewR_SpellRow"
+a808: "AddR_AllSpellRow"
+a819: "RemoveR_AllSpellRow"
+a82d: "NewR_AllSpellRow"
+a83e: "AddR_SkillRow"
+a84c: "RemoveR_SkillRow"
+a85d: "NewR_SkillRow"
+a86b: "AddR_AllSkillRow"
+a87c: "RemoveR_AllSkillRow"
+a890: "NewR_AllSkillRow"
+a8a1: "get_HideSelectionRow"
+a8b6: "AddR_PrisonRow"
+a8c5: "RemoveR_PrisonRow"
+a8d7: "NewR_PrisonRow"
+a8e6: "AddR_GarrisonRow"
+a8f7: "RemoveR_GarrisonRow"
+a90b: "NewR_GarrisonRow"
+a91c: "AddR_TownRow"
+a929: "RemoveR_TownRow"
+a939: "NewR_TownRow"
+a946: "AddR_CampRow"
+a953: "RemoveR_CampRow"
+a963: "NewR_CampRow"
+a970: "get_GroupRow"
+a97d: "AddR_ScholarRow"
+a98d: "RemoveR_ScholarRow"
+a9a0: "NewR_ScholarRow"
+a9b0: "AddR_AllTimerRow"
+a9c1: "RemoveR_AllTimerRow"
+a9d5: "NewR_AllTimerRow"
+a9e6: "AddR_MonstrRow"
+a9f5: "RemoveR_MonstrRow"
+aa07: "NewR_MonstrRow"
+aa16: "AddR_HeroesRow"
+aa25: "RemoveR_HeroesRow"
+aa37: "NewR_HeroesRow"
+aa46: "AddR_AllArtsRow"
+aa56: "RemoveR_AllArtsRow"
+aa69: "NewR_AllArtsRow"
+aa79: "AddR_ObjectRow"
+aa88: "RemoveR_ObjectRow"
+aa9a: "NewR_ObjectRow"
+aaa9: "SelectRow"
+aab3: "UnselectRow"
+aabf: "GetRow"
+aac6: "AddR_MarketRow"
+aad5: "RemoveR_MarketRow"
+aae7: "NewR_MarketRow"
+aaf6: "eventRow"
+aaff: "AddR_ArtRow"
+ab0b: "RemoveR_ArtRow"
+ab1a: "NewR_ArtRow"
+ab26: "AddR_ChestRow"
+ab34: "RemoveR_ChestRow"
+ab45: "NewR_ChestRow"
+ab53: "AddR_SeerHutRow"
+ab63: "RemoveR_SeerHutRow"
+ab76: "NewR_SeerHutRow"
+ab86: "NewRow"
+ab8d: "AddR_EventBoxRow"
+ab9e: "RemoveR_EventBoxRow"
+abb2: "NewR_EventBoxRow"
+abc3: "AddR_TopologyRow"
+abd4: "RemoveR_TopologyRow"
+abe8: "NewR_TopologyRow"
+abf9: "dropShadow"
+ac04: "toolTipController1_BeforeShow"
+ac22: "add_BeforeShow"
+ac31: "arow"
+ac36: "hrow"
+ac3b: "nrow"
+ac40: "trow"
+ac45: "vw"
+ac48: "set_TabIndex"
+ac55: "get_SelectedIndex"
+ac67: "set_SelectedIndex"
+ac79: "set_ImageIndex"
+ac88: "set_VisibleIndex"
+ac99: "columnIndex"
+aca5: "set_GroupIndex"
+acb4: "rowIndex"
+acbd: "index"
+acc3: "get_Prefix"
+acce: "set_Prefix"
+acd9: "MessageBox"
+ace4: "PictureBox"
+acef: "SaveBox"
+acf7: "set_MinimizeBox"
+ad07: "set_MaximizeBox"
+ad17: "set_ControlBox"
+ad26: "PrintPreviewRepositoryItemComboBox"
+ad49: "get_R_EventBox"
+ad58: "tableR_EventBox"
+ad68: "ShouldSerializeR_EventBox"
+ad82: "grdEventBox"
+ad8e: "CreateTblEventBox"
+ada0: "vwEventBox"
+adab: "TextBox"
+adb3: "get_Day"
+adbb: "set_Day"
+adc3: "colDay"
+adca: "columnDay"
+add4: "set_AutoPopDelay"
+ade5: "SectionProcArray"
+adf6: "InitializeArray"
+ae06: "get_ItemArray"
+ae14: "set_ItemArray"
+ae22: "CreateDefaultArray"
+ae35: "sReady"
+ae3c: "set_UseTabKey"
+ae4a: "CreateSubKey"
+ae57: "OpenSubKey"
+ae62: "m_SoftwareKey"
+ae70: "CreateKey"
+ae7a: "DeleteKey"
+ae84: "ContainsKey"
+ae90: "set_PrimaryKey"
+ae9f: "RegistryKey"
+aeab: "get_Ideology"
+aeb8: "set_Ideology"
+aec5: "aIdeology"
+aecf: "CreateTblIdeology"
+aee1: "colIdeology"
+aeed: "columnIdeology"
+aefc: "get_R_Topology"
+af0b: "tableR_Topology"
+af1b: "ShouldSerializeR_Topology"
+af35: "tabTopology"
+af41: "grdTopology"
+af4d: "vwTopology"
+af58: "get_Assembly"
+af65: "RegisterAssembly"
+af76: "FindAlly"
+af7f: "NumAlly"
+af87: "SumAlly"
+af8f: "IsAlly"
+af96: "set_ReadOnly"
+afa3: "aReply"
+afaa: "get_Apply"
+afb4: "set_Apply"
+afbe: "colApply"
+afc7: "columnApply"
+afd3: "GetTimerApply"
+afe1: "GetEventApply"
+afef: "XmlSchemaAny"
+affc: "LMOracleCopy"
+b009: "TSecondary"
+b014: "Primary"
+b01c: "get_Library"
+b028: "set_Library"
+b034: "LoadLibrary"
+b040: "colLibrary"
+b04b: "columnLibrary"
+b059: "CreateDirectory"
+b069: "set_InitialDirectory"
+b07e: "DevExpress.XtraGrid.Repository"
+b09d: "DevExpress.XtraEditors.Repository"
+b0bf: "ZipFileEntry"
+b0cc: "RestoreLayoutFromRegistry"
+b0e6: "SaveLayoutToRegistry"
+b0fb: "get_MinimumCapacity"
+b10f: "set_MinimumCapacity"
+b123: "get_Locality"
+b130: "set_Locality"
+b13d: "aLocality"
+b147: "colLocality"
+b153: "columnLocality"
+b162: "op_Equality"
+b16e: "op_Inequality"
+b17c: "set_Visibility"
+b18b: "BarItemVisibility"
+b19d: "DesignerSerializationVisibility"
+b1bd: "set_Priority"
+b1ca: "ThreadPriority"
+b1d9: "IsNullOrEmpty"
+b1e7: "z"
+b1e9: ""
+b1ea: ""
+b1eb: ""

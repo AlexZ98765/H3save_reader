@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>ProspectorRT</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>10.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="ProspectorRT\**\*.cs" />
+    <Compile Include="ProspectorRT.Properties\*.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="System.IO.Compression\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="resources\ProspectorRT.MainForm.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.PrintForm.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.frmAbout.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.Properties.Resources.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.exe.licenses" />
+    <EmbeddedResource Include="resources\ProspectorRT.ExportForm.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.myToolTip.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.SkillTreeForm.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.ObjectNameForm.resources" />
+    <EmbeddedResource Include="resources\ProspectorRT.ShowForm.resources" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.v11.1">
+      <HintPath>dlls\DevExpress.Data.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v11.1">
+      <HintPath>dlls\DevExpress.Utils.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraBars.v11.1">
+      <HintPath>dlls\DevExpress.XtraBars.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v11.1">
+      <HintPath>dlls\DevExpress.XtraEditors.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraGrid.v11.1">
+      <HintPath>dlls\DevExpress.XtraGrid.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraLayout.v11.1">
+      <HintPath>dlls\DevExpress.XtraLayout.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraPrinting.v11.1">
+      <HintPath>dlls\DevExpress.XtraPrinting.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Printing.v11.1.Core">
+      <HintPath>dlls\DevExpress.Printing.v11.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.RichEdit.v11.1.Core">
+      <HintPath>dlls\DevExpress.RichEdit.v11.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraRichEdit.v11.1">
+      <HintPath>dlls\DevExpress.XtraRichEdit.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraTreeList.v11.1">
+      <HintPath>dlls\DevExpress.XtraTreeList.v11.1.dll</HintPath>
+    </Reference>
+    <Reference Include="SkinLib">
+      <HintPath>dlls\SkinLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

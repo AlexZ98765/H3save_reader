@@ -1,1331 +1,1440 @@
-    0  _fOwner
-    1  components
-    2  colSSkill
-    3  treeSkill
-    4  barManager1
-    5  barDockControlTop
-    6  barDockControlBottom
-    7  barDockControlLeft
-    8  barDockControlRight
-    9  btnExpandAll
-   10  btnCollapseAll
-   11  popupMenu1
-   12  toolTipController1
-   13  CS_DROPSHADOW
-   14  components
-   15  label1
-   16  timer1
-   17  components
-   18  reCell
-   19  components
-   20  previewBar1
-   21  printPreviewBarItem2
-   22  printPreviewBarItem3
-   23  printPreviewBarItem4
-   24  printPreviewBarItem5
-   25  printPreviewBarItem6
-   26  printPreviewBarItem7
-   27  printPreviewBarItem8
-   28  printPreviewBarItem9
-   29  printPreviewBarItem10
-   30  printPreviewBarItem11
-   31  printPreviewBarItem12
-   32  printPreviewBarItem13
-   33  printPreviewBarItem14
-   34  printPreviewBarItem15
-   35  zoomBarEditItem1
-   36  printPreviewRepositoryItemComboBox1
-   37  printPreviewBarItem16
-   38  printPreviewBarItem17
-   39  printPreviewBarItem18
-   40  printPreviewBarItem19
-   41  printPreviewBarItem20
-   42  printPreviewBarItem21
-   43  printPreviewBarItem22
-   44  printPreviewBarItem23
-   45  printPreviewBarItem24
-   46  printPreviewBarItem25
-   47  printPreviewBarItem26
-   48  previewBar2
-   49  printPreviewStaticItem1
-   50  barStaticItem1
-   51  progressBarEditItem1
-   52  repositoryItemProgressBar1
-   53  printPreviewBarItem1
-   54  barButtonItem1
-   55  printPreviewStaticItem2
-   56  zoomTrackBarEditItem1
-   57  repositoryItemZoomTrackBar1
-   58  previewBar3
-   59  printPreviewSubItem1
-   60  printPreviewSubItem2
-   61  printPreviewSubItem4
-   62  printPreviewBarItem27
-   63  printPreviewBarItem28
-   64  barToolbarsListItem1
-   65  printPreviewSubItem3
-   66  barDockControlTop
-   67  barDockControlBottom
-   68  barDockControlLeft
-   69  barDockControlRight
-   70  printControl1
-   71  printPreviewBarCheckItem1
-   72  printPreviewBarCheckItem2
-   73  printPreviewBarCheckItem3
-   74  printPreviewBarCheckItem4
-   75  printPreviewBarCheckItem5
-   76  printPreviewBarCheckItem6
-   77  printPreviewBarCheckItem7
-   78  printPreviewBarCheckItem8
-   79  printPreviewBarCheckItem9
-   80  printPreviewBarCheckItem10
-   81  printPreviewBarCheckItem11
-   82  printPreviewBarCheckItem12
-   83  printPreviewBarCheckItem13
-   84  printPreviewBarCheckItem14
-   85  printPreviewBarCheckItem15
-   86  printPreviewBarCheckItem16
-   87  printPreviewBarCheckItem17
-   88  printingSystem1
-   89  printBarManager1
-   90  tableR_Monstr
-   91  tableR_Art
-   92  tableR_Bank
-   93  tableR_EventBox
-   94  tableR_Scholar
-   95  tableR_Resource
-   96  tableR_Spell
-   97  tableR_Chest
-   98  tableR_Skill
-   99  tableR_Camp
-  100  tableR_Market
-  101  tableR_Garrison
-  102  tableR_SeerHut
-  103  tableR_Prison
-  104  tableR_Object
-  105  tableR_PassGuard
-  106  tableR_Heroes
-  107  tableR_Town
-  108  tableR_AllArts
-  109  tableR_Topology
-  110  tableR_AllSpell
-  111  tableR_AllTimer
-  112  tableR_AllSkill
-  113  tableR_AllExperience
-  114  tableR_Mine
-  115  _schemaSerializationMode
-  116  columnX
-  117  columnY
-  118  columnZ
-  119  columnLocality
-  120  columnName
-  121  columnNumber
-  122  columnMood
-  123  columnLevel
-  124  columnArt
-  125  columnGold
-  126  columnResource
-  127  columnIncrease
-  128  columnAddress
-  129  columnHP
-  130  R_MonstrRowChanging
-  131  R_MonstrRowChanged
-  132  R_MonstrRowDeleting
-  133  R_MonstrRowDeleted
-  134  columnX
-  135  columnY
-  136  columnZ
-  137  columnLocality
-  138  columnObject
-  139  columnSlot
-  140  columnName
-  141  columnClass
-  142  _columnRelic_C
-  143  columnGold
-  144  columnResource
-  145  columnGuard
-  146  columnAddress
-  147  columnHP
-  148  R_ArtRowChanging
-  149  R_ArtRowChanged
-  150  R_ArtRowDeleting
-  151  R_ArtRowDeleted
-  152  columnX
-  153  columnY
-  154  columnZ
-  155  columnLocality
-  156  columnName
-  157  columnGuard
-  158  columnMonster
-  159  columnGold
-  160  columnResource
-  161  columnAddress
-  162  columnHP
-  163  R_BankRowChanging
-  164  R_BankRowChanged
-  165  R_BankRowDeleting
-  166  R_BankRowDeleted
-  167  columnX
-  168  columnY
-  169  columnZ
-  170  columnLocality
-  171  columnObject
-  172  columnGuard
-  173  columnExperience
-  174  columnMana
-  175  columnMorale
-  176  columnLuck
-  177  columnGold
-  178  columnResource
-  179  columnPrimarySkill
-  180  columnSecondarySkill
-  181  columnArtefact
-  182  columnSpell
-  183  columnMonster
-  184  columnHP
-  185  columnAddress
-  186  columnApply
-  187  columnRepeat
-  188  R_EventBoxRowChanging
-  189  R_EventBoxRowChanged
-  190  R_EventBoxRowDeleting
-  191  R_EventBoxRowDeleted
-  192  columnX
-  193  columnY
-  194  columnZ
-  195  columnLocality
-  196  columnSpell
-  197  columnPrimarySkill
-  198  columnSecondarySkill
-  199  R_ScholarRowChanging
-  200  R_ScholarRowChanged
-  201  R_ScholarRowDeleting
-  202  R_ScholarRowDeleted
-  203  columnX
-  204  columnY
-  205  columnZ
-  206  columnLocality
-  207  columnObject
-  208  columnResource
-  209  columnGold
-  210  columnGuard
-  211  columnAddress
-  212  columnHP
-  213  R_ResourceRowChanging
-  214  R_ResourceRowChanged
-  215  R_ResourceRowDeleting
-  216  R_ResourceRowDeleted
-  217  columnX
-  218  columnY
-  219  columnZ
-  220  columnLocality
-  221  columnObject
-  222  columnSpell
-  223  columnGuard
-  224  columnAddress
-  225  columnHP
-  226  columnLevel
-  227  R_SpellRowChanging
-  228  R_SpellRowChanged
-  229  R_SpellRowDeleting
-  230  R_SpellRowDeleted
-  231  columnX
-  232  columnY
-  233  columnZ
-  234  columnLocality
-  235  columnObject
-  236  columnArt
-  237  columnClass
-  238  _columnRelic_C
-  239  columnGold
-  240  columnAddress
-  241  columnHP
-  242  R_ChestRowChanging
-  243  R_ChestRowChanged
-  244  R_ChestRowDeleting
-  245  R_ChestRowDeleted
-  246  columnX
-  247  columnY
-  248  columnZ
-  249  columnLocality
-  250  columnObject
-  251  columnAddress
-  252  columnSkill
-  253  R_SkillRowChanging
-  254  R_SkillRowChanged
-  255  R_SkillRowDeleting
-  256  R_SkillRowDeleted
-  257  columnX
-  258  columnY
-  259  columnZ
-  260  columnLocality
-  261  columnObject
-  262  columnMonster
-  263  columnLevel
-  264  columnAddress
-  265  columnNumber
-  266  R_CampRowChanging
-  267  R_CampRowChanged
-  268  R_CampRowDeleting
-  269  R_CampRowDeleted
-  270  columnX
-  271  columnY
-  272  columnZ
-  273  columnLocality
-  274  columnObject
-  275  columnSlot
-  276  columnArt
-  277  columnClass
-  278  _columnRelic_C
-  279  columnAddress
-  280  columnCost
-  281  R_MarketRowChanging
-  282  R_MarketRowChanged
-  283  R_MarketRowDeleting
-  284  R_MarketRowDeleted
-  285  columnX
-  286  columnY
-  287  columnZ
-  288  columnLocality
-  289  columnAntiMagic
-  290  columnGuard
-  291  columnColor
-  292  columnCanTake
-  293  columnHP
-  294  R_GarrisonRowChanging
-  295  R_GarrisonRowChanged
-  296  R_GarrisonRowDeleting
-  297  R_GarrisonRowDeleted
-  298  columnX
-  299  columnY
-  300  columnZ
-  301  columnLocality
-  302  columnMission
-  303  columnReward
-  304  columnDeadline
-  305  R_SeerHutRowChanging
-  306  R_SeerHutRowChanged
-  307  R_SeerHutRowDeleting
-  308  R_SeerHutRowDeleted
-  309  columnX
-  310  columnY
-  311  columnZ
-  312  columnLocality
-  313  columnHero
-  314  columnLevel
-  315  columnPrimarySkill
-  316  columnSecondarySkill
-  317  columnArt
-  318  columnSpell
-  319  columnMonster
-  320  columnMachine
-  321  columnBook
-  322  columnMP
-  323  columnExperience
-  324  columnHP
-  325  R_PrisonRowChanging
-  326  R_PrisonRowChanged
-  327  R_PrisonRowDeleting
-  328  R_PrisonRowDeleted
-  329  columnX
-  330  columnY
-  331  columnZ
-  332  columnLocality
-  333  columnObject
-  334  columnAddress
-  335  columnPayment
-  336  R_ObjectRowChanging
-  337  R_ObjectRowChanged
-  338  R_ObjectRowDeleting
-  339  R_ObjectRowDeleted
-  340  columnX
-  341  columnY
-  342  columnZ
-  343  columnLocality
-  344  columnMission
-  345  columnDeadline
-  346  R_PassGuardRowChanging
-  347  R_PassGuardRowChanged
-  348  R_PassGuardRowDeleting
-  349  R_PassGuardRowDeleted
-  350  columnID
-  351  columnHero
-  352  columnPlace
-  353  columnColor
-  354  columnLevel
-  355  columnPrimarySkill
-  356  columnSecondarySkill
-  357  columnArt
-  358  columnSpell
-  359  columnMonster
-  360  columnMachine
-  361  columnBook
-  362  columnMP
-  363  columnExperience
-  364  columnAddress
-  365  columnHP
-  366  columnHire
-  367  columnIdeology
-  368  columnClass
-  369  columnClassID
-  370  columnTreeNumber
-  371  columnLastWisdom
-  372  columnLastMagic
-  373  R_HeroesRowChanging
-  374  R_HeroesRowChanged
-  375  R_HeroesRowDeleting
-  376  R_HeroesRowDeleted
-  377  columnX
-  378  columnY
-  379  columnZ
-  380  columnName
-  381  columnType
-  382  columnSlot
-  383  columnSpell
-  384  columnColor
-  385  columnGarrison
-  386  columnCode
-  387  columnBuilt
-  388  columnHP
-  389  columnLibrary
-  390  columnID
-  391  columnMageTimer
-  392  columnLibTimer
-  393  columnAvailable
-  394  columnTimer
-  395  R_TownRowChanging
-  396  R_TownRowChanged
-  397  R_TownRowDeleting
-  398  R_TownRowDeleted
-  399  columnX
-  400  columnY
-  401  columnZ
-  402  columnLocality
-  403  columnObject
-  404  columnArtefact
-  405  columnClass
-  406  _columnRelic_C
-  407  columnSlot
-  408  columnPlace
-  409  columnColor
-  410  columnHero
-  411  columnDoll
-  412  columnMonster
-  413  columnMission
-  414  columnGuard
-  415  R_AllArtsRowChanging
-  416  R_AllArtsRowChanged
-  417  R_AllArtsRowDeleting
-  418  R_AllArtsRowDeleted
-  419  columnX
-  420  columnY
-  421  columnZ
-  422  columnLocality
-  423  columnObject
-  424  columnType
-  425  columnColor
-  426  columnPair
-  427  R_TopologyRowChanging
-  428  R_TopologyRowChanged
-  429  R_TopologyRowDeleting
-  430  R_TopologyRowDeleted
-  431  columnX
-  432  columnY
-  433  columnZ
-  434  columnObject
-  435  columnSpell
-  436  columnSlot
-  437  columnColor
-  438  columnName
-  439  columnBuilt
-  440  columnGarrison
-  441  columnID
-  442  columnHero
-  443  columnPlace
-  444  columnMission
-  445  columnGuard
-  446  R_AllSpellRowChanging
-  447  R_AllSpellRowChanged
-  448  R_AllSpellRowDeleting
-  449  R_AllSpellRowDeleted
-  450  columnObject
-  451  columnDay
-  452  columnRepeat
-  453  columnTown
-  454  columnType
-  455  columnPlace
-  456  columnGold
-  457  columnResource
-  458  columnBuilding
-  459  columnMonster
-  460  columnApply
-  461  columnID
-  462  columnColor
-  463  R_AllTimerRowChanging
-  464  R_AllTimerRowChanged
-  465  R_AllTimerRowDeleting
-  466  R_AllTimerRowDeleted
-  467  columnX
-  468  columnY
-  469  columnZ
-  470  columnLocality
-  471  columnObject
-  472  columnSkill
-  473  columnMission
-  474  columnGuard
-  475  columnSlot
-  476  columnLevel
-  477  R_AllSkillRowChanging
-  478  R_AllSkillRowChanged
-  479  R_AllSkillRowDeleting
-  480  R_AllSkillRowDeleted
-  481  columnX
-  482  columnY
-  483  columnZ
-  484  columnLocality
-  485  columnObject
-  486  columnTown
-  487  columnMonster
-  488  columnArt
-  489  columnResource
-  490  columnGuard
-  491  columnMission
-  492  columnSpell
-  493  columnID
-  494  columnHero
-  495  columnColor
-  496  columnExperience
-  497  columnHP
-  498  columnXP
-  499  columnXP5
-  500  columnXP10
-  501  columnXP15
-  502  R_AllExperienceRowChanging
-  503  R_AllExperienceRowChanged
-  504  R_AllExperienceRowDeleting
-  505  R_AllExperienceRowDeleted
-  506  columnX
-  507  columnY
-  508  columnZ
-  509  columnLocality
-  510  R_MineRowChanging
-  511  R_MineRowChanged
-  512  R_MineRowDeleting
-  513  R_MineRowDeleted
-  514  tableR_Monstr
-  515  tableR_Art
-  516  tableR_Bank
-  517  tableR_EventBox
-  518  tableR_Scholar
-  519  tableR_Resource
-  520  tableR_Spell
-  521  tableR_Chest
-  522  tableR_Skill
-  523  tableR_Camp
-  524  tableR_Market
-  525  tableR_Garrison
-  526  tableR_SeerHut
-  527  tableR_Prison
-  528  tableR_Object
-  529  tableR_PassGuard
-  530  tableR_Heroes
-  531  tableR_Town
-  532  tableR_AllArts
-  533  tableR_Topology
-  534  tableR_AllSpell
-  535  tableR_AllTimer
-  536  tableR_AllSkill
-  537  tableR_AllExperience
-  538  tableR_Mine
-  539  eventRow
-  540  eventAction
-  541  eventRow
-  542  eventAction
-  543  eventRow
-  544  eventAction
-  545  eventRow
-  546  eventAction
-  547  eventRow
-  548  eventAction
-  549  eventRow
-  550  eventAction
-  551  eventRow
-  552  eventAction
-  553  eventRow
-  554  eventAction
-  555  eventRow
-  556  eventAction
-  557  eventRow
-  558  eventAction
-  559  eventRow
-  560  eventAction
-  561  eventRow
-  562  eventAction
-  563  eventRow
-  564  eventAction
-  565  eventRow
-  566  eventAction
-  567  eventRow
-  568  eventAction
-  569  eventRow
-  570  eventAction
-  571  eventRow
-  572  eventAction
-  573  eventRow
-  574  eventAction
-  575  eventRow
-  576  eventAction
-  577  eventRow
-  578  eventAction
-  579  eventRow
-  580  eventAction
-  581  eventRow
-  582  eventAction
-  583  eventRow
-  584  eventAction
-  585  eventRow
-  586  eventAction
-  587  eventRow
-  588  eventAction
-  589  components
-  590  okButton
-  591  labelControl1
-  592  labelControl2
-  593  pictureBox1
-  594  labelControl3
-  595  labelControl4
-  596  labelControl5
-  597  labelControl6
-  598  labelControl7
-  599  labelControl10
-  600  labelControl11
-  601  labelControl13
-  602  linkLabel1
-  603  linkLabel2
-  604  textBox1
-  605  m_SoftwareKey
-  606  MyName
-  607  MyFile
-  608  LMOracleFree
-  609  resourceMan
-  610  resourceCulture
-  611  components
-  612  btnPath
-  613  tePath
-  614  btnOK
-  615  btnCancel
-  616  rgObjectName
-  617  openFileDialog1
-  618  cbCodePg
-  619  labelControl1
-  620  _Path
-  621  _Ver
-  622  _CodePg
-  623  _PW
-  624  _PW10
-  625  _SW
-  626  _SR
-  627  _MaxLevel
-  628  maxlvl
-  629  _Version
-  630  LoadDll
-  631  BBFlag
-  632  _aLevelSkill
-  633  _TblSecondarySkill
-  634  _fOwner
-  635  Class
-  636  Level
-  637  TreeNumber
-  638  LastWisdom
-  639  LastMagic
-  640  Attack
-  641  Defense
-  642  SpellPower
-  643  Knowledge
-  644  SkillCount
-  645  Skill
-  646  Left
-  647  Right
-  648  Primary
-  649  Secondary
-  650  PW
-  651  PW10
-  652  SW
-  653  SR
-  654  Last_Wisdom
-  655  Last_Magic
-  656  Delta_Wisdom
-  657  Delta_Magic
-  658  value__
-  659  ATTACK
-  660  DEFENSE
-  661  SPELL_POWER
-  662  KNOWLEDGE
-  663  value__
-  664  PATHFINDING
-  665  ARCHERY
-  666  LOGISTICS
-  667  SCOUTING
-  668  DIPLOMACY
-  669  NAVIGATION
-  670  LEADERSHIP
-  671  WISDOM
-  672  MYSTICISM
-  673  LUCK
-  674  BALLISTICS
-  675  EAGLE_EYE
-  676  NECROMANCY
-  677  ESTATES
-  678  FIRE_MAGIC
-  679  AIR_MAGIC
-  680  WATER_MAGIC
-  681  EARTH_MAGIC
-  682  SCHOLAR
-  683  TACTICS
-  684  ARTILLERY
-  685  LEARNING
-  686  OFFENSE
-  687  ARMORER
-  688  INTELLIGENCE
-  689  SORCERY
-  690  RESISTANCE
-  691  FIRST_AID
-  692  NONE
-  693  value__
-  694  BASIC
-  695  ADVANCED
-  696  EXPERT
-  697  components
-  698  statusStrip1
-  699  tsLabelStatusL
-  700  toolStripStatusLabel3
-  701  tsLabelLink
-  702  toolStripStatusLabel1
-  703  rMonstrBindingSource
-  704  rHeroesBindingSource
-  705  rAllArtsBindingSource
-  706  rBindingSource
-  707  rBankBindingSource
-  708  rEventBoxBindingSource
-  709  rScholarBindingSource
-  710  rResourceBindingSource
-  711  rChestBindingSource
-  712  rSpellBindingSource
-  713  rSkillBindingSource
-  714  rCampBindingSource
-  715  rMarketBindingSource
-  716  rSeerHutBindingSource
-  717  rPassGuardBindingSource
-  718  rGarrisonBindingSource
-  719  rPrisonBindingSource
-  720  rObjectBindingSource
-  721  rTownBindingSource
-  722  openFileDialog1
-  723  barManager1
-  724  bar2
-  725  tsButtonFile
-  726  tsButtonStart
-  727  tsButtonStop
-  728  tsButtonRefresh
-  729  barDockControlTop
-  730  barDockControlBottom
-  731  barDockControlLeft
-  732  barDockControlRight
-  733  tabControl
-  734  tabMonster
-  735  tabArt
-  736  tabBank
-  737  tabBoxEvent
-  738  tabScholar
-  739  tabResource
-  740  tabChest
-  741  tabSpell
-  742  tabSkill
-  743  tabCamp
-  744  tabMarket
-  745  tabSeerHut
-  746  tabPassGuard
-  747  tabGarrison
-  748  tabPrison
-  749  tabObject
-  750  tabHero
-  751  tabTown
-  752  tabAllArts
-  753  grdArt
-  754  vwArt
-  755  colX
-  756  colY
-  757  colZ
-  758  colLocality
-  759  colObject
-  760  colSlot
-  761  colName
-  762  colClass
-  763  colRelicC
-  764  colGold
-  765  colResource
-  766  colGuard
-  767  grdMonster
-  768  vwMonster
-  769  colX1
-  770  colY1
-  771  colZ1
-  772  colLocality1
-  773  colName1
-  774  colNumber
-  775  colMood
-  776  colLevel
-  777  colArt
-  778  colGold1
-  779  colResource1
-  780  grdBank
-  781  vwBank
-  782  colX2
-  783  colY2
-  784  colZ2
-  785  colLocality2
-  786  colName2
-  787  colGuard1
-  788  colMonster
-  789  colGold2
-  790  colResource2
-  791  grdEventBox
-  792  vwEventBox
-  793  colX3
-  794  colY3
-  795  colZ3
-  796  colLocality3
-  797  colObject1
-  798  colGuard2
-  799  colExperience
-  800  colMana
-  801  colMorale
-  802  colLuck
-  803  colGold3
-  804  colResource3
-  805  colPrimarySkill
-  806  colSecondarySkill
-  807  colArtefact
-  808  colSpell
-  809  colMonster1
-  810  grdScholar
-  811  vwScholar
-  812  colX4
-  813  colY4
-  814  colZ4
-  815  colLocality4
-  816  colSpell1
-  817  colPrimarySkill1
-  818  colSecondarySkill1
-  819  grdResource
-  820  vwResource
-  821  colX5
-  822  colY5
-  823  colZ5
-  824  colLocality5
-  825  colObject2
-  826  colResource4
-  827  colGold4
-  828  colGuard3
-  829  grdChest
-  830  vwChest
-  831  colX6
-  832  colY6
-  833  colZ6
-  834  colLocality6
-  835  colObject3
-  836  colArt1
-  837  colClass1
-  838  colRelicC6
-  839  colGold5
-  840  grdSpell
-  841  vwSpell
-  842  colX7
-  843  colY7
-  844  colZ7
-  845  colLocality7
-  846  colObject4
-  847  colSpell2
-  848  colGuard4
-  849  grdSkill
-  850  vwSkill
-  851  colX8
-  852  colY8
-  853  colZ8
-  854  colLocality8
-  855  colObject5
-  856  colSkill
-  857  grdCamp
-  858  vwCamp
-  859  grdTown
-  860  vwTown
-  861  colX10
-  862  colY10
-  863  colZ10
-  864  colName3
-  865  colType
-  866  colLevel1
-  867  colSpell3
-  868  colColor
-  869  colGarrison
-  870  grdAllArts
-  871  vwAllArts
-  872  colX11
-  873  colY11
-  874  colZ11
-  875  colLocality10
-  876  colObject7
-  877  colArtefact1
-  878  colClass2
-  879  gridColumn1
-  880  colSlot1
-  881  colPlace
-  882  colColor1
-  883  colHero
-  884  colDoll
-  885  colMonster3
-  886  colMission
-  887  colGuard5
-  888  grdMarket
-  889  vwMarket
-  890  colX12
-  891  colY12
-  892  colZ12
-  893  colLocality11
-  894  colObject8
-  895  colSlot2
-  896  colArt2
-  897  colClass3
-  898  gridColumn2
-  899  colCost
-  900  grdSeerHut
-  901  vwSeerHut
-  902  colX13
-  903  colY13
-  904  colZ13
-  905  colLocality12
-  906  colMission1
-  907  colReward
-  908  colDeadline
-  909  grdPassGuard
-  910  vwPassGuard
-  911  colX14
-  912  colY14
-  913  colZ14
-  914  colLocality13
-  915  colMission2
-  916  colDeadline1
-  917  grdGarrison
-  918  vwGarrison
-  919  colX15
-  920  colY15
-  921  colZ15
-  922  colLocality14
-  923  colAntiMagic
-  924  colGuard6
-  925  colColor2
-  926  colCanTake
-  927  grdPrison
-  928  vwPrison
-  929  colX16
-  930  colY16
-  931  colZ16
-  932  colLocality15
-  933  colHero1
-  934  colLevel2
-  935  colPrimarySkill2
-  936  colSecondarySkill2
-  937  colArt3
-  938  colSpell4
-  939  colMonster4
-  940  colMachine
-  941  colBook
-  942  colMP
-  943  grdObject
-  944  vwObject
-  945  colX17
-  946  colY17
-  947  colZ17
-  948  colLocality16
-  949  colObject9
-  950  colPayment
-  951  grdHero
-  952  vwHero
-  953  colID
-  954  colHero2
-  955  colPlace1
-  956  colColor3
-  957  colLevel3
-  958  colPrimarySkill3
-  959  colSecondarySkill3
-  960  colArt4
-  961  colSpell5
-  962  colMonster5
-  963  colMachine1
-  964  colBook1
-  965  colMP1
-  966  colX9
-  967  colY9
-  968  colZ9
-  969  colLocality9
-  970  colObject6
-  971  colMonster2
-  972  colLevel4
-  973  colNumber1
-  974  defaultLookAndFeel1
-  975  toolTipController1
-  976  barDockControl3
-  977  barDockControl4
-  978  barDockControl2
-  979  barDockControl1
-  980  barManager2
-  981  barAndDockingController2
-  982  colIncrease
-  983  colBuilt
-  984  colExperience2
-  985  colExperience1
-  986  colHP1
-  987  colHP2
-  988  colHP3
-  989  colHP4
-  990  colHP5
-  991  colHP6
-  992  colHP7
-  993  colHP8
-  994  colHP9
-  995  colHP11
-  996  colHP10
-  997  tabTopology
-  998  grdTopology
-  999  rTopologyBindingSource
- 1000  vwTopology
- 1001  colX18
- 1002  colY18
- 1003  colZ18
- 1004  colLocality17
- 1005  colObject10
- 1006  colType1
- 1007  colColor4
- 1008  tabAllSpell
- 1009  grdAllSpell
- 1010  rAllSpellBindingSource
- 1011  vwAllSpell
- 1012  colX19
- 1013  colY19
- 1014  colZ19
- 1015  colObject11
- 1016  colSpell6
- 1017  colSlot3
- 1018  colColor5
- 1019  colName4
- 1020  colBuilt1
- 1021  colGarrison1
- 1022  colID1
- 1023  colHero3
- 1024  colPlace2
- 1025  colMission3
- 1026  colGuard7
- 1027  colLevel9
- 1028  colLibrary
- 1029  colID3
- 1030  tabAllTimer
- 1031  grdAllTimer
- 1032  rAllTimerBindingSource
- 1033  vwAllTimer
- 1034  colObject12
- 1035  colDay
- 1036  colRepeat
- 1037  colTown
- 1038  colType2
- 1039  colPlace3
- 1040  colResource5
- 1041  colBuilding
- 1042  colMonster6
- 1043  colGold13
- 1044  colApply
- 1045  colColor13
- 1046  colAvailable
- 1047  colTimer
- 1048  tabAllSkill
- 1049  grdAllSkill
- 1050  rAllSkillBindingSource
- 1051  vwAllSkill
- 1052  colX20
- 1053  colY20
- 1054  colZ20
- 1055  colLocality18
- 1056  colObject13
- 1057  colSkill1
- 1058  colMission4
- 1059  colGuard8
- 1060  colLevel13
- 1061  tsButtonOT
- 1062  tsMenuService
- 1063  tsButtonExcel
- 1064  saveFileDialog1
- 1065  colHire
- 1066  colSlot13
- 1067  colApply2
- 1068  colRepeat1
- 1069  tabExperience
- 1070  grdExperience
- 1071  vwExperience
- 1072  rAllExperienceBindingSource
- 1073  colX21
- 1074  colY21
- 1075  colZ21
- 1076  colLocality19
- 1077  colObject14
- 1078  colMonster7
- 1079  colGuard9
- 1080  colMission5
- 1081  colID2
- 1082  colHero4
- 1083  colExperience3
- 1084  colColor21
- 1085  colHP21
- 1086  colXP
- 1087  colXP1
- 1088  colXP2
- 1089  colXP3
- 1090  colArt21
- 1091  colResource21
- 1092  colTown21
- 1093  colSpell21
- 1094  ppmFile
- 1095  bButtonOpen
- 1096  bButtonClear
- 1097  tsLabelGrail
- 1098  barSubItem1
- 1099  bsiVerOracle
- 1100  chi32EN
- 1101  chi40EN
- 1102  chi40RU
- 1103  biDepth
- 1104  repositoryItemSpinEdit1
- 1105  tsButtonSPT
- 1106  dsResult
- 1107  chiFree
- 1108  colIdeology
- 1109  barSubItem3
- 1110  chiStart
- 1111  biRecent
- 1112  repositoryItemSpinEdit2
- 1113  mnuButtonHelp
- 1114  tsButtonHelp
- 1115  tsAbout
- 1116  tsButtonObjectName
- 1117  colHeroClass
- 1118  colPair
- 1119  timer1
- 1120  timer2
- 1121  sBegin
- 1122  sStop
- 1123  sStart
- 1124  sReady
- 1125  sChoose
- 1126  sFile
- 1127  sError
- 1128  errorExistFile
- 1129  titleExistFile
- 1130  errorMapVer
- 1131  titleMapVer
- 1132  errorScaner
- 1133  errorObjectName
- 1134  errorTemplateTable
- 1135  messageExcel
- 1136  HeroCount
- 1137  ot3
- 1138  spt
- 1139  MaxLevel
- 1140  Version
- 1141  map
- 1142  aObjectID
- 1143  aHeroID
- 1144  aMonstrID
- 1145  Chrn
- 1146  MapSize
- 1147  MapSide
- 1148  ObjectNumber
- 1149  grail
- 1150  days
- 1151  hitInfo
- 1152  dblHitInfo
- 1153  myThread
- 1154  hBT
- 1155  hDS
- 1156  hFR
- 1157  aGrid
- 1158  bsInit
- 1159  SheetsName
- 1160  fLoadForm
- 1161  fRowFlag
- 1162  fStopFlag
- 1163  aArtClass
- 1164  aResource
- 1165  aPrSkill
- 1166  aMine
- 1167  aLocality
- 1168  aLevelSkill
- 1169  aFullLvlSkill
- 1170  aColor
- 1171  aReply
- 1172  aTown
- 1173  aDoll
- 1174  aPlace
- 1175  aTent
- 1176  aStatus
- 1177  аQuest
- 1178  aReward
- 1179  aHeroClass
- 1180  aIdeology
- 1181  decmp
- 1182  aSPTdecmp
- 1183  aTavernGuest
- 1184  aExistColor
- 1185  aFoundColor
- 1186  human
- 1187  aAlliance
- 1188  TblMonsters
- 1189  TblArt
- 1190  TblSpell
- 1191  TblSecondarySkill
- 1192  TblBuilding
- 1193  TblObject
- 1194  TblIdeology
- 1195  TblDwelling
- 1196  TblMonstersComplete
- 1197  TblArtComplete
- 1198  TblSpellComplete
- 1199  TblSecondarySkillComplete
- 1200  TblObjectComplete
- 1201  TblDwellingComplete
- 1202  TblMonstersSoDEn
- 1203  TblArtSoDEn
- 1204  TblSpellSoDEn
- 1205  TblSecondarySkillSoDEn
- 1206  TblObjectSoDEn
- 1207  TblDwellingSoDEn
- 1208  TblMonstersSoDRu
- 1209  TblArtSoDRu
- 1210  TblSpellSoDRu
- 1211  TblSecondarySkillSoDRu
- 1212  TblObjectSoDRu
- 1213  TblDwellingSoDRu
- 1214  TblBanks
- 1215  TblUniver
- 1216  TblMarket
- 1217  TblGarrison
- 1218  TblEventBox
- 1219  TblMonstr
- 1220  TblArtRes
- 1221  TblSeerHut
- 1222  TblPassGuard
- 1223  _PW
- 1224  _PW10
- 1225  _SW
- 1226  _SR
- 1227  ntoolt
- 1228  Size
- 1229  Side
- 1230  Data
- 1231  Teams
- 1232  MapName
- 1233  SaveName
- 1234  SR
- 1235  BlackMarket
- 1236  Start
- 1237  EventBox
- 1238  ArtRes
- 1239  Monstr
- 1240  SeerHut
- 1241  PassGuard
- 1242  MapTimedEvent
- 1243  TownsTimedEvent
- 1244  BottleSign
- 1245  Mine
- 1246  Dwelling
- 1247  Garrison
- 1248  UnknownVarReg
- 1249  UnknownFixedReg
- 1250  Color
- 1251  Town
- 1252  Hero
- 1253  HeroState
- 1254  CurrentState
- 1255  BitField
- 1256  TwoWayMonolith
- 1257  OneWayMonolith
- 1258  Whirlpool
- 1259  SubTerGate
- 1260  SubTerGatePair
- 1261  Univer
- 1262  Bank
- 1263  Motions
- 1264  components
- 1265  ce0
- 1266  ce1
- 1267  ce2
- 1268  ce3
- 1269  ce4
- 1270  ce5
- 1271  ce6
- 1272  ce7
- 1273  ce8
- 1274  ce9
- 1275  ce10
- 1276  ce11
- 1277  ce12
- 1278  ce13
- 1279  ce14
- 1280  ce15
- 1281  ce16
- 1282  ce17
- 1283  ce18
- 1284  ce19
- 1285  ce20
- 1286  ce21
- 1287  ce22
- 1288  grpControl
- 1289  panelControl1
- 1290  labelControl1
- 1291  btnPath
- 1292  tePath
- 1293  btnOK
- 1294  btnCancel
- 1295  btnClear
- 1296  btnAdd
- 1297  saveFileDialog1
- 1298  ce23
- 1299  myName
- 1300  myFile
- 1301  EncodeUTF8
- 1302  ForceDeflating
- 1303  Files
- 1304  FileName
- 1305  ZipFileStream
- 1306  Comment
- 1307  CentralDirImage
- 1308  ExistingFiles
- 1309  Access
- 1310  CrcTable
- 1311  DefaultEncoding
- 1312  value__
- 1313  Store
- 1314  Deflate
- 1315  Method
- 1316  FilenameInZip
- 1317  FileSize
- 1318  CompressedSize
- 1319  HeaderOffset
- 1320  FileOffset
- 1321  HeaderSize
- 1322  Crc32
- 1323  ModifyTime
- 1324  Comment
- 1325  EncodeUTF8
- 1326  defaultInstance
- 1327  $$method0x6000ad8-1
- 1328  $$method0x6000b49-1
- 1329  $$method0x6000b4a-1
- 1330  $$method0x6000b4b-1
+WARNING: The runtime version supported by this application is unavailable.
+Using default runtime: v4.0.30319
+Field Table (1..1332)
+########## System.IO.Compression.ZipStorer
+1: bool EncodeUTF8: public 
+2: bool ForceDeflating: public 
+3: class [mscorlib]System.Collections.Generic.List`1<valuetype System.IO.Compression.ZipStorer/ZipFileEntry> Files: private 
+4: string FileName: private 
+5: class [mscorlib]System.IO.Stream ZipFileStream: private 
+6: string Comment: private 
+7: unsigned int8[] CentralDirImage: private 
+8: unsigned int16 ExistingFiles: private 
+9: valuetype [mscorlib]System.IO.FileAccess Access: private 
+10: unsigned int32[] CrcTable: private static 
+11: class [mscorlib]System.Text.Encoding DefaultEncoding: private static 
+########## ProspectorRT.CommonSetting
+12: string m_SoftwareKey: public static 
+13: string MyName: public static 
+14: string MyFile: public static 
+15: bool LMOracleFree: public static 
+########## ProspectorRT.DataSet2
+16: class ProspectorRT.DataSet2/R_MonstrDataTable tableR_Monstr: private 
+17: class ProspectorRT.DataSet2/R_ArtDataTable tableR_Art: private 
+18: class ProspectorRT.DataSet2/R_BankDataTable tableR_Bank: private 
+19: class ProspectorRT.DataSet2/R_EventBoxDataTable tableR_EventBox: private 
+20: class ProspectorRT.DataSet2/R_ScholarDataTable tableR_Scholar: private 
+21: class ProspectorRT.DataSet2/R_ResourceDataTable tableR_Resource: private 
+22: class ProspectorRT.DataSet2/R_SpellDataTable tableR_Spell: private 
+23: class ProspectorRT.DataSet2/R_ChestDataTable tableR_Chest: private 
+24: class ProspectorRT.DataSet2/R_SkillDataTable tableR_Skill: private 
+25: class ProspectorRT.DataSet2/R_CampDataTable tableR_Camp: private 
+26: class ProspectorRT.DataSet2/R_MarketDataTable tableR_Market: private 
+27: class ProspectorRT.DataSet2/R_GarrisonDataTable tableR_Garrison: private 
+28: class ProspectorRT.DataSet2/R_SeerHutDataTable tableR_SeerHut: private 
+29: class ProspectorRT.DataSet2/R_PrisonDataTable tableR_Prison: private 
+30: class ProspectorRT.DataSet2/R_ObjectDataTable tableR_Object: private 
+31: class ProspectorRT.DataSet2/R_PassGuardDataTable tableR_PassGuard: private 
+32: class ProspectorRT.DataSet2/R_HeroesDataTable tableR_Heroes: private 
+33: class ProspectorRT.DataSet2/R_TownDataTable tableR_Town: private 
+34: class ProspectorRT.DataSet2/R_AllArtsDataTable tableR_AllArts: private 
+35: class ProspectorRT.DataSet2/R_TopologyDataTable tableR_Topology: private 
+36: class ProspectorRT.DataSet2/R_AllSpellDataTable tableR_AllSpell: private 
+37: class ProspectorRT.DataSet2/R_AllTimerDataTable tableR_AllTimer: private 
+38: class ProspectorRT.DataSet2/R_AllSkillDataTable tableR_AllSkill: private 
+39: class ProspectorRT.DataSet2/R_AllExperienceDataTable tableR_AllExperience: private 
+40: class ProspectorRT.DataSet2/R_MineDataTable tableR_Mine: private 
+41: valuetype [System.Data]System.Data.SchemaSerializationMode _schemaSerializationMode: private 
+########## ProspectorRT.myToolTip
+42: int32 CS_DROPSHADOW: private static literal 
+43: class [System]System.ComponentModel.IContainer components: private 
+44: class [System.Windows.Forms]System.Windows.Forms.Label label1: public 
+45: class [System.Windows.Forms]System.Windows.Forms.Timer timer1: private 
+########## ProspectorRT.LMOracle
+46: unsigned int8[0...,0...] _PW: private static 
+47: unsigned int8[0...,0...] _PW10: private static 
+48: unsigned int8[0...,0...] _SW: private static 
+49: unsigned int8[] _SR: private static 
+50: int32 _MaxLevel: private static 
+51: int32 maxlvl: private static 
+52: unsigned int8 _Version: private static 
+53: bool LoadDll: private static 
+54: int32 BBFlag: private static 
+55: string[] _aLevelSkill: private static 
+56: class [System.Data]System.Data.DataTable _TblSecondarySkill: private static 
+57: class [System.Windows.Forms]System.Windows.Forms.Form _fOwner: private static 
+########## ProspectorRT.SkillTreeForm
+58: class [System.Windows.Forms]System.Windows.Forms.Form _fOwner: private 
+59: class [System]System.ComponentModel.IContainer components: private 
+60: class [DevExpress.XtraTreeList.v11.1]DevExpress.XtraTreeList.Columns.TreeListColumn colSSkill: private 
+61: class [DevExpress.XtraTreeList.v11.1]DevExpress.XtraTreeList.TreeList treeSkill: public 
+62: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarManager barManager1: private 
+63: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlTop: private 
+64: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlBottom: private 
+65: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlLeft: private 
+66: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlRight: private 
+67: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem btnExpandAll: private 
+68: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem btnCollapseAll: private 
+69: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.PopupMenu popupMenu1: private 
+70: class [DevExpress.Utils.v11.1]DevExpress.Utils.ToolTipController toolTipController1: private 
+########## ProspectorRT.ExportForm
+71: class [System]System.ComponentModel.IContainer components: private 
+72: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce0: private 
+73: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce1: private 
+74: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce2: private 
+75: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce3: private 
+76: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce4: private 
+77: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce5: private 
+78: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce6: private 
+79: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce7: private 
+80: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce8: private 
+81: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce9: private 
+82: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce10: private 
+83: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce11: private 
+84: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce12: private 
+85: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce13: private 
+86: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce14: private 
+87: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce15: private 
+88: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce16: private 
+89: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce17: private 
+90: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce18: private 
+91: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce19: private 
+92: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce20: private 
+93: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce21: private 
+94: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce22: private 
+95: class [DevExpress.Utils.v11.1]DevExpress.XtraEditors.GroupControl grpControl: private 
+96: class [DevExpress.Utils.v11.1]DevExpress.XtraEditors.PanelControl panelControl1: private 
+97: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl1: private 
+98: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnPath: private 
+99: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.TextEdit tePath: private 
+100: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnOK: private 
+101: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnCancel: private 
+102: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnClear: private 
+103: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnAdd: private 
+104: class [System.Windows.Forms]System.Windows.Forms.SaveFileDialog saveFileDialog1: private 
+105: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.CheckEdit ce23: private 
+106: string myName: private 
+107: string myFile: private 
+########## ProspectorRT.PrintForm
+108: class [System]System.ComponentModel.IContainer components: private 
+109: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PreviewBar previewBar1: private 
+110: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem2: private 
+111: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem3: private 
+112: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem4: private 
+113: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem5: private 
+114: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem6: private 
+115: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem7: private 
+116: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem8: private 
+117: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem9: private 
+118: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem10: private 
+119: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem11: private 
+120: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem12: private 
+121: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem13: private 
+122: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem14: private 
+123: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem15: private 
+124: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.ZoomBarEditItem zoomBarEditItem1: private 
+125: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewRepositoryItemComboBox printPreviewRepositoryItemComboBox1: private 
+126: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem16: private 
+127: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem17: private 
+128: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem18: private 
+129: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem19: private 
+130: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem20: private 
+131: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem21: private 
+132: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem22: private 
+133: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem23: private 
+134: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem24: private 
+135: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem25: private 
+136: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem26: private 
+137: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PreviewBar previewBar2: private 
+138: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewStaticItem printPreviewStaticItem1: private 
+139: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarStaticItem barStaticItem1: private 
+140: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.ProgressBarEditItem progressBarEditItem1: private 
+141: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.Repository.RepositoryItemProgressBar repositoryItemProgressBar1: private 
+142: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem1: private 
+143: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem barButtonItem1: private 
+144: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewStaticItem printPreviewStaticItem2: private 
+145: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.ZoomTrackBarEditItem zoomTrackBarEditItem1: private 
+146: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.Repository.RepositoryItemZoomTrackBar repositoryItemZoomTrackBar1: private 
+147: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PreviewBar previewBar3: private 
+148: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewSubItem printPreviewSubItem1: private 
+149: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewSubItem printPreviewSubItem2: private 
+150: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewSubItem printPreviewSubItem4: private 
+151: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem27: private 
+152: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarItem printPreviewBarItem28: private 
+153: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarToolbarsListItem barToolbarsListItem1: private 
+154: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewSubItem printPreviewSubItem3: private 
+155: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlTop: private 
+156: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlBottom: private 
+157: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlLeft: private 
+158: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlRight: private 
+159: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Control.PrintControl printControl1: private 
+160: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem1: private 
+161: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem2: private 
+162: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem3: private 
+163: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem4: private 
+164: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem5: private 
+165: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem6: private 
+166: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem7: private 
+167: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem8: private 
+168: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem9: private 
+169: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem10: private 
+170: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem11: private 
+171: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem12: private 
+172: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem13: private 
+173: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem14: private 
+174: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem15: private 
+175: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem16: private 
+176: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintPreviewBarCheckItem printPreviewBarCheckItem17: private 
+177: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.PrintingSystem printingSystem1: public 
+178: class [DevExpress.XtraPrinting.v11.1]DevExpress.XtraPrinting.Preview.PrintBarManager printBarManager1: public 
+########## ProspectorRT.ShowForm
+179: class [System]System.ComponentModel.IContainer components: private 
+180: class [DevExpress.XtraRichEdit.v11.1]DevExpress.XtraRichEdit.RichEditControl reCell: public 
+########## ProspectorRT.ObjectNameForm
+181: class [System]System.ComponentModel.IContainer components: private 
+182: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnPath: private 
+183: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.TextEdit tePath: private 
+184: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnOK: private 
+185: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.SimpleButton btnCancel: private 
+186: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.RadioGroup rgObjectName: private 
+187: class [System.Windows.Forms]System.Windows.Forms.OpenFileDialog openFileDialog1: private 
+188: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.ComboBoxEdit cbCodePg: private 
+189: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl1: private 
+190: string _Path: private 
+191: int32 _Ver: private 
+192: int32 _CodePg: private 
+########## ProspectorRT.frmAbout
+193: class [System]System.ComponentModel.IContainer components: private 
+194: class [System.Windows.Forms]System.Windows.Forms.Button okButton: private 
+195: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl1: private 
+196: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl2: private 
+197: class [System.Windows.Forms]System.Windows.Forms.PictureBox pictureBox1: private 
+198: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl3: private 
+199: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl4: private 
+200: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl5: private 
+201: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl6: private 
+202: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl7: private 
+203: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl10: private 
+204: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl11: private 
+205: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.LabelControl labelControl13: private 
+206: class [System.Windows.Forms]System.Windows.Forms.LinkLabel linkLabel1: private 
+207: class [System.Windows.Forms]System.Windows.Forms.LinkLabel linkLabel2: private 
+208: class [System.Windows.Forms]System.Windows.Forms.TextBox textBox1: private 
+########## ProspectorRT.MainForm
+209: class [System]System.ComponentModel.IContainer components: private 
+210: class [System.Windows.Forms]System.Windows.Forms.StatusStrip statusStrip1: private 
+211: class [System.Windows.Forms]System.Windows.Forms.ToolStripStatusLabel tsLabelStatusL: private 
+212: class [System.Windows.Forms]System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3: private 
+213: class [System.Windows.Forms]System.Windows.Forms.ToolStripStatusLabel tsLabelLink: private 
+214: class [System.Windows.Forms]System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1: private 
+215: class [System.Windows.Forms]System.Windows.Forms.BindingSource rMonstrBindingSource: private 
+216: class [System.Windows.Forms]System.Windows.Forms.BindingSource rHeroesBindingSource: private 
+217: class [System.Windows.Forms]System.Windows.Forms.BindingSource rAllArtsBindingSource: private 
+218: class [System.Windows.Forms]System.Windows.Forms.BindingSource rBindingSource: private 
+219: class [System.Windows.Forms]System.Windows.Forms.BindingSource rBankBindingSource: private 
+220: class [System.Windows.Forms]System.Windows.Forms.BindingSource rEventBoxBindingSource: private 
+221: class [System.Windows.Forms]System.Windows.Forms.BindingSource rScholarBindingSource: private 
+222: class [System.Windows.Forms]System.Windows.Forms.BindingSource rResourceBindingSource: private 
+223: class [System.Windows.Forms]System.Windows.Forms.BindingSource rChestBindingSource: private 
+224: class [System.Windows.Forms]System.Windows.Forms.BindingSource rSpellBindingSource: private 
+225: class [System.Windows.Forms]System.Windows.Forms.BindingSource rSkillBindingSource: private 
+226: class [System.Windows.Forms]System.Windows.Forms.BindingSource rCampBindingSource: private 
+227: class [System.Windows.Forms]System.Windows.Forms.BindingSource rMarketBindingSource: private 
+228: class [System.Windows.Forms]System.Windows.Forms.BindingSource rSeerHutBindingSource: private 
+229: class [System.Windows.Forms]System.Windows.Forms.BindingSource rPassGuardBindingSource: private 
+230: class [System.Windows.Forms]System.Windows.Forms.BindingSource rGarrisonBindingSource: private 
+231: class [System.Windows.Forms]System.Windows.Forms.BindingSource rPrisonBindingSource: private 
+232: class [System.Windows.Forms]System.Windows.Forms.BindingSource rObjectBindingSource: private 
+233: class [System.Windows.Forms]System.Windows.Forms.BindingSource rTownBindingSource: private 
+234: class [System.Windows.Forms]System.Windows.Forms.OpenFileDialog openFileDialog1: private 
+235: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarManager barManager1: private 
+236: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.Bar bar2: private 
+237: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonFile: private 
+238: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonStart: private 
+239: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonStop: private 
+240: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonRefresh: private 
+241: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlTop: private 
+242: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlBottom: private 
+243: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlLeft: private 
+244: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControlRight: private 
+245: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabControl tabControl: private 
+246: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabMonster: private 
+247: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabArt: private 
+248: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabBank: private 
+249: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabBoxEvent: private 
+250: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabScholar: private 
+251: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabResource: private 
+252: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabChest: private 
+253: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabSpell: private 
+254: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabSkill: private 
+255: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabCamp: private 
+256: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabMarket: private 
+257: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabSeerHut: private 
+258: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabPassGuard: private 
+259: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabGarrison: private 
+260: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabPrison: private 
+261: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabObject: private 
+262: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabHero: private 
+263: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabTown: private 
+264: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabAllArts: private 
+265: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdArt: private 
+266: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwArt: private 
+267: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX: private 
+268: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY: private 
+269: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ: private 
+270: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality: private 
+271: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject: private 
+272: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSlot: private 
+273: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colName: private 
+274: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colClass: private 
+275: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colRelicC: private 
+276: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold: private 
+277: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource: private 
+278: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard: private 
+279: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdMonster: private 
+280: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwMonster: private 
+281: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX1: private 
+282: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY1: private 
+283: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ1: private 
+284: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality1: private 
+285: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colName1: private 
+286: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colNumber: private 
+287: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMood: private 
+288: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel: private 
+289: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt: private 
+290: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold1: private 
+291: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource1: private 
+292: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdBank: private 
+293: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwBank: private 
+294: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX2: private 
+295: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY2: private 
+296: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ2: private 
+297: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality2: private 
+298: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colName2: private 
+299: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard1: private 
+300: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster: private 
+301: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold2: private 
+302: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource2: private 
+303: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdEventBox: private 
+304: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwEventBox: private 
+305: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX3: private 
+306: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY3: private 
+307: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ3: private 
+308: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality3: private 
+309: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject1: private 
+310: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard2: private 
+311: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colExperience: private 
+312: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMana: private 
+313: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMorale: private 
+314: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLuck: private 
+315: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold3: private 
+316: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource3: private 
+317: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPrimarySkill: private 
+318: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSecondarySkill: private 
+319: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArtefact: private 
+320: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell: private 
+321: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster1: private 
+322: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdScholar: private 
+323: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwScholar: private 
+324: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX4: private 
+325: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY4: private 
+326: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ4: private 
+327: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality4: private 
+328: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell1: private 
+329: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPrimarySkill1: private 
+330: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSecondarySkill1: private 
+331: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdResource: private 
+332: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwResource: private 
+333: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX5: private 
+334: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY5: private 
+335: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ5: private 
+336: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality5: private 
+337: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject2: private 
+338: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource4: private 
+339: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold4: private 
+340: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard3: private 
+341: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdChest: private 
+342: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwChest: private 
+343: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX6: private 
+344: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY6: private 
+345: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ6: private 
+346: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality6: private 
+347: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject3: private 
+348: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt1: private 
+349: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colClass1: private 
+350: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colRelicC6: private 
+351: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold5: private 
+352: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdSpell: private 
+353: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwSpell: private 
+354: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX7: private 
+355: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY7: private 
+356: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ7: private 
+357: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality7: private 
+358: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject4: private 
+359: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell2: private 
+360: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard4: private 
+361: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdSkill: private 
+362: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwSkill: private 
+363: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX8: private 
+364: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY8: private 
+365: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ8: private 
+366: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality8: private 
+367: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject5: private 
+368: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSkill: private 
+369: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdCamp: private 
+370: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwCamp: private 
+371: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdTown: private 
+372: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwTown: private 
+373: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX10: private 
+374: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY10: private 
+375: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ10: private 
+376: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colName3: private 
+377: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colType: private 
+378: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel1: private 
+379: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell3: private 
+380: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor: private 
+381: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGarrison: private 
+382: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdAllArts: private 
+383: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwAllArts: private 
+384: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX11: private 
+385: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY11: private 
+386: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ11: private 
+387: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality10: private 
+388: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject7: private 
+389: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArtefact1: private 
+390: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colClass2: private 
+391: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn gridColumn1: private 
+392: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSlot1: private 
+393: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPlace: private 
+394: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor1: private 
+395: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHero: private 
+396: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colDoll: private 
+397: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster3: private 
+398: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission: private 
+399: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard5: private 
+400: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdMarket: private 
+401: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwMarket: private 
+402: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX12: private 
+403: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY12: private 
+404: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ12: private 
+405: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality11: private 
+406: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject8: private 
+407: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSlot2: private 
+408: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt2: private 
+409: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colClass3: private 
+410: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn gridColumn2: private 
+411: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colCost: private 
+412: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdSeerHut: private 
+413: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwSeerHut: private 
+414: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX13: private 
+415: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY13: private 
+416: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ13: private 
+417: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality12: private 
+418: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission1: private 
+419: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colReward: private 
+420: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colDeadline: private 
+421: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdPassGuard: private 
+422: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwPassGuard: private 
+423: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX14: private 
+424: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY14: private 
+425: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ14: private 
+426: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality13: private 
+427: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission2: private 
+428: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colDeadline1: private 
+429: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdGarrison: private 
+430: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwGarrison: private 
+431: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX15: private 
+432: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY15: private 
+433: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ15: private 
+434: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality14: private 
+435: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colAntiMagic: private 
+436: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard6: private 
+437: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor2: private 
+438: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colCanTake: private 
+439: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdPrison: private 
+440: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwPrison: private 
+441: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX16: private 
+442: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY16: private 
+443: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ16: private 
+444: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality15: private 
+445: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHero1: private 
+446: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel2: private 
+447: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPrimarySkill2: private 
+448: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSecondarySkill2: private 
+449: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt3: private 
+450: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell4: private 
+451: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster4: private 
+452: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMachine: private 
+453: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colBook: private 
+454: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMP: private 
+455: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdObject: private 
+456: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwObject: private 
+457: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX17: private 
+458: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY17: private 
+459: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ17: private 
+460: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality16: private 
+461: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject9: private 
+462: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPayment: private 
+463: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdHero: private 
+464: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwHero: private 
+465: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colID: private 
+466: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHero2: private 
+467: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPlace1: private 
+468: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor3: private 
+469: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel3: private 
+470: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPrimarySkill3: private 
+471: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSecondarySkill3: private 
+472: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt4: private 
+473: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell5: private 
+474: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster5: private 
+475: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMachine1: private 
+476: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colBook1: private 
+477: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMP1: private 
+478: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX9: private 
+479: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY9: private 
+480: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ9: private 
+481: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality9: private 
+482: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject6: private 
+483: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster2: private 
+484: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel4: private 
+485: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colNumber1: private 
+486: class [DevExpress.Utils.v11.1]DevExpress.LookAndFeel.DefaultLookAndFeel defaultLookAndFeel1: private 
+487: class [DevExpress.Utils.v11.1]DevExpress.Utils.ToolTipController toolTipController1: private 
+488: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControl3: private 
+489: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControl4: private 
+490: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControl2: private 
+491: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarDockControl barDockControl1: private 
+492: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarManager barManager2: private 
+493: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarAndDockingController barAndDockingController2: private 
+494: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colIncrease: private 
+495: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colBuilt: private 
+496: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colExperience2: private 
+497: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colExperience1: private 
+498: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP1: private 
+499: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP2: private 
+500: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP3: private 
+501: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP4: private 
+502: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP5: private 
+503: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP6: private 
+504: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP7: private 
+505: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP8: private 
+506: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP9: private 
+507: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP11: private 
+508: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP10: private 
+509: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabTopology: private 
+510: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdTopology: private 
+511: class [System.Windows.Forms]System.Windows.Forms.BindingSource rTopologyBindingSource: private 
+512: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwTopology: private 
+513: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX18: private 
+514: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY18: private 
+515: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ18: private 
+516: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality17: private 
+517: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject10: private 
+518: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colType1: private 
+519: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor4: private 
+520: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabAllSpell: private 
+521: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdAllSpell: private 
+522: class [System.Windows.Forms]System.Windows.Forms.BindingSource rAllSpellBindingSource: private 
+523: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwAllSpell: private 
+524: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX19: private 
+525: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY19: private 
+526: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ19: private 
+527: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject11: private 
+528: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell6: private 
+529: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSlot3: private 
+530: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor5: private 
+531: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colName4: private 
+532: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colBuilt1: private 
+533: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGarrison1: private 
+534: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colID1: private 
+535: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHero3: private 
+536: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPlace2: private 
+537: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission3: private 
+538: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard7: private 
+539: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel9: private 
+540: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLibrary: private 
+541: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colID3: private 
+542: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabAllTimer: private 
+543: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdAllTimer: private 
+544: class [System.Windows.Forms]System.Windows.Forms.BindingSource rAllTimerBindingSource: private 
+545: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwAllTimer: private 
+546: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject12: private 
+547: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colDay: private 
+548: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colRepeat: private 
+549: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colTown: private 
+550: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colType2: private 
+551: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPlace3: private 
+552: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource5: private 
+553: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colBuilding: private 
+554: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster6: private 
+555: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGold13: private 
+556: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colApply: private 
+557: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor13: private 
+558: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colAvailable: private 
+559: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colTimer: private 
+560: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabAllSkill: private 
+561: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdAllSkill: private 
+562: class [System.Windows.Forms]System.Windows.Forms.BindingSource rAllSkillBindingSource: private 
+563: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwAllSkill: private 
+564: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX20: private 
+565: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY20: private 
+566: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ20: private 
+567: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality18: private 
+568: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject13: private 
+569: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSkill1: private 
+570: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission4: private 
+571: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard8: private 
+572: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLevel13: private 
+573: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonOT: private 
+574: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarSubItem tsMenuService: private 
+575: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonExcel: private 
+576: class [System.Windows.Forms]System.Windows.Forms.SaveFileDialog saveFileDialog1: private 
+577: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHire: private 
+578: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSlot13: private 
+579: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colApply2: private 
+580: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colRepeat1: private 
+581: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraTab.XtraTabPage tabExperience: private 
+582: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.GridControl grdExperience: private 
+583: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.GridView vwExperience: private 
+584: class [System.Windows.Forms]System.Windows.Forms.BindingSource rAllExperienceBindingSource: private 
+585: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colX21: private 
+586: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colY21: private 
+587: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colZ21: private 
+588: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colLocality19: private 
+589: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colObject14: private 
+590: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMonster7: private 
+591: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colGuard9: private 
+592: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colMission5: private 
+593: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colID2: private 
+594: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHero4: private 
+595: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colExperience3: private 
+596: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colColor21: private 
+597: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHP21: private 
+598: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colXP: private 
+599: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colXP1: private 
+600: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colXP2: private 
+601: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colXP3: private 
+602: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colArt21: private 
+603: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colResource21: private 
+604: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colTown21: private 
+605: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colSpell21: private 
+606: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.PopupMenu ppmFile: private 
+607: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem bButtonOpen: private 
+608: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem bButtonClear: private 
+609: class [System.Windows.Forms]System.Windows.Forms.ToolStripStatusLabel tsLabelGrail: private 
+610: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarSubItem barSubItem1: private 
+611: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarSubItem bsiVerOracle: private 
+612: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarCheckItem chi32EN: private 
+613: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarCheckItem chi40EN: private 
+614: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarCheckItem chi40RU: private 
+615: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarEditItem biDepth: private 
+616: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.Repository.RepositoryItemSpinEdit repositoryItemSpinEdit1: private 
+617: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonSPT: private 
+618: class ProspectorRT.DataSet2 dsResult: public 
+619: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarCheckItem chiFree: private 
+620: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colIdeology: private 
+621: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarSubItem barSubItem3: private 
+622: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarCheckItem chiStart: private 
+623: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarEditItem biRecent: private 
+624: class [DevExpress.XtraEditors.v11.1]DevExpress.XtraEditors.Repository.RepositoryItemSpinEdit repositoryItemSpinEdit2: private 
+625: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarSubItem mnuButtonHelp: private 
+626: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonHelp: private 
+627: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsAbout: private 
+628: class [DevExpress.XtraBars.v11.1]DevExpress.XtraBars.BarButtonItem tsButtonObjectName: private 
+629: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colHeroClass: private 
+630: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Columns.GridColumn colPair: private 
+631: class [System.Windows.Forms]System.Windows.Forms.Timer timer1: private 
+632: class [System.Windows.Forms]System.Windows.Forms.Timer timer2: private 
+633: string sBegin: private 
+634: string sStop: private 
+635: string sStart: private 
+636: string sReady: private 
+637: string sChoose: private 
+638: string sFile: private 
+639: string sError: private 
+640: string lastScanError: private 
+641: string lastScanMethod: private 
+642: string errorExistFile: private 
+643: string titleExistFile: private 
+644: string errorMapVer: private 
+645: string titleMapVer: private 
+646: string errorScaner: private 
+647: string errorObjectName: private 
+648: string errorTemplateTable: private 
+649: string messageExcel: private 
+650: int32 HeroCount: private 
+651: bool ot3: private 
+652: bool spt: private 
+653: int32 MaxLevel: private 
+654: unsigned int8 Version: private 
+655: valuetype ProspectorRT.MainForm/MapRegion map: private 
+656: unsigned int8[] aObjectID: private 
+657: int32[] aHeroID: private 
+658: int32[] aMonstrID: private 
+659: int32 Chrn: private 
+660: int32 MapSize: private 
+661: int32 MapSide: private 
+662: int32 ObjectNumber: private 
+663: string grail: private 
+664: string days: private 
+665: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.ViewInfo.GridHitInfo hitInfo: private 
+666: class [DevExpress.XtraGrid.v11.1]DevExpress.XtraGrid.Views.Grid.ViewInfo.GridHitInfo dblHitInfo: private 
+667: class [mscorlib]System.Threading.Thread myThread: private 
+668: class [mscorlib]System.Collections.Hashtable hBT: private 
+669: class [mscorlib]System.Collections.Hashtable hDS: private 
+670: class [mscorlib]System.Collections.Hashtable hFR: private 
+671: class [mscorlib]System.Collections.ArrayList aGrid: private 
+672: class [System.Windows.Forms]System.Windows.Forms.BindingSource bsInit: private 
+673: class [mscorlib]System.Collections.Generic.IList`1<string> SheetsName: private 
+674: bool fLoadForm: private 
+675: bool fRowFlag: private 
+676: bool fStopFlag: private 
+677: string[] aArtClass: public 
+678: string[] aResource: public 
+679: string[] aPrSkill: private 
+680: string[] aMine: private 
+681: string[] aLocality: private 
+682: string[] aLevelSkill: private 
+683: string[] aFullLvlSkill: private 
+684: string[] aColor: private 
+685: string[] aReply: private 
+686: string[] aTown: private 
+687: string[] aDoll: private 
+688: string[] aPlace: private 
+689: string[] aTent: private 
+690: string[] aStatus: private 
+691: string[] аQuest: private 
+692: string[] aReward: private 
+693: string[] aHeroClass: private 
+694: string[] aIdeology: private 
+695: unsigned int8[] decmp: private 
+696: unsigned int8[] aSPTdecmp: private 
+697: int32[0...,0...] aTavernGuest: private 
+698: int32[] aExistColor: private 
+699: int32[] aFoundColor: private 
+700: int32 human: private 
+701: int32[] aAlliance: private 
+702: class [System.Data]System.Data.DataTable TblMonsters: public 
+703: class [System.Data]System.Data.DataTable TblArt: public 
+704: class [System.Data]System.Data.DataTable TblSpell: public 
+705: class [System.Data]System.Data.DataTable TblSecondarySkill: public 
+706: class [System.Data]System.Data.DataTable TblBuilding: public 
+707: class [System.Data]System.Data.DataTable TblObject: public 
+708: class [System.Data]System.Data.DataTable TblIdeology: private 
+709: class [System.Data]System.Data.DataTable TblDwelling: private 
+710: class [System.Data]System.Data.DataTable TblMonstersComplete: private 
+711: class [System.Data]System.Data.DataTable TblArtComplete: private 
+712: class [System.Data]System.Data.DataTable TblSpellComplete: private 
+713: class [System.Data]System.Data.DataTable TblSecondarySkillComplete: private 
+714: class [System.Data]System.Data.DataTable TblObjectComplete: private 
+715: class [System.Data]System.Data.DataTable TblDwellingComplete: private 
+716: class [System.Data]System.Data.DataTable TblMonstersSoDEn: private 
+717: class [System.Data]System.Data.DataTable TblArtSoDEn: private 
+718: class [System.Data]System.Data.DataTable TblSpellSoDEn: private 
+719: class [System.Data]System.Data.DataTable TblSecondarySkillSoDEn: private 
+720: class [System.Data]System.Data.DataTable TblObjectSoDEn: private 
+721: class [System.Data]System.Data.DataTable TblDwellingSoDEn: private 
+722: class [System.Data]System.Data.DataTable TblMonstersSoDRu: private 
+723: class [System.Data]System.Data.DataTable TblArtSoDRu: private 
+724: class [System.Data]System.Data.DataTable TblSpellSoDRu: private 
+725: class [System.Data]System.Data.DataTable TblSecondarySkillSoDRu: private 
+726: class [System.Data]System.Data.DataTable TblObjectSoDRu: private 
+727: class [System.Data]System.Data.DataTable TblDwellingSoDRu: private 
+728: class [System.Data]System.Data.DataTable TblBanks: private 
+729: class [System.Data]System.Data.DataTable TblUniver: private 
+730: class [System.Data]System.Data.DataTable TblMarket: private 
+731: class [System.Data]System.Data.DataTable TblGarrison: private 
+732: class [System.Data]System.Data.DataTable TblEventBox: private 
+733: class [System.Data]System.Data.DataTable TblMonstr: private 
+734: class [System.Data]System.Data.DataTable TblArtRes: private 
+735: class [System.Data]System.Data.DataTable TblSeerHut: private 
+736: class [System.Data]System.Data.DataTable TblPassGuard: private 
+737: unsigned int8[0...,0...] _PW: private 
+738: unsigned int8[0...,0...] _PW10: private 
+739: unsigned int8[0...,0...] _SW: private 
+740: unsigned int8[] _SR: private 
+741: class ProspectorRT.myToolTip ntoolt: private 
+########## ProspectorRT.Properties.Resources
+742: class [mscorlib]System.Resources.ResourceManager resourceMan: private static 
+743: class [mscorlib]System.Globalization.CultureInfo resourceCulture: private static 
+########## ProspectorRT.Properties.Settings
+744: class ProspectorRT.Properties.Settings defaultInstance: private static 
+########## .<PrivateImplementationDetails>
+745: int64 4644D25C296EA1EDD5CA2B89F2032ACB2831E8D6D2BB65F379E56AE3E993AD27: assembly static initonly 
+	rva: 823080
+746: valuetype '<PrivateImplementationDetails>'/'__StaticArrayInitTypeSize=6' D38F1F4A152CEB94D7366FB851BD64D0C557CD57A0486E57BFB5926A910D5111: assembly static initonly 
+	rva: 823088
+747: int64 F18366628A466F286AC60A27D59CADD5FD347730C9D55E04CE70FFDA96CB236F: assembly static initonly 
+	rva: 823096
+########## .Compression
+748: unsigned int16 value__: public specialname rtspecialname 
+749: valuetype System.IO.Compression.ZipStorer/Compression Store: public static literal 
+750: valuetype System.IO.Compression.ZipStorer/Compression Deflate: public static literal 
+########## .ZipFileEntry
+751: valuetype System.IO.Compression.ZipStorer/Compression Method: public 
+752: string FilenameInZip: public 
+753: unsigned int32 FileSize: public 
+754: unsigned int32 CompressedSize: public 
+755: unsigned int32 HeaderOffset: public 
+756: unsigned int32 FileOffset: public 
+757: unsigned int32 HeaderSize: public 
+758: unsigned int32 Crc32: public 
+759: valuetype [mscorlib]System.DateTime ModifyTime: public 
+760: string Comment: public 
+761: bool EncodeUTF8: public 
+########## .R_MonstrDataTable
+762: class [System.Data]System.Data.DataColumn columnX: private 
+763: class [System.Data]System.Data.DataColumn columnY: private 
+764: class [System.Data]System.Data.DataColumn columnZ: private 
+765: class [System.Data]System.Data.DataColumn columnLocality: private 
+766: class [System.Data]System.Data.DataColumn columnName: private 
+767: class [System.Data]System.Data.DataColumn columnNumber: private 
+768: class [System.Data]System.Data.DataColumn columnMood: private 
+769: class [System.Data]System.Data.DataColumn columnLevel: private 
+770: class [System.Data]System.Data.DataColumn columnArt: private 
+771: class [System.Data]System.Data.DataColumn columnGold: private 
+772: class [System.Data]System.Data.DataColumn columnResource: private 
+773: class [System.Data]System.Data.DataColumn columnIncrease: private 
+774: class [System.Data]System.Data.DataColumn columnAddress: private 
+775: class [System.Data]System.Data.DataColumn columnHP: private 
+776: class ProspectorRT.DataSet2/R_MonstrRowChangeEventHandler R_MonstrRowChanging: private 
+777: class ProspectorRT.DataSet2/R_MonstrRowChangeEventHandler R_MonstrRowChanged: private 
+778: class ProspectorRT.DataSet2/R_MonstrRowChangeEventHandler R_MonstrRowDeleting: private 
+779: class ProspectorRT.DataSet2/R_MonstrRowChangeEventHandler R_MonstrRowDeleted: private 
+########## .R_ArtDataTable
+780: class [System.Data]System.Data.DataColumn columnX: private 
+781: class [System.Data]System.Data.DataColumn columnY: private 
+782: class [System.Data]System.Data.DataColumn columnZ: private 
+783: class [System.Data]System.Data.DataColumn columnLocality: private 
+784: class [System.Data]System.Data.DataColumn columnObject: private 
+785: class [System.Data]System.Data.DataColumn columnSlot: private 
+786: class [System.Data]System.Data.DataColumn columnName: private 
+787: class [System.Data]System.Data.DataColumn columnClass: private 
+788: class [System.Data]System.Data.DataColumn _columnRelic_C: private 
+789: class [System.Data]System.Data.DataColumn columnGold: private 
+790: class [System.Data]System.Data.DataColumn columnResource: private 
+791: class [System.Data]System.Data.DataColumn columnGuard: private 
+792: class [System.Data]System.Data.DataColumn columnAddress: private 
+793: class [System.Data]System.Data.DataColumn columnHP: private 
+794: class ProspectorRT.DataSet2/R_ArtRowChangeEventHandler R_ArtRowChanging: private 
+795: class ProspectorRT.DataSet2/R_ArtRowChangeEventHandler R_ArtRowChanged: private 
+796: class ProspectorRT.DataSet2/R_ArtRowChangeEventHandler R_ArtRowDeleting: private 
+797: class ProspectorRT.DataSet2/R_ArtRowChangeEventHandler R_ArtRowDeleted: private 
+########## .R_BankDataTable
+798: class [System.Data]System.Data.DataColumn columnX: private 
+799: class [System.Data]System.Data.DataColumn columnY: private 
+800: class [System.Data]System.Data.DataColumn columnZ: private 
+801: class [System.Data]System.Data.DataColumn columnLocality: private 
+802: class [System.Data]System.Data.DataColumn columnName: private 
+803: class [System.Data]System.Data.DataColumn columnGuard: private 
+804: class [System.Data]System.Data.DataColumn columnMonster: private 
+805: class [System.Data]System.Data.DataColumn columnGold: private 
+806: class [System.Data]System.Data.DataColumn columnResource: private 
+807: class [System.Data]System.Data.DataColumn columnAddress: private 
+808: class [System.Data]System.Data.DataColumn columnHP: private 
+809: class ProspectorRT.DataSet2/R_BankRowChangeEventHandler R_BankRowChanging: private 
+810: class ProspectorRT.DataSet2/R_BankRowChangeEventHandler R_BankRowChanged: private 
+811: class ProspectorRT.DataSet2/R_BankRowChangeEventHandler R_BankRowDeleting: private 
+812: class ProspectorRT.DataSet2/R_BankRowChangeEventHandler R_BankRowDeleted: private 
+########## .R_EventBoxDataTable
+813: class [System.Data]System.Data.DataColumn columnX: private 
+814: class [System.Data]System.Data.DataColumn columnY: private 
+815: class [System.Data]System.Data.DataColumn columnZ: private 
+816: class [System.Data]System.Data.DataColumn columnLocality: private 
+817: class [System.Data]System.Data.DataColumn columnObject: private 
+818: class [System.Data]System.Data.DataColumn columnGuard: private 
+819: class [System.Data]System.Data.DataColumn columnExperience: private 
+820: class [System.Data]System.Data.DataColumn columnMana: private 
+821: class [System.Data]System.Data.DataColumn columnMorale: private 
+822: class [System.Data]System.Data.DataColumn columnLuck: private 
+823: class [System.Data]System.Data.DataColumn columnGold: private 
+824: class [System.Data]System.Data.DataColumn columnResource: private 
+825: class [System.Data]System.Data.DataColumn columnPrimarySkill: private 
+826: class [System.Data]System.Data.DataColumn columnSecondarySkill: private 
+827: class [System.Data]System.Data.DataColumn columnArtefact: private 
+828: class [System.Data]System.Data.DataColumn columnSpell: private 
+829: class [System.Data]System.Data.DataColumn columnMonster: private 
+830: class [System.Data]System.Data.DataColumn columnHP: private 
+831: class [System.Data]System.Data.DataColumn columnAddress: private 
+832: class [System.Data]System.Data.DataColumn columnApply: private 
+833: class [System.Data]System.Data.DataColumn columnRepeat: private 
+834: class ProspectorRT.DataSet2/R_EventBoxRowChangeEventHandler R_EventBoxRowChanging: private 
+835: class ProspectorRT.DataSet2/R_EventBoxRowChangeEventHandler R_EventBoxRowChanged: private 
+836: class ProspectorRT.DataSet2/R_EventBoxRowChangeEventHandler R_EventBoxRowDeleting: private 
+837: class ProspectorRT.DataSet2/R_EventBoxRowChangeEventHandler R_EventBoxRowDeleted: private 
+########## .R_ScholarDataTable
+838: class [System.Data]System.Data.DataColumn columnX: private 
+839: class [System.Data]System.Data.DataColumn columnY: private 
+840: class [System.Data]System.Data.DataColumn columnZ: private 
+841: class [System.Data]System.Data.DataColumn columnLocality: private 
+842: class [System.Data]System.Data.DataColumn columnSpell: private 
+843: class [System.Data]System.Data.DataColumn columnPrimarySkill: private 
+844: class [System.Data]System.Data.DataColumn columnSecondarySkill: private 
+845: class ProspectorRT.DataSet2/R_ScholarRowChangeEventHandler R_ScholarRowChanging: private 
+846: class ProspectorRT.DataSet2/R_ScholarRowChangeEventHandler R_ScholarRowChanged: private 
+847: class ProspectorRT.DataSet2/R_ScholarRowChangeEventHandler R_ScholarRowDeleting: private 
+848: class ProspectorRT.DataSet2/R_ScholarRowChangeEventHandler R_ScholarRowDeleted: private 
+########## .R_ResourceDataTable
+849: class [System.Data]System.Data.DataColumn columnX: private 
+850: class [System.Data]System.Data.DataColumn columnY: private 
+851: class [System.Data]System.Data.DataColumn columnZ: private 
+852: class [System.Data]System.Data.DataColumn columnLocality: private 
+853: class [System.Data]System.Data.DataColumn columnObject: private 
+854: class [System.Data]System.Data.DataColumn columnResource: private 
+855: class [System.Data]System.Data.DataColumn columnGold: private 
+856: class [System.Data]System.Data.DataColumn columnGuard: private 
+857: class [System.Data]System.Data.DataColumn columnAddress: private 
+858: class [System.Data]System.Data.DataColumn columnHP: private 
+859: class ProspectorRT.DataSet2/R_ResourceRowChangeEventHandler R_ResourceRowChanging: private 
+860: class ProspectorRT.DataSet2/R_ResourceRowChangeEventHandler R_ResourceRowChanged: private 
+861: class ProspectorRT.DataSet2/R_ResourceRowChangeEventHandler R_ResourceRowDeleting: private 
+862: class ProspectorRT.DataSet2/R_ResourceRowChangeEventHandler R_ResourceRowDeleted: private 
+########## .R_SpellDataTable
+863: class [System.Data]System.Data.DataColumn columnX: private 
+864: class [System.Data]System.Data.DataColumn columnY: private 
+865: class [System.Data]System.Data.DataColumn columnZ: private 
+866: class [System.Data]System.Data.DataColumn columnLocality: private 
+867: class [System.Data]System.Data.DataColumn columnObject: private 
+868: class [System.Data]System.Data.DataColumn columnSpell: private 
+869: class [System.Data]System.Data.DataColumn columnGuard: private 
+870: class [System.Data]System.Data.DataColumn columnAddress: private 
+871: class [System.Data]System.Data.DataColumn columnHP: private 
+872: class [System.Data]System.Data.DataColumn columnLevel: private 
+873: class ProspectorRT.DataSet2/R_SpellRowChangeEventHandler R_SpellRowChanging: private 
+874: class ProspectorRT.DataSet2/R_SpellRowChangeEventHandler R_SpellRowChanged: private 
+875: class ProspectorRT.DataSet2/R_SpellRowChangeEventHandler R_SpellRowDeleting: private 
+876: class ProspectorRT.DataSet2/R_SpellRowChangeEventHandler R_SpellRowDeleted: private 
+########## .R_ChestDataTable
+877: class [System.Data]System.Data.DataColumn columnX: private 
+878: class [System.Data]System.Data.DataColumn columnY: private 
+879: class [System.Data]System.Data.DataColumn columnZ: private 
+880: class [System.Data]System.Data.DataColumn columnLocality: private 
+881: class [System.Data]System.Data.DataColumn columnObject: private 
+882: class [System.Data]System.Data.DataColumn columnArt: private 
+883: class [System.Data]System.Data.DataColumn columnClass: private 
+884: class [System.Data]System.Data.DataColumn _columnRelic_C: private 
+885: class [System.Data]System.Data.DataColumn columnGold: private 
+886: class [System.Data]System.Data.DataColumn columnAddress: private 
+887: class [System.Data]System.Data.DataColumn columnHP: private 
+888: class ProspectorRT.DataSet2/R_ChestRowChangeEventHandler R_ChestRowChanging: private 
+889: class ProspectorRT.DataSet2/R_ChestRowChangeEventHandler R_ChestRowChanged: private 
+890: class ProspectorRT.DataSet2/R_ChestRowChangeEventHandler R_ChestRowDeleting: private 
+891: class ProspectorRT.DataSet2/R_ChestRowChangeEventHandler R_ChestRowDeleted: private 
+########## .R_SkillDataTable
+892: class [System.Data]System.Data.DataColumn columnX: private 
+893: class [System.Data]System.Data.DataColumn columnY: private 
+894: class [System.Data]System.Data.DataColumn columnZ: private 
+895: class [System.Data]System.Data.DataColumn columnLocality: private 
+896: class [System.Data]System.Data.DataColumn columnObject: private 
+897: class [System.Data]System.Data.DataColumn columnAddress: private 
+898: class [System.Data]System.Data.DataColumn columnSkill: private 
+899: class ProspectorRT.DataSet2/R_SkillRowChangeEventHandler R_SkillRowChanging: private 
+900: class ProspectorRT.DataSet2/R_SkillRowChangeEventHandler R_SkillRowChanged: private 
+901: class ProspectorRT.DataSet2/R_SkillRowChangeEventHandler R_SkillRowDeleting: private 
+902: class ProspectorRT.DataSet2/R_SkillRowChangeEventHandler R_SkillRowDeleted: private 
+########## .R_CampDataTable
+903: class [System.Data]System.Data.DataColumn columnX: private 
+904: class [System.Data]System.Data.DataColumn columnY: private 
+905: class [System.Data]System.Data.DataColumn columnZ: private 
+906: class [System.Data]System.Data.DataColumn columnLocality: private 
+907: class [System.Data]System.Data.DataColumn columnObject: private 
+908: class [System.Data]System.Data.DataColumn columnMonster: private 
+909: class [System.Data]System.Data.DataColumn columnLevel: private 
+910: class [System.Data]System.Data.DataColumn columnAddress: private 
+911: class [System.Data]System.Data.DataColumn columnNumber: private 
+912: class ProspectorRT.DataSet2/R_CampRowChangeEventHandler R_CampRowChanging: private 
+913: class ProspectorRT.DataSet2/R_CampRowChangeEventHandler R_CampRowChanged: private 
+914: class ProspectorRT.DataSet2/R_CampRowChangeEventHandler R_CampRowDeleting: private 
+915: class ProspectorRT.DataSet2/R_CampRowChangeEventHandler R_CampRowDeleted: private 
+########## .R_MarketDataTable
+916: class [System.Data]System.Data.DataColumn columnX: private 
+917: class [System.Data]System.Data.DataColumn columnY: private 
+918: class [System.Data]System.Data.DataColumn columnZ: private 
+919: class [System.Data]System.Data.DataColumn columnLocality: private 
+920: class [System.Data]System.Data.DataColumn columnObject: private 
+921: class [System.Data]System.Data.DataColumn columnSlot: private 
+922: class [System.Data]System.Data.DataColumn columnArt: private 
+923: class [System.Data]System.Data.DataColumn columnClass: private 
+924: class [System.Data]System.Data.DataColumn _columnRelic_C: private 
+925: class [System.Data]System.Data.DataColumn columnAddress: private 
+926: class [System.Data]System.Data.DataColumn columnCost: private 
+927: class ProspectorRT.DataSet2/R_MarketRowChangeEventHandler R_MarketRowChanging: private 
+928: class ProspectorRT.DataSet2/R_MarketRowChangeEventHandler R_MarketRowChanged: private 
+929: class ProspectorRT.DataSet2/R_MarketRowChangeEventHandler R_MarketRowDeleting: private 
+930: class ProspectorRT.DataSet2/R_MarketRowChangeEventHandler R_MarketRowDeleted: private 
+########## .R_GarrisonDataTable
+931: class [System.Data]System.Data.DataColumn columnX: private 
+932: class [System.Data]System.Data.DataColumn columnY: private 
+933: class [System.Data]System.Data.DataColumn columnZ: private 
+934: class [System.Data]System.Data.DataColumn columnLocality: private 
+935: class [System.Data]System.Data.DataColumn columnAntiMagic: private 
+936: class [System.Data]System.Data.DataColumn columnGuard: private 
+937: class [System.Data]System.Data.DataColumn columnColor: private 
+938: class [System.Data]System.Data.DataColumn columnCanTake: private 
+939: class [System.Data]System.Data.DataColumn columnHP: private 
+940: class ProspectorRT.DataSet2/R_GarrisonRowChangeEventHandler R_GarrisonRowChanging: private 
+941: class ProspectorRT.DataSet2/R_GarrisonRowChangeEventHandler R_GarrisonRowChanged: private 
+942: class ProspectorRT.DataSet2/R_GarrisonRowChangeEventHandler R_GarrisonRowDeleting: private 
+943: class ProspectorRT.DataSet2/R_GarrisonRowChangeEventHandler R_GarrisonRowDeleted: private 
+########## .R_SeerHutDataTable
+944: class [System.Data]System.Data.DataColumn columnX: private 
+945: class [System.Data]System.Data.DataColumn columnY: private 
+946: class [System.Data]System.Data.DataColumn columnZ: private 
+947: class [System.Data]System.Data.DataColumn columnLocality: private 
+948: class [System.Data]System.Data.DataColumn columnMission: private 
+949: class [System.Data]System.Data.DataColumn columnReward: private 
+950: class [System.Data]System.Data.DataColumn columnDeadline: private 
+951: class ProspectorRT.DataSet2/R_SeerHutRowChangeEventHandler R_SeerHutRowChanging: private 
+952: class ProspectorRT.DataSet2/R_SeerHutRowChangeEventHandler R_SeerHutRowChanged: private 
+953: class ProspectorRT.DataSet2/R_SeerHutRowChangeEventHandler R_SeerHutRowDeleting: private 
+954: class ProspectorRT.DataSet2/R_SeerHutRowChangeEventHandler R_SeerHutRowDeleted: private 
+########## .R_PrisonDataTable
+955: class [System.Data]System.Data.DataColumn columnX: private 
+956: class [System.Data]System.Data.DataColumn columnY: private 
+957: class [System.Data]System.Data.DataColumn columnZ: private 
+958: class [System.Data]System.Data.DataColumn columnLocality: private 
+959: class [System.Data]System.Data.DataColumn columnHero: private 
+960: class [System.Data]System.Data.DataColumn columnLevel: private 
+961: class [System.Data]System.Data.DataColumn columnPrimarySkill: private 
+962: class [System.Data]System.Data.DataColumn columnSecondarySkill: private 
+963: class [System.Data]System.Data.DataColumn columnArt: private 
+964: class [System.Data]System.Data.DataColumn columnSpell: private 
+965: class [System.Data]System.Data.DataColumn columnMonster: private 
+966: class [System.Data]System.Data.DataColumn columnMachine: private 
+967: class [System.Data]System.Data.DataColumn columnBook: private 
+968: class [System.Data]System.Data.DataColumn columnMP: private 
+969: class [System.Data]System.Data.DataColumn columnExperience: private 
+970: class [System.Data]System.Data.DataColumn columnHP: private 
+971: class ProspectorRT.DataSet2/R_PrisonRowChangeEventHandler R_PrisonRowChanging: private 
+972: class ProspectorRT.DataSet2/R_PrisonRowChangeEventHandler R_PrisonRowChanged: private 
+973: class ProspectorRT.DataSet2/R_PrisonRowChangeEventHandler R_PrisonRowDeleting: private 
+974: class ProspectorRT.DataSet2/R_PrisonRowChangeEventHandler R_PrisonRowDeleted: private 
+########## .R_ObjectDataTable
+975: class [System.Data]System.Data.DataColumn columnX: private 
+976: class [System.Data]System.Data.DataColumn columnY: private 
+977: class [System.Data]System.Data.DataColumn columnZ: private 
+978: class [System.Data]System.Data.DataColumn columnLocality: private 
+979: class [System.Data]System.Data.DataColumn columnObject: private 
+980: class [System.Data]System.Data.DataColumn columnAddress: private 
+981: class [System.Data]System.Data.DataColumn columnPayment: private 
+982: class ProspectorRT.DataSet2/R_ObjectRowChangeEventHandler R_ObjectRowChanging: private 
+983: class ProspectorRT.DataSet2/R_ObjectRowChangeEventHandler R_ObjectRowChanged: private 
+984: class ProspectorRT.DataSet2/R_ObjectRowChangeEventHandler R_ObjectRowDeleting: private 
+985: class ProspectorRT.DataSet2/R_ObjectRowChangeEventHandler R_ObjectRowDeleted: private 
+########## .R_PassGuardDataTable
+986: class [System.Data]System.Data.DataColumn columnX: private 
+987: class [System.Data]System.Data.DataColumn columnY: private 
+988: class [System.Data]System.Data.DataColumn columnZ: private 
+989: class [System.Data]System.Data.DataColumn columnLocality: private 
+990: class [System.Data]System.Data.DataColumn columnMission: private 
+991: class [System.Data]System.Data.DataColumn columnDeadline: private 
+992: class ProspectorRT.DataSet2/R_PassGuardRowChangeEventHandler R_PassGuardRowChanging: private 
+993: class ProspectorRT.DataSet2/R_PassGuardRowChangeEventHandler R_PassGuardRowChanged: private 
+994: class ProspectorRT.DataSet2/R_PassGuardRowChangeEventHandler R_PassGuardRowDeleting: private 
+995: class ProspectorRT.DataSet2/R_PassGuardRowChangeEventHandler R_PassGuardRowDeleted: private 
+########## .R_HeroesDataTable
+996: class [System.Data]System.Data.DataColumn columnID: private 
+997: class [System.Data]System.Data.DataColumn columnHero: private 
+998: class [System.Data]System.Data.DataColumn columnPlace: private 
+999: class [System.Data]System.Data.DataColumn columnColor: private 
+1000: class [System.Data]System.Data.DataColumn columnLevel: private 
+1001: class [System.Data]System.Data.DataColumn columnPrimarySkill: private 
+1002: class [System.Data]System.Data.DataColumn columnSecondarySkill: private 
+1003: class [System.Data]System.Data.DataColumn columnArt: private 
+1004: class [System.Data]System.Data.DataColumn columnSpell: private 
+1005: class [System.Data]System.Data.DataColumn columnMonster: private 
+1006: class [System.Data]System.Data.DataColumn columnMachine: private 
+1007: class [System.Data]System.Data.DataColumn columnBook: private 
+1008: class [System.Data]System.Data.DataColumn columnMP: private 
+1009: class [System.Data]System.Data.DataColumn columnExperience: private 
+1010: class [System.Data]System.Data.DataColumn columnAddress: private 
+1011: class [System.Data]System.Data.DataColumn columnHP: private 
+1012: class [System.Data]System.Data.DataColumn columnHire: private 
+1013: class [System.Data]System.Data.DataColumn columnIdeology: private 
+1014: class [System.Data]System.Data.DataColumn columnClass: private 
+1015: class [System.Data]System.Data.DataColumn columnClassID: private 
+1016: class [System.Data]System.Data.DataColumn columnTreeNumber: private 
+1017: class [System.Data]System.Data.DataColumn columnLastWisdom: private 
+1018: class [System.Data]System.Data.DataColumn columnLastMagic: private 
+1019: class ProspectorRT.DataSet2/R_HeroesRowChangeEventHandler R_HeroesRowChanging: private 
+1020: class ProspectorRT.DataSet2/R_HeroesRowChangeEventHandler R_HeroesRowChanged: private 
+1021: class ProspectorRT.DataSet2/R_HeroesRowChangeEventHandler R_HeroesRowDeleting: private 
+1022: class ProspectorRT.DataSet2/R_HeroesRowChangeEventHandler R_HeroesRowDeleted: private 
+########## .R_TownDataTable
+1023: class [System.Data]System.Data.DataColumn columnX: private 
+1024: class [System.Data]System.Data.DataColumn columnY: private 
+1025: class [System.Data]System.Data.DataColumn columnZ: private 
+1026: class [System.Data]System.Data.DataColumn columnName: private 
+1027: class [System.Data]System.Data.DataColumn columnType: private 
+1028: class [System.Data]System.Data.DataColumn columnSlot: private 
+1029: class [System.Data]System.Data.DataColumn columnSpell: private 
+1030: class [System.Data]System.Data.DataColumn columnColor: private 
+1031: class [System.Data]System.Data.DataColumn columnGarrison: private 
+1032: class [System.Data]System.Data.DataColumn columnCode: private 
+1033: class [System.Data]System.Data.DataColumn columnBuilt: private 
+1034: class [System.Data]System.Data.DataColumn columnHP: private 
+1035: class [System.Data]System.Data.DataColumn columnLibrary: private 
+1036: class [System.Data]System.Data.DataColumn columnID: private 
+1037: class [System.Data]System.Data.DataColumn columnMageTimer: private 
+1038: class [System.Data]System.Data.DataColumn columnLibTimer: private 
+1039: class [System.Data]System.Data.DataColumn columnAvailable: private 
+1040: class [System.Data]System.Data.DataColumn columnTimer: private 
+1041: class ProspectorRT.DataSet2/R_TownRowChangeEventHandler R_TownRowChanging: private 
+1042: class ProspectorRT.DataSet2/R_TownRowChangeEventHandler R_TownRowChanged: private 
+1043: class ProspectorRT.DataSet2/R_TownRowChangeEventHandler R_TownRowDeleting: private 
+1044: class ProspectorRT.DataSet2/R_TownRowChangeEventHandler R_TownRowDeleted: private 
+########## .R_AllArtsDataTable
+1045: class [System.Data]System.Data.DataColumn columnX: private 
+1046: class [System.Data]System.Data.DataColumn columnY: private 
+1047: class [System.Data]System.Data.DataColumn columnZ: private 
+1048: class [System.Data]System.Data.DataColumn columnLocality: private 
+1049: class [System.Data]System.Data.DataColumn columnObject: private 
+1050: class [System.Data]System.Data.DataColumn columnArtefact: private 
+1051: class [System.Data]System.Data.DataColumn columnClass: private 
+1052: class [System.Data]System.Data.DataColumn _columnRelic_C: private 
+1053: class [System.Data]System.Data.DataColumn columnSlot: private 
+1054: class [System.Data]System.Data.DataColumn columnPlace: private 
+1055: class [System.Data]System.Data.DataColumn columnColor: private 
+1056: class [System.Data]System.Data.DataColumn columnHero: private 
+1057: class [System.Data]System.Data.DataColumn columnDoll: private 
+1058: class [System.Data]System.Data.DataColumn columnMonster: private 
+1059: class [System.Data]System.Data.DataColumn columnMission: private 
+1060: class [System.Data]System.Data.DataColumn columnGuard: private 
+1061: class ProspectorRT.DataSet2/R_AllArtsRowChangeEventHandler R_AllArtsRowChanging: private 
+1062: class ProspectorRT.DataSet2/R_AllArtsRowChangeEventHandler R_AllArtsRowChanged: private 
+1063: class ProspectorRT.DataSet2/R_AllArtsRowChangeEventHandler R_AllArtsRowDeleting: private 
+1064: class ProspectorRT.DataSet2/R_AllArtsRowChangeEventHandler R_AllArtsRowDeleted: private 
+########## .R_TopologyDataTable
+1065: class [System.Data]System.Data.DataColumn columnX: private 
+1066: class [System.Data]System.Data.DataColumn columnY: private 
+1067: class [System.Data]System.Data.DataColumn columnZ: private 
+1068: class [System.Data]System.Data.DataColumn columnLocality: private 
+1069: class [System.Data]System.Data.DataColumn columnObject: private 
+1070: class [System.Data]System.Data.DataColumn columnType: private 
+1071: class [System.Data]System.Data.DataColumn columnColor: private 
+1072: class [System.Data]System.Data.DataColumn columnPair: private 
+1073: class ProspectorRT.DataSet2/R_TopologyRowChangeEventHandler R_TopologyRowChanging: private 
+1074: class ProspectorRT.DataSet2/R_TopologyRowChangeEventHandler R_TopologyRowChanged: private 
+1075: class ProspectorRT.DataSet2/R_TopologyRowChangeEventHandler R_TopologyRowDeleting: private 
+1076: class ProspectorRT.DataSet2/R_TopologyRowChangeEventHandler R_TopologyRowDeleted: private 
+########## .R_AllSpellDataTable
+1077: class [System.Data]System.Data.DataColumn columnX: private 
+1078: class [System.Data]System.Data.DataColumn columnY: private 
+1079: class [System.Data]System.Data.DataColumn columnZ: private 
+1080: class [System.Data]System.Data.DataColumn columnObject: private 
+1081: class [System.Data]System.Data.DataColumn columnSpell: private 
+1082: class [System.Data]System.Data.DataColumn columnSlot: private 
+1083: class [System.Data]System.Data.DataColumn columnColor: private 
+1084: class [System.Data]System.Data.DataColumn columnName: private 
+1085: class [System.Data]System.Data.DataColumn columnBuilt: private 
+1086: class [System.Data]System.Data.DataColumn columnGarrison: private 
+1087: class [System.Data]System.Data.DataColumn columnID: private 
+1088: class [System.Data]System.Data.DataColumn columnHero: private 
+1089: class [System.Data]System.Data.DataColumn columnPlace: private 
+1090: class [System.Data]System.Data.DataColumn columnMission: private 
+1091: class [System.Data]System.Data.DataColumn columnGuard: private 
+1092: class ProspectorRT.DataSet2/R_AllSpellRowChangeEventHandler R_AllSpellRowChanging: private 
+1093: class ProspectorRT.DataSet2/R_AllSpellRowChangeEventHandler R_AllSpellRowChanged: private 
+1094: class ProspectorRT.DataSet2/R_AllSpellRowChangeEventHandler R_AllSpellRowDeleting: private 
+1095: class ProspectorRT.DataSet2/R_AllSpellRowChangeEventHandler R_AllSpellRowDeleted: private 
+########## .R_AllTimerDataTable
+1096: class [System.Data]System.Data.DataColumn columnObject: private 
+1097: class [System.Data]System.Data.DataColumn columnDay: private 
+1098: class [System.Data]System.Data.DataColumn columnRepeat: private 
+1099: class [System.Data]System.Data.DataColumn columnTown: private 
+1100: class [System.Data]System.Data.DataColumn columnType: private 
+1101: class [System.Data]System.Data.DataColumn columnPlace: private 
+1102: class [System.Data]System.Data.DataColumn columnGold: private 
+1103: class [System.Data]System.Data.DataColumn columnResource: private 
+1104: class [System.Data]System.Data.DataColumn columnBuilding: private 
+1105: class [System.Data]System.Data.DataColumn columnMonster: private 
+1106: class [System.Data]System.Data.DataColumn columnApply: private 
+1107: class [System.Data]System.Data.DataColumn columnID: private 
+1108: class [System.Data]System.Data.DataColumn columnColor: private 
+1109: class ProspectorRT.DataSet2/R_AllTimerRowChangeEventHandler R_AllTimerRowChanging: private 
+1110: class ProspectorRT.DataSet2/R_AllTimerRowChangeEventHandler R_AllTimerRowChanged: private 
+1111: class ProspectorRT.DataSet2/R_AllTimerRowChangeEventHandler R_AllTimerRowDeleting: private 
+1112: class ProspectorRT.DataSet2/R_AllTimerRowChangeEventHandler R_AllTimerRowDeleted: private 
+########## .R_AllSkillDataTable
+1113: class [System.Data]System.Data.DataColumn columnX: private 
+1114: class [System.Data]System.Data.DataColumn columnY: private 
+1115: class [System.Data]System.Data.DataColumn columnZ: private 
+1116: class [System.Data]System.Data.DataColumn columnLocality: private 
+1117: class [System.Data]System.Data.DataColumn columnObject: private 
+1118: class [System.Data]System.Data.DataColumn columnSkill: private 
+1119: class [System.Data]System.Data.DataColumn columnMission: private 
+1120: class [System.Data]System.Data.DataColumn columnGuard: private 
+1121: class [System.Data]System.Data.DataColumn columnSlot: private 
+1122: class [System.Data]System.Data.DataColumn columnLevel: private 
+1123: class ProspectorRT.DataSet2/R_AllSkillRowChangeEventHandler R_AllSkillRowChanging: private 
+1124: class ProspectorRT.DataSet2/R_AllSkillRowChangeEventHandler R_AllSkillRowChanged: private 
+1125: class ProspectorRT.DataSet2/R_AllSkillRowChangeEventHandler R_AllSkillRowDeleting: private 
+1126: class ProspectorRT.DataSet2/R_AllSkillRowChangeEventHandler R_AllSkillRowDeleted: private 
+########## .R_AllExperienceDataTable
+1127: class [System.Data]System.Data.DataColumn columnX: private 
+1128: class [System.Data]System.Data.DataColumn columnY: private 
+1129: class [System.Data]System.Data.DataColumn columnZ: private 
+1130: class [System.Data]System.Data.DataColumn columnLocality: private 
+1131: class [System.Data]System.Data.DataColumn columnObject: private 
+1132: class [System.Data]System.Data.DataColumn columnTown: private 
+1133: class [System.Data]System.Data.DataColumn columnMonster: private 
+1134: class [System.Data]System.Data.DataColumn columnArt: private 
+1135: class [System.Data]System.Data.DataColumn columnResource: private 
+1136: class [System.Data]System.Data.DataColumn columnGuard: private 
+1137: class [System.Data]System.Data.DataColumn columnMission: private 
+1138: class [System.Data]System.Data.DataColumn columnSpell: private 
+1139: class [System.Data]System.Data.DataColumn columnID: private 
+1140: class [System.Data]System.Data.DataColumn columnHero: private 
+1141: class [System.Data]System.Data.DataColumn columnColor: private 
+1142: class [System.Data]System.Data.DataColumn columnExperience: private 
+1143: class [System.Data]System.Data.DataColumn columnHP: private 
+1144: class [System.Data]System.Data.DataColumn columnXP: private 
+1145: class [System.Data]System.Data.DataColumn columnXP5: private 
+1146: class [System.Data]System.Data.DataColumn columnXP10: private 
+1147: class [System.Data]System.Data.DataColumn columnXP15: private 
+1148: class ProspectorRT.DataSet2/R_AllExperienceRowChangeEventHandler R_AllExperienceRowChanging: private 
+1149: class ProspectorRT.DataSet2/R_AllExperienceRowChangeEventHandler R_AllExperienceRowChanged: private 
+1150: class ProspectorRT.DataSet2/R_AllExperienceRowChangeEventHandler R_AllExperienceRowDeleting: private 
+1151: class ProspectorRT.DataSet2/R_AllExperienceRowChangeEventHandler R_AllExperienceRowDeleted: private 
+########## .R_MineDataTable
+1152: class [System.Data]System.Data.DataColumn columnX: private 
+1153: class [System.Data]System.Data.DataColumn columnY: private 
+1154: class [System.Data]System.Data.DataColumn columnZ: private 
+1155: class [System.Data]System.Data.DataColumn columnLocality: private 
+1156: class ProspectorRT.DataSet2/R_MineRowChangeEventHandler R_MineRowChanging: private 
+1157: class ProspectorRT.DataSet2/R_MineRowChangeEventHandler R_MineRowChanged: private 
+1158: class ProspectorRT.DataSet2/R_MineRowChangeEventHandler R_MineRowDeleting: private 
+1159: class ProspectorRT.DataSet2/R_MineRowChangeEventHandler R_MineRowDeleted: private 
+########## .R_MonstrRow
+1160: class ProspectorRT.DataSet2/R_MonstrDataTable tableR_Monstr: private 
+########## .R_ArtRow
+1161: class ProspectorRT.DataSet2/R_ArtDataTable tableR_Art: private 
+########## .R_BankRow
+1162: class ProspectorRT.DataSet2/R_BankDataTable tableR_Bank: private 
+########## .R_EventBoxRow
+1163: class ProspectorRT.DataSet2/R_EventBoxDataTable tableR_EventBox: private 
+########## .R_ScholarRow
+1164: class ProspectorRT.DataSet2/R_ScholarDataTable tableR_Scholar: private 
+########## .R_ResourceRow
+1165: class ProspectorRT.DataSet2/R_ResourceDataTable tableR_Resource: private 
+########## .R_SpellRow
+1166: class ProspectorRT.DataSet2/R_SpellDataTable tableR_Spell: private 
+########## .R_ChestRow
+1167: class ProspectorRT.DataSet2/R_ChestDataTable tableR_Chest: private 
+########## .R_SkillRow
+1168: class ProspectorRT.DataSet2/R_SkillDataTable tableR_Skill: private 
+########## .R_CampRow
+1169: class ProspectorRT.DataSet2/R_CampDataTable tableR_Camp: private 
+########## .R_MarketRow
+1170: class ProspectorRT.DataSet2/R_MarketDataTable tableR_Market: private 
+########## .R_GarrisonRow
+1171: class ProspectorRT.DataSet2/R_GarrisonDataTable tableR_Garrison: private 
+########## .R_SeerHutRow
+1172: class ProspectorRT.DataSet2/R_SeerHutDataTable tableR_SeerHut: private 
+########## .R_PrisonRow
+1173: class ProspectorRT.DataSet2/R_PrisonDataTable tableR_Prison: private 
+########## .R_ObjectRow
+1174: class ProspectorRT.DataSet2/R_ObjectDataTable tableR_Object: private 
+########## .R_PassGuardRow
+1175: class ProspectorRT.DataSet2/R_PassGuardDataTable tableR_PassGuard: private 
+########## .R_HeroesRow
+1176: class ProspectorRT.DataSet2/R_HeroesDataTable tableR_Heroes: private 
+########## .R_TownRow
+1177: class ProspectorRT.DataSet2/R_TownDataTable tableR_Town: private 
+########## .R_AllArtsRow
+1178: class ProspectorRT.DataSet2/R_AllArtsDataTable tableR_AllArts: private 
+########## .R_TopologyRow
+1179: class ProspectorRT.DataSet2/R_TopologyDataTable tableR_Topology: private 
+########## .R_AllSpellRow
+1180: class ProspectorRT.DataSet2/R_AllSpellDataTable tableR_AllSpell: private 
+########## .R_AllTimerRow
+1181: class ProspectorRT.DataSet2/R_AllTimerDataTable tableR_AllTimer: private 
+########## .R_AllSkillRow
+1182: class ProspectorRT.DataSet2/R_AllSkillDataTable tableR_AllSkill: private 
+########## .R_AllExperienceRow
+1183: class ProspectorRT.DataSet2/R_AllExperienceDataTable tableR_AllExperience: private 
+########## .R_MineRow
+1184: class ProspectorRT.DataSet2/R_MineDataTable tableR_Mine: private 
+########## .R_MonstrRowChangeEvent
+1185: class ProspectorRT.DataSet2/R_MonstrRow eventRow: private 
+1186: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_ArtRowChangeEvent
+1187: class ProspectorRT.DataSet2/R_ArtRow eventRow: private 
+1188: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_BankRowChangeEvent
+1189: class ProspectorRT.DataSet2/R_BankRow eventRow: private 
+1190: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_EventBoxRowChangeEvent
+1191: class ProspectorRT.DataSet2/R_EventBoxRow eventRow: private 
+1192: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_ScholarRowChangeEvent
+1193: class ProspectorRT.DataSet2/R_ScholarRow eventRow: private 
+1194: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_ResourceRowChangeEvent
+1195: class ProspectorRT.DataSet2/R_ResourceRow eventRow: private 
+1196: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_SpellRowChangeEvent
+1197: class ProspectorRT.DataSet2/R_SpellRow eventRow: private 
+1198: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_ChestRowChangeEvent
+1199: class ProspectorRT.DataSet2/R_ChestRow eventRow: private 
+1200: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_SkillRowChangeEvent
+1201: class ProspectorRT.DataSet2/R_SkillRow eventRow: private 
+1202: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_CampRowChangeEvent
+1203: class ProspectorRT.DataSet2/R_CampRow eventRow: private 
+1204: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_MarketRowChangeEvent
+1205: class ProspectorRT.DataSet2/R_MarketRow eventRow: private 
+1206: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_GarrisonRowChangeEvent
+1207: class ProspectorRT.DataSet2/R_GarrisonRow eventRow: private 
+1208: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_SeerHutRowChangeEvent
+1209: class ProspectorRT.DataSet2/R_SeerHutRow eventRow: private 
+1210: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_PrisonRowChangeEvent
+1211: class ProspectorRT.DataSet2/R_PrisonRow eventRow: private 
+1212: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_ObjectRowChangeEvent
+1213: class ProspectorRT.DataSet2/R_ObjectRow eventRow: private 
+1214: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_PassGuardRowChangeEvent
+1215: class ProspectorRT.DataSet2/R_PassGuardRow eventRow: private 
+1216: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_HeroesRowChangeEvent
+1217: class ProspectorRT.DataSet2/R_HeroesRow eventRow: private 
+1218: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_TownRowChangeEvent
+1219: class ProspectorRT.DataSet2/R_TownRow eventRow: private 
+1220: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_AllArtsRowChangeEvent
+1221: class ProspectorRT.DataSet2/R_AllArtsRow eventRow: private 
+1222: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_TopologyRowChangeEvent
+1223: class ProspectorRT.DataSet2/R_TopologyRow eventRow: private 
+1224: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_AllSpellRowChangeEvent
+1225: class ProspectorRT.DataSet2/R_AllSpellRow eventRow: private 
+1226: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_AllTimerRowChangeEvent
+1227: class ProspectorRT.DataSet2/R_AllTimerRow eventRow: private 
+1228: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_AllSkillRowChangeEvent
+1229: class ProspectorRT.DataSet2/R_AllSkillRow eventRow: private 
+1230: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_AllExperienceRowChangeEvent
+1231: class ProspectorRT.DataSet2/R_AllExperienceRow eventRow: private 
+1232: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .R_MineRowChangeEvent
+1233: class ProspectorRT.DataSet2/R_MineRow eventRow: private 
+1234: valuetype [System.Data]System.Data.DataRowAction eventAction: private 
+########## .THero
+1235: unsigned int8 Class: public 
+1236: unsigned int8 Level: public 
+1237: unsigned int8 TreeNumber: public 
+1238: unsigned int8 LastWisdom: public 
+1239: unsigned int8 LastMagic: public 
+1240: unsigned int8 Attack: public 
+1241: unsigned int8 Defense: public 
+1242: unsigned int8 SpellPower: public 
+1243: unsigned int8 Knowledge: public 
+1244: unsigned int8 SkillCount: public 
+1245: unsigned int8[] Skill: public 
+########## .TSecondary
+1246: unsigned int8 Left: public 
+1247: unsigned int8 Right: public 
+########## .TSkillOffer
+1248: unsigned int8 Primary: public 
+1249: valuetype ProspectorRT.LMOracle/TSecondary Secondary: public 
+########## .TWeights
+1250: unsigned int8[] PW: public 
+1251: unsigned int8[] PW10: public 
+1252: unsigned int8[] SW: public 
+1253: unsigned int8[] SR: public 
+########## .TSkillExcept
+1254: unsigned int8 Last_Wisdom: public 
+1255: unsigned int8 Last_Magic: public 
+1256: unsigned int8 Delta_Wisdom: public 
+1257: unsigned int8 Delta_Magic: public 
+########## .PrimarySkill
+1258: int32 value__: public specialname rtspecialname 
+1259: valuetype ProspectorRT.LMOracle/PrimarySkill ATTACK: public static literal 
+1260: valuetype ProspectorRT.LMOracle/PrimarySkill DEFENSE: public static literal 
+1261: valuetype ProspectorRT.LMOracle/PrimarySkill SPELL_POWER: public static literal 
+1262: valuetype ProspectorRT.LMOracle/PrimarySkill KNOWLEDGE: public static literal 
+########## .SecondarySkill
+1263: int32 value__: public specialname rtspecialname 
+1264: valuetype ProspectorRT.LMOracle/SecondarySkill PATHFINDING: public static literal 
+1265: valuetype ProspectorRT.LMOracle/SecondarySkill ARCHERY: public static literal 
+1266: valuetype ProspectorRT.LMOracle/SecondarySkill LOGISTICS: public static literal 
+1267: valuetype ProspectorRT.LMOracle/SecondarySkill SCOUTING: public static literal 
+1268: valuetype ProspectorRT.LMOracle/SecondarySkill DIPLOMACY: public static literal 
+1269: valuetype ProspectorRT.LMOracle/SecondarySkill NAVIGATION: public static literal 
+1270: valuetype ProspectorRT.LMOracle/SecondarySkill LEADERSHIP: public static literal 
+1271: valuetype ProspectorRT.LMOracle/SecondarySkill WISDOM: public static literal 
+1272: valuetype ProspectorRT.LMOracle/SecondarySkill MYSTICISM: public static literal 
+1273: valuetype ProspectorRT.LMOracle/SecondarySkill LUCK: public static literal 
+1274: valuetype ProspectorRT.LMOracle/SecondarySkill BALLISTICS: public static literal 
+1275: valuetype ProspectorRT.LMOracle/SecondarySkill EAGLE_EYE: public static literal 
+1276: valuetype ProspectorRT.LMOracle/SecondarySkill NECROMANCY: public static literal 
+1277: valuetype ProspectorRT.LMOracle/SecondarySkill ESTATES: public static literal 
+1278: valuetype ProspectorRT.LMOracle/SecondarySkill FIRE_MAGIC: public static literal 
+1279: valuetype ProspectorRT.LMOracle/SecondarySkill AIR_MAGIC: public static literal 
+1280: valuetype ProspectorRT.LMOracle/SecondarySkill WATER_MAGIC: public static literal 
+1281: valuetype ProspectorRT.LMOracle/SecondarySkill EARTH_MAGIC: public static literal 
+1282: valuetype ProspectorRT.LMOracle/SecondarySkill SCHOLAR: public static literal 
+1283: valuetype ProspectorRT.LMOracle/SecondarySkill TACTICS: public static literal 
+1284: valuetype ProspectorRT.LMOracle/SecondarySkill ARTILLERY: public static literal 
+1285: valuetype ProspectorRT.LMOracle/SecondarySkill LEARNING: public static literal 
+1286: valuetype ProspectorRT.LMOracle/SecondarySkill OFFENSE: public static literal 
+1287: valuetype ProspectorRT.LMOracle/SecondarySkill ARMORER: public static literal 
+1288: valuetype ProspectorRT.LMOracle/SecondarySkill INTELLIGENCE: public static literal 
+1289: valuetype ProspectorRT.LMOracle/SecondarySkill SORCERY: public static literal 
+1290: valuetype ProspectorRT.LMOracle/SecondarySkill RESISTANCE: public static literal 
+1291: valuetype ProspectorRT.LMOracle/SecondarySkill FIRST_AID: public static literal 
+1292: valuetype ProspectorRT.LMOracle/SecondarySkill NONE: public static literal 
+########## .LevelSkill
+1293: int32 value__: public specialname rtspecialname 
+1294: valuetype ProspectorRT.LMOracle/LevelSkill BASIC: public static literal 
+1295: valuetype ProspectorRT.LMOracle/LevelSkill ADVANCED: public static literal 
+1296: valuetype ProspectorRT.LMOracle/LevelSkill EXPERT: public static literal 
+########## .MapRegion
+1297: int32 Size: public 
+1298: int32 Side: public 
+1299: int32 Data: public 
+1300: int32 Teams: public 
+1301: int32 MapName: public 
+1302: int32 SaveName: public 
+1303: int32 SR: public 
+1304: int32 BlackMarket: public 
+1305: int32 Start: public 
+1306: int32 EventBox: public 
+1307: int32 ArtRes: public 
+1308: int32 Monstr: public 
+1309: int32 SeerHut: public 
+1310: int32 PassGuard: public 
+1311: int32 MapTimedEvent: public 
+1312: int32 TownsTimedEvent: public 
+1313: int32 BottleSign: public 
+1314: int32 Mine: public 
+1315: int32 Dwelling: public 
+1316: int32 Garrison: public 
+1317: int32 UnknownVarReg: public 
+1318: int32 UnknownFixedReg: public 
+1319: int32 Color: public 
+1320: int32 Town: public 
+1321: int32 Hero: public 
+1322: int32 HeroState: public 
+1323: int32 CurrentState: public 
+1324: int32 BitField: public 
+1325: int32 TwoWayMonolith: public 
+1326: int32 OneWayMonolith: public 
+1327: int32 Whirlpool: public 
+1328: int32 SubTerGate: public 
+1329: int32 SubTerGatePair: public 
+1330: int32 Univer: public 
+1331: int32 Bank: public 
+1332: int32 Motions: public 
+
