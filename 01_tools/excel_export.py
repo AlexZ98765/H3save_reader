@@ -1878,7 +1878,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                            rec.get("class_"), rec.get("relic"),
                            rec.get("hero"), doll_name, rec.get("flag"),
                            rec.get("place"), rec.get("monster"), rec.get("mission"),
-                           _guard_str(rec.get("guard")) if rec.get("guard") else None])
+                           _guard_str(rec.get("guard"), dedup=False) if rec.get("guard") else None])
         ws.freeze_panes = "A2"
         ws.auto_filter.ref = ws.dimensions
         autosize_columns(ws)

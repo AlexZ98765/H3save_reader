@@ -366,7 +366,7 @@ PRT_TBL_DWELLING = {
     97: ("Сопряжение", 113),
 }
 
-def _guard_str_safe(guard, localizer=None) -> Optional[str]:
+def _guard_str_safe(guard, localizer=None, dedup=True) -> Optional[str]:
     """Format a guard list as 'Pikeman 5, Goblin 20' string.
     If guard is already a string, return it as-is.
     If guard is a list of {monster_id, count} dicts, format each.
@@ -384,32 +384,50 @@ def _guard_str_safe(guard, localizer=None) -> Optional[str]:
     if isinstance(guard, str):
         return guard
     if isinstance(guard, list):
-        # Deduplicate by monster_id (PRT ItWas logic)
-        seen: dict = {}  # monster_id → total_count
-        order: list = []  # preserve first-seen order
-        for g in guard:
-            if isinstance(g, dict):
-                mid = g.get("monster_id", -1)
-                cnt = g.get("count", 0)
-                if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
-                    if mid in seen:
-                        seen[mid] += cnt
-                    else:
-                        seen[mid] = cnt
-                        order.append(mid)
-        parts = []
-        for mid in order:
-            cnt = seen[mid]
-            if localizer is not None:
-                try:
-                    mname = localizer.monstr(mid) or f"M{mid}"
-                except Exception:
+        if dedup:
+            # Deduplicate by monster_id (PRT ItWas logic)
+            seen: dict = {}  # monster_id -> total_count
+            order: list = []  # preserve first-seen order
+            for g in guard:
+                if isinstance(g, dict):
+                    mid = g.get("monster_id", -1)
+                    cnt = g.get("count", 0)
+                    if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                        if mid in seen:
+                            seen[mid] += cnt
+                        else:
+                            seen[mid] = cnt
+                            order.append(mid)
+            parts = []
+            for mid in order:
+                cnt = seen[mid]
+                if localizer is not None:
+                    try:
+                        mname = localizer.monstr(mid) or f"M{mid}"
+                    except Exception:
+                        mname = get_monster_name(mid) or f"M{mid}"
+                else:
                     mname = get_monster_name(mid) or f"M{mid}"
-            else:
-                mname = get_monster_name(mid) or f"M{mid}"
-            parts.append(f"{mname} {cnt}")
+                parts.append(f"{mname} {cnt}")
+        else:
+            # No dedup -- list each slot separately (PRT ArtResContent)
+            parts = []
+            for g in guard:
+                if isinstance(g, dict):
+                    mid = g.get("monster_id", -1)
+                    cnt = g.get("count", 0)
+                    if isinstance(mid, int) and 0 <= mid < 0xFF and cnt:
+                        if localizer is not None:
+                            try:
+                                mname = localizer.monstr(mid) or f"M{mid}"
+                            except Exception:
+                                mname = get_monster_name(mid) or f"M{mid}"
+                        else:
+                            mname = get_monster_name(mid) or f"M{mid}"
+                        parts.append(f"{mname} {cnt}")
         return ", ".join(parts) if parts else None
     return None
+
 
 def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict[str, Any]]:
     """Aggregate ALL artifacts from every source on the map → "Все Арты" sheet.
@@ -1008,20 +1026,24 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
         return None
 
     # ── 1. Event/Pandora box spells ──
+    # PRT GetAllSpell (MainForm.cs:7299-7310): iterates R_EventBox rows,
+    # splits Spell field by ", " → one row per spell with its level.
     for rec in mo.get("События_Ящики_Пандоры", []):
         spell_str = rec.get("spell")
         if spell_str:
-            # Look up spell level via reverse-lookup (spell_name → id → level)
-            _sid = _find_spell_id(spell_str)
-            rows.append({
-                "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
-                "object": rec.get("object"),
-                "spell_name": spell_str,
-                "level": localizer.spell_level(_sid) if localizer and _sid is not None else None,
-                "flag": None, "town": None, "built": None,
-                "garrison": None, "hero": None, "place": None,
-                "mission": None, "guard": rec.get("guard"),
-            })
+            # PRT splits by ", " — each spell gets its own row
+            spell_names = [s.strip() for s in spell_str.split(",") if s.strip()]
+            for sname in spell_names:
+                _sid = _find_spell_id(sname)
+                rows.append({
+                    "x": rec.get("x"), "y": rec.get("y"), "z": rec.get("z"),
+                    "object": rec.get("object"),
+                    "spell_name": sname,
+                    "level": localizer.spell_level(_sid) if localizer and _sid is not None else None,
+                    "flag": None, "town": None, "built": None,
+                    "garrison": None, "hero": None, "place": None,
+                    "mission": None, "guard": rec.get("guard"),
+                })
 
     # ── 2. Shrine spells — use rec's localized object name ──
     # Includes Shrines (88/89/90), Pyramids (63), and Scrolls (93).
@@ -1043,25 +1065,34 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
 
     # ── 3. Hero spells — include ALL heroes, split spells per row, label Place ──
     #
-    # NOTE on PRT bugs fixed here:
-    #   1. PRT filter (MainForm.cs:7273) `Place <> 'Запрещен' OR Place IS NULL`
-    #      EXCLUDES banned heroes — their spells never reach R_AllSpell.
-    #      We apply the SAME filter to match PRT output exactly.
-    #   2. PRT GetAllSpell line 7418: for heroes with X.Y.Z Place and no Color
-    #      (prison-on-map heroes), PRT writes `Place = "Тюрьма"` for ALL such
-    #      heroes, mislabeling any "escaped" hero placed on map AND listed in a
-    #      tavern — PRT never re-checks tavern membership once loc byte != 0xFF.
-    #      We fix this via the hero's `tavern_owner` field (mirrors the
-    #      IsHeroTavern check added in MainForm_fixed1.cs FIX1-C).
-    #   3. PRT splits spell string by ", " → one row per spell (line 7277, 7381,
-    #      7401). We do the same.
+    # Matches PRT v2.3.1 PATCHED behavior (MainForm_fixed1.cs GetAllSpell,
+    # FIXED1 Bug 2): the original filter `"Spell IS NOT NULL AND (Place <>
+    # 'Запрещен' OR Place IS NULL)"` EXCLUDED banned heroes — their spells
+    # never reached R_AllSpell and the "Все Заклы" sheet was missing rows for
+    # heroes like Мутаре (151), Мутаре Дрэйк (153), Адриэн (145), Дракон (147),
+    # Лорд Хаарт (150). The patch removed the Place filter so ALL heroes with
+    # Spell are processed.
+    #
+    # Hero row routing (matches PRT patched GetAllSpell lines 7411-7432):
+    #   - Heroes whose Place string contains "." (X.Y.Z coords) → main table
+    #     (sorted by Z, Y, X, Slot). These get X/Y/Z columns set.
+    #   - Heroes whose Place has NO "." (Таверна / Запрещен / Тюрьма / None)
+    #     → secondary table (sorted by Place DESC, Color, ID, appended AFTER
+    #     the main table). X/Y/Z stay NULL; Place column is set to the literal
+    #     string. Banned heroes live here.
+    #
+    # Additional PRT bug fixed here (MainForm_fixed1.cs FIXED1 Bug 3, line 7450):
+    #   For heroes with X.Y.Z Place and no Color (prison-on-map heroes), the
+    #   original PRT wrote `Place = "Тюрьма"` unconditionally — mislabeling any
+    #   "escaped" hero placed on map AND listed in a tavern. We re-check
+    #   tavern membership via the hero's `tavern_owner` field (mirrors the
+    #   IsHeroTavern check added in MainForm_fixed1.cs FIX1-C).
+    #
+    # Spell splitting: PRT splits `r_HeroesRow.Spell` by ", " → one row per
+    # spell (lines 7277, 7381, 7401). We do the same.
     for hero_idx, h in enumerate(parsed.get("heroes_found", [])):
         spell_str = h.get("spell")
         if not spell_str:
-            continue
-        # PRT filter: skip banned heroes (Place == 'Запрещен')
-        place_raw = h.get("place")
-        if place_raw == "Запрещен":
             continue
         hero_name = h.get("name", "?")
         flag = h.get("flag")
@@ -1487,7 +1518,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None, raw: Option
             "monster": None, "artifact": None, "resource": None,
             # PRT uses r_EventBoxRow.Guard directly (no dedup for events —
             # they may have "Нага 3, Нага 3, Нага 3" with intentional duplicates)
-            "guard": guard if isinstance(guard, str) else _guard_str_safe(guard, localizer=localizer),
+            "guard": guard if isinstance(guard, str) else _guard_str_safe(guard, localizer=localizer, dedup=False),
             "hp": hp_val,
             "experience": xp if xp and xp > 0 else None,
             "xp_total": total_xp,
@@ -1551,7 +1582,7 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None, raw: Option
                     "town": None, "hero": None, "flag": None,
                     "monster": None, "artifact": _art_name_val,
                     "resource": rec.get("resource"),
-                    "guard": _guard_str_safe(rec.get("guard"), localizer=localizer),
+                    "guard": _guard_str_safe(rec.get("guard"), localizer=localizer, dedup=False),
                     "hp": hp_val,
                     "experience": None, "xp_total": hp_val,
                     # PRT GetAllExperience line 6643: r_AllExperienceRow13.Spell = r_SpellRow.Spell
