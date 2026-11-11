@@ -1,19 +1,19 @@
 {
   "0": {
     "name": "Книга заклинаний",
-    "class_id": 0,
+    "class_id": null,
     "relic_c_id": null,
     "cost": 500
   },
   "1": {
     "name": "Свиток с заклинанием",
-    "class_id": 0,
+    "class_id": null,
     "relic_c_id": null,
     "cost": 0
   },
   "2": {
     "name": "Грааль",
-    "class_id": 0,
+    "class_id": null,
     "relic_c_id": null,
     "cost": 0
   },

@@ -188,6 +188,9 @@ def _parse_guard(raw: bytes, s: int) -> Tuple[List[ArmySlot], int, int]:
 @dataclass
 class EventBoxContent:
     address: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
     has_guard: bool = False
     guard: List[ArmySlot] = field(default_factory=list)
     experience: int = 0
@@ -320,6 +323,9 @@ def parse_event_box_content(raw: bytes, s: int) -> Tuple[EventBoxContent, int]:
 @dataclass
 class ArtResContent:
     address: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
     art_type: int = 0  # 0=Art, 1=Resource, 2=Spell (from caller's TblArtRes)
     has_guard: bool = False
     guard: List[ArmySlot] = field(default_factory=list)
@@ -351,6 +357,9 @@ def parse_art_res_content(raw: bytes, s: int, art_type: int = 0) -> Tuple[ArtRes
 @dataclass
 class MonstrContent:
     address: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
     resources: Dict[str, int] = field(default_factory=dict)
     gold: int = 0
     artifact_id: int = -1  # 0xFF = none
@@ -394,6 +403,9 @@ def parse_monstr_content(raw: bytes, s: int) -> Tuple[MonstrContent, int]:
 @dataclass
 class SeerHutContent:
     address: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
     mission_type: int = 0
     mission: Dict[str, Any] = field(default_factory=dict)
     deadline: Optional[Tuple[int, int, int]] = None  # (month, week, day)
@@ -585,6 +597,9 @@ def parse_seer_hut_content(raw: bytes, s: int) -> Tuple[SeerHutContent, int]:
 @dataclass
 class PassGuardContent:
     address: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
     mission_type: int = 0
     mission: Dict[str, Any] = field(default_factory=dict)
     deadline: Optional[Tuple[int, int, int]] = None
@@ -752,6 +767,9 @@ class GarrisonContent:
     guard: List[ArmySlot] = field(default_factory=list)
     color: int = -1
     can_take: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
 
 
 def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
@@ -800,6 +818,11 @@ def parse_garrison_content(raw: bytes, s: int) -> Tuple[GarrisonContent, int]:
     # CanTake at offset 60 (PRT line 8167: aReply[decmp[s + 60]])
     if s + 60 < len(raw):
         rec.can_take = raw[s + 60]
+    # X/Y/Z at offsets 57, 58, 59 (PRT uses these to match R_Garrison row)
+    if s + 59 < len(raw):
+        rec.x = raw[s + 57]
+        rec.y = raw[s + 58]
+        rec.z = raw[s + 59]
     return rec, s + 61
 
 
@@ -2045,7 +2068,12 @@ def parse_analysis_content(raw: bytes, s: int,
 
     Layout:
     - u16 count
-    - count × records, each parse_one returns (record, new_s)
+    - count × records, each starting with X/Y/Z (3 bytes), then content.
+      parse_one returns (record, new_s).
+
+    PRT AnalysisContent reads X/Y/Z from the first 3 bytes of each record
+    and stores them in the DataRow. We do the same: read X/Y/Z and set
+    them on the returned record object (if it has x/y/z attributes).
     """
     records: List[Any] = []
     n = _u16(raw, s)
@@ -2053,7 +2081,20 @@ def parse_analysis_content(raw: bytes, s: int,
         return records, s + 2
     s += 2
     for i in range(n):
+        # PRT: row[0] = decmp[s] (X), row[1] = decmp[s+1] (Y), row[2] = decmp[s+2] (Z)
+        rec_x = raw[s]
+        rec_y = raw[s + 1]
+        rec_z = raw[s + 2]
         rec, s = parse_one(raw, s)
+        # Set x/y/z on the record (PRT stores them in the DataRow)
+        if hasattr(rec, '__dict__'):
+            rec.x = rec_x
+            rec.y = rec_y
+            rec.z = rec_z
+        elif isinstance(rec, dict):
+            rec['x'] = rec_x
+            rec['y'] = rec_y
+            rec['z'] = rec_z
         records.append(rec)
         s += 1  # `s = ObjContent(s) + 1`
     return records, s

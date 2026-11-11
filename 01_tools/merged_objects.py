@@ -187,8 +187,10 @@ def merge_artifacts(tile_objects: List[Dict[str, Any]],
                 rec["artifact_name"] = localizer.art(artifact_id)
             # Class (e.g., "Большой", "Малый", "Сокровище", "Реликвия")
             class_id = get_artifact_class_id(artifact_id)
-            if localizer:
+            if class_id is not None and localizer:
                 rec["class_"] = localizer.art_class(class_id)
+            elif class_id is None:
+                rec["class_"] = None
             # Combination relic (if part of one)
             relic_c_id = get_artifact_relic_c_id(artifact_id)
             if relic_c_id is not None and localizer:
@@ -1153,13 +1155,31 @@ def merge_garrisons(tile_objects: List[Dict[str, Any]],
     tile_garrisons = [obj for obj in tile_objects if obj.get('type_id') == 33]
     post_garrisons = post_tile_content.get("garrisons", [])
 
-    for i, pg in enumerate(post_garrisons):
+    # Build coordinate lookup from post-tile garrison records
+    # PRT GarrisonContent reads X/Y/Z from save bytes (offsets 57-59) and
+    # matches to R_Garrison rows by coordinates. We do the same.
+    post_by_coord = {}
+    for pg in post_garrisons:
         pg = _to_dict(pg)
-        tg = tile_garrisons[i] if i < len(tile_garrisons) else {}
+        gx = pg.get("x", 0)
+        gy = pg.get("y", 0)
+        gz = pg.get("z", 0)
+        post_by_coord[(gx, gy, gz)] = pg
+
+    # Iterate tile garrisons and match by coordinates
+    for tg in tile_garrisons:
+        tx = tg.get('x')
+        ty = tg.get('y')
+        tz = tg.get('z')
+        pg = post_by_coord.get((tx, ty, tz), {})
+        if not pg:
+            # Fallback: try positional matching
+            i = tile_garrisons.index(tg)
+            pg = _to_dict(post_garrisons[i]) if i < len(post_garrisons) else {}
         garrisons.append({
-            "x": tg.get('x'),
-            "y": tg.get('y'),
-            "z": tg.get('z'),
+            "x": tx,
+            "y": ty,
+            "z": tz,
             "locality": "море" if tg.get('loc') == 8 else "суша",
             "object": garrison_name,
             "anti_magic": tg.get('anti_magic', False),
@@ -1816,6 +1836,19 @@ def merge_prisons(tile_objects: List[Dict[str, Any]],
 
             # MP (movement points)
             rec["mp"] = f.get('movement_total', 0)
+
+            # Artifacts: PRT GetPrisonHero (MainForm.cs:7990-7993) copies
+            # r_HeroesRow.Art to row.Art. PRT GetHeroesContent builds Art from
+            # DOLL SLOTS (83 slots): art_id not in (0,3,4,5,6,255) → artifact name.
+            # doll_artifacts is a list of art_ids collected by parse_hero_block.
+            doll_arts = f.get('doll_artifacts', []) or []
+            art_parts = []
+            for aid in doll_arts:
+                if isinstance(aid, int) and aid >= 0:
+                    aname = loc.art(aid) if loc else str(aid)
+                    if aname:
+                        art_parts.append(aname)
+            rec["art"] = ", ".join(art_parts) if art_parts else None
 
         prisons.append(rec)
     return prisons

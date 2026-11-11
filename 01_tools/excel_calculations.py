@@ -838,8 +838,10 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
             for slot_idx, art_id in doll_arts:
                 info = _art_info(art_id)
                 rows.append({
-                    "x": hx, "y": hy, "z": hz,
-                    "locality": "суша",
+                    "x": hx if place_col != "Запрещен" else None,
+                    "y": hy if place_col != "Запрещен" else None,
+                    "z": hz if place_col != "Запрещен" else None,
+                    "locality": None if place_col == "Запрещен" else "суша",
                     "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
                     "slot": None,  # PRT shows None for hero artifact Слот
                     "artifact_name": info.get("name") or (localizer.art(art_id) if localizer else f"A{art_id}"),
@@ -856,8 +858,10 @@ def aggregate_all_artifacts(parsed: Dict[str, Any], localizer=None) -> List[Dict
             # Fallback: parse art_str (no class/relic available)
             for slot_idx, art_name in enumerate(art_names):
                 rows.append({
-                    "x": hx, "y": hy, "z": hz,
-                    "locality": "суша",
+                    "x": hx if place_col != "Запрещен" else None,
+                    "y": hy if place_col != "Запрещен" else None,
+                    "z": hz if place_col != "Запрещен" else None,
+                    "locality": None if place_col == "Запрещен" else "суша",
                     "object": _PRT_OBJECT.get(34, "Герой"),  # PRT "Герой"
                     "slot": None,  # PRT shows None for hero artifact Слот
                     "artifact_name": art_name,

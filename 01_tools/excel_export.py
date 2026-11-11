@@ -399,7 +399,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
             return str(val)
         return val
 
-    def _guard_str(guard_list):
+    def _guard_str(guard_list, dedup=True):
         """Format guard list as 'Pikeman 5, Goblin 20' — matching PRT format.
 
         Per PRT MainForm.cs:9033-9065 (GetBankGuard):
@@ -444,6 +444,17 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 cnt = seen[mid]
                 # PRT format: "<name> <count>" (no 'x' prefix)
                 parts.append(f"{mname} {cnt}")
+        if not dedup:
+            # No dedup — list each slot separately (PRT ArtResContent format)
+            parts = []
+            for g in guard_list:
+                if isinstance(g, dict):
+                    mid = g.get('monster_id', -1)
+                    cnt = g.get('count', 0)
+                    if mid is None or mid < 0:
+                        continue
+                    mname = _mon_name(mid) or f"M{mid}"
+                    parts.append(f"{mname} {cnt}")
         return ", ".join(parts) if parts else None
 
     def _art_list_str(art_ids):
@@ -497,7 +508,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                 art_name = _art_name(aid) or aid
             # Guard formatting (list of dicts → 'Pikeman x5, Goblin x20' string)
             guard_val = rec.get("guard")
-            guard_str = _guard_str(guard_val) if guard_val else None
+            guard_str = _guard_str(guard_val, dedup=False) if guard_val else None
             # Slot: PRT shows 1..N for banks; None for tile-level artifacts
             slot_val = rec.get("slot")
             ws.append([rec.get("x"), rec.get("y"), rec.get("z"),
@@ -944,7 +955,7 @@ def export_objects_to_excel(parsed: Dict, raw: bytes, output_path: str,
                        rec.get("hero_experience"),
                        rec.get("primary_skill"),      # "A2-D2-P1-K1"
                        rec.get("secondary_skill"),    # "Б.Лидерство, Б.Тактика"
-                       None,                          # Артефакт (not in prison per PRT)
+                       rec.get("art"),                # Артефакт (PRT GetPrisonHero copies hero's Art)
                        rec.get("spell"),              # single starting spell name
                        rec.get("monster"),            # "Копейщик 12, Арбалетчик 7"
                        prison_sum_hp(rec) if prison_sum_hp else None,  # ∑ HP (Excel-only)

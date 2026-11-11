@@ -91,7 +91,7 @@ def get_artifact_class_id(artifact_id: int) -> int:
     entry = tbl.get(str(artifact_id))
     if entry is None:
         return 0
-    return int(entry.get("class_id", 0))
+    cid = entry.get("class_id"); return None if cid is None else int(cid)
 
 
 def get_artifact_relic_c_id(artifact_id: int) -> Optional[int]:

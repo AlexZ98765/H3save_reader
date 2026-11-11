@@ -294,6 +294,7 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
     doll_start = block_offset + extra_size + 382
     war_machines = []  # list of dicts with slot_index, machine_id, machine_name, data
     spell_book = False
+    doll_artifacts = []  # PRT GetHeroesContent: art_id not in (0,3,4,5,6,255)
     for i in range(83):
         slot_off = doll_start + i * 8
         if slot_off + 8 > len(raw):
@@ -301,16 +302,22 @@ def parse_hero_block(raw: bytes, block_offset: int) -> Dict[str, Any]:
         art_id = raw[slot_off]
         if art_id == 0:
             spell_book = True  # has spell book
+        elif art_id == 3:
+            pass  # Catapult — PRT skips (case 3: continue)
         elif art_id in (4, 5, 6):
             # War machine: 4=Ballista, 5=Ammo Cart, 6=First Aid Tent
-            # Note: Catapult (id=3) is intentionally NOT included — PRT skips it (case 3: continue)
             war_machines.append({
                 "slot_index": i,
                 "machine_id": art_id,
                 "data": struct.unpack("<I", raw[slot_off + 4:slot_off + 8])[0],
             })
+        elif art_id != 255 and art_id < 255:
+            # Regular artifact (PRT: num6 < byte.MaxValue → TblArt.Rows.Find(num6))
+            # art_id 1=Scroll, 2=Grail, 7+=regular artifacts
+            doll_artifacts.append(art_id)
     fields["war_machines"] = war_machines
     fields["spell_book"] = spell_book
+    fields["doll_artifacts"] = doll_artifacts  # PRT r_HeroesRow.Art source
 
     # ----- Alt block fields (from GetHeroesContent) -----
     # Alt block starts at block_offset + HERO_ALT_BLOCK_OFFSET (26)
