@@ -536,7 +536,10 @@ def adapt_config_to_save(raw: bytes, config: MapConfig) -> Tuple[
       for the current save.
 
     Algorithm:
-      - For heroes: reuse save_config_builder.find_hero_blocks (regex + names)
+      - For heroes: PRT v2.3.1 section-walk (find_hero_section_by_prt_walk +
+        parse_hero_records_prt) — universal, no regex/name search. Falls back
+        to legacy find_hero_blocks (regex + 156-name table) only if the walk
+        yields 0 placed heroes.
       - For towns: PRT v2.3.1 section-walk (find_town_section_by_prt_walk +
         parse_town_records_prt) — universal, no coord-needle search.
         Fallback to coord-needle + stride-chain filter only if walk fails.
@@ -546,13 +549,29 @@ def adapt_config_to_save(raw: bytes, config: MapConfig) -> Tuple[
     from save_config_builder import (
         find_hero_blocks, find_town_blocks, _filter_to_stride_chain,
         find_town_section_by_prt_walk, parse_town_records_prt,
+        find_hero_section_by_prt_walk, parse_hero_records_prt,
     )
 
     header = parse_header(raw)
     scan_start = header.header_size
 
-    # Heroes
-    hero_section = find_hero_blocks(raw, scan_start, map_hero_names=None)
+    # Heroes — PRT v2.3.1 section-walk (universal). Same algorithm as
+    # build_map_config: walk the save section chain from map.Start to find
+    # map.Hero (= ScanTownsContent(map.Town), MainForm.cs:6222), then parse
+    # hero records at that offset using ScanHeroesContent's stride
+    # (name_len + 1094). This avoids HERO_REGEX false positives on
+    # hero_state bitmask data, which can plague large saves.
+    hero_section = None
+    try:
+        hero_offset, _ = find_hero_section_by_prt_walk(
+            raw, header.map_size, header.has_underground)
+        hero_section = parse_hero_records_prt(raw, hero_offset)
+    except Exception:
+        hero_section = None
+
+    if hero_section is None or hero_section.count == 0:
+        # Fallback to legacy regex + 156-name search.
+        hero_section = find_hero_blocks(raw, scan_start, map_hero_names=None)
 
     # Towns — PRT v2.3.1 section-walk (universal). Same algorithm as
     # build_map_config: walk the save section chain from map.Start to find
@@ -759,53 +778,36 @@ def parse_save(raw: bytes, config: MapConfig) -> ParsedSave:
             blocks.append(ps_block)
 
     # ----- 6c. Current state (from GetCurrentState) -----
-    # CurrentState = HeroState + HeroCount * 2
-    # HeroState is right after hero blocks (= after last hero block + stride)
+    # PRT MainForm.cs:6223-6224:
+    #   map.HeroState   = ScanHeroesContent(map.Hero)
+    #   map.CurrentState = map.HeroState + HeroCount * 2
+    # The walk in find_hero_section_by_prt_walk already computes both offsets
+    # directly via ScanHeroesContent's stride formula (name_len + 1094 per
+    # slot, 156 slots — see save_config_builder.find_hero_section_by_prt_walk
+    # + post_tile_scanner.scan_heroes_content). No hand-rolled stride
+    # accumulation needed.
     current_state_parsed: Dict[str, Any] = {}
     if hero_section.blocks and hero_section.count > 0:
-        # PRT GetCurrentState (MainForm.cs:7668) + ScanHeroesContent (line 9117):
-        #   map.Hero = ScanTownsContent(map.Town)  — true hero BLOCK start
-        #   map.HeroState = ScanHeroesContent(map.Hero) — iterates with variable
-        #       stride: s += (decmp[s+23]<<8) + decmp[s+22] + 1094
-        #       = u16 LE extra_size at offset +22 + 1094 base
-        #   map.CurrentState = map.HeroState + HeroCount * 2
-        #
-        # Our hero_section.blocks[0].block_offset points to ALT BLOCK start
-        # (= PRT's map.Hero + 26), so we subtract 26 to get true hero block start.
-        # We also add sum of extra_size across all heroes (variable stride).
-        #
-        # IMPORTANT: PRT HeroCount is HARDCODED to 156 (MainForm.cs:999:
-        # `private int HeroCount = 156;`). It is NOT read from the save. So we
-        # use 156 as the standard SoD hero count, ignoring hero_section.count
-        # (which can include ghost false-positive matches from the regex in
-        # find_hero_blocks).
-        #
-        # Also skip GHOST hero blocks (regex false positives). Real heroes have
-        # z in {0, 1, -1} where -1 = 0xFFFF = hero not on map (banned/prison).
-        # Ghosts have z = 256 (0x0100) or other invalid values from regex
-        # matching hero_state bitmask data.
-        real_blocks = [blk for blk in hero_section.blocks
-                       if getattr(blk, 'z', None) in (0, 1, -1)]
-        if not real_blocks:
-            # Fallback: use all blocks if none have valid z
-            real_blocks = hero_section.blocks
-        first_real_hero_alt_off = real_blocks[0].block_offset
-        # PRT uses 156 fixed — match it.
-        hero_count = 156
-        # If we have more real blocks than 156, that's data — but PRT only
-        # iterates 156 slots, so the offset calc uses 156.
-        true_hero_start = first_real_hero_alt_off - 26  # PRT's map.Hero
-        # Sum extra_size across all parsed heroes (each block has extra_size at
-        # block_offset - 4 = true_hero_block_start + 22). For PRT, this is
-        # accumulated during ScanHeroesContent iteration.
-        total_extra = 0
-        for blk in real_blocks:
-            es_off = blk.block_offset - 4
-            if 0 <= es_off and es_off + 2 <= len(raw):
-                import struct as _struct
-                total_extra += _struct.unpack("<H", raw[es_off:es_off+2])[0]
-        hero_state_off = true_hero_start + hero_count * HERO_STRIDE_SOD + total_extra
-        current_state_off = hero_state_off + hero_count * 2
+        # Consume the walked hero_state / current_state offsets directly.
+        # This replaces the previous hand-rolled calculation that:
+        #   1. took first_real_hero_alt_off - 26 to get true_hero_start
+        #   2. summed total_extra across all blocks (re-implementing
+        #      ScanHeroesContent's variable-stride loop)
+        #   3. computed hero_state_off = true_hero_start + 156 * HERO_STRIDE_SOD
+        #      + total_extra, current_state_off = hero_state_off + 156 * 2
+        # The walk does all of this in one pass and is the same algorithm
+        # PRT uses, so it's both faster and provably correct.
+        hero_state_off = -1
+        current_state_off = -1
+        try:
+            from save_config_builder import find_hero_section_by_prt_walk
+            _, hero_walk_info = find_hero_section_by_prt_walk(
+                raw, header.map_size, header.has_underground)
+            hero_state_off = hero_walk_info.get("hero_state_walked", -1)
+            current_state_off = hero_walk_info.get("current_state_walked", -1)
+        except Exception:
+            hero_state_off = -1
+            current_state_off = -1
 
         if current_state_off + 50 < len(raw):
             cs = CURRENT_STATE_OFFSETS

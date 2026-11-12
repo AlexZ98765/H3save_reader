@@ -2918,3 +2918,372 @@ needed but is in place for unusual save variants.
   ScanBottleSignContent, ScanObjectContent, ScanMonstrContent,
   ScanTownsContent, FindTownSection)
 - MainForm.cs:7534-7620 (GetTownContent — town record field layout)
+
+---
+
+## Step 1 — Hero finding ported to PRT walk (parse_hero_records_prt)
+
+Task ID: hero-walk-step1-2026-11-12
+
+Replace legacy `find_hero_blocks` (regex + 156 STANDARD_HERO_NAMES table)
+with a walk-based parser that consumes `walk["hero"]` (= PRT map.Hero)
+directly. This is the hero analog of the town walk done in the previous
+step, and the first item from the analysis "по шагам" plan.
+
+### Key PRT findings (corrected subagent report)
+
+Initial implementation used PRT `ScanHeroesContent`'s `is_placed` check
+(`decmp[s] != 0xFF && decmp[s+11] != 0`, MainForm.cs:9206) as a record
+filter. This was WRONG — on Myth and Legend it found only 3 heroes
+instead of 156.
+
+Reading `GetHeroesContent` (MainForm.cs:7801-7883) showed why:
+`ScanHeroesContent` populates `aHeroID[]` (a lookup table used by
+garrison hero / cross-reference lookups at MainForm.cs:9762, 9804); it
+does NOT drive the hero sheet. `GetHeroesContent` iterates ALL 156 slots
+unconditionally and reads each slot's data, distinguishing "on map" vs
+"Таверна" (tavern) vs "Запрещен" (banned) via `decmp[num] != 0xFF`
+(hero on map) and `decmp[heroState+i] == 64` (hero in tavern).
+
+Also corrected the hero name position: it's at `record + 195 + name_len`
+(per GetHeroesContent: `num = (nl==0) ? num+26 : num+26+nl; num += 113;
+num += 56; → name at record + 26 + nl + 113 + 56 = record + 195 + nl`),
+not the fixed `record + 195` that the legacy regex assumed. When
+`name_len > 0` (renamed heroes), the legacy regex would have missed the
+shift; the new parser handles it correctly.
+
+### Hero record layout (per PRT GetHeroesContent)
+
+```
+PRE-NAME BLOCK (26 + name_len bytes):
+  +0:   X coord (u8; 0xFF = not on map)
+  +2:   Y coord (u8)
+  +4:   Z coord (u8)
+  +22:  name_len (u16 LE) — pre-name section variable name
+  +26:  name (name_len bytes)
+POST-NAME BLOCK (1068 bytes):
+  +0:   player color (u8; <8 = active player, 0xFF = neutral/prison)
+  +17:  TreeNumber
+  +31:  MP (u16 LE)
+  +39:  Experience (u32 LE)
+  +49:  Level (u16 LE)
+  +113: 7×4-byte creature IDs (28) + 7×4-byte counts (28) = 56
+  +169: hero name (12 bytes + null = 13 bytes)
+  +182: skill levels (28) + skill slots (28) + primary (4) + spells(140) + ...
+Total stride: name_len + 1094
+```
+
+`block_offset` convention is preserved: `block_offset = record + 26 +
+name_len = name_pos - 169`, matching the legacy HERO_FIELD_OFFSETS
+convention expected by `parse_hero_block` and the Excel exporter. The
+hand-rolled `true_hero_start = first_real_hero_alt_off - 26` in
+`save_parser.py:797` continues to hold for the first hero (which has
+name_len == 0 on all tested maps).
+
+### Implementation
+
+`01_tools/save_config_builder.py`:
+- New `find_hero_section_by_prt_walk(raw, map_size, has_underground,
+  hero_count=156)` — hero analog of `find_town_section_by_prt_walk`.
+  Runs the same section walk (find_map_start → tile loop →
+  walk_post_tile_sections) and returns `(walk["hero"], debug_info)`.
+- New `parse_hero_records_prt(raw, hero_offset, hero_count=156)` —
+  hero analog of `parse_town_records_prt`. Iterates all 156 slots
+  with stride `name_len + 1094`, decodes the 13-byte hero name at
+  `record + 195 + name_len`, and delegates field validation
+  (level/numSkills/player/coords) to the existing `_parse_hero_at`.
+- `build_map_config:1314-1340` — replaced `find_hero_blocks(day_zero_raw,
+  header.header_size, map_hero_names)` with the new walk-based call;
+  kept `find_hero_blocks` as fallback (fires only if walk yields 0
+  heroes; never triggered on tested maps).
+
+`01_tools/save_parser.py`:
+- `adapt_config_to_save:527-588` — replaced `find_hero_blocks(raw,
+  scan_start, map_hero_names=None)` with the new walk-based call;
+  same fallback pattern. Updated docstring + imports.
+
+### Test results (vs PRT v2.3.1 xlsx)
+
+Direct hero-finder comparison (NEW walk-based vs LEGACY regex vs PRT):
+
+| Map | PRT | NEW | LEG | NEW−PRT | LEG−PRT | NEW−LEG |
+|---|---|---|---|---|---|---|
+| Long Journey SOD Revised2 | 155 | 156 | 156 | Ксерон | Ксерон | 0 |
+| Myth and Legend | 155 | 156 | 156 | Ксерон | Ксерон | 0 |
+
+NEW = LEG exactly (no regression), both have the pre-existing +1 Ксерон
+extra (a hero from the standard 156-name table that PRT excludes for an
+unknown reason; not caused by this step).
+
+Full pipeline (`parse_save` → `parsed_save_to_dict` → `export_objects_to_excel`
+→ `excel_compare.compare_excel_files`) ran without exceptions on both maps.
+PRT vs OUR _Сводка comparison:
+
+| Sheet | Long Journey (A/PRT, B/OUR, Diff, Match) | Myth and Legend |
+|---|---|---|
+| **Герои** | 156/156/**0**/156 ✓ | 156/156/**0**/156 ✓ |
+| **Города** | 93/93/**0**/93 ✓ (no regression) | 101/101/**0**/101 ✓ |
+| Монстры | 207/207/0/207 | 241/241/0/241 |
+| Банки | 16/16/0/16 | 10/10/0/10 |
+| Гарнизоны | 7/7/0/7 | 5/5/0/5 |
+| Все Заклы | 442/445/3/442 | 470/470/0/470 |
+| Опыт | 484/477/109/426 (pre-existing) | 580/583/27/568 (pre-existing) |
+| Артефакты | 269/269/62/238 (pre-existing) | 147/147/4/145 (pre-existing) |
+
+Hero sheet matches PRT exactly (0 diff) on both maps. No regression in
+any other section.
+
+### What this fixes (vs the analysis)
+
+Item 1 from the analysis: "Heroes are the biggest remaining search/hope
+gap. `find_hero_blocks` (regex + 156-name table) and `gm1_parser.find_hero_blocks`
+(byte-by-byte heuristic) both ignore the walked `hero` offset."
+
+Step 1 fixes the first half (the `save_config_builder.find_hero_blocks`
+call sites). The GUI `gm1_parser.py` still uses its own `HERO_REGEX`
+byte-by-byte scan — that's item 5 (GUI reconnect) and remains for a
+later step.
+
+### What's NOT done in this step (deferred)
+
+- `save_parser.py:761-852` hand-rolled `hero_state_off` / `current_state_off`
+  calculation still uses `first_real_hero_alt_off - 26` and accumulates
+  `total_extra` per-hero manually. Could be replaced by directly
+  consuming `walk["hero_state"]` and `walk["current_state"]` from the
+  walk dict — this is item 3.7 from the analysis, kept for step 2 or
+  a follow-up cleanup step.
+- `gm1_parser.py` GUI parser still uses its own HERO_REGEX (item 5).
+
+### Files modified
+- `01_tools/save_config_builder.py` — added `find_hero_section_by_prt_walk`
+  and `parse_hero_records_prt`; rewrote hero-finding block in
+  `build_map_config`.
+- `01_tools/save_parser.py` — rewrote hero-finding block in
+  `adapt_config_to_save`; updated imports + docstring.
+
+### PRT references
+- MainForm.cs:6222-6224 (`map.Hero = ScanTownsContent(map.Town)`;
+  `map.HeroState = ScanHeroesContent(map.Hero)`;
+  `map.CurrentState = map.HeroState + HeroCount * 2`)
+- MainForm.cs:7801-7883 (GetHeroesContent — hero sheet generator, full
+  record layout, name_pos = record + 195 + name_len)
+- MainForm.cs:9199-9212 (ScanHeroesContent — stride formula
+  `name_len + 1094`, `aHeroID[]` lookup table population only)
+- MainForm.cs:1043 (`private int HeroCount = 156;` hardcoded)
+
+---
+
+## Steps 2-5 — Cleanup pass: dead code, redundant search, hero_state walk, monolith naming, GUI reconnect
+
+Task ID: cleanup-steps-2-5-2026-11-12
+
+Follow-up to step 1. Implements the remaining 4 items from the analysis
+"по шагам" plan. All changes verified against PRT v2.3.1 xlsx on both
+test maps (Long Journey SOD Revised2, Myth and Legend) — zero regression
+on any sheet that was previously 0 diff.
+
+### Step 2 — Removed dead `find_header_offsets` + `HeaderOffsets`
+
+`post_tile_parser.find_header_offsets` (lines 1744-1812 in pre-step-2
+revisions) and its `HeaderOffsets` dataclass (lines 1734-1742) were
+**dead code** — only referenced from a stale comment at the former
+"H1. BlackMarket" line. The function duplicated work that
+`tile_scanner.find_map_start` already does (and better — find_map_start
+is the canonical PRT GetMapStart port):
+
+  | field            | find_header_offsets (removed) | tile_scanner.find_map_start |
+  |------------------|-------------------------------|-----------------------------|
+  | teams            | ✓ (raw.find sentinel)         | ✓ info['teams_idx']         |
+  | map_name         | ✓ (= teams + 57)              | ✓ info['map_name']          |
+  | save_name        | ✓ (= i + 1)                   | ✓ info['h3m_idx'] + 1       |
+  | sr / sr_bytes    | ✓                             | (not exposed — not needed)  |
+  | black_market     | ✓ (offset)                    | ✓ info['black_market_count']|
+  | map_start        | ✓                             | ✓ (return value)            |
+
+Removed both the dataclass and the function; replaced with a comment
+block pointing to `tile_scanner.find_map_start` + `header_parser.parse_header`.
+Also updated the stale "H1. BlackMarket" comment at the post-tile
+parser's tail to note that BlackMarket is parsed in
+`extra_sections_parser.parse_extra_sections` via
+`map_start_info["black_market_count"]` (not via a header lookup in this
+module, as the stale comment incorrectly claimed).
+
+### Step 3 — `parse_alliance` accepts optional `teams_offset`
+
+`_find_teams_sequence` (3-line wrapper around
+`raw.find(bytes(range(8)) + bytes(range(8)), ...)`) was called only from
+`parse_alliance`, which re-searched for the [0..7,0..7] sentinel even
+though `tile_scanner.find_map_start` already locates it (returned as
+`info['teams_idx']`). Added an optional `teams_offset` parameter to
+`parse_alliance`: when provided, the re-search is skipped. When None,
+falls back to the existing search (defensive — preserves backward
+compat for any caller that doesn't have teams_offset handy).
+
+`_find_teams_sequence` itself is kept as a small helper — the
+"redundancy" was the unconditional re-search in parse_alliance, not the
+helper's existence. `parse_alliance` is still "not called by default"
+per `export_coverage_report.py:91`; the fix prepares it for future
+wiring without changing current behavior.
+
+### Step 3.7 — `hero_state` / `current_state` hand-roll replaced with walk
+
+`save_parser.py:780-827` previously hand-rolled the hero_state and
+current_state offsets via:
+  1. `real_blocks = [blk for blk in hero_section.blocks if blk.z in (0,1,-1)]`
+  2. `true_hero_start = real_blocks[0].block_offset - 26` (= PRT's map.Hero)
+  3. `total_extra = sum(u16(raw, blk.block_offset - 4) for blk in real_blocks)`
+     — re-implementing ScanHeroesContent's variable-stride loop
+  4. `hero_state_off = true_hero_start + 156 * HERO_STRIDE_SOD + total_extra`
+  5. `current_state_off = hero_state_off + 156 * 2`
+
+This was a re-implementation of PRT `ScanHeroesContent` (MainForm.cs:9199)
+inside parse_save — the same algorithm that `find_hero_section_by_prt_walk`
+(step 1) already runs via `walk_post_tile_sections`. The hand-roll was
+both wasteful (second walk over hero records) and brittle (depended on
+`real_blocks[0].block_offset - 26` holding, which fails if the first
+hero has `name_len > 0`).
+
+Replaced with a direct call to `find_hero_section_by_prt_walk` and
+consumption of `walk_info["hero_state_walked"]` /
+`walk_info["current_state_walked"]`. PRT MainForm.cs:6223-6224:
+  map.HeroState    = ScanHeroesContent(map.Hero)
+  map.CurrentState = map.HeroState + HeroCount * 2
+The walk computes both in one pass via `post_tile_scanner.scan_heroes_content`
+(stride `name_len + 1094` per slot, 156 slots). The downstream
+`current_state` block parsing (grail_x/y/z, day/week/month) is unchanged
+— it just reads from the walked `current_state_off` instead of the
+hand-rolled one.
+
+### Step 4 — Monolith naming fix (PRT MainForm.cs:9500-9525)
+
+`post_tile_scanner.walk_post_tile_sections:328-342` had a confirmed
+naming bug. PRT `ScanMonolithWhirlpool` (MainForm.cs:9500-9525) sets:
+  - `map.TwoWayMonolith = map.BitField + MapSize² × (2 + 2 × MapSide)`
+    (MainForm.cs:6226) — section start
+  - Iterates 8 groups (TwoWay groups, MainForm.cs:9502-9508)
+  - `map.OneWayMonolith = s` (MainForm.cs:9510) — AFTER the 8 TwoWay groups
+  - Iterates 8 more groups (OneWay groups, MainForm.cs:9511-9518)
+  - `map.Whirlpool = s` (MainForm.cs:9519)
+  - Iterates 1 Whirlpool group, returns s = `map.SubTerGate`
+
+Our code had `one_way_monolith = two_way_monolith` (same offset as the
+section start) — making `one_way_monolith` and `two_way_monolith`
+point to the same byte. The comments were also swapped ("8 One Way
+groups" above the first loop, "8 Two Way groups" above the second —
+but PRT scans TwoWay first, then OneWay).
+
+Fix: `one_way_monolith = s` (after the first 8 groups, matching PRT
+MainForm.cs:9510), and swap the comments to match PRT's actual order
+(first 8 = TwoWay, second 8 = OneWay).
+
+Verified safe: downstream only consumes `two_way_monolith` (passed to
+`parse_monolith_whirlpool` at post_tile_parser.py:2293) and
+`sub_ter_gate` (passed to `parse_pair_subterranean_gate` at
+post_tile_parser.py:2301). The `one_way_monolith` value was unused
+(the bug was latent). Топология sheet remains 0 diff vs PRT on both
+test maps after the fix.
+
+Also added PRT's `if (num > 256) num = 0` defensive cap to all three
+group loops (MainForm.cs:9506, 9515, 9522) — was missing in our code,
+would have crashed on a malformed save with a corrupt group count.
+
+### Step 5 — GUI `gm1_parser.find_hero_blocks` rewired to walk
+
+`gm1_parser.find_hero_blocks` (lines 264-478 in pre-step-5 revisions)
+was a separate byte-by-byte regex/heuristic hero finder used only by
+the GUI path (called at gm1_parser.py:1072:
+`result["heroes_found"] = find_hero_blocks(raw)`). It scanned every
+byte position in the decompressed save with extensive multi-field
+validation (faction, movement, level, skills, equipment, spells, name,
+coords) — O(N) over the whole save, slow, and produced false positives
+on hero_state bitmask data (same class of bug as the legacy
+`save_config_builder.find_hero_blocks` that step 1 replaced).
+
+Rewrote the function to:
+  1. Call `find_hero_section_by_prt_walk` + `parse_hero_records_prt`
+     (the same walk-based finder from step 1)
+  2. For each `HeroBlockInfo` in `hero_section.blocks`, build the same
+     `{"offset", "name", "fields"}` dict the GUI expects, reading all
+     42 `HERO_BYTE_POSITIONS` fields from `raw[blk.block_offset + field_off]`
+
+The field-reading logic is preserved verbatim — downstream consumers
+(`_format_hero_for_json`, the GUI tree widget) see the same dict shape.
+The function signature `find_hero_blocks(raw, scan_start=None)` is
+preserved for backward compat (scan_start is now ignored — the walk
+computes its own start via find_map_start).
+
+Tested via `scripts/test_gm1_parser_hero_step5.py` (with PySide6 stubbed
+via MagicMock, since gm1_parser imports ~30 Qt classes at module level
+for the GUI but `find_hero_blocks` itself doesn't use Qt):
+
+  | Map                  | GUI heroes | PRT | PRT−GUI | GUI−PRT | field count |
+  |----------------------|------------|-----|---------|---------|-------------|
+  | Long Journey SOD Rev | 156        | 155 | 0       | Ксерон  | 42          |
+  | Myth and Legend      | 156        | 155 | 0       | Ксерон  | 42          |
+
+First 8 heroes on each map match PRT exactly (Long Journey: Оррин,
+Валеска, Эдрик, ...; Myth and Legend: Одиссей, Валеска, Эректеус, ...).
+Hero flags display correctly (Одиссей=Red, Эректеус=Green, Персей=Teal
+on Myth and Legend — active heroes show their player color; others
+show Neutral). GUI path now produces identical hero data to the
+save_parser path.
+
+### Final regression — both maps, all sheets vs PRT v2.3.1
+
+Ran `scripts/test_hero_excel_step1.py` (full pipeline: parse_save →
+parsed_save_to_dict → export_objects_to_excel → excel_compare) on both
+test maps. _Сводка comparison vs PRT v2.3.1 xlsx:
+
+  | Sheet               | Long Journey (Diff) | Myth and Legend (Diff) |
+  |---------------------|---------------------|------------------------|
+  | Герои               | 0 ✓                 | 0 ✓                    |
+  | Города              | 0 ✓                 | 0 ✓                    |
+  | Монстры             | 0 ✓                 | 0 ✓                    |
+  | Банки               | 0 ✓                 | 0 ✓                    |
+  | Гарнизоны           | 0 ✓                 | 0 ✓                    |
+  | Заклинания          | 0 ✓                 | 0 ✓                    |
+  | Ресурсы             | 0 ✓                 | 0 ✓                    |
+  | Сундуки             | 0 ✓                 | 0 ✓                    |
+  | Топология           | 0 ✓ (monolith fix)  | 0 ✓ (monolith fix)     |
+  | Стражи Прохода      | 0 ✓                 | 0 ✓                    |
+  | Все Навыки          | 0 ✓                 | 0 ✓                    |
+  | Навыки              | 0 ✓                 | 0 ✓                    |
+  | Все Заклы           | 3 (pre-existing)    | 0 ✓                    |
+  | События-Таймеры     | 0 ✓                 | 262 (pre-existing)     |
+  | Артефакты           | 62 (pre-existing)   | 4 (pre-existing)       |
+  | Опыт                | 109 (pre-existing)  | 27 (pre-existing)      |
+
+**Every sheet that was 0 diff before steps 2-5 is still 0 diff after.**
+The pre-existing diffs (Артефакты/Все Арты/Опыт/События-Таймеры) are
+unchanged — they're known issues in artifact metadata, the experience
+aggregator, and timed-event comparison; none relate to the
+walk/cleanup work in steps 1-5.
+
+### Files modified (steps 2-5)
+
+- `01_tools/post_tile_scanner.py` — fixed `one_way_monolith = s` (step 4);
+  added PRT's `num > 256 ⇒ 0` defensive caps to monolith group loops;
+  corrected comments to match PRT's TwoWay-then-OneWay order.
+- `01_tools/post_tile_parser.py` — removed dead `HeaderOffsets` dataclass
+  + `find_header_offsets` function (step 2); added optional `teams_offset`
+  parameter to `parse_alliance` (step 3); updated stale BlackMarket
+  comment.
+- `01_tools/save_parser.py` — replaced hand-rolled `hero_state_off` /
+  `current_state_off` calculation in `parse_save` with direct
+  consumption of `walk["hero_state_walked"]` / `walk["current_state_walked"]`
+  from `find_hero_section_by_prt_walk` (step 3.7).
+- `01_tools/gm1_parser.py` — rewrote `find_hero_blocks` to call
+  `find_hero_section_by_prt_walk` + `parse_hero_records_prt` and iterate
+  walked hero records (step 5); preserved `{"offset", "name", "fields"}`
+  dict shape and all 42 HERO_BYTE_POSITIONS field reads.
+
+### PRT references
+
+- MainForm.cs:6222-6228 (`map.TwoWayMonolith`, `map.SubTerGate`,
+  `ScanMonolithWhirlpool`)
+- MainForm.cs:9500-9525 (`ScanMonolithWhirlpool` — full monolith walk,
+  `map.OneWayMonolith = s` at line 9510, `map.Whirlpool = s` at 9519)
+- MainForm.cs:9273 (`ScanTownsContent` — `if count > 80 return` defensive)
+- MainForm.cs:9199-9212 (`ScanHeroesContent` — `map.HeroState` walk,
+  stride `name_len + 1094`)
+- MainForm.cs:6273-6308 (`GetAlliance` — teams sentinel search window)

@@ -1197,8 +1197,8 @@ def _sum_ally(num: int) -> Tuple[int, int]:
     return table.get(num, (0, 255))
 
 
-def parse_alliance(raw: bytes, map_data_offset: int, human_player: int
-                   ) -> AllianceInfo:
+def parse_alliance(raw: bytes, map_data_offset: int, human_player: int,
+                   teams_offset: Optional[int] = None) -> AllianceInfo:
     """Parse alliance block.
 
     Reference: MainForm.cs:6273 `GetAlliance()`.
@@ -1206,15 +1206,27 @@ def parse_alliance(raw: bytes, map_data_offset: int, human_player: int
     - 8 bytes player team assignments (after sequence)
     - Reads `decmp[num + human + 1]` for human's team
     - Then iterates: `decmp[num + i + 1] == hTeam` → ally
+
+    Args:
+        teams_offset: optional pre-computed teams sentinel offset from
+            tile_scanner.find_map_start (info['teams_idx']). If provided,
+            skips the redundant re-search for the [0..7,0..7] sentinel that
+            find_map_start already located. If None, falls back to searching
+            `map_data_offset + 66 .. + 0x10000` for the sentinel.
     """
     info = AllianceInfo()
     info.team_of_human = human_player
 
-    # Search for the 16-byte sentinel [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7]
-    # Search starts at `map.Data + 66`
-    search_start = map_data_offset + 66
-    search_end = min(len(raw), search_start + 0x10000)
-    teams_off = _find_teams_sequence(raw, search_start, search_end)
+    # Use pre-computed teams_offset if available; otherwise search for the
+    # 16-byte sentinel [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7]. The search starts
+    # at `map.Data + 66` and is bounded to 0x10000 bytes (matches PRT's
+    # GetAlliance search window at MainForm.cs:6273-6308).
+    if teams_offset is not None and teams_offset > 0:
+        teams_off = teams_offset
+    else:
+        search_start = map_data_offset + 66
+        search_end = min(len(raw), search_start + 0x10000)
+        teams_off = _find_teams_sequence(raw, search_start, search_end)
     if teams_off < 0:
         return info
     info.teams_offset = teams_off
@@ -1727,89 +1739,23 @@ def parse_monolith_whirlpool(raw: bytes, s: int) -> Tuple[MonolithInfo, int]:
 
 
 # ============================================================================
-# H1-H5. Header offsets — extend find_map_start
+# H1-H5. Header offsets — DELETED (was a duplicate of tile_scanner.find_map_start)
 # ============================================================================
-
-@dataclass
-class HeaderOffsets:
-    save_name: int = 0
-    sr: int = 0  # script/random 28 bytes
-    sr_bytes: str = ""  # 28 bytes hex-encoded for JSON safety
-    teams: int = 0  # 16-byte [0..7,0..7] sequence
-    map_name: int = 0  # 341 bytes after teams
-    black_market: int = 0
-    map_start: int = 0  # end of header / start of tile data
-
-
-def find_header_offsets(raw: bytes, scan_start: int = 0,
-                         scan_end: Optional[int] = None) -> HeaderOffsets:
-    """Find all header offsets (BlackMarket, SR, Teams, MapName, Start).
-
-    Reference: MainForm.cs:9411 `GetMapStart` + MainForm.cs:9443 `GetStart`.
-
-    Strategy:
-    1. Find the [0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7] 16-byte sentinel (map.Teams)
-    2. From Teams: map.MapName = Teams + 57
-    3. From MapName: walk forward to ".GM1\0" or ".CGM\0" etc.
-    4. From there: skip 688 bytes → map.SR
-    5. SR + 28 → length + 258 + 4 + variable skip
-    6. Then Black Market (u8 count + count × 28)
-    7. Then map.Start (beginning of tile loop)
-    """
-    if scan_end is None:
-        scan_end = len(raw)
-    info = HeaderOffsets()
-
-    # 1. Find [0..7,0..7] sentinel
-    target = bytes(range(8)) + bytes(range(8))
-    teams_off = raw.find(target, scan_start, scan_end)
-    if teams_off < 0:
-        return info
-    info.teams = teams_off
-
-    # 2. MapName = Teams + 57
-    info.map_name = teams_off + 57
-
-    # 3. Walk forward to find ".GM1\0" / ".CGM\0" / ".GM2\0" / ".GM3\0"
-    i = info.map_name + 341
-    valid_exts = {b"GM1", b"CGM", b"GM2", b"GM3"}
-    while i < scan_end - 4:
-        if raw[i] == 0x2E:  # '.'
-            ext = raw[i + 1:i + 4]
-            if ext in valid_exts and raw[i + 4] == 0:
-                break
-        i += 1
-    if i >= scan_end - 4:
-        return info
-
-    # 4. GetMapStart(i):
-    # map.SaveName = i + 1
-    info.save_name = i + 1
-    # s = i + 688; map.SR = s; Get_SR(s); s += 28
-    s = i + 688
-    info.sr = s
-    info.sr_bytes = raw[s:s + 28].hex()
-    s += 28
-
-    # 5. u16 length + skip length + 258 + 4
-    n = _u16(raw, s)
-    s += n + 258
-    # 6. Another u16 length + 4 + variable
-    n = _u16(raw, s)
-    s += 4
-    if n != 0:
-        for j in range(n):
-            s = s + _u16(raw, s) + 3
-
-    # 7. Black Market: u8 count + count × 28
-    bm_count = raw[s]
-    if bm_count != 0:
-        info.black_market = s
-        s += bm_count * 28
-
-    # 8. map.Start = s + 1
-    info.map_start = s + 1
-    return info
+#
+# The previous HeaderOffsets dataclass + find_header_offsets function
+# (lines 1733-1812 in earlier revisions) duplicated work that
+# tile_scanner.find_map_start already does — and was never called from
+# anywhere except a stale comment at the former "H1. BlackMarket" line
+# below. Both have been removed.
+#
+# For header offsets (teams, map_name, save_name, sr, black_market_count,
+# map_start), use:
+#     from tile_scanner import find_map_start
+#     map_start, info = find_map_start(raw)
+# `info` is a dict with keys: teams_idx, map_name, h3m_idx, save_name,
+# black_market_count, etc. (see tile_scanner.py:38-153).
+# For the parsed header (magic, version, map_size, has_underground,
+# header_size, map_name as string), use header_parser.parse_header.
 
 
 # ============================================================================
@@ -2304,10 +2250,10 @@ def parse_all_post_tile_sections(raw: bytes, after_tiles_offset: int,
     except Exception as e:
         result["sub_ter_gates"] = None
 
-    # H1. BlackMarket — we need to find it via find_header_offsets
-    # (the offset is in header, not in post-tile area)
-    # Caller should pass it in, or we look it up here
-    # (see usage in save_parser.py)
+    # H1. BlackMarket — parsed in extra_sections_parser.parse_extra_sections
+    # (using map_start_info["black_market_count"] from tile_scanner.find_map_start,
+    # NOT a header offset lookup in this module). The post-tile parser does
+    # not need to re-find BlackMarket here.
 
     return result
 

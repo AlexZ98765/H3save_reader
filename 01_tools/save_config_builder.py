@@ -750,6 +750,241 @@ def parse_town_records_prt(raw: bytes, town_offset: int) -> TownSection:
     return TownSection(blocks=blocks)
 
 
+# ============================================================================
+# Hero finding — PRT v2.3.1 section-walk (universal, no regex)
+# ============================================================================
+#
+# Background: the legacy find_hero_blocks (regex + 156 STANDARD_HERO_NAMES
+# table) searches the decompressed save with HERO_REGEX — a multi-field
+# pattern (faction byte + 30-byte gap + movement/exp/level/skill-slots/mana
+# + 13-byte name + 70-byte spell bitmaps). This produces false positives on
+# hero_state bitmask data (which can match the regex's permissive bytes) and
+# can miss heroes whose names contain characters outside the regex's
+# `[^\\x00-\\x20]` class.
+#
+# PRT v2.3.1 does NOT search for heroes at all — it WALKS them. After
+# map.Town is computed (Patch H), MainForm.cs:6222 runs:
+#     map.Hero     = ScanTownsContent(map.Town);      // no gap
+#     map.HeroState = ScanHeroesContent(map.Hero);    // 156 × (nl + 1094)
+#     map.CurrentState = map.HeroState + HeroCount * 2;
+# ScanHeroesContent (MainForm.cs:9199) iterates HeroCount (= 156 hardcoded,
+# MainForm.cs:1043) records, each with stride `u16(raw, s+22) + 1094`, and
+# records `aHeroID[i] = s` only for placed heroes (`raw[s] != 0xFF &&
+# raw[s+11] != 0`).
+#
+# Our walk_post_tile_sections already computes walk["hero"] (= map.Hero),
+# walk["hero_state"], and walk["current_state"] — see post_tile_scanner.py.
+# The two functions below consume those walked offsets directly, with no
+# regex and no name table. They are the hero analogs of
+# find_town_section_by_prt_walk + parse_town_records_prt.
+
+
+def find_hero_section_by_prt_walk(raw: bytes,
+                                  map_size: int,
+                                  has_underground: bool,
+                                  hero_count: int = 156,
+                                  ) -> Tuple[int, Dict[str, int]]:
+    """
+    PRT v2.3.1 algorithm: walk the save section chain from map.Start to
+    compute map.Hero (= byte offset of the first hero record).
+
+    This is the hero analog of find_town_section_by_prt_walk. It runs the
+    SAME section walk (find_map_start → tile loop → walk_post_tile_sections)
+    and returns walk["hero"].
+
+    PRT MainForm.cs:6222: `map.Hero = ScanTownsContent(map.Town);` — there
+    is NO gap between the last town record and the first hero record.
+
+    PRT does NOT have a Patch-H-style fallback for heroes — if map.Hero
+    is wrong, downstream content extraction throws (caught by the
+    `try { ... } catch (Exception __ex_X) { WriteDebugLog("X", __ex_X);
+    throw; }` wrappers in Scanner() at MainForm.cs:6273-6309). We mirror
+    that: this function returns the walked offset as-is; if
+    parse_hero_records_prt finds 0 placed heroes, the caller
+    (build_map_config / adapt_config_to_save) falls back to the legacy
+    find_hero_blocks regex+name search.
+
+    Args:
+        raw:             decompressed save bytes
+        map_size:        map width/height (from header)
+        has_underground: True if map has underground
+        hero_count:      PRT-hardcoded 156 (MainForm.cs:1043)
+
+    Returns:
+        (hero_offset, debug_info_dict)
+    """
+    from tile_scanner import find_map_start
+    from post_tile_scanner import walk_post_tile_sections
+
+    info: Dict[str, int] = {}
+
+    # Step 1: map.Start
+    ms, ms_info = find_map_start(raw)
+    info["map_start"] = ms
+
+    # Step 2: walk tile loop to compute after_tiles_offset
+    total_tiles = map_size * map_size * (2 if has_underground else 1)
+    s = ms
+    for _ in range(total_tiles):
+        if s + 18 > len(raw):
+            break
+        s += 18
+        if s + 2 <= len(raw):
+            var_count = struct.unpack("<H", raw[s:s + 2])[0]
+            s += var_count * 4 + 4
+        else:
+            break
+    after_tiles = s
+    info["after_tiles"] = after_tiles
+
+    # Step 3: num5 records (TownsTimedEvent-like pre-objects structures)
+    num5 = struct.unpack("<H", raw[after_tiles:after_tiles + 2])[0]
+    info["num5"] = num5
+    s2 = after_tiles + 4
+    for _ in range(num5):
+        if s2 + 2 > len(raw):
+            break
+        n = struct.unpack("<H", raw[s2:s2 + 2])[0]
+        s2 += n + 35
+    after_num5 = s2
+    obj_num = struct.unpack("<H", raw[after_num5:after_num5 + 2])[0]
+    info["obj_num"] = obj_num
+
+    # Step 4: walk post-tile sections to compute map.Hero
+    walk = walk_post_tile_sections(
+        raw, after_num5, obj_num,
+        hero_count=hero_count,
+        map_size=map_size,
+        has_underground=has_underground,
+    )
+    hero = walk.get("hero", -1)
+    info["hero_walked"] = hero
+    info["hero_state_walked"] = walk.get("hero_state", -1)
+    info["current_state_walked"] = walk.get("current_state", -1)
+    info["town_walked"] = walk.get("town", -1)
+    info["hero_first_byte"] = raw[hero] if 0 <= hero < len(raw) else -1
+    info["patch_h"] = "n/a (heroes have no PRT patch — see parse_hero_records_prt fallback)"
+
+    return hero, info
+
+
+def parse_hero_records_prt(raw: bytes, hero_offset: int,
+                           hero_count: int = 156) -> HeroSection:
+    """Parse hero records at the given map.Hero offset using PRT v2.3.1
+    GetHeroesContent (MainForm.cs:7801) + ScanHeroesContent (MainForm.cs:9199).
+
+    Iterates ALL hero_count (PRT default 156) slots — PRT's hero sheet lists
+    every slot, whether the hero is on the map, in a tavern, or banned. The
+    `decmp[s] != 0xFF && decmp[s+11] != 0` check in ScanHeroesContent
+    (MainForm.cs:9206) is ONLY used to populate the `aHeroID[]` lookup
+    table for cross-references (garrison heroes, etc.) — NOT for the hero
+    sheet. So we do NOT skip "unplaced" slots here.
+
+    Per-slot stride (PRT MainForm.cs:9207-9209):
+        record_i_start = hero_offset + sum(u16(raw, rec_j + 22) + 1094
+                                           for j in 0..i-1)
+    where u16 name_len at +22 is capped to 32 (>32 ⇒ 0).
+
+    Hero record layout (per PRT GetHeroesContent MainForm.cs:7819-7883):
+      PRE-NAME BLOCK (26 + name_len bytes):
+        +0:   X coord (u8; 0xFF = not on map)
+        +2:   Y coord (u8)
+        +4:   Z coord (u8)
+        +22:  name_len (u16 LE) — variable pre-name section name
+        +26:  name (name_len bytes)
+      POST-NAME BLOCK (1068 bytes):
+        +0:   player color (u8; <8 = active player, 0xFF = neutral/prison)
+        +17:  TreeNumber
+        +31:  MP (u16 LE)
+        +39:  Experience (u32 LE)
+        +49:  Level (u16 LE)
+        +113: 7×4-byte creature IDs (28 bytes) + 7×4-byte counts (28 bytes) = 56
+        +169: hero name (12 bytes + null = 13 bytes)
+        +182: skill levels (28) + skill slots (28) + primary (4) + spells(140) + ...
+
+    So the hero display NAME is at: record + 26 + name_len + 169
+                                  = record + 195 + name_len
+    When name_len == 0 (the common case), name is at record + 195 (matching
+    the legacy HERO_NAME_OFFSET_FROM_BLOCK_START = 169 convention where
+    block_offset = name_pos - 169 = record + 26 + name_len).
+
+    The block_offset convention is preserved exactly so downstream
+    `parse_hero_block` and the Excel exporter (which use HERO_FIELD_OFFSETS
+    relative to name_pos = block_offset + 169) continue to work unchanged.
+    save_parser.py:797's `true_hero_start = first_real_hero_alt_off - 26`
+    also continues to hold for the first hero (which has name_len == 0 on
+    all tested maps); a follow-up step will replace that hand-rolled
+    calculation with walk["hero_state"] directly.
+
+    This is a drop-in replacement for find_hero_blocks (regex + 156-name
+    table) that consumes walk["hero"] instead of searching. It is faster,
+    deterministic, and immune to the false positives that plague HERO_REGEX
+    on hero_state bitmask data.
+
+    Args:
+        raw:          decompressed save bytes
+        hero_offset:  walk["hero"] = PRT map.Hero
+        hero_count:   PRT-hardcoded 156 (MainForm.cs:1043)
+
+    Returns HeroSection.
+    """
+    blocks: List[HeroBlockInfo] = []
+    n = len(raw)
+    if hero_offset < 0 or hero_offset >= n:
+        return HeroSection(stride=HERO_STRIDE_SOD, blocks=blocks)
+
+    s = hero_offset
+    for i in range(hero_count):
+        # Need at least name_len u16 at +22 (+24 for the u16 itself) to advance.
+        if s + 24 > n:
+            break
+
+        # Stride: name_len u16 LE at +22, capped to 32 (PRT: >32 ⇒ 0).
+        # Per PRT MainForm.cs:9207-9209: `nl = decmp[s+22] | (decmp[s+23]<<8);
+        # if (nl > 32) nl = 0; s += nl + 1094;`
+        nl = struct.unpack("<H", raw[s + 22:s + 24])[0]
+        if nl > 32:
+            nl = 0
+        stride = nl + 1094
+
+        # Hero display name is at record + 195 + name_len (per PRT
+        # GetHeroesContent layout — see docstring). block_offset = name_pos
+        # - 169 = record + 26 + name_len = start of POST-NAME block, which
+        # is the legacy "alt block start" convention expected by
+        # parse_hero_block and HERO_FIELD_OFFSETS.
+        name_pos = s + 195 + nl
+        if name_pos + 13 <= n:
+            name_bytes = raw[name_pos:name_pos + 13]
+            name = _decode_name(name_bytes)
+            # _parse_hero_at validates level/numSkills/player/coords and
+            # returns None for records that don't look like real hero data
+            # (e.g. corrupted slots on a truncated save). It does NOT reject
+            # tavern/banned/prison heroes — those have player=0xFF and
+            # coords=-1, both of which pass its filters — so every real
+            # hero slot produces a HeroBlockInfo, matching PRT's behavior
+            # of listing all 156 slots in the hero sheet.
+            hero = _parse_hero_at(raw, name_pos, name)
+            if hero is not None:
+                blocks.append(hero)
+
+        s += stride
+
+    # Compute stride (mode of consecutive block_offset deltas) — same logic
+    # as find_hero_blocks, so downstream code sees the same HeroSection shape
+    # regardless of which finder produced it.
+    if len(blocks) >= 2:
+        from collections import Counter
+        strides = [blocks[i + 1].block_offset - blocks[i].block_offset
+                   for i in range(min(5, len(blocks) - 1))]
+        stride = Counter(strides).most_common(1)[0][0]
+    elif blocks:
+        stride = HERO_STRIDE_SOD
+    else:
+        stride = 0
+
+    return HeroSection(stride=stride, blocks=blocks)
+
+
 def _is_valid_town_name(name: str) -> bool:
     """Check that a town name contains only printable characters.
 
@@ -1088,7 +1323,8 @@ def build_map_config(map_data, day_zero_raw: bytes,
         day_zero_raw, coord_ints, scan_start=header.header_size)
 
     # ----- Hero finding -----
-    # Get hero names from map_data (Prison heroes)
+    # Get hero names from map_data (Prison heroes) — kept as fallback input
+    # for the legacy regex search, in case the PRT walk yields 0 heroes.
     map_hero_names = []
     for ck, rec in map_data.objects_by_coord.items():
         if rec.get("category") == "hero":
@@ -1097,7 +1333,25 @@ def build_map_config(map_data, day_zero_raw: bytes,
             if hero_name:
                 map_hero_names.append(hero_name)
 
-    hero_section = find_hero_blocks(day_zero_raw, header.header_size, map_hero_names)
+    # PRT v2.3.1 algorithm: walk the save section chain from map.Start to
+    # compute map.Hero (= ScanTownsContent(map.Town), MainForm.cs:6222),
+    # then parse hero records at that offset using PRT's ScanHeroesContent
+    # stride (name_len + 1094 per record). This is the correct, universal
+    # algorithm — HERO_REGEX search produces false positives on hero_state
+    # bitmask data and misses heroes whose names fall outside the regex's
+    # character class. See find_hero_section_by_prt_walk +
+    # parse_hero_records_prt docstrings.
+    hero_offset, hero_walk_info = find_hero_section_by_prt_walk(
+        day_zero_raw, header.map_size, header.has_underground)
+    hero_section = parse_hero_records_prt(day_zero_raw, hero_offset)
+
+    # Fallback to legacy regex + 156-name search if PRT walk yielded 0
+    # heroes. (Has never triggered on tested maps, but kept as a safety
+    # net for unusual save variants where the section walk might miss —
+    # e.g. day-0 saves with truncated hero sections.)
+    if hero_section.count == 0:
+        print("  ⚠ PRT walk found 0 heroes; falling back to regex+name search...")
+        hero_section = find_hero_blocks(day_zero_raw, header.header_size, map_hero_names)
 
     # ----- Town finding -----
     # PRT v2.3.1 algorithm: walk the save section chain from map.Start to

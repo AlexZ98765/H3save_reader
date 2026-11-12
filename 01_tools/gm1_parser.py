@@ -262,160 +262,49 @@ def format_town_type(val):
 # ============================================================================
 
 def find_hero_blocks(raw: bytes, scan_start: int = None) -> List[Dict]:
-    """
-    Ищет hero blocks через эвристический regex-поиск с поддержкой cp1251 имён.
-    Проверяет валидность полей: faction, movement, level, attack/defense/power/knowledge,
-    equipment pattern, spell bitmaps, skill levels.
+    """Find hero blocks using PRT v2.3.1 section walk (no regex, no name table).
+
+    Wrapper around save_config_builder.find_hero_section_by_prt_walk +
+    parse_hero_records_prt that returns the same List[Dict] format the GUI
+    expects (offset, name, fields with HERO_BYTE_POSITIONS read from raw).
+
+    The walk gives correct hero block offsets directly — no byte-by-byte
+    regex/heuristic validation needed. The previous implementation scanned
+    every byte position with multi-field validation (faction, movement,
+    level, skills, equipment, spells, name, coords); that was both slow
+    (O(N) over the whole decompressed save) and produced false positives
+    on hero_state bitmask data. The walk is O(HeroCount) = O(156) and
+    deterministic.
 
     Args:
         raw:        decompressed save bytes
-        scan_start: byte offset to start scanning. If None, use header_size
-                    from header_parser (no hardcoded 0x100000).
+        scan_start: IGNORED (kept for backward compatibility with the old
+                    signature). The walk computes its own start via
+                    tile_scanner.find_map_start.
     """
-    heroes = []
-    seen_offsets = set()
+    from header_parser import parse_header
+    from save_config_builder import (
+        find_hero_section_by_prt_walk, parse_hero_records_prt,
+    )
 
-    if scan_start is None:
-        try:
-            from header_parser import parse_header
-            scan_start = parse_header(raw).header_size
-        except Exception:
-            scan_start = 0x400  # safe fallback (small maps have header_size ~0x258)
-    scan_start = max(scan_start, 0x100)  # at least 256 bytes
+    heroes: List[Dict] = []
+    try:
+        header = parse_header(raw)
+        hero_offset, _ = find_hero_section_by_prt_walk(
+            raw, header.map_size, header.has_underground)
+        hero_section = parse_hero_records_prt(raw, hero_offset)
+    except Exception:
+        # Walk failed (truncated save, missing header, etc.) — return empty.
+        # Downstream code handles empty hero lists gracefully.
+        return heroes
 
-    for i in range(scan_start, len(raw) - 1122):
-        faction = raw[i]
-        if faction > 7 and faction != 255:
-            continue
-
-        # movement_total (offset 31)
-        mt = int.from_bytes(raw[i+31:i+35], 'little')
-        if mt > 10000 or mt < 100:
-            continue
-
-        # movement_left (offset 35)
-        ml = int.from_bytes(raw[i+35:i+39], 'little')
-        if ml > 300000 and ml != 299999:
-            continue
-
-        # level (offset 49)
-        level = raw[i+49]
-        if level > 74:
-            continue
-
-        # skills_count (offset 43) + 3 zero bytes after
-        sc = int.from_bytes(raw[i+43:i+47], 'little')
-        if sc > 28:
-            continue
-        # bytes after numSkills must be 0x00 0x00 0x00
-        if raw[i+44] != 0 or raw[i+45] != 0 or raw[i+46] != 0:
-            continue
-
-        # attack/defense/power/knowledge (offset 238-241)
-        attack = raw[i+238]
-        defense = raw[i+239]
-        power = raw[i+240]
-        knowledge = raw[i+241]
-        if attack > 99 or defense > 99 or power > 99 or knowledge > 99:
-            continue
-        if power == 0 and knowledge == 0 and attack == 0 and defense == 0:
-            continue
-
-        # experience (offset 39)
-        exp = int.from_bytes(raw[i+39:i+43], 'little')
-        if exp > 100000000:
-            continue
-
-        # ⭐ SPELL BITMAP validation (offset 242-311 = 70 bytes, each 0x00 or 0x01)
-        spells_book = raw[i+242:i+312]
-        if any(b > 1 for b in spells_book):
-            continue
-
-        # ⭐ SPELLS AVAILABLE validation (offset 312-381 = 70 bytes, each 0x00 or 0x01)
-        spells_avail = raw[i+312:i+382]
-        if any(b > 1 for b in spells_avail):
-            continue
-
-        # ⭐ EQUIPMENT validation (offset 382-533 = 152 bytes = 19 × 8-byte slots)
-        # Each slot must be one of:
-        #   FF FF FF FF XX XX XX XX  (empty slot)
-        #   XX 00 00 00 FF FF FF FF  (artifact, no data)
-        #   XX 00 00 00 00 00 00 00  (scroll)
-        #   XX 00 00 00 XX XX 00 00  (catapult etc)
-        equipment = raw[i+382:i+534]
-        equip_valid = True
-        has_non_blank = False  # at least one non-empty, non-zero slot
-        for slot_idx in range(19):
-            slot = equipment[slot_idx*8 : slot_idx*8 + 8]
-            # Pattern 1: FF FF FF FF XX XX XX XX (empty)
-            if slot[0] == 0xFF and slot[1] == 0xFF and slot[2] == 0xFF and slot[3] == 0xFF:
-                continue
-            # Pattern 2: XX 00 00 00 (artifact/scroll/war machine)
-            if slot[1] == 0 and slot[2] == 0 and slot[3] == 0:
-                has_non_blank = True
-                # Data part: either 00 00 00 00, FF FF FF FF, or XX XX 00 00
-                data = slot[4:8]
-                if data == b'\x00\x00\x00\x00' or data == b'\xFF\xFF\xFF\xFF':
-                    continue
-                if data[2] == 0 and data[3] == 0:
-                    continue  # catapult etc: XX XX 00 00
-                equip_valid = False
-                break
-            equip_valid = False
-            break
-        if not equip_valid:
-            continue
-        # Reject all-blank equipment (negative lookahead)
-        if not has_non_blank:
-            continue
-
-        # Name (offset 169, 13 bytes, cp1251) — first byte must be printable
-        name_bytes = raw[i+169:i+169+13]
-        if name_bytes[0] == 0x00 or name_bytes[0] == 0xFF:
-            continue
-        if name_bytes[0] < 0x20:  # control character
-            continue
-
-        # Decode name as cp1251
-        name = name_bytes.rstrip(b"\x00").decode("cp1251", errors="replace")
-
-        # ⭐ STRICTER name validation
-        clean_name = name.strip()
-        if len(clean_name) < 2:
-            continue
-        # Reject names with control characters (0x01-0x1F)
-        if any(0x01 <= ord(c) <= 0x1F for c in clean_name):
-            continue
-        # Check that name contains at least one letter (alpha)
-        has_letter = any(c.isalpha() for c in clean_name)
-        if not has_letter:
-            continue
-        # Filter out names that are all the same character (like "яяяяяяяяяяяя")
-        if len(set(clean_name)) == 1:
-            continue
-        # Reject names with too many non-alpha characters (< 50% alpha)
-        alpha_count = sum(1 for c in clean_name if c.isalpha())
-        if alpha_count < len(clean_name) * 0.5:
-            continue
-
-        # ⭐ COORDINATE validation
-        # Coords are 2-byte LE (u16) at offsets -26 (X), -24 (Y), -22 (Z)
-        # Pool heroes have coords (-1, -1, -1) = 0xFFFF
-        # Active heroes have coords (0-143, 0-143, 0-1)
-        coord_x = struct.unpack('<h', raw[i-26:i-24])[0]  # signed for -1 check
-        coord_y = struct.unpack('<h', raw[i-24:i-22])[0]
-        coord_z = struct.unpack('<h', raw[i-22:i-20])[0]
-        if faction <= 7:  # active hero
-            if not (-1 <= coord_x <= 255) or not (-1 <= coord_y <= 255) or not (-1 <= coord_z <= 1):
-                continue
-
-        # Avoid duplicates — only skip if within 400 bytes of a REAL hero
-        if i in seen_offsets:
-            continue
-        for j in range(i, min(i + 400, len(raw))):
-            seen_offsets.add(j)
-
-        # Parse all fields
+    for blk in hero_section.blocks:
+        # blk.block_offset follows the legacy convention = name_pos - 169
+        # (= start of the hero POST-NAME block). All HERO_BYTE_POSITIONS
+        # offsets are relative to this same anchor, so the field-reading
+        # code below is unchanged from the previous implementation.
+        i = blk.block_offset
+        name = blk.name
         hero = {"offset": i, "name": name, "fields": {}}
 
         for field_name, field_off in HERO_BYTE_POSITIONS.items():

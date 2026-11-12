@@ -324,22 +324,29 @@ def walk_post_tile_sections(raw: bytes, after_tiles_offset: int,
             # BitField = CurrentState + 130 - Chrn
             bit_field = current_state + 130 - chrn
             # TwoWayMonolith = BitField + MapSize² × (2 + 2 × MapSide)
+            # (PRT MainForm.cs:6226: map.TwoWayMonolith = map.BitField +
+            # MapSize*MapSize*(2 + 2*MapSide))
             bit_field_size = map_size * map_size * (2 + 2 * (1 if has_underground else 0))
             two_way_monolith = bit_field + bit_field_size
-            # SubTerGate = ScanMonolithWhirlpool(TwoWayMonolith)
-            # 8 groups × (u16 + count × 4) for OneWay
-            #               8 groups × (u16 + count × 4) for TwoWay
-            #               1 group  × (u16 + count × 4) for Whirlpools
+
+            # ScanMonolithWhirlpool(TwoWayMonolith) — PRT MainForm.cs:9500-9525.
+            # First 8 groups = TwoWay monoliths (PRT MainForm.cs:9502-9508).
             s = two_way_monolith
-            for _ in range(8):  # 8 One Way groups
+            for _ in range(8):  # 8 TwoWay groups
                 n = _u16(raw, s); s += n * 4 + 2
-            one_way_monolith = two_way_monolith  # map.OneWayMonolith = s here
-            for _ in range(8):  # 8 Two Way groups
+            # After 8 TwoWay groups: map.OneWayMonolith = s
+            # (PRT MainForm.cs:9510). NOTE: previously this was incorrectly
+            # set to two_way_monolith (same as the section start), which made
+            # one_way_monolith and two_way_monolith point to the same offset.
+            # The correct value is `s` — the offset AFTER the 8 TwoWay groups.
+            one_way_monolith = s
+            # Next 8 groups = OneWay monoliths (PRT MainForm.cs:9511-9518).
+            for _ in range(8):  # 8 OneWay groups
                 n = _u16(raw, s); s += n * 4 + 2
-            whirlpool = s
-            # 1 Whirlpool group
+            whirlpool = s  # map.Whirlpool (PRT MainForm.cs:9519)
+            # 1 Whirlpool group (PRT MainForm.cs:9520-9524) — scan and return.
             n = _u16(raw, s); s += n * 4 + 2
-            sub_ter_gate = s
+            sub_ter_gate = s  # map.SubTerGate (= return of ScanMonolithWhirlpool)
 
             # SubTerGatePair = SubTerGate + count × 4 + 2
             n = _u16(raw, sub_ter_gate)
