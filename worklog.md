@@ -2796,3 +2796,125 @@ PRT не имеет никаких валидаций (faction ≤ 7, type ≤ 8
 ## Files modified
 - `01_tools/save_config_builder.py` — `_is_valid_town_name`, добавлена валидация в `_parse_town_at`/`_parse_town_at_offset`; новая `_filter_to_stride_chain`; применена в `build_map_config`.
 - `01_tools/save_parser.py` — stride-chain filter применён в `_adapt_config_to_current_save` (повторный поиск городов для текущего сейва).
+
+---
+Task ID: PRT-TOWN-WALK
+Agent: main
+Task: Fix cities "съехали" (slid/misaligned) on Long Journey SOD Revised2 map. Port PRT v2.3.1 town-finding algorithm.
+
+## Problem
+On the new "Long Journey SOD Revised2" map, our parser produced only 3 towns
+(Rock @8,139; Tower City @129,7; City @46,82) on the "Города" sheet, while PRT
+v2.3.1 reports 21 distinct towns (92 data rows). The 3 we found were the only
+towns whose coord-needle happened to survive `_filter_to_stride_chain` — the
+other 18 neutral (color=255) towns were either not found by the 3-byte
+(x,y,z) needle search or got filtered out by the stride-chain filter.
+
+Root cause: our `find_town_blocks` searches for 3-byte (x,y,z) coord needles
+in the entire save and then validates each match. On large maps (5800+
+objects) the same coord pattern occurs hundreds of times, and the
+stride-chain filter is too aggressive — it discards real towns that don't
+fit a single contiguous 382+name_len chain (e.g. when name parsing fails on
+one record, the whole downstream chain is broken).
+
+## PRT v2.3.1 algorithm
+PRT does NOT search for coord needles. It WALKS the save section-by-section
+starting from `map.Start`, computing each section's offset from the previous
+section's count + stride (MainForm.cs:6196-6222):
+
+    map.EventBox         = num4 + ObjectNumber * 5 + 4
+    map.ArtRes           = ScanObjectContent(EventBox, ScanEventBoxContent)
+    map.Monstr           = ScanObjectContent(ArtRes, ScanArtResContent)
+    map.SeerHut          = ScanMonstrContent(Monstr)
+    map.PassGuard        = ScanObjectContent(SeerHut, ScanSeerHutContent)
+    map.MapTimedEvent    = ScanObjectContent(PassGuard, ScanPassGuardContent)
+    map.TownsTimedEvent  = ScanMapTimedEvents(MapTimedEvent)
+    map.BottleSign       = ScanTownsTimedEvents(TownsTimedEvent)
+    map.Mine             = ScanBottleSignContent(BottleSign)
+    map.Dwelling         = Mine + raw[Mine] * 62 + 1
+    map.Garrison         = Dwelling + raw[Dwelling] * 75 + 2
+    map.UnknownVarReg    = Garrison + raw[Garrison] * 61 + 1
+    map.UnknownFixedReg  = UnknownVarReg + raw[UnknownVarReg] * 28 + 1
+    map.Color            = UnknownFixedReg + 49
+    map.Town             = Color + 1160
+
+Patch H (MainForm.cs:6211-6221) validates the computed map.Town:
+    raw[map.Town] ∈ 1..48 (town count)
+    raw[map.Town+5] ≤ 8 (faction of first town record)
+    raw[map.Town+71] ∈ 1..14 (name_len of first town record)
+If validation fails, falls back to FindTownSection(map.Mine) which scans
+forward byte-by-byte from map.Mine looking for a valid town section header.
+
+Town record layout (PRT GetTownContent, MainForm.cs:7534+):
+    +0  = ID byte
+    +1  = Color byte (255 = neutral)
+    +4  = faction/Code (0..8)
+    +5  = X, +6 = Y, +7 = Z
+    +10..+37 = 7 × 4-byte creature IDs
+    +38..+65 = 7 × 4-byte creature counts
+    +70 = name_len (1 byte, NOT u16!)
+    +72.. = name bytes (cp1251)
+    Total stride = 72 + name_len + 113 + 197 = 382 + name_len
+
+## Implementation
+
+### New functions in save_config_builder.py
+1. `_is_printable_town_char(b)` — PRT TownNameValidator: rejects C0 control
+   chars (0x00-0x1F) and DEL (0x7F); accepts cp1251 printable range.
+2. `find_town_section_by_prt_walk(raw, map_size, has_underground, hero_count=156)`
+   → `(town_offset, debug_info)`. Calls `tile_scanner.find_map_start` to get
+   map.Start, computes after_tiles_offset (walks total_tiles × (18 + var_count*4 + 4)),
+   computes after_num5 (walks num5 records × (u16 + 35)), reads ObjectNumber,
+   calls `post_tile_scanner.walk_post_tile_sections` to compute map.Town,
+   applies Patch H validation, falls back to `_find_town_section` if invalid.
+3. `_find_town_section(raw, scan_start)` — PRT FindTownSection port: scans
+   forward byte-by-byte looking for a valid town section header (count 1..48,
+   faction ≤ 8, X/Y ≤ 0xFC, Z ≤ 1, name_len 1..14, all name chars printable).
+4. `parse_town_records_prt(raw, town_offset)` → `TownSection`. Reads count byte,
+   walks each record (stride 382 + name_len), parses fields with PRT layout.
+   Sets `block_offset = real_record + 1` to match the legacy
+   `TOWN_FIELD_OFFSETS` off-by-one convention used by downstream
+   `parse_town_block` and the Excel exporter.
+
+### Wiring
+- `build_map_config` (save_config_builder.py): replaced the
+  `find_town_blocks` + `_filter_to_stride_chain` + `_verify_town_strides` +
+  `_recover_missing_towns` sequence with `find_town_section_by_prt_walk` +
+  `parse_town_records_prt`. The legacy coord-needle search is kept as a
+  fallback (only triggers if walk yields 0 towns — never seen on tested maps).
+- `adapt_config_to_save` (save_parser.py): same change — uses the PRT walk
+  for the current save, falls back to coord-needle search if walk fails.
+
+## Verification
+
+### Long Journey SOD Revised2 (the new failing map)
+- Before fix: Города 55 rows vs PRT 93 rows, Diff=148, Match=0
+- After fix:  Города 93 rows vs PRT 93 rows, Diff=0, Match=93 ✓
+- All 21 distinct towns match exactly: Rock, Tower City, City, Уитмон, Фактур,
+  Клоудспир, Моссдэн, Бафир, Силвервинг, Стилвотэр, Крагг, Nest, Cave, Hell,
+  Дэмонгат, Dark Eternal, Абаддон, Дэфгат, Oligopolis, Даркбирроу, Ашкомб.
+- Bonus fixes (downstream of having correct town records):
+  - Герои: 16 diff → 0 diff
+  - Все Заклы: 573 diff → 3 diff
+
+### Myth and Legend (regression check)
+- Города: 101 rows in both OUR and PRT, Diff=0, Match=101 ✓ (no regression)
+- Герои: 0 diff; Все Заклы: 0 diff; Монстры: 0 diff; Банки: 0 diff
+
+### Patch H status
+On both tested maps Patch H validation PASSES — the section walk produces
+the correct map.Town on the first try; FindTownSection fallback is not
+needed but is in place for unusual save variants.
+
+## Files modified
+- `01_tools/save_config_builder.py` — added `_is_printable_town_char`,
+  `find_town_section_by_prt_walk`, `_find_town_section`, `parse_town_records_prt`;
+  rewrote town-finding block in `build_map_config`.
+- `01_tools/save_parser.py` — rewrote `adapt_config_to_save` to use the PRT walk.
+
+## PRT references
+- MainForm.cs:6196-6222 (section-walk chain from map.Start + Patch H)
+- MainForm.cs:9163-9308 (ScanTownsTimedEvents, ScanMapTimedEvents,
+  ScanBottleSignContent, ScanObjectContent, ScanMonstrContent,
+  ScanTownsContent, FindTownSection)
+- MainForm.cs:7534-7620 (GetTownContent — town record field layout)

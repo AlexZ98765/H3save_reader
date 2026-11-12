@@ -477,6 +477,279 @@ def find_town_blocks(raw: bytes,
     return TownSection(blocks=blocks)
 
 
+# ============================================================================
+# PRT v2.3.1 town-finding algorithm — section-walk from map.Start
+# ============================================================================
+#
+# PROBLEM (Long Journey SOD Revised2): the coord-needle search above finds
+# false positives AND misses neutral (color=255) towns on large maps, because
+# the stride-chain filter `_filter_to_stride_chain` discards towns that don't
+# fit a single contiguous chain — but the day-0 stride may include intermediate
+# "empty-name" records or other deviations that break the chain. The result:
+# only 3 of 21 real towns survive in the export, and one of them ("City" at
+# 46,82,0) is a real town that PRT also reports but with different X/Y/Z.
+#
+# PRT v2.3.1 (MainForm.cs:6196-6222, ScanTownsContent:9273, FindTownSection:9289,
+# GetTownContent:7534) does NOT search for coord needles. It WALKS the save
+# section-by-section starting from `map.Start`, computing each section's offset
+# from the previous section's count + stride:
+#
+#   map.Mine           = ScanBottleSignContent(map.BottleSign)
+#   map.Dwelling       = map.Mine + raw[map.Mine] * 62 + 1
+#   map.Garrison       = map.Dwelling + raw[map.Dwelling] * 75 + 2
+#   map.UnknownVarReg  = map.Garrison + raw[map.Garrison] * 61 + 1
+#   map.UnknownFixedReg= map.UnknownVarReg + raw[map.UnknownVarReg] * 28 + 1
+#   map.Color          = map.UnknownFixedReg + 49
+#   map.Town           = map.Color + 1160
+#
+# Patch H (MainForm.cs:6211-6221) validates map.Town:
+#   raw[map.Town] in 1..48 (town count)
+#   raw[map.Town+5] <= 8 (faction of first town — rec_start = town+1, +4 is faction)
+#   1 <= raw[map.Town+71] <= 14 (name_len of first town — rec_start+70)
+# If validation fails, PRT falls back to FindTownSection(map.Mine) which scans
+# forward byte-by-byte from map.Mine looking for a candidate town section.
+#
+# Town record layout (GetTownContent, town record starts at map.Town+1):
+#   +0: ID byte (r_TownRow.ID)
+#   +1: Color byte (255 = neutral)
+#   +4: faction/Code (0..8)
+#   +5: X, +6: Y, +7: Z
+#   +10..+37: 7 × 4-byte creature IDs
+#   +38..+65: 7 × 4-byte creature counts
+#   +70: name_len (1 byte, NOT u16)
+#   +72..: name bytes (cp1251)
+#   Total stride: 382 + name_len (= 72 + name_len + 113 + 197)
+
+
+def _is_printable_town_char(b: int) -> bool:
+    """PRT TownNameValidator.IsPrintableTownChar — accepts any cp1251 byte
+    that's NOT a C0 control char (0x00-0x1F) or DEL (0x7F). Cp1251 printable
+    range is 0x20-0x7E (Latin) and 0xA0-0xFF (Cyrillic extended + letters)."""
+    return not (b < 0x20 or b == 0x7F)
+
+
+def find_town_section_by_prt_walk(raw: bytes,
+                                  map_size: int,
+                                  has_underground: bool,
+                                  hero_count: int = 156,
+                                  ) -> Tuple[int, Dict[str, int]]:
+    """
+    PRT v2.3.1 algorithm: walk the save section chain from map.Start to
+    compute map.Town. Applies Patch H validation + FindTownSection fallback.
+
+    Args:
+        raw:             decompressed save bytes
+        map_size:        map width/height (from header)
+        has_underground: True if map has underground
+        hero_count:      PRT-hardcoded 156 (MainForm.cs:999)
+
+    Returns:
+        (town_offset, debug_info_dict)
+    """
+    from tile_scanner import find_map_start
+    from post_tile_scanner import walk_post_tile_sections
+
+    info: Dict[str, int] = {}
+
+    # Step 1: map.Start
+    ms, ms_info = find_map_start(raw)
+    info["map_start"] = ms
+
+    # Step 2: walk tile loop to compute after_tiles_offset
+    total_tiles = map_size * map_size * (2 if has_underground else 1)
+    s = ms
+    for _ in range(total_tiles):
+        if s + 18 > len(raw):
+            break
+        s += 18
+        if s + 2 <= len(raw):
+            var_count = struct.unpack("<H", raw[s:s + 2])[0]
+            s += var_count * 4 + 4
+        else:
+            break
+    after_tiles = s
+    info["after_tiles"] = after_tiles
+
+    # Step 3: num5 records (TownsTimedEvent-like pre-objects structures)
+    num5 = struct.unpack("<H", raw[after_tiles:after_tiles + 2])[0]
+    info["num5"] = num5
+    s2 = after_tiles + 4
+    for _ in range(num5):
+        if s2 + 2 > len(raw):
+            break
+        n = struct.unpack("<H", raw[s2:s2 + 2])[0]
+        s2 += n + 35
+    after_num5 = s2
+    obj_num = struct.unpack("<H", raw[after_num5:after_num5 + 2])[0]
+    info["obj_num"] = obj_num
+
+    # Step 4: walk post-tile sections to compute map.Town
+    walk = walk_post_tile_sections(
+        raw, after_num5, obj_num,
+        hero_count=hero_count,
+        map_size=map_size,
+        has_underground=has_underground,
+    )
+    town = walk.get("town", -1)
+    mine = walk.get("mine", -1)
+    info["mine"] = mine
+    info["town_walked"] = town
+    info["town_count_byte"] = raw[town] if 0 <= town < len(raw) else -1
+
+    # Step 5: Patch H validation
+    valid = False
+    if 0 <= town < len(raw):
+        tc = raw[town]
+        valid = 1 <= tc <= 48
+        if valid and town + 8 < len(raw):
+            rec_start = town + 1
+            # rec_start + 4 = faction (must be <= 8)
+            # rec_start + 70 = name_len (must be 1..14)
+            if raw[rec_start + 4] > 8 or raw[rec_start + 70] < 1 or raw[rec_start + 70] > 14:
+                valid = False
+        else:
+            valid = False
+
+    # Step 6: FindTownSection fallback if validation failed
+    if not valid:
+        ft = _find_town_section(raw, mine if 0 <= mine < len(raw) else 0)
+        if ft >= 0:
+            info["town_fallback"] = ft
+            info["town"] = ft
+            return ft, info
+        # Last-resort: return the walked offset even if validation failed;
+        # downstream parsers will reject malformed records per-town.
+        info["town"] = town
+        info["patch_h"] = "FAIL_no_fallback"
+        return town, info
+
+    info["patch_h"] = "PASS"
+    info["town"] = town
+    return town, info
+
+
+def _find_town_section(raw: bytes, scan_start: int) -> int:
+    """PRT FindTownSection (MainForm.cs:9289): scan forward byte-by-byte
+    from `scan_start` looking for a valid town section header.
+
+    A valid town section header at offset `off` satisfies:
+      - 1 <= raw[off] <= 48                       (town count)
+      - raw[off+1+4] <= 8                          (faction of first town)
+      - raw[off+1+5] <= 0xFC AND raw[off+1+6] <= 0xFC  (X, Y)
+      - raw[off+1+7] <= 1                          (Z)
+      - 1 <= raw[off+1+70] <= 14                   (name_len of first town)
+      - all name chars printable (cp1251, no control chars)
+
+    Returns the offset of the town section header, or -1 if not found.
+    """
+    n = len(raw)
+    for off in range(scan_start, n - 80):
+        count = raw[off]
+        if count < 1 or count > 48:
+            continue
+        rec_start = off + 1
+        if raw[rec_start + 4] > 8:
+            continue
+        if raw[rec_start + 5] > 0xFC or raw[rec_start + 6] > 0xFC or raw[rec_start + 7] > 1:
+            continue
+        name_len = raw[rec_start + 70]
+        if name_len < 1 or name_len > 14:
+            continue
+        ok = True
+        for j in range(name_len):
+            if not _is_printable_town_char(raw[rec_start + 72 + j]):
+                ok = False
+                break
+        if ok:
+            return off
+    return -1
+
+
+def parse_town_records_prt(raw: bytes, town_offset: int) -> TownSection:
+    """Parse all town records at the given map.Town offset.
+
+    Uses the PRT v2.3.1 record layout (faction +4, X +5, Y +6, Z +7,
+    name_len +70 as 1 byte, name +72) and PRT's stride formula
+    (382 + name_len per record).
+
+    NOTE on block_offset convention: this module's legacy TOWN_FIELD_OFFSETS
+    (faction at +0, type at +3, x at +4, y at +5, z at +6, name_len u16 at
+    +69, name at +71) was designed for the coord-needle search where
+    `block_start = needle_idx - 4` — and since the (x,y,z) needle matches at
+    real_record + 5, that block_start equals real_record + 1. The legacy
+    offsets thus read Color at +0 (calling it "faction"), the real faction at
+    +3 (calling it "type"), and so on. Downstream `parse_town_block` and the
+    Excel exporter rely on this off-by-one convention.
+
+    To stay compatible with that downstream code, we set `block_offset =
+    real_record + 1` here (NOT real_record). The fields in TownBlockInfo
+    (`faction`, `town_type`, `x`, `y`, `z`) are populated from the CORRECT
+    PRT offsets directly, so they are right; only `block_offset` is shifted
+    by +1 to match the legacy convention expected by `parse_town_block`.
+
+    If the count byte is out of range or any record has a bad name_len,
+    parsing stops and we return whatever towns were successfully parsed
+    (mirrors PRT ScanTownsContent / GetTownContent early-exit behavior).
+    """
+    blocks: List[TownBlockInfo] = []
+    n = len(raw)
+    if town_offset < 0 or town_offset >= n:
+        return TownSection(blocks=blocks)
+
+    num = raw[town_offset]
+    if num > 80:
+        # PRT ScanTownsContent clamps to 0 if num > 80
+        num = 0
+    rec = town_offset + 1
+
+    for i in range(num):
+        if rec + 80 >= n:
+            break
+        # PRT ScanTownsContent checks name_len at +70; bail if > 32.
+        name_len = raw[rec + 70]
+        if name_len > 32:
+            break
+
+        # Parse fields per PRT GetTownContent layout
+        faction = raw[rec + 4]
+        x = raw[rec + 5]
+        y = raw[rec + 6]
+        z = raw[rec + 7]
+        name_start = rec + 72
+        name_end = name_start + name_len
+        if name_end > n:
+            break
+        try:
+            name = raw[name_start:name_end].decode("cp1251")
+        except Exception:
+            name = ""
+
+        # Reject records with non-printable names (false positives from
+        # a corrupted map.Town offset). PRT does this implicitly via
+        # `if (text != "") r_TownDataTable.Rows.Add(...)` — but we're
+        # stricter to avoid openpyxl IllegalCharacterError downstream.
+        if not _is_valid_town_name(name):
+            # Skip this record but continue the chain (mirrors PRT's
+            # tolerance for individual malformed records).
+            rec = rec + 72 + name_len + 113 + 197
+            continue
+
+        blocks.append(TownBlockInfo(
+            block_offset=rec + 1,    # +1 to match legacy TOWN_FIELD_OFFSETS
+                                     # convention (block_offset = real_record + 1).
+                                     # See docstring above.
+            name_offset=name_start,
+            name=name,
+            faction=faction,
+            town_type=faction,    # PRT treats Code = faction byte
+            x=x, y=y, z=z,
+        ))
+        # Total stride: 72 (prefix) + name_len + 113 (spells area) + 197 (tail)
+        rec = rec + 72 + name_len + 113 + 197
+
+    return TownSection(blocks=blocks)
+
+
 def _is_valid_town_name(name: str) -> bool:
     """Check that a town name contains only printable characters.
 
@@ -827,7 +1100,18 @@ def build_map_config(map_data, day_zero_raw: bytes,
     hero_section = find_hero_blocks(day_zero_raw, header.header_size, map_hero_names)
 
     # ----- Town finding -----
-    # Get town coords and names from map_data
+    # PRT v2.3.1 algorithm: walk the save section chain from map.Start to
+    # compute map.Town, then parse town records at that offset using PRT's
+    # record layout (faction +4, x +5, y +6, z +7, name_len +70, name +72).
+    # This is the correct, universal algorithm — coordinate-needle search
+    # produces false positives AND misses neutral towns on large maps.
+    # See find_town_section_by_prt_walk docstring for full algorithm.
+    town_offset, town_walk_info = find_town_section_by_prt_walk(
+        day_zero_raw, header.map_size, header.has_underground)
+    town_section = parse_town_records_prt(day_zero_raw, town_offset)
+
+    # Collect town coords/names from map_data (still used as a sanity check
+    # and as fallback input if the walk somehow fails).
     town_coords: List[Tuple[int, int, int]] = []
     town_names: List[str] = []
     for ck, rec in map_data.objects_by_coord.items():
@@ -837,29 +1121,30 @@ def build_map_config(map_data, day_zero_raw: bytes,
             if town_name:
                 town_names.append(town_name)
 
-    town_section = find_town_blocks(day_zero_raw, header.header_size,
-                                     town_coords, town_names)
-
-    # ── Stride-chain filter ──
-    # The coord-based search above finds many false-positive "towns" on
-    # large maps. Real towns form a contiguous chain where each record's
-    # offset is exactly (prev_offset + 382 + cp1251_len(prev_name)). Filter
-    # out candidates that don't fit any such chain.
-    town_section = _filter_to_stride_chain(town_section)
-
-    # ----- Verify town strides (382 + name_len) -----
-    # Each town record has total size = TOWN_RECORD_BASE_SIZE (382) + name_len_in_cp1251
-    # If our found town offsets don't satisfy this stride law, we missed some towns
-    # or found false positives.
-    town_stride_check = _verify_town_strides(town_section)
-    if town_stride_check["mismatches"]:
-        # Some towns are missing — try to fill gaps using stride formula
-        if len(town_section.blocks) > 0 and len(town_stride_check["mismatches"]) > 0:
+    # Fallback to legacy coord-needle search if PRT walk yielded no towns.
+    # (Has never triggered on tested maps, but kept as a safety net for
+    # unusual save variants where the section walk might miss.)
+    if town_section.count == 0:
+        print("  ⚠ PRT walk found 0 towns; falling back to coord-needle search...")
+        town_section = find_town_blocks(day_zero_raw, header.header_size,
+                                         town_coords, town_names)
+        town_section = _filter_to_stride_chain(town_section)
+        town_stride_check = _verify_town_strides(town_section)
+        if town_stride_check["mismatches"] and town_section.blocks:
             print(f"  ⚠ {len(town_stride_check['mismatches'])} town stride mismatches; "
                   "attempting stride-based recovery...")
             town_section = _recover_missing_towns(
                 day_zero_raw, town_section, town_coords, town_names,
                 header.header_size)
+    else:
+        # Sanity check: warn if PRT walk found a different number of towns
+        # than the map JSON declares.
+        n_map_towns = len(town_coords)
+        if n_map_towns and abs(town_section.count - n_map_towns) > 2:
+            print(f"  ⚠ PRT walk found {town_section.count} towns, "
+                  f"map JSON declares {n_map_towns} — investigate")
+        print(f"  PRT walk: {town_section.count} towns at map.Town=0x{town_offset:X} "
+              f"(patch_h={town_walk_info.get('patch_h', '?')})")
 
     # ----- Assemble MapConfig -----
     meta = {

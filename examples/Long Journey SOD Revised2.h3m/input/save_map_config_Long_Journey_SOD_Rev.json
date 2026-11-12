@@ -1916,18 +1916,36 @@
     ]
   },
   "town_section": {
-    "count": 3,
+    "count": 21,
     "offsets": [
       "0x11DE3A",
       "0x11DFBC",
-      "0x11E144"
+      "0x11E144",
+      "0x11E2C6",
+      "0x11E44A",
+      "0x11E5CE",
+      "0x11E755",
+      "0x11E8DA",
+      "0x11EA5D",
+      "0x11EBE5",
+      "0x11ED6C",
+      "0x11EEEF",
+      "0x11F071",
+      "0x11F1F3",
+      "0x11F375",
+      "0x11F4FB",
+      "0x11F67F",
+      "0x11F809",
+      "0x11F991",
+      "0x11FB16",
+      "0x11FC9E"
     ],
     "blocks": [
       {
         "block_offset": 1171002,
         "block_offset_hex": "0x11DE3A",
         "name": "Rock",
-        "faction": 2,
+        "faction": 6,
         "type": 6,
         "x": 8,
         "y": 139,
@@ -1937,7 +1955,7 @@
         "block_offset": 1171388,
         "block_offset_hex": "0x11DFBC",
         "name": "Tower City",
-        "faction": 1,
+        "faction": 2,
         "type": 2,
         "x": 129,
         "y": 7,
@@ -1947,11 +1965,191 @@
         "block_offset": 1171780,
         "block_offset_hex": "0x11E144",
         "name": "City",
-        "faction": 4,
+        "faction": 0,
         "type": 0,
         "x": 46,
         "y": 82,
         "z": 0
+      },
+      {
+        "block_offset": 1172166,
+        "block_offset_hex": "0x11E2C6",
+        "name": "Уитмон",
+        "faction": 0,
+        "type": 0,
+        "x": 6,
+        "y": 71,
+        "z": 0
+      },
+      {
+        "block_offset": 1172554,
+        "block_offset_hex": "0x11E44A",
+        "name": "Фактур",
+        "faction": 2,
+        "type": 2,
+        "x": 35,
+        "y": 16,
+        "z": 0
+      },
+      {
+        "block_offset": 1172942,
+        "block_offset_hex": "0x11E5CE",
+        "name": "Клоудспир",
+        "faction": 2,
+        "type": 2,
+        "x": 81,
+        "y": 19,
+        "z": 0
+      },
+      {
+        "block_offset": 1173333,
+        "block_offset_hex": "0x11E755",
+        "name": "Моссдэн",
+        "faction": 7,
+        "type": 7,
+        "x": 106,
+        "y": 129,
+        "z": 0
+      },
+      {
+        "block_offset": 1173722,
+        "block_offset_hex": "0x11E8DA",
+        "name": "Бафир",
+        "faction": 1,
+        "type": 1,
+        "x": 125,
+        "y": 90,
+        "z": 0
+      },
+      {
+        "block_offset": 1174109,
+        "block_offset_hex": "0x11EA5D",
+        "name": "Силвервинг",
+        "faction": 2,
+        "type": 2,
+        "x": 25,
+        "y": 35,
+        "z": 0
+      },
+      {
+        "block_offset": 1174501,
+        "block_offset_hex": "0x11EBE5",
+        "name": "Стилвотэр",
+        "faction": 1,
+        "type": 1,
+        "x": 95,
+        "y": 70,
+        "z": 0
+      },
+      {
+        "block_offset": 1174892,
+        "block_offset_hex": "0x11ED6C",
+        "name": "Крагг",
+        "faction": 6,
+        "type": 6,
+        "x": 44,
+        "y": 119,
+        "z": 0
+      },
+      {
+        "block_offset": 1175279,
+        "block_offset_hex": "0x11EEEF",
+        "name": "Nest",
+        "faction": 7,
+        "type": 7,
+        "x": 140,
+        "y": 112,
+        "z": 0
+      },
+      {
+        "block_offset": 1175665,
+        "block_offset_hex": "0x11F071",
+        "name": "Cave",
+        "faction": 5,
+        "type": 5,
+        "x": 12,
+        "y": 115,
+        "z": 1
+      },
+      {
+        "block_offset": 1176051,
+        "block_offset_hex": "0x11F1F3",
+        "name": "Hell",
+        "faction": 3,
+        "type": 3,
+        "x": 130,
+        "y": 131,
+        "z": 1
+      },
+      {
+        "block_offset": 1176437,
+        "block_offset_hex": "0x11F375",
+        "name": "Дэмонгат",
+        "faction": 3,
+        "type": 3,
+        "x": 25,
+        "y": 3,
+        "z": 1
+      },
+      {
+        "block_offset": 1176827,
+        "block_offset_hex": "0x11F4FB",
+        "name": "Ашкомб",
+        "faction": 3,
+        "type": 3,
+        "x": 63,
+        "y": 137,
+        "z": 1
+      },
+      {
+        "block_offset": 1177215,
+        "block_offset_hex": "0x11F67F",
+        "name": "Dark Eternal",
+        "faction": 4,
+        "type": 4,
+        "x": 74,
+        "y": 21,
+        "z": 1
+      },
+      {
+        "block_offset": 1177609,
+        "block_offset_hex": "0x11F809",
+        "name": "Даркбирроу",
+        "faction": 5,
+        "type": 5,
+        "x": 30,
+        "y": 91,
+        "z": 1
+      },
+      {
+        "block_offset": 1178001,
+        "block_offset_hex": "0x11F991",
+        "name": "Абаддон",
+        "faction": 3,
+        "type": 3,
+        "x": 13,
+        "y": 28,
+        "z": 1
+      },
+      {
+        "block_offset": 1178390,
+        "block_offset_hex": "0x11FB16",
+        "name": "Oligopolis",
+        "faction": 8,
+        "type": 8,
+        "x": 125,
+        "y": 54,
+        "z": 1
+      },
+      {
+        "block_offset": 1178782,
+        "block_offset_hex": "0x11FC9E",
+        "name": "Дэфгат",
+        "faction": 4,
+        "type": 4,
+        "x": 57,
+        "y": 38,
+        "z": 1
       }
     ]
   },
