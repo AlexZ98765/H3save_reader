@@ -82,7 +82,7 @@ namespace ProspectorRT
 
 		private CheckEdit ce23;
 
-		private string myName = "ProspectorRT - Экспорт в Excel";
+		private string myName = Localization.T("ProspectorRT - Экспорт в Excel");
 
 		private string myFile = "";
 
@@ -369,7 +369,7 @@ namespace ProspectorRT
 			((Control)btnAdd).TabIndex = 1;
 			((Control)btnAdd).Text = Localization.T("Выбрать все");
 			((Control)btnAdd).Click += btnAdd_Click;
-			((FileDialog)saveFileDialog1).Filter = "Excel файлы|*.xlsx|Все файлы|*.*";
+			((FileDialog)saveFileDialog1).Filter = Localization.T("Excel файлы|*.xlsx|Все файлы|*.*");
 			((ContainerControl)this).AutoScaleDimensions = new SizeF(6f, 13f);
 			((ContainerControl)this).AutoScaleMode = (AutoScaleMode)1;
 			((Form)this).CancelButton = (IButtonControl)(object)btnCancel;

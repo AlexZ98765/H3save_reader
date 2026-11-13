@@ -972,19 +972,19 @@ namespace ProspectorRT
 
 		private System.Windows.Forms.Timer timer2;
 
-		private string sBegin = "Начали";
+		private string sBegin = Localization.T("Начали");
 
-		private string sStop = "Стоп";
+		private string sStop = Localization.T("Стоп");
 
-		private string sStart = "Старт";
+		private string sStart = Localization.T("Старт");
 
-		private string sReady = "Готово";
+		private string sReady = Localization.T("Готово");
 
-		private string sChoose = "Выберите файл";
+		private string sChoose = Localization.T("Выберите файл");
 
-		private string sFile = "Файл";
+		private string sFile = Localization.T("Файл");
 
-		private string sError = "Ошибка";
+		private string sError = Localization.T("Ошибка");
 		private string lastScanError = "";
 		private string lastScanMethod = "";
 		private void WriteDebugLog(string methodName, System.Exception ex)
@@ -1029,21 +1029,21 @@ namespace ProspectorRT
 			try { System.IO.File.WriteAllText((CommonSetting.MyFile ?? "ProspectorRT") + ".ProspectorRT_debug.log", lastScanError, System.Text.Encoding.UTF8); } catch {}
 		}
 
-		private string errorExistFile = "не существует.\r\nУдалить из списка?";
+		private string errorExistFile = Localization.T("не существует.\r\nУдалить из списка?");
 
-		private string titleExistFile = "ошибка открытия файла";
+		private string titleExistFile = Localization.T("ошибка открытия файла");
 
-		private string errorMapVer = "Недопустимая версия карты";
+		private string errorMapVer = Localization.T("Недопустимая версия карты");
 
-		private string titleMapVer = "Ошибка открытия";
+		private string titleMapVer = Localization.T("Ошибка открытия");
 
-		private string errorScaner = " К сожалению, ошибка обработки сейва. \r\n Пожалуйста, вышлите его и карту на e-mail \r\n \r\n               prospectorrt@yandex.ru \r\n \r\n Будет возможность в ответном сообщении \r\n получить исправленный файл программы.";
+		private string errorScaner = Localization.T(" К сожалению, ошибка обработки сейва. \r\n Пожалуйста, вышлите его и карту на e-mail \r\n \r\n               prospectorrt@yandex.ru \r\n \r\n Будет возможность в ответном сообщении \r\n получить исправленный файл программы.");
 
-		private string errorObjectName = "с названиями объектов не существует.\r\nПроверьте пункт меню \"Сервис->Настройка->Названия объектов\"\r\nИспользованы значения по умолчанию.";
+		private string errorObjectName = Localization.T("с названиями объектов не существует.\r\nПроверьте пункт меню \"Сервис->Настройка->Названия объектов\"\r\nИспользованы значения по умолчанию.");
 
-		private string errorTemplateTable = "не является шаблоном для этой Таблицы.";
+		private string errorTemplateTable = Localization.T("не является шаблоном для этой Таблицы.");
 
-		private string messageExcel = "Экспорт  в  Excel  завершен.\r\nОткрыть  файл";
+		private string messageExcel = Localization.T("Экспорт  в  Excel  завершен.\r\nОткрыть  файл");
 
 		private int HeroCount = 156;
 
@@ -7820,7 +7820,7 @@ namespace ProspectorRT
 				grail = aReply[0];
 			}
 			currentState -= Chrn;
-			days = "Дата - " + decmp[currentState + 15] + decmp[currentState + 13] + decmp[currentState + 11];
+			days = Localization.T("Дата - ") + decmp[currentState + 15] + decmp[currentState + 13] + decmp[currentState + 11];
 			GetArtMerchants(currentState + 49);
 		}
 

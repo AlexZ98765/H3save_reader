@@ -135,8 +135,8 @@ public class ObjectNameForm : Form
 			new RadioGroupItem(null, "The Shadow of Death"),
 			new RadioGroupItem(null, "Дыхание Смерти"),
 			new RadioGroupItem(null, "Полное Собрание"),
-			new RadioGroupItem(null, "По умолчанию"),
-			new RadioGroupItem(null, "Из файла")
+			new RadioGroupItem(null, Localization.T("По умолчанию")),
+			new RadioGroupItem(null, Localization.T("Из файла"))
 		});
 		((Control)rgObjectName).Size = new Size(141, 162);
 		((Control)rgObjectName).TabIndex = 0;
