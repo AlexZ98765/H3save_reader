@@ -5,12 +5,15 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>True</UseWindowsForms>
-    <TargetFramework>net20</TargetFramework>
+    <!--TargetFramework>net20</TargetFramework-->
+    <TargetFramework>net48</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>10.0</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <RootNamespace />
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,16 +24,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="resources\ProspectorRT.MainForm.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.PrintForm.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.frmAbout.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.Properties.Resources.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.exe.licenses" />
-    <EmbeddedResource Include="resources\ProspectorRT.ExportForm.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.myToolTip.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.SkillTreeForm.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.ObjectNameForm.resources" />
-    <EmbeddedResource Include="resources\ProspectorRT.ShowForm.resources" />
+<!--     <EmbeddedResource Include="resources\ProspectorRT.MainForm.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.PrintForm.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.frmAbout.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.Properties.Resources.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.exe.licenses" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.ExportForm.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.myToolTip.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.SkillTreeForm.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.ObjectNameForm.resources" /> -->
+<!--     <EmbeddedResource Include="resources\ProspectorRT.ShowForm.resources" /> -->
+      <EmbeddedResource Include="ProspectorRT.MainForm.resx">
+        <LogicalName>ProspectorRT.MainForm.resources</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="ProspectorRT.PrintForm.resx">
+        <LogicalName>ProspectorRT.PrintForm.resources</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="ProspectorRT.frmAbout.resx">
+        <LogicalName>ProspectorRT.frmAbout.resources</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="ProspectorRT.Properties.Resources.resx">
+        <LogicalName>ProspectorRT.Properties.Resources.resources</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="ProspectorRT.exe.licenses">
+        <LogicalName>ProspectorRT.exe.licenses</LogicalName>
+      </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

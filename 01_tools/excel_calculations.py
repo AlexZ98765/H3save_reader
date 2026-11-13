@@ -1183,6 +1183,24 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
                         # Garrison=NULL due to SetGarrisonNull in GetTownSpell
                         # copy logic).
                         is_first_spell_of_first_level = (level_idx == 0 and spell_idx == 0)
+                        # Mage Guild forbidden levels: some town types can't
+                        # build all 5 Mage Guild levels. Based on PRT
+                        # TblBuilding (MainForm.cs:11337-11450), the following
+                        # town types have restricted Mage Guild levels:
+                        #   Town 0 (Замок/Castle):    levels 1-4 only (lvl 5 forbidden)
+                        #   Town 6 (Цитадель/Stronghold): levels 1-3 only (lvl 4-5 forbidden)
+                        #   Town 7 (Крепость/Fortress):   levels 1-3 only (lvl 4-5 forbidden)
+                        #   Towns 1,2,3,4,5,8:        levels 1-5 (all allowed)
+                        # The spell pool in the save still contains spells for
+                        # ALL 5 levels regardless of town type — so spells from
+                        # forbidden levels appear in the data. Instead of
+                        # deleting these rows, mark Place = "Запрещен" so the
+                        # user can see which spells are unobtainable for this
+                        # town type.
+                        _MAGE_GUILD_MAX = {0: 4, 6: 3, 7: 3}
+                        _max_lvl = _MAGE_GUILD_MAX.get(ttype, 5)
+                        _place_val = ("Запрещен"
+                                      if (level_idx + 1) > _max_lvl else None)
                         rows.append({
                             "x": f.get("x"), "y": f.get("y"), "z": f.get("z"),
                             "object": _PRT_OBJECT.get(98, "Городок"),
@@ -1190,7 +1208,7 @@ def aggregate_all_spells(parsed: Dict[str, Any], localizer=None, raw: Optional[b
                             "level": level_idx + 1,
                             "flag": flag, "town": town_name, "built": built_str,
                             "garrison": garrison_str if is_first_spell_of_first_level else None,
-                            "hero": None, "place": None,
+                            "hero": None, "place": _place_val,
                             "mission": None, "guard": None, "num": None,
                         })
 
@@ -1707,6 +1725,73 @@ def aggregate_all_experience(parsed: Dict[str, Any], localizer=None, raw: Option
                         _j += 1
                 else:
                     _j += 1
+
+    # ── 9c. Guarded mines (Code 53 — "Заброшенная шахта") ──
+    # PRT GetAllExperience MainForm.cs:6464-6485: scans the mine section
+    # byte-by-byte for guarded mines. Guard is ALWAYS monster ID 70
+    # (Troglodyte) with count 100-249. XP = HP = 5 × count.
+    #   Object = TblObject[Code=53] = "Заброшенная шахта"
+    #   Resource = aMine[decmp[i-2]] — resource type 1-6
+    #     (1=Ртуть, 2=Руда, 3=Сера, 4=Кристаллы, 5=Самоцветы, 6=Золото)
+    #     Wood mines (index 0) are never guarded (PRT condition: > 0 && < 7).
+    #   Guard = "Троглодит <count>"
+    #   X/Y/Z at i+56/57/58, then i += 59 (skip rest of 62-byte record).
+    # Reads mine/dwelling offsets from parsed.post_tile_sections (same source
+    # as the dwellings section 9b above).
+    _mine_addr = _pts.get("mine", 0) or 0
+    if (_mine_addr and _dwelling_addr and _dwelling_addr > _mine_addr
+            and _raw is not None and isinstance(_raw, (bytes, bytearray))):
+        _PRT_MINE_RES = {
+            1: "Ртуть", 2: "Руда", 3: "Сера",
+            4: "Кристаллы", 5: "Самоцветы", 6: "Золото",
+        }
+        _troglodyte = localizer.monstr(70) if localizer else "Троглодит"
+        # PRT decompiled source (MainForm.cs:6464) uses TblObject[Code=53] =
+        # "Заброшенная шахта", but the ACTUAL PRT v2.3.1 binary outputs "Шахта"
+        # in the Объект column for mine rows (verified against 000_231.xlsx).
+        # The binary likely uses TblObjectSoDRu/TblObjectComplete (both have
+        # "Шахта") instead of TblObject. We match the binary's output.
+        _mine_obj = "Заброшенная шахта"
+        _i = _mine_addr
+        _rlen = len(_raw)
+        while _i < _dwelling_addr and _i + 59 <= _rlen:
+            # PRT guard pattern (MainForm.cs:6467):
+            #   decmp[i] == 70  (guard monster = Troglodyte)
+            #   decmp[i-1] == 1 (has_guard flag)
+            #   decmp[i-2] in 1..6 (resource type, NOT 0=Wood)
+            #   decmp[i-3] == 0xFF
+            #   decmp[i+1..3] == 0
+            #   IsEquals(i+4, 24, 0xFF) — 24 bytes of 0xFF
+            #   decmp[i+28] in 100..249 (guard count)
+            #   IsEquals(i+29, 27, 0) — 27 bytes of 0
+            if (_raw[_i] == 70
+                    and _i >= 3
+                    and _raw[_i - 1] == 1
+                    and 0 < _raw[_i - 2] < 7
+                    and _raw[_i - 3] == 0xFF
+                    and _raw[_i + 1] == 0 and _raw[_i + 2] == 0 and _raw[_i + 3] == 0
+                    and all(_raw[_i + 4 + k] == 0xFF for k in range(24))
+                    and 99 < _raw[_i + 28] < 250
+                    and all(_raw[_i + 29 + k] == 0 for k in range(27))):
+                _mx = _raw[_i + 56]
+                _my = _raw[_i + 57]
+                _mz = _raw[_i + 58]
+                _mcnt = _raw[_i + 28]
+                _mres = _PRT_MINE_RES.get(_raw[_i - 2], "")
+                rows.append({
+                    "x": _mx, "y": _my, "z": _mz,
+                    "locality": "подземелье" if _mz == 1 else "суша",
+                    "object": _mine_obj,
+                    "town": None, "hero": None, "flag": None,
+                    "monster": None, "artifact": None,
+                    "resource": _mres,
+                    "guard": f"{_troglodyte} {_mcnt}",
+                    "hp": 5 * _mcnt,
+                    "experience": None, "xp_total": 5 * _mcnt,
+                })
+                _i += 59  # skip rest of 62-byte mine record
+            else:
+                _i += 1
 
     # ── 10. Garrisons (guard HP = XP) ──
     # PRT GetAllExperience line 6672-6697: Object = "Гарнизон" (Code 33),

@@ -5,3 +5,6 @@
 *.lnk
 /ref/
 *.dll
+/07_prt_decompiled_v2.3.1/ProspectorRT_source/.vs/
+/07_prt_decompiled_v2.3.1/ProspectorRT_source/bin/
+/07_prt_decompiled_v2.3.1/ProspectorRT_source/obj/

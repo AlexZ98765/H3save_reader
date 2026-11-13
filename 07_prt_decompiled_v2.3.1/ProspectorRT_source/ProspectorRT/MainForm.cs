@@ -9114,30 +9114,26 @@ namespace ProspectorRT
 
 		private string GetBankGuard(int s, out int hp)
 		{
-			int[,] array = new int[7, 2];
-			int num = 0;
+			// PATCHED v0.149: removed guard aggregation (ItWas + count summing).
+			// Original code used an int[7,2] array + ItWas() to sum counts of
+			// same-type guard monsters into a single entry (e.g. "Страж 10"
+			// instead of "Страж 2, Страж 2, Страж 2, Страж 2, Страж 2").
+			// Now each of the 7 guard slots produces its own entry, matching
+			// the Art/Resource guard formatting (ScanArtResContent line 8488)
+			// and our Python parser's behavior. One object = one row, no
+			// aggregation. HP is still summed across all slots (unchanged).
 			string text = "";
 			hp = 0;
 			for (int i = 0; i < 7; i++)
 			{
 				int num2 = decmp[s + i * 4];
-				if (num2 != 255)
+				if (num2 != byte.MaxValue)
 				{
-					if (ItWas(array, num2, num, out var p))
-					{
-						array[p, 1] += decmp[s + i * 4 + 28];
-						continue;
-					}
-					array[num, 0] = decmp[s + i * 4];
-					array[num, 1] = decmp[s + i * 4 + 28];
-					num++;
+					DataRow dataRow = TblMonsters.Rows.Find(decmp[s + i * 4]);
+					int cnt = decmp[s + i * 4 + 28];
+					text = string.Concat(text, ", ", dataRow[1], " ", cnt.ToString());
+					hp += (int)dataRow[3] * cnt;
 				}
-			}
-			for (int j = 0; j < num; j++)
-			{
-				DataRow dataRow = TblMonsters.Rows.Find(array[j, 0]);
-				text = string.Concat(text, ", ", dataRow[1], " ", array[j, 1].ToString());
-				hp += (int)dataRow[3] * array[j, 1];
 			}
 			if (!(text != ""))
 			{
