@@ -477,7 +477,7 @@ public class LMOracle
 			{
 				if (!File.Exists(Application.StartupPath + "\\LMOracle.SkillTreeAPI.dll"))
 				{
-					MessageBox.Show("Библиотека LMOracle.SkillTreeAPI.dll не найдена.\r\nПостроение дерева прокачки невозможно.", "Ошибка загрузки LMOracle.SkillTreeAPI.dll", (MessageBoxButtons)0, (MessageBoxIcon)16);
+					MessageBox.Show(Localization.T("Библиотека LMOracle.SkillTreeAPI.dll не найдена.\r\nПостроение дерева прокачки невозможно."), Localization.T("Ошибка загрузки LMOracle.SkillTreeAPI.dll"), (MessageBoxButtons)0, (MessageBoxIcon)16);
 					return;
 				}
 				LoadLibrary(Application.StartupPath + "\\LMOracle.SkillTreeAPI.dll");
@@ -569,7 +569,7 @@ public class LMOracle
 			{
 				if (!File.Exists(Application.StartupPath + "\\LMOracle.SkillTreeAPI.dll"))
 				{
-					MessageBox.Show("Библиотека LMOracle.SkillTreeAPI.dll не найдена.\r\nПостроение дерева прокачки невозможно.", "Ошибка загрузки LMOracle.SkillTreeAPI.dll", (MessageBoxButtons)0, (MessageBoxIcon)16);
+					MessageBox.Show(Localization.T("Библиотека LMOracle.SkillTreeAPI.dll не найдена.\r\nПостроение дерева прокачки невозможно."), Localization.T("Ошибка загрузки LMOracle.SkillTreeAPI.dll"), (MessageBoxButtons)0, (MessageBoxIcon)16);
 					return;
 				}
 				LoadLibrary(Application.StartupPath + "\\LMOracle.SkillTreeAPI.dll");
@@ -589,7 +589,7 @@ public class LMOracle
 			}
 			if (num == 0)
 			{
-				MessageBox.Show("Процесс \"Heroes of Might and Magic 3\" не найден.\r\nЗапустите игру или выберите соответствующую версию.", "Ошибка доступа к процессу", (MessageBoxButtons)0, (MessageBoxIcon)16);
+				MessageBox.Show(Localization.T("Процесс \"Heroes of Might and Magic 3\" не найден.\r\nЗапустите игру или выберите соответствующую версию."), Localization.T("Ошибка доступа к процессу"), (MessageBoxButtons)0, (MessageBoxIcon)16);
 				return;
 			}
 			IntPtr hProcess = OpenProcess(16, bInheritHandle: false, num);
@@ -603,7 +603,7 @@ public class LMOracle
 			RAMHero(hProcess, hStartPoint, iD, ref Hero);
 			if (Hero.Level == 0)
 			{
-				MessageBox.Show("Выберите соответствующую версию или в \"Heroes of Might and Magic 3\" загрузите сейв \"" + Path.GetFileName(CommonSetting.MyFile) + "\".", "Ошибка построения дерева прокачки", (MessageBoxButtons)0, (MessageBoxIcon)16);
+				MessageBox.Show(Localization.T("Выберите соответствующую версию или в \"Heroes of Might and Magic 3\" загрузите сейв \"") + Path.GetFileName(CommonSetting.MyFile) + "\".", Localization.T("Ошибка построения дерева прокачки"), (MessageBoxButtons)0, (MessageBoxIcon)16);
 				return;
 			}
 			BBFlag = isStandardWeights(hProcess, hStartPoint, _Version, iD);

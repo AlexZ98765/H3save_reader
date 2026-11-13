@@ -57,6 +57,7 @@ public class ShowForm : Form
 	public ShowForm()
 	{
 		InitializeComponent();
+		Localization.ApplyTo(this);
 	}
 
 	private void reCell_KeyDown(object sender, KeyEventArgs e)

@@ -309,7 +309,7 @@ namespace ProspectorRT
 			((Control)grpControl).Name = "grpControl";
 			((Control)grpControl).Size = new Size(574, 325);
 			((Control)grpControl).TabIndex = 23;
-			((Control)grpControl).Text = "Выберите таблицы для экспорта в Excel";
+			((Control)grpControl).Text = Localization.T("Выберите таблицы для экспорта в Excel");
 			((Control)ce23).Location = new Point(388, 209);
 			((Control)ce23).Name = "ce23";
 			ce23.Properties.Caption = "";
@@ -331,7 +331,7 @@ namespace ProspectorRT
 			((Control)labelControl1).Name = "labelControl1";
 			((Control)labelControl1).Size = new Size(54, 13);
 			((Control)labelControl1).TabIndex = 26;
-			((Control)labelControl1).Text = "Имя файла";
+			((Control)labelControl1).Text = Localization.T("Имя файла");
 			btnPath.Appearance.Font = new Font("Tahoma", 9.75f, (FontStyle)1, (GraphicsUnit)3, (byte)204);
 			btnPath.Appearance.Options.UseFont = true;
 			((Control)btnPath).Location = new Point(529, 11);
@@ -355,19 +355,19 @@ namespace ProspectorRT
 			((Control)btnCancel).Name = "btnCancel";
 			((Control)btnCancel).Size = new Size(100, 23);
 			((Control)btnCancel).TabIndex = 3;
-			((Control)btnCancel).Text = "Отмена";
+			((Control)btnCancel).Text = Localization.T("Отмена");
 			((Control)btnCancel).Click += btnCancel_Click;
 			((Control)btnClear).Location = new Point(118, 49);
 			((Control)btnClear).Name = "btnClear";
 			((Control)btnClear).Size = new Size(100, 23);
 			((Control)btnClear).TabIndex = 2;
-			((Control)btnClear).Text = "Очистить все";
+			((Control)btnClear).Text = Localization.T("Очистить все");
 			((Control)btnClear).Click += btnClear_Click;
 			((Control)btnAdd).Location = new Point(12, 49);
 			((Control)btnAdd).Name = "btnAdd";
 			((Control)btnAdd).Size = new Size(100, 23);
 			((Control)btnAdd).TabIndex = 1;
-			((Control)btnAdd).Text = "Выбрать все";
+			((Control)btnAdd).Text = Localization.T("Выбрать все");
 			((Control)btnAdd).Click += btnAdd_Click;
 			((FileDialog)saveFileDialog1).Filter = "Excel файлы|*.xlsx|Все файлы|*.*";
 			((ContainerControl)this).AutoScaleDimensions = new SizeF(6f, 13f);
@@ -383,7 +383,7 @@ namespace ProspectorRT
 			((Form)this).ShowIcon = false;
 			((Form)this).ShowInTaskbar = false;
 			((Form)this).StartPosition = (FormStartPosition)1;
-			((Control)this).Text = "Экспорт в Excel";
+			((Control)this).Text = Localization.T("Экспорт в Excel");
 			((Form)this).Load += ExportForm_Load;
 			((ISupportInitialize)ce0.Properties).EndInit();
 			((ISupportInitialize)ce1.Properties).EndInit();
@@ -421,6 +421,7 @@ namespace ProspectorRT
 		public ExportForm()
 		{
 			InitializeComponent();
+			Localization.ApplyTo(this);
 		}
 
 		private void ExportForm_Load(object sender, EventArgs e)
@@ -479,12 +480,12 @@ namespace ProspectorRT
 				}
 				else
 				{
-					MessageBox.Show("Не указан файл экспорта.", myName, (MessageBoxButtons)0, (MessageBoxIcon)16);
+					MessageBox.Show(Localization.T("Не указан файл экспорта."), myName, (MessageBoxButtons)0, (MessageBoxIcon)16);
 				}
 			}
 			else
 			{
-				MessageBox.Show("Нет выбранных таблиц для экспорта.", myName, (MessageBoxButtons)0, (MessageBoxIcon)16);
+				MessageBox.Show(Localization.T("Нет выбранных таблиц для экспорта."), myName, (MessageBoxButtons)0, (MessageBoxIcon)16);
 			}
 		}
 

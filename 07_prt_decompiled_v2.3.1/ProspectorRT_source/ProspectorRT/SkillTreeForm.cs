@@ -50,6 +50,8 @@ namespace ProspectorRT
 		public SkillTreeForm()
 		{
 			InitializeComponent();
+			Localization.ApplyTo(this);
+			Localization.ApplyTo(barManager1);
 		}
 
 		private void btnExpandAll_ItemClick(object sender, ItemClickEventArgs e)
@@ -266,11 +268,11 @@ namespace ProspectorRT
 			barDockControlRight.Dock = (DockStyle)4;
 			barDockControlRight.Location = new Point(764, 0);
 			barDockControlRight.Size = new Size(0, 404);
-			btnExpandAll.Caption = "Развернуть все";
+			btnExpandAll.Caption = Localization.T("Развернуть все");
 			btnExpandAll.Id = 0;
 			btnExpandAll.Name = "btnExpandAll";
 			btnExpandAll.ItemClick += btnExpandAll_ItemClick;
-			btnCollapseAll.Caption = "Свернуть все";
+			btnCollapseAll.Caption = Localization.T("Свернуть все");
 			btnCollapseAll.Id = 1;
 			btnCollapseAll.Name = "btnCollapseAll";
 			btnCollapseAll.ItemClick += btnCollapseAll_ItemClick;

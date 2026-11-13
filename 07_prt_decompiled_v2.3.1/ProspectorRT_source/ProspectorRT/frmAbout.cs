@@ -114,7 +114,7 @@ namespace ProspectorRT
 			((Control)okButton).Name = "okButton";
 			((Control)okButton).Size = new Size(75, 21);
 			((Control)okButton).TabIndex = 0;
-			((Control)okButton).Text = "&ОК";
+			((Control)okButton).Text = Localization.T("&ОК");
 			labelControl1.Appearance.Font = new Font("Tahoma", 18f, (FontStyle)2, (GraphicsUnit)3, (byte)204);
 			((Control)labelControl1).Location = new Point(76, 12);
 			((Control)labelControl1).Name = "labelControl1";
@@ -140,13 +140,13 @@ namespace ProspectorRT
 			((Control)labelControl3).Name = "labelControl3";
 			((Control)labelControl3).Size = new Size(35, 13);
 			((Control)labelControl3).TabIndex = 28;
-			((Control)labelControl3).Text = "Автор:";
+			((Control)labelControl3).Text = Localization.T("Автор:");
 			labelControl4.Appearance.Font = new Font("Tahoma", 8.25f, (FontStyle)0, (GraphicsUnit)3, (byte)204);
 			((Control)labelControl4).Location = new Point(12, 132);
 			((Control)labelControl4).Name = "labelControl4";
 			((Control)labelControl4).Size = new Size(29, 13);
 			((Control)labelControl4).TabIndex = 29;
-			((Control)labelControl4).Text = "Сайт:";
+			((Control)labelControl4).Text = Localization.T("Сайт:");
 			labelControl5.Appearance.Font = new Font("Tahoma", 8.25f, (FontStyle)0, (GraphicsUnit)3, (byte)204);
 			((Control)labelControl5).Location = new Point(12, 181);
 			((Control)labelControl5).Name = "labelControl5";
@@ -176,13 +176,13 @@ namespace ProspectorRT
 			((Control)labelControl11).Name = "labelControl11";
 			((Control)labelControl11).Size = new Size(81, 13);
 			((Control)labelControl11).TabIndex = 35;
-			((Control)labelControl11).Text = "Благодарности:";
+			((Control)labelControl11).Text = Localization.T("Благодарности:");
 			labelControl13.Appearance.Font = new Font("Tahoma", 8.25f, (FontStyle)0, (GraphicsUnit)3, (byte)204);
 			((Control)labelControl13).Location = new Point(12, 149);
 			((Control)labelControl13).Name = "labelControl13";
 			((Control)labelControl13).Size = new Size(68, 13);
 			((Control)labelControl13).TabIndex = 37;
-			((Control)labelControl13).Text = "Обсуждение:";
+			((Control)labelControl13).Text = Localization.T("Обсуждение:");
 			((Control)linkLabel1).AutoSize = true;
 			linkLabel1.LinkBehavior = (LinkBehavior)2;
 			linkLabel1.LinkColor = Color.FromArgb(72, 118, 186);
@@ -241,7 +241,7 @@ namespace ProspectorRT
 			((Form)this).ShowIcon = false;
 			((Form)this).ShowInTaskbar = false;
 			((Form)this).StartPosition = (FormStartPosition)4;
-			((Control)this).Text = "О программе";
+			((Control)this).Text = Localization.T("О программе");
 			((ISupportInitialize)pictureBox1).EndInit();
 			((Control)this).ResumeLayout(false);
 			((Control)this).PerformLayout();
@@ -250,6 +250,7 @@ namespace ProspectorRT
 		public frmAbout()
 		{
 			InitializeComponent();
+			Localization.ApplyTo(this);
 		}
 
 		public void OpenLink(string sUrl)

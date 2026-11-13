@@ -325,41 +325,41 @@ public class PrintForm : Form
 		printPreviewBarItem3.Name = "printPreviewBarItem3";
 		printPreviewBarItem3.Visibility = BarItemVisibility.Never;
 		printPreviewBarItem24.ButtonStyle = BarButtonStyle.DropDown;
-		printPreviewBarItem24.Caption = "&Экспорт...";
+		printPreviewBarItem24.Caption = Localization.T("&Экспорт...");
 		printPreviewBarItem24.Command = PrintingSystemCommand.ExportFile;
 		printPreviewBarItem24.Enabled = false;
 		printPreviewBarItem24.Hint = "Экспорт...";
 		printPreviewBarItem24.Id = 30;
 		printPreviewBarItem24.ImageIndex = 18;
 		printPreviewBarItem24.Name = "printPreviewBarItem24";
-		printPreviewBarItem6.Caption = "Открыть";
+		printPreviewBarItem6.Caption = Localization.T("Открыть");
 		printPreviewBarItem6.Command = PrintingSystemCommand.Open;
 		printPreviewBarItem6.Hint = "Открыть";
 		printPreviewBarItem6.Id = 11;
 		printPreviewBarItem6.ImageIndex = 23;
 		printPreviewBarItem6.Name = "printPreviewBarItem6";
-		printPreviewBarItem7.Caption = "Сохранить";
+		printPreviewBarItem7.Caption = Localization.T("Сохранить");
 		printPreviewBarItem7.Command = PrintingSystemCommand.Save;
 		printPreviewBarItem7.Enabled = false;
 		printPreviewBarItem7.Hint = "Сохранить";
 		printPreviewBarItem7.Id = 12;
 		printPreviewBarItem7.ImageIndex = 24;
 		printPreviewBarItem7.Name = "printPreviewBarItem7";
-		printPreviewBarItem8.Caption = "&Печать...";
+		printPreviewBarItem8.Caption = Localization.T("&Печать...");
 		printPreviewBarItem8.Command = PrintingSystemCommand.Print;
 		printPreviewBarItem8.Enabled = false;
 		printPreviewBarItem8.Hint = "Печать...";
 		printPreviewBarItem8.Id = 13;
 		printPreviewBarItem8.ImageIndex = 1;
 		printPreviewBarItem8.Name = "printPreviewBarItem8";
-		printPreviewBarItem10.Caption = "Па&раметры страницы...";
+		printPreviewBarItem10.Caption = Localization.T("Па&раметры страницы...");
 		printPreviewBarItem10.Command = PrintingSystemCommand.PageSetup;
 		printPreviewBarItem10.Enabled = false;
 		printPreviewBarItem10.Hint = "Параметры страницы...";
 		printPreviewBarItem10.Id = 15;
 		printPreviewBarItem10.ImageIndex = 2;
 		printPreviewBarItem10.Name = "printPreviewBarItem10";
-		printPreviewBarItem11.Caption = "Колонтитулы";
+		printPreviewBarItem11.Caption = Localization.T("Колонтитулы");
 		printPreviewBarItem11.Command = PrintingSystemCommand.EditPageHF;
 		printPreviewBarItem11.Enabled = false;
 		printPreviewBarItem11.Hint = "Колонтитулы";
@@ -368,14 +368,14 @@ public class PrintForm : Form
 		printPreviewBarItem11.Name = "printPreviewBarItem11";
 		printPreviewBarItem12.ActAsDropDown = true;
 		printPreviewBarItem12.ButtonStyle = BarButtonStyle.DropDown;
-		printPreviewBarItem12.Caption = "Масштаб";
+		printPreviewBarItem12.Caption = Localization.T("Масштаб");
 		printPreviewBarItem12.Command = PrintingSystemCommand.Scale;
 		printPreviewBarItem12.Enabled = false;
 		printPreviewBarItem12.Hint = "Масштаб";
 		printPreviewBarItem12.Id = 17;
 		printPreviewBarItem12.ImageIndex = 25;
 		printPreviewBarItem12.Name = "printPreviewBarItem12";
-		printPreviewBarItem4.Caption = "Найти";
+		printPreviewBarItem4.Caption = Localization.T("Найти");
 		printPreviewBarItem4.Command = PrintingSystemCommand.Find;
 		printPreviewBarItem4.Enabled = false;
 		printPreviewBarItem4.Hint = "Найти";
@@ -383,7 +383,7 @@ public class PrintForm : Form
 		printPreviewBarItem4.ImageIndex = 20;
 		printPreviewBarItem4.Name = "printPreviewBarItem4";
 		printPreviewBarItem13.ButtonStyle = BarButtonStyle.Check;
-		printPreviewBarItem13.Caption = "Перемещать";
+		printPreviewBarItem13.Caption = Localization.T("Перемещать");
 		printPreviewBarItem13.Command = PrintingSystemCommand.HandTool;
 		printPreviewBarItem13.Enabled = false;
 		printPreviewBarItem13.Hint = "Перемещать";
@@ -391,21 +391,21 @@ public class PrintForm : Form
 		printPreviewBarItem13.ImageIndex = 16;
 		printPreviewBarItem13.Name = "printPreviewBarItem13";
 		printPreviewBarItem14.ButtonStyle = BarButtonStyle.Check;
-		printPreviewBarItem14.Caption = "Лупа";
+		printPreviewBarItem14.Caption = Localization.T("Лупа");
 		printPreviewBarItem14.Command = PrintingSystemCommand.Magnifier;
 		printPreviewBarItem14.Enabled = false;
 		printPreviewBarItem14.Hint = "Лупа";
 		printPreviewBarItem14.Id = 19;
 		printPreviewBarItem14.ImageIndex = 3;
 		printPreviewBarItem14.Name = "printPreviewBarItem14";
-		printPreviewBarItem15.Caption = "Уменьшить";
+		printPreviewBarItem15.Caption = Localization.T("Уменьшить");
 		printPreviewBarItem15.Command = PrintingSystemCommand.ZoomOut;
 		printPreviewBarItem15.Enabled = false;
 		printPreviewBarItem15.Hint = "Уменьшить";
 		printPreviewBarItem15.Id = 20;
 		printPreviewBarItem15.ImageIndex = 5;
 		printPreviewBarItem15.Name = "printPreviewBarItem15";
-		zoomBarEditItem1.Caption = "Изменить";
+		zoomBarEditItem1.Caption = Localization.T("Изменить");
 		zoomBarEditItem1.Edit = printPreviewRepositoryItemComboBox1;
 		zoomBarEditItem1.EditValue = "100%";
 		zoomBarEditItem1.Enabled = false;
@@ -421,35 +421,35 @@ public class PrintForm : Form
 		printPreviewRepositoryItemComboBox1.DropDownRows = 11;
 		printPreviewRepositoryItemComboBox1.Name = "printPreviewRepositoryItemComboBox1";
 		printPreviewRepositoryItemComboBox1.UseParentBackground = true;
-		printPreviewBarItem16.Caption = "Увеличить";
+		printPreviewBarItem16.Caption = Localization.T("Увеличить");
 		printPreviewBarItem16.Command = PrintingSystemCommand.ZoomIn;
 		printPreviewBarItem16.Enabled = false;
 		printPreviewBarItem16.Hint = "Увеличить";
 		printPreviewBarItem16.Id = 22;
 		printPreviewBarItem16.ImageIndex = 4;
 		printPreviewBarItem16.Name = "printPreviewBarItem16";
-		printPreviewBarItem17.Caption = "Первая страница";
+		printPreviewBarItem17.Caption = Localization.T("Первая страница");
 		printPreviewBarItem17.Command = PrintingSystemCommand.ShowFirstPage;
 		printPreviewBarItem17.Enabled = false;
 		printPreviewBarItem17.Hint = "Первая страница";
 		printPreviewBarItem17.Id = 23;
 		printPreviewBarItem17.ImageIndex = 7;
 		printPreviewBarItem17.Name = "printPreviewBarItem17";
-		printPreviewBarItem18.Caption = "Предыдущая страница";
+		printPreviewBarItem18.Caption = Localization.T("Предыдущая страница");
 		printPreviewBarItem18.Command = PrintingSystemCommand.ShowPrevPage;
 		printPreviewBarItem18.Enabled = false;
 		printPreviewBarItem18.Hint = "Предыдущая страница";
 		printPreviewBarItem18.Id = 24;
 		printPreviewBarItem18.ImageIndex = 8;
 		printPreviewBarItem18.Name = "printPreviewBarItem18";
-		printPreviewBarItem19.Caption = "Следующая страница";
+		printPreviewBarItem19.Caption = Localization.T("Следующая страница");
 		printPreviewBarItem19.Command = PrintingSystemCommand.ShowNextPage;
 		printPreviewBarItem19.Enabled = false;
 		printPreviewBarItem19.Hint = "Следующая страница";
 		printPreviewBarItem19.Id = 25;
 		printPreviewBarItem19.ImageIndex = 9;
 		printPreviewBarItem19.Name = "printPreviewBarItem19";
-		printPreviewBarItem20.Caption = "Последняя страница";
+		printPreviewBarItem20.Caption = Localization.T("Последняя страница");
 		printPreviewBarItem20.Command = PrintingSystemCommand.ShowLastPage;
 		printPreviewBarItem20.Enabled = false;
 		printPreviewBarItem20.Hint = "Последняя страница";
@@ -457,21 +457,21 @@ public class PrintForm : Form
 		printPreviewBarItem20.ImageIndex = 10;
 		printPreviewBarItem20.Name = "printPreviewBarItem20";
 		printPreviewBarItem21.ButtonStyle = BarButtonStyle.DropDown;
-		printPreviewBarItem21.Caption = "Несколько страниц";
+		printPreviewBarItem21.Caption = Localization.T("Несколько страниц");
 		printPreviewBarItem21.Command = PrintingSystemCommand.MultiplePages;
 		printPreviewBarItem21.Enabled = false;
 		printPreviewBarItem21.Hint = "Несколько страниц";
 		printPreviewBarItem21.Id = 27;
 		printPreviewBarItem21.ImageIndex = 11;
 		printPreviewBarItem21.Name = "printPreviewBarItem21";
-		printPreviewBarItem23.Caption = "&Подложка...";
+		printPreviewBarItem23.Caption = Localization.T("&Подложка...");
 		printPreviewBarItem23.Command = PrintingSystemCommand.Watermark;
 		printPreviewBarItem23.Enabled = false;
 		printPreviewBarItem23.Hint = "Подложка...";
 		printPreviewBarItem23.Id = 29;
 		printPreviewBarItem23.ImageIndex = 21;
 		printPreviewBarItem23.Name = "printPreviewBarItem23";
-		printPreviewBarItem26.Caption = "В&ыход";
+		printPreviewBarItem26.Caption = Localization.T("В&ыход");
 		printPreviewBarItem26.Command = PrintingSystemCommand.ClosePreview;
 		printPreviewBarItem26.Hint = "Выход";
 		printPreviewBarItem26.Id = 32;
@@ -496,7 +496,7 @@ public class PrintForm : Form
 		previewBar2.OptionsBar.DisableCustomization = true;
 		previewBar2.OptionsBar.DrawDragBorder = false;
 		previewBar2.OptionsBar.UseWholeRow = true;
-		previewBar2.Text = "Строка статуса";
+		previewBar2.Text = Localization.T("Строка статуса");
 		printPreviewStaticItem1.Border = BorderStyles.NoBorder;
 		printPreviewStaticItem1.Caption = "Nothing";
 		printPreviewStaticItem1.Id = 0;
@@ -571,7 +571,7 @@ public class PrintForm : Form
 		previewBar3.OptionsBar.MultiLine = true;
 		previewBar3.OptionsBar.UseWholeRow = true;
 		previewBar3.Text = "Main Menu";
-		printPreviewSubItem1.Caption = "&Файл";
+		printPreviewSubItem1.Caption = Localization.T("&Файл");
 		printPreviewSubItem1.Command = PrintingSystemCommand.File;
 		printPreviewSubItem1.Id = 33;
 		printPreviewSubItem1.LinksPersistInfo.AddRange(new LinkPersistInfo[4]
@@ -582,7 +582,7 @@ public class PrintForm : Form
 			new LinkPersistInfo(printPreviewBarItem26, beginGroup: true)
 		});
 		printPreviewSubItem1.Name = "printPreviewSubItem1";
-		printPreviewSubItem2.Caption = "&Вид";
+		printPreviewSubItem2.Caption = Localization.T("&Вид");
 		printPreviewSubItem2.Command = PrintingSystemCommand.View;
 		printPreviewSubItem2.Id = 34;
 		printPreviewSubItem2.LinksPersistInfo.AddRange(new LinkPersistInfo[2]
@@ -591,7 +591,7 @@ public class PrintForm : Form
 			new LinkPersistInfo(barToolbarsListItem1, beginGroup: true)
 		});
 		printPreviewSubItem2.Name = "printPreviewSubItem2";
-		printPreviewSubItem4.Caption = "&Макет страницы";
+		printPreviewSubItem4.Caption = Localization.T("&Макет страницы");
 		printPreviewSubItem4.Command = PrintingSystemCommand.PageLayout;
 		printPreviewSubItem4.Id = 36;
 		printPreviewSubItem4.LinksPersistInfo.AddRange(new LinkPersistInfo[2]
@@ -601,14 +601,14 @@ public class PrintForm : Form
 		});
 		printPreviewSubItem4.Name = "printPreviewSubItem4";
 		printPreviewBarItem27.ButtonStyle = BarButtonStyle.Check;
-		printPreviewBarItem27.Caption = "&Скрыть пробелы";
+		printPreviewBarItem27.Caption = Localization.T("&Скрыть пробелы");
 		printPreviewBarItem27.Command = PrintingSystemCommand.PageLayoutFacing;
 		printPreviewBarItem27.Enabled = false;
 		printPreviewBarItem27.GroupIndex = 100;
 		printPreviewBarItem27.Id = 37;
 		printPreviewBarItem27.Name = "printPreviewBarItem27";
 		printPreviewBarItem28.ButtonStyle = BarButtonStyle.Check;
-		printPreviewBarItem28.Caption = "&Показать пробелы";
+		printPreviewBarItem28.Caption = Localization.T("&Показать пробелы");
 		printPreviewBarItem28.Command = PrintingSystemCommand.PageLayoutContinuous;
 		printPreviewBarItem28.Down = true;
 		printPreviewBarItem28.Enabled = false;
@@ -618,7 +618,7 @@ public class PrintForm : Form
 		barToolbarsListItem1.Caption = "Bars";
 		barToolbarsListItem1.Id = 39;
 		barToolbarsListItem1.Name = "barToolbarsListItem1";
-		printPreviewSubItem3.Caption = "Ф&он";
+		printPreviewSubItem3.Caption = Localization.T("Ф&он");
 		printPreviewSubItem3.Command = PrintingSystemCommand.Background;
 		printPreviewSubItem3.Id = 35;
 		printPreviewSubItem3.LinksPersistInfo.AddRange(new LinkPersistInfo[1]
@@ -813,7 +813,7 @@ public class PrintForm : Form
 		((Control)this).Controls.Add((Control)(object)barDockControlTop);
 		((Control)this).Name = "PrintForm";
 		((Form)this).StartPosition = (FormStartPosition)4;
-		((Control)this).Text = "Просмотр";
+		((Control)this).Text = Localization.T("Просмотр");
 		((ISupportInitialize)printingSystem1).EndInit();
 		((ISupportInitialize)printBarManager1).EndInit();
 		((ISupportInitialize)printPreviewRepositoryItemComboBox1).EndInit();
@@ -825,5 +825,7 @@ public class PrintForm : Form
 	public PrintForm()
 	{
 		InitializeComponent();
+		Localization.ApplyTo(this);
+		Localization.ApplyTo(printBarManager1);
 	}
 }

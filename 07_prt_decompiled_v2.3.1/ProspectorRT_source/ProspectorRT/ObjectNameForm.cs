@@ -123,7 +123,7 @@ public class ObjectNameForm : Form
 		((Control)btnCancel).Name = "btnCancel";
 		((Control)btnCancel).Size = new Size(100, 23);
 		((Control)btnCancel).TabIndex = 5;
-		((Control)btnCancel).Text = "Отмена";
+		((Control)btnCancel).Text = Localization.T("Отмена");
 		((Control)btnCancel).Click += btnCancel_Click;
 		((Control)rgObjectName).Location = new Point(12, 2);
 		((Control)rgObjectName).Name = "rgObjectName";
@@ -159,7 +159,7 @@ public class ObjectNameForm : Form
 		((Control)labelControl1).Name = "labelControl1";
 		((Control)labelControl1).Size = new Size(56, 13);
 		((Control)labelControl1).TabIndex = 6;
-		((Control)labelControl1).Text = "Кодировка";
+		((Control)labelControl1).Text = Localization.T("Кодировка");
 		((ContainerControl)this).AutoScaleDimensions = new SizeF(6f, 13f);
 		((ContainerControl)this).AutoScaleMode = (AutoScaleMode)1;
 		((Form)this).ClientSize = new Size(423, 195);
@@ -175,7 +175,7 @@ public class ObjectNameForm : Form
 		((Form)this).ShowIcon = false;
 		((Form)this).ShowInTaskbar = false;
 		((Form)this).StartPosition = (FormStartPosition)4;
-		((Control)this).Text = "Названия Объектов";
+		((Control)this).Text = Localization.T("Названия Объектов");
 		((Form)this).Load += ObjectNameForm_Load;
 		((ISupportInitialize)tePath.Properties).EndInit();
 		((ISupportInitialize)rgObjectName.Properties).EndInit();
@@ -187,6 +187,7 @@ public class ObjectNameForm : Form
 	public ObjectNameForm()
 	{
 		InitializeComponent();
+		Localization.ApplyTo(this);
 	}
 
 	private void btnCancel_Click(object sender, EventArgs e)
@@ -222,7 +223,7 @@ public class ObjectNameForm : Form
 			_CodePg = cbCodePg.SelectedIndex;
 			if (_Path == "")
 			{
-				MessageBox.Show("Не указан файл с названиями объектов", ((Control)this).Text, (MessageBoxButtons)0, (MessageBoxIcon)64);
+				MessageBox.Show(Localization.T("Не указан файл с названиями объектов"), ((Control)this).Text, (MessageBoxButtons)0, (MessageBoxIcon)64);
 				return;
 			}
 		}

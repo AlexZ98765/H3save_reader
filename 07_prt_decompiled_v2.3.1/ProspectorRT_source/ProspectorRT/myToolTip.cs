@@ -31,6 +31,7 @@ namespace ProspectorRT
 		public myToolTip()
 		{
 			InitializeComponent();
+			Localization.ApplyTo(this);
 		}
 
 		private void myToolTip_Load(object sender, EventArgs e)
